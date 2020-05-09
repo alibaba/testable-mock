@@ -30,7 +30,6 @@
 
     <build>
         <plugins>
-            <!--compiler plugin -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -39,7 +38,6 @@
                     <source>${project.compiler.level}</source>
                     <target>${project.compiler.level}</target>
                     <encoding>${project.build.sourceEncoding}</encoding>
-                    <!--指定为不编译-->
                     <compilerArgument>-proc:none</compilerArgument>
                 </configuration>
             </plugin>
