@@ -16,7 +16,7 @@ public class TestableInjectProcessor extends BaseProcessor {
 
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
-        System.out.println("Enter TestableInjectProcessor !");
+        info("Enter TestableInjectProcessor !");
         return true;
     }
 

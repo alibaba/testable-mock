@@ -20,6 +20,11 @@
 
     <dependencies>
         <dependency>
+            <groupId>com.squareup</groupId>
+            <artifactId>javapoet</artifactId>
+            <version>1.12.1</version>
+        </dependency>
+        <dependency>
             <groupId>sun.jdk</groupId>
             <artifactId>tools</artifactId>
             <version>${java.version}</version>

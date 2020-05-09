@@ -10,6 +10,9 @@ import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.Filer;
 import javax.annotation.processing.Messager;
 import javax.annotation.processing.ProcessingEnvironment;
+import javax.lang.model.util.Elements;
+import javax.lang.model.util.Types;
+import javax.tools.Diagnostic;
 
 /**
  * @author flin
@@ -19,12 +22,22 @@ public abstract class BaseProcessor extends AbstractProcessor {
     /**
      * Messager used for printing log during compilation
      */
-    protected Messager messager;
+    private Messager messager;
 
     /**
      * Filer used for generate source file
      */
     protected Filer filter;
+
+    /**
+     * Elements used for operator element
+     */
+    protected Elements elementUtils;
+
+    /**
+     * Types used for operator type
+     */
+    protected Types typeUtils;
 
     /**
      * JavacTrees provide the source AST
@@ -47,9 +60,22 @@ public abstract class BaseProcessor extends AbstractProcessor {
         Context context = ((JavacProcessingEnvironment)processingEnv).getContext();
         messager = processingEnv.getMessager();
         filter = processingEnv.getFiler();
+        elementUtils = processingEnv.getElementUtils();
+        typeUtils = processingEnv.getTypeUtils();
         trees = JavacTrees.instance(processingEnv);
         treeMaker = TreeMaker.instance(context);
         names = Names.instance(context);
     }
 
+    protected void info(String msg) {
+        System.out.println("[INFO] " + msg);
+    }
+
+    protected void warn(String msg) {
+        messager.printMessage(Diagnostic.Kind.MANDATORY_WARNING, msg);
+    }
+
+    protected void error(String msg) {
+        messager.printMessage(Diagnostic.Kind.ERROR, msg);
+    }
 }
