@@ -1,9 +1,11 @@
 package com.alibaba.testable.processor;
 
 import com.alibaba.testable.annotation.Testable;
-import com.squareup.javapoet.JavaFile;
-import com.squareup.javapoet.MethodSpec;
-import com.squareup.javapoet.TypeSpec;
+import com.alibaba.testable.translator.TestableTreeTranslator;
+import com.alibaba.testable.util.ConstPool;
+import com.squareup.javapoet.*;
+import com.sun.tools.javac.code.Type;
+import com.sun.tools.javac.tree.JCTree;
 
 import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
@@ -15,6 +17,8 @@ import javax.lang.model.element.TypeElement;
 import javax.tools.JavaFileObject;
 import java.io.IOException;
 import java.io.Writer;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -45,28 +49,48 @@ public class TestableProcessor extends BaseProcessor {
     }
 
     private String createTestableClass(Element classElement, String packageName, String className) {
-        MethodSpec main = MethodSpec.methodBuilder("main")
-            .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
-            .returns(void.class)
-            .addParameter(String[].class, "args")
-            .addStatement("$T.out.println($S)", System.class, "Hello, Testable !")
-            .build();
 
-        MethodSpec constructor = MethodSpec.constructorBuilder()
+        JCTree tree = trees.getTree(classElement);
+        TestableTreeTranslator translator = new TestableTreeTranslator();
+        tree.accept(translator);
+
+        List<MethodSpec> methodSpecs = new ArrayList<>();
+        for (JCTree.JCMethodDecl method : translator.getMethods()) {
+            if (method.name.toString().equals(ConstPool.CONSTRUCTOR_NAME)) {
+                MethodSpec.Builder builder = MethodSpec.constructorBuilder()
+                    .addModifiers(Modifier.PUBLIC);
+                for (JCTree.JCVariableDecl p : method.getParameters()) {
+                    builder.addParameter(getParameterSpec(p.type));
+                }
+                methodSpecs.add(builder.build());
+            } else {
+                MethodSpec.Builder builder = MethodSpec.methodBuilder(method.name.toString())
+                    .addModifiers(method.getModifiers().getFlags())
+                    .addModifiers(Modifier.PUBLIC)
+                    .returns(method.restype.getClass());
+                for (JCTree.JCVariableDecl p : method.getParameters()) {
+                    builder.addParameter(getParameterSpec(p.type));
+                }
+                builder.addStatement("$T.out.println($S)", System.class, "Hello, Testable !");
+                methodSpecs.add(builder.build());
+            }
+        }
+
+        TypeSpec.Builder builder = TypeSpec.classBuilder(className)
+            .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+            .superclass(classElement.asType());
+        for (MethodSpec m : methodSpecs) {
+            builder.addMethod(m);
+        }
+        TypeSpec testableClass = builder.build();
+        JavaFile javaFile = JavaFile.builder(packageName, testableClass).build();
+        return javaFile.toString();
+    }
+
+    private ParameterSpec getParameterSpec(Type type) {
+        return ParameterSpec.builder(String.class, "placeholder")
             .addModifiers(Modifier.PUBLIC)
             .build();
-
-        TypeSpec testableClass = TypeSpec.classBuilder(className)
-            .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-            .superclass(classElement.asType())
-            .addMethod(constructor)
-            .addMethod(main)
-            .build();
-
-        JavaFile javaFile = JavaFile.builder(packageName, testableClass)
-            .build();
-
-        return javaFile.toString();
     }
 
 }
