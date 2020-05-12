@@ -18,6 +18,7 @@ import javax.tools.JavaFileObject;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -55,25 +56,38 @@ public class TestableProcessor extends BaseProcessor {
 
         List<MethodSpec> methodSpecs = new ArrayList<>();
         for (JCTree.JCMethodDecl method : translator.getMethods()) {
+            if (method.getModifiers().getFlags().contains(Modifier.ABSTRACT)) {
+                continue;
+            }
             if (method.name.toString().equals(ConstPool.CONSTRUCTOR_NAME)) {
                 MethodSpec.Builder builder = MethodSpec.constructorBuilder()
                     .addModifiers(Modifier.PUBLIC);
                 for (JCTree.JCVariableDecl p : method.getParameters()) {
                     builder.addParameter(getParameterSpec(p));
                 }
-                CallSuperMethod callSuperMethod = new CallSuperMethod(method).invoke();
+                CallSuperMethod callSuperMethod = new CallSuperMethod(classElement.getSimpleName().toString(), method).invoke();
                 builder.addStatement(callSuperMethod.getStatement(), callSuperMethod.getParams());
                 methodSpecs.add(builder.build());
             } else {
                 MethodSpec.Builder builder = MethodSpec.methodBuilder(method.name.toString())
-                    .addModifiers(method.getModifiers().getFlags())
-                    .addModifiers(Modifier.PUBLIC)
+                    .addModifiers(toPublicFlags(method.getModifiers()))
                     .returns(TypeName.get(((Type.MethodType)method.sym.type).restype));
                 for (JCTree.JCVariableDecl p : method.getParameters()) {
                     builder.addParameter(getParameterSpec(p));
                 }
-                CallSuperMethod callSuperMethod = new CallSuperMethod(method).invoke();
-                String statement = method.restype == null ? callSuperMethod.getStatement() : "return " + callSuperMethod.getStatement();
+                CallSuperMethod callSuperMethod = new CallSuperMethod(classElement.getSimpleName().toString(), method).invoke();
+                String statement = callSuperMethod.getStatement();
+                if (!method.restype.toString().equals(ConstPool.CONSTRUCTOR_VOID)) {
+                    statement = "return " + statement;
+                }
+                if (method.getModifiers().getFlags().contains(Modifier.PRIVATE)) {
+                    builder.addException(Exception.class);
+                } else {
+                    builder.addAnnotation(Override.class);
+                    for (JCTree.JCExpression exception : method.getThrows()) {
+                        builder.addException(TypeName.get(exception.type));
+                    }
+                }
                 builder.addStatement(statement, callSuperMethod.getParams());
                 methodSpecs.add(builder.build());
             }
@@ -88,6 +102,14 @@ public class TestableProcessor extends BaseProcessor {
         TypeSpec testableClass = builder.build();
         JavaFile javaFile = JavaFile.builder(packageName, testableClass).build();
         return javaFile.toString();
+    }
+
+    private Set<Modifier> toPublicFlags(JCTree.JCModifiers modifiers) {
+        Set<Modifier> flags = new HashSet<>(modifiers.getFlags());
+        flags.remove(Modifier.PRIVATE);
+        flags.remove(Modifier.PROTECTED);
+        flags.add(Modifier.PUBLIC);
+        return flags;
     }
 
     private ParameterSpec getParameterSpec(JCTree.JCVariableDecl type) {
