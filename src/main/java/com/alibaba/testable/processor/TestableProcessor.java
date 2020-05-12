@@ -35,7 +35,6 @@ public class TestableProcessor extends BaseProcessor {
             String packageName = elementUtils.getPackageOf(classElement).getQualifiedName().toString();
             String testableTypeName = classElement.getSimpleName().toString().replace(".", "_") + "Testable";
             String fullQualityTypeName =  packageName + "." + testableTypeName;
-            info(">>> generating: " + fullQualityTypeName);
             try {
                 JavaFileObject jfo = filter.createSourceFile(fullQualityTypeName);
                 Writer writer = jfo.openWriter();
@@ -60,18 +59,22 @@ public class TestableProcessor extends BaseProcessor {
                 MethodSpec.Builder builder = MethodSpec.constructorBuilder()
                     .addModifiers(Modifier.PUBLIC);
                 for (JCTree.JCVariableDecl p : method.getParameters()) {
-                    builder.addParameter(getParameterSpec(p.type));
+                    builder.addParameter(getParameterSpec(p));
                 }
+                CallSuperMethod callSuperMethod = new CallSuperMethod(method).invoke();
+                builder.addStatement(callSuperMethod.getStatement(), callSuperMethod.getParams());
                 methodSpecs.add(builder.build());
             } else {
                 MethodSpec.Builder builder = MethodSpec.methodBuilder(method.name.toString())
                     .addModifiers(method.getModifiers().getFlags())
                     .addModifiers(Modifier.PUBLIC)
-                    .returns(method.restype.getClass());
+                    .returns(TypeName.get(((Type.MethodType)method.sym.type).restype));
                 for (JCTree.JCVariableDecl p : method.getParameters()) {
-                    builder.addParameter(getParameterSpec(p.type));
+                    builder.addParameter(getParameterSpec(p));
                 }
-                builder.addStatement("$T.out.println($S)", System.class, "Hello, Testable !");
+                CallSuperMethod callSuperMethod = new CallSuperMethod(method).invoke();
+                String statement = method.restype == null ? callSuperMethod.getStatement() : "return " + callSuperMethod.getStatement();
+                builder.addStatement(statement, callSuperMethod.getParams());
                 methodSpecs.add(builder.build());
             }
         }
@@ -87,10 +90,8 @@ public class TestableProcessor extends BaseProcessor {
         return javaFile.toString();
     }
 
-    private ParameterSpec getParameterSpec(Type type) {
-        return ParameterSpec.builder(String.class, "placeholder")
-            .addModifiers(Modifier.PUBLIC)
-            .build();
+    private ParameterSpec getParameterSpec(JCTree.JCVariableDecl type) {
+        return ParameterSpec.builder(TypeName.get(type.sym.type), type.name.toString()).build();
     }
 
 }
