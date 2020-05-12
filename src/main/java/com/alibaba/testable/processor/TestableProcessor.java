@@ -1,6 +1,7 @@
 package com.alibaba.testable.processor;
 
 import com.alibaba.testable.annotation.Testable;
+import com.alibaba.testable.generator.CallSuperMethod;
 import com.alibaba.testable.translator.TestableTreeTranslator;
 import com.alibaba.testable.util.ConstPool;
 import com.squareup.javapoet.*;
