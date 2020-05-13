@@ -14,7 +14,7 @@ import java.util.List;
  *
  * @author flin
  */
-public class CallSuperMethodStatementGenerator {
+public class CallSuperMethodStatement {
 
     public Statement[] fetch(String className, JCTree.JCMethodDecl method) {
         if (method.getModifiers().getFlags().contains(Modifier.PRIVATE)) {

@@ -34,6 +34,7 @@ public class TestableClassGenerator {
         tree.accept(translator);
 
         List<MethodSpec> methodSpecs = new ArrayList<>();
+        methodSpecs.add(buildStaticNewMethod(clazz));
         for (JCTree.JCMethodDecl method : translator.getMethods()) {
             if (isNoncallableMethod(method)) {
                 continue;
@@ -56,6 +57,28 @@ public class TestableClassGenerator {
         return javaFile.toString();
     }
 
+    private MethodSpec buildStaticNewMethod(Element clazz) {
+        TypeVariableName typeVariable = TypeVariableName.get("T");
+        MethodSpec.Builder builder = MethodSpec.methodBuilder("New")
+            .addModifiers(Modifier.PUBLIC).addModifiers(Modifier.STATIC)
+            .addException(Exception.class)
+            .addTypeVariable(typeVariable)
+            .varargs(true)
+            .addParameter(ParameterizedTypeName.get(ClassName.get(Class.class), typeVariable), "type")
+            .addParameter(ArrayTypeName.of(Object.class), "args")
+            .returns(typeVariable);
+        addStaticNewMethodStatement(builder);
+        return builder.build();
+    }
+
+    private void addStaticNewMethodStatement(MethodSpec.Builder builder) {
+        builder.addStatement("$T<$T> pts = new $T<>()", List.class, Class.class, ArrayList.class)
+            .beginControlFlow("for (Object o : args)")
+            .addStatement("pts.add(o.getClass())")
+            .endControlFlow()
+            .addStatement("return type.getConstructor(pts.toArray(new Class[0])).newInstance(args)");
+    }
+
     private MethodSpec buildMemberMethod(Element classElement, JCTree.JCMethodDecl method) {
         MethodSpec.Builder builder = MethodSpec.methodBuilder(method.name.toString())
             .addModifiers(toPublicFlags(method.getModifiers()))
@@ -71,7 +94,7 @@ public class TestableClassGenerator {
                 builder.addException(TypeName.get(exception.type));
             }
         }
-        addStatements(builder, classElement, method);
+        addCallSuperStatements(builder, classElement, method);
         return builder.build();
     }
 
@@ -81,13 +104,13 @@ public class TestableClassGenerator {
         for (JCTree.JCVariableDecl p : method.getParameters()) {
             builder.addParameter(getParameterSpec(p));
         }
-        addStatements(builder, classElement, method);
+        addCallSuperStatements(builder, classElement, method);
         return builder.build();
     }
 
-    private void addStatements(MethodSpec.Builder builder, Element classElement, JCTree.JCMethodDecl method) {
+    private void addCallSuperStatements(MethodSpec.Builder builder, Element classElement, JCTree.JCMethodDecl method) {
         String className = classElement.getSimpleName().toString();
-        Statement[] statements = new CallSuperMethodStatementGenerator().fetch(className, method);
+        Statement[] statements = new CallSuperMethodStatement().fetch(className, method);
         for (Statement s : statements) {
             builder.addStatement(s.getLine(), s.getParams());
         }
