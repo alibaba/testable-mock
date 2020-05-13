@@ -12,7 +12,7 @@ import java.lang.reflect.Modifier;
  *
  * @author flin
  */
-public class TestableTreeTranslator extends TreeTranslator {
+public class TestableClassTranslator extends TreeTranslator {
 
     /**
      * Methods to inject
