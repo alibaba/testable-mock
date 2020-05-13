@@ -14,25 +14,17 @@ import java.util.List;
  *
  * @author flin
  */
-public class CallSuperMethod {
+public class CallSuperMethodStatementGenerator {
 
-    private final String className;
-    private final JCTree.JCMethodDecl method;
-
-    public CallSuperMethod(String className, JCTree.JCMethodDecl method) {
-        this.className = className;
-        this.method = method;
-    }
-
-    public Statement[] invoke() {
+    public Statement[] fetch(String className, JCTree.JCMethodDecl method) {
         if (method.getModifiers().getFlags().contains(Modifier.PRIVATE)) {
-            return reflectCall();
+            return reflectCall(className, method);
         } else {
-            return commonCall();
+            return commonCall(method);
         }
     }
 
-    private Statement[] commonCall() {
+    private Statement[] commonCall(JCTree.JCMethodDecl method) {
         List<Object> args = new ArrayList<>();
         StringBuilder code = new StringBuilder();
         List<String> placeholders = new ArrayList<>();
@@ -45,25 +37,25 @@ public class CallSuperMethod {
             code.append(".").append(method.name);
         }
         code.append("(").append(StringUtil.join(placeholders, ", ")).append(")");
-        return new Statement[] { returnStatement(new Statement(code.toString(), args.toArray())) };
+        return new Statement[] { returnStatement(method, new Statement(code.toString(), args.toArray())) };
     }
 
-    private Statement[] reflectCall() {
+    private Statement[] reflectCall(String className, JCTree.JCMethodDecl method) {
         List<Statement> statements = new ArrayList<>();
-        statements.add(getMethodStatement());
+        statements.add(getMethodStatement(className, method));
         statements.add(setAccessibleStatement());
-        statements.add(returnStatement(invokeStatement()));
+        statements.add(returnStatement(method, invokeStatement(method)));
         return statements.toArray(new Statement[0]);
     }
 
-    private Statement returnStatement(Statement statement) {
-        if (method.restype != null && !method.restype.toString().equals(ConstPool.CONSTRUCTOR_VOID)) {
+    private Statement returnStatement(JCTree.JCMethodDecl method, Statement statement) {
+        if (method.restype != null && !method.restype.toString().equals(ConstPool.TYPE_VOID)) {
             statement.setLine("return " + statement.getLine());
         }
         return statement;
     }
 
-    private Statement getMethodStatement() {
+    private Statement getMethodStatement(String className, JCTree.JCMethodDecl method) {
         List<Object> args = new ArrayList<>();
         StringBuilder code = new StringBuilder();
         code.append("$T m = ");
@@ -81,9 +73,9 @@ public class CallSuperMethod {
         return new Statement("m.setAccessible(true)", new Object[0]);
     }
 
-    private Statement invokeStatement() {
+    private Statement invokeStatement(JCTree.JCMethodDecl method) {
         StringBuilder code = new StringBuilder();
-        if (!method.restype.toString().equals(ConstPool.CONSTRUCTOR_VOID)) {
+        if (!method.restype.toString().equals(ConstPool.TYPE_VOID)) {
             code.append("(").append(method.restype).append(")");
         }
         code.append("m.invoke(this");

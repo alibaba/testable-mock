@@ -1,5 +1,6 @@
 package com.alibaba.testable.translator;
 
+import com.alibaba.testable.util.ConstPool;
 import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.tree.TreeMaker;
 import com.sun.tools.javac.tree.TreeTranslator;
@@ -30,7 +31,7 @@ public class TestableFieldTranslator extends TreeTranslator {
 
     private JCTree.JCIdent getTestableClassIdent(JCTree.JCExpression clazz) {
         Name className = ((JCTree.JCIdent)clazz).name;
-        return treeMaker.Ident(className.table.fromString(className + "Testable"));
+        return treeMaker.Ident(className.table.fromString(className + ConstPool.TESTABLE));
     }
 
 }
