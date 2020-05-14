@@ -7,6 +7,7 @@ import com.alibaba.testable.translator.TestableFieldTranslator;
 import com.alibaba.testable.util.ConstPool;
 import com.sun.tools.javac.tree.JCTree;
 
+import javax.annotation.processing.FilerException;
 import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.annotation.processing.SupportedSourceVersion;
@@ -47,13 +48,23 @@ public class TestableProcessor extends BaseProcessor {
     }
 
     private void createStaticNewClass() {
+        if (!isStaticNewClassExist()) {
+            try {
+                writeSourceFile(ConstPool.SN_PKG + "." + ConstPool.SN_CLS, new StaticNewClassGenerator().fetch());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private boolean isStaticNewClassExist() {
         try {
             FileObject staticNewClassFile = filter.getResource(SOURCE_OUTPUT, ConstPool.SN_PKG, ConstPool.SN_CLS + JAVA_POSTFIX);
-            if (!staticNewClassFile.getName().contains(GENERATED_TEST_SOURCES) && staticNewClassFile.getLastModified() == 0) {
-                writeSourceFile(ConstPool.SN_PKG + "." + ConstPool.SN_CLS, new StaticNewClassGenerator().fetch());
-            }
+            return staticNewClassFile.getName().contains(GENERATED_TEST_SOURCES) || staticNewClassFile.getLastModified() > 0;
+        } catch (FilerException e) {
+            return true;
         } catch (IOException e) {
-            e.printStackTrace();
+            return false;
         }
     }
 
