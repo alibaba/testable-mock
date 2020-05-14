@@ -11,5 +11,5 @@ public final class ConstPool {
     public static final String SN_PKG = "n";
     public static final String SN_CLS = "e";
     public static final String SN_METHOD = "w";
-
+    public static final String SN_PKG_CLS = "n.e";
 }
