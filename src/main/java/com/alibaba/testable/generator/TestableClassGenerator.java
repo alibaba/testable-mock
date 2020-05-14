@@ -7,6 +7,7 @@ import com.squareup.javapoet.*;
 import com.sun.tools.javac.api.JavacTrees;
 import com.sun.tools.javac.code.Type;
 import com.sun.tools.javac.tree.JCTree;
+import com.sun.tools.javac.tree.TreeMaker;
 
 import javax.lang.model.element.Element;
 import javax.lang.model.element.Modifier;
@@ -23,18 +24,19 @@ import java.util.Set;
 public class TestableClassGenerator {
 
     private final JavacTrees trees;
+    private final TreeMaker treeMaker;
 
-    public TestableClassGenerator(JavacTrees trees) {
+    public TestableClassGenerator(JavacTrees trees, TreeMaker treeMaker) {
         this.trees = trees;
+        this.treeMaker = treeMaker;
     }
 
     public String fetch(Element clazz, String packageName, String className) {
         JCTree tree = trees.getTree(clazz);
-        TestableClassTranslator translator = new TestableClassTranslator();
+        TestableClassTranslator translator = new TestableClassTranslator(treeMaker);
         tree.accept(translator);
 
         List<MethodSpec> methodSpecs = new ArrayList<>();
-        methodSpecs.add(buildStaticNewMethod(clazz));
         for (JCTree.JCMethodDecl method : translator.getMethods()) {
             if (isNoncallableMethod(method)) {
                 continue;
@@ -55,28 +57,6 @@ public class TestableClassGenerator {
         TypeSpec testableClass = builder.build();
         JavaFile javaFile = JavaFile.builder(packageName, testableClass).build();
         return javaFile.toString();
-    }
-
-    private MethodSpec buildStaticNewMethod(Element clazz) {
-        TypeVariableName typeVariable = TypeVariableName.get("T");
-        MethodSpec.Builder builder = MethodSpec.methodBuilder("New")
-            .addModifiers(Modifier.PUBLIC).addModifiers(Modifier.STATIC)
-            .addException(Exception.class)
-            .addTypeVariable(typeVariable)
-            .varargs(true)
-            .addParameter(ParameterizedTypeName.get(ClassName.get(Class.class), typeVariable), "type")
-            .addParameter(ArrayTypeName.of(Object.class), "args")
-            .returns(typeVariable);
-        addStaticNewMethodStatement(builder);
-        return builder.build();
-    }
-
-    private void addStaticNewMethodStatement(MethodSpec.Builder builder) {
-        builder.addStatement("$T<$T> pts = new $T<>()", List.class, Class.class, ArrayList.class)
-            .beginControlFlow("for (Object o : args)")
-            .addStatement("pts.add(o.getClass())")
-            .endControlFlow()
-            .addStatement("return type.getConstructor(pts.toArray(new Class[0])).newInstance(args)");
     }
 
     private MethodSpec buildMemberMethod(Element classElement, JCTree.JCMethodDecl method) {
