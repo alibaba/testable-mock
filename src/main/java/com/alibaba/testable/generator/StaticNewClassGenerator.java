@@ -42,7 +42,11 @@ public class StaticNewClassGenerator {
             .beginControlFlow("for (Object o : args)")
             .addStatement("pts.add(o.getClass())")
             .endControlFlow()
-            .addStatement("return type.getConstructor(pts.toArray(new Class[0])).newInstance(args)");
+            .beginControlFlow("try")
+            .addStatement("return type.getConstructor(pts.toArray(new Class[0])).newInstance(args)")
+            .nextControlFlow("catch (Exception e)")
+            .addStatement("return null")
+            .endControlFlow();
     }
 
 }
