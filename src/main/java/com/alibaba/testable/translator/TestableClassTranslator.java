@@ -41,41 +41,95 @@ public class TestableClassTranslator extends TreeTranslator {
         jcClassDecl.mods.flags = jcClassDecl.mods.flags & (~Modifier.FINAL);
     }
 
+    /**
+     * record all methods
+     */
     @Override
     public void visitMethodDef(JCMethodDecl jcMethodDecl) {
         super.visitMethodDef(jcMethodDecl);
         methods = methods.append(jcMethodDecl);
     }
 
+    /**
+     * case: new Demo()
+     */
     @Override
     public void visitExec(JCTree.JCExpressionStatement jcExpressionStatement) {
-        if (jcExpressionStatement.expr.getClass().equals(JCTree.JCNewClass.class)) {
-            JCTree.JCNewClass newClassExpr = (JCTree.JCNewClass)jcExpressionStatement.expr;
-            Name className = ((JCTree.JCIdent)newClassExpr.clazz).name;
-            Name.Table nameTable = className.table;
-            try {
-                JCTree.JCExpression classType = new TestableFieldAccess(treeMaker.Ident(className),
-                    nameTable.fromString("class"), null);
-                ListBuffer<JCTree.JCExpression> args = ListBuffer.of(classType);
-                args.addAll(newClassExpr.args);
-                TestableFieldAccess ne = new TestableFieldAccess(treeMaker.Ident(nameTable.fromString(ConstPool.SN_PKG)),
-                    nameTable.fromString(ConstPool.SN_CLS), null);
-                jcExpressionStatement.expr = new TestableMethodInvocation(null,
-                    new TestableFieldAccess(ne, nameTable.fromString(ConstPool.SN_METHOD), null), args.toList());
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
+        jcExpressionStatement.expr = checkAndExchangeNewOperation(jcExpressionStatement.expr);
         super.visitExec(jcExpressionStatement);
     }
 
+    /**
+     * case: call(new Demo())
+     */
     @Override
     public void visitApply(JCTree.JCMethodInvocation tree) {
+        tree.args = checkAndExchangeNewOperation(tree.args);
         super.visitApply(tree);
+    }
+
+    /**
+     * case: Demo d = new Demo()
+     */
+    @Override
+    public void visitVarDef(JCTree.JCVariableDecl jcVariableDecl) {
+        jcVariableDecl.init = checkAndExchangeNewOperation(jcVariableDecl.init);
+        super.visitVarDef(jcVariableDecl);
+    }
+
+    /**
+     * case: new Demo().call()
+     */
+    @Override
+    public void visitSelect(JCTree.JCFieldAccess jcFieldAccess) {
+        jcFieldAccess.selected = checkAndExchangeNewOperation(jcFieldAccess.selected);
+        super.visitSelect(jcFieldAccess);
     }
 
     @Override
     public void visitNewClass(JCTree.JCNewClass jcNewClass) {
         super.visitNewClass(jcNewClass);
+    }
+
+    private List<JCTree.JCExpression> checkAndExchangeNewOperation(List<JCTree.JCExpression> args) {
+        if (args != null) {
+            JCTree.JCExpression[] es = new JCTree.JCExpression[args.length()];
+            for (int i = 0; i < args.length(); i++) {
+                es[i] = checkAndExchangeNewOperation(args.get(i));
+            }
+            return List.from(es);
+        }
+        return null;
+    }
+
+    private JCTree.JCExpression checkAndExchangeNewOperation(JCTree.JCExpression expr) {
+        if (isNewOperation(expr)) {
+            JCTree.JCNewClass newClassExpr = (JCTree.JCNewClass)expr;
+            Name className = ((JCTree.JCIdent)newClassExpr.clazz).name;
+            Name.Table nameTable = className.table;
+            try {
+                return getStaticNewCall(newClassExpr, className, nameTable);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return expr;
+    }
+
+    private boolean isNewOperation(JCTree.JCExpression expr) {
+        return expr != null && expr.getClass().equals(JCTree.JCNewClass.class);
+    }
+
+    private TestableMethodInvocation getStaticNewCall(JCTree.JCNewClass newClassExpr, Name className,
+                                                      Name.Table nameTable) {
+        TestableFieldAccess snClass = new TestableFieldAccess(treeMaker.Ident(nameTable.fromString(ConstPool.SN_PKG)),
+            nameTable.fromString(ConstPool.SN_CLS), null);
+        TestableFieldAccess snMethod = new TestableFieldAccess(snClass,
+            nameTable.fromString(ConstPool.SN_METHOD), null);
+        JCTree.JCExpression classType = new TestableFieldAccess(treeMaker.Ident(className),
+            nameTable.fromString("class"), null);
+        ListBuffer<JCTree.JCExpression> args = ListBuffer.of(classType);
+        args.addAll(newClassExpr.args);
+        return new TestableMethodInvocation(null, snMethod, args.toList());
     }
 }
