@@ -58,9 +58,10 @@ public class TestableClassTranslator extends TreeTranslator {
                     nameTable.fromString("class"), null);
                 ListBuffer<JCTree.JCExpression> args = ListBuffer.of(classType);
                 args.addAll(newClassExpr.args);
+                TestableFieldAccess ne = new TestableFieldAccess(treeMaker.Ident(nameTable.fromString(ConstPool.SN_PKG)),
+                    nameTable.fromString(ConstPool.SN_CLS), null);
                 jcExpressionStatement.expr = new TestableMethodInvocation(null,
-                    new TestableFieldAccess(treeMaker.Ident(nameTable.fromString(ConstPool.SN_PKG_CLS)),
-                        nameTable.fromString(ConstPool.SN_METHOD), null), args.toList());
+                    new TestableFieldAccess(ne, nameTable.fromString(ConstPool.SN_METHOD), null), args.toList());
             } catch (Exception e) {
                 e.printStackTrace();
             }

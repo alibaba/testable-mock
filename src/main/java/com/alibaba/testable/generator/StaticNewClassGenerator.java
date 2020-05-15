@@ -27,7 +27,6 @@ public class StaticNewClassGenerator {
         TypeVariableName typeVariable = TypeVariableName.get("T");
         MethodSpec.Builder builder = MethodSpec.methodBuilder(ConstPool.SN_METHOD)
             .addModifiers(Modifier.PUBLIC).addModifiers(Modifier.STATIC)
-            .addException(Exception.class)
             .addTypeVariable(typeVariable)
             .varargs(true)
             .addParameter(ParameterizedTypeName.get(ClassName.get(Class.class), typeVariable), "type")
