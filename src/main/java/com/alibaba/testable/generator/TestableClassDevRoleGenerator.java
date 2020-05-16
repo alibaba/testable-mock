@@ -1,6 +1,10 @@
 package com.alibaba.testable.generator;
 
 import com.alibaba.testable.generator.model.Statement;
+import com.alibaba.testable.generator.statement.CallSuperMethodStatementGenerator;
+import com.alibaba.testable.generator.statement.FieldGetterStatementGenerator;
+import com.alibaba.testable.generator.statement.FieldSetterStatementGenerator;
+import com.alibaba.testable.generator.statement.FieldStatementGenerator;
 import com.alibaba.testable.translator.TestableClassDevRoleTranslator;
 import com.alibaba.testable.util.ConstPool;
 import com.squareup.javapoet.*;
@@ -47,6 +51,10 @@ public class TestableClassDevRoleGenerator {
                 methodSpecs.add(buildMemberMethod(clazz, method));
             }
         }
+        for (JCTree.JCVariableDecl field : translator.getPrivateFields()) {
+            methodSpecs.add(buildFieldGetter(clazz, field));
+            methodSpecs.add(buildFieldSetter(clazz, field));
+        }
 
         TypeSpec.Builder builder = TypeSpec.classBuilder(className)
             .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
@@ -57,6 +65,29 @@ public class TestableClassDevRoleGenerator {
         TypeSpec testableClass = builder.build();
         JavaFile javaFile = JavaFile.builder(packageName, testableClass).build();
         return javaFile.toString();
+    }
+
+    private MethodSpec buildFieldGetter(Element classElement, JCTree.JCVariableDecl field) {
+        return buildFieldAccessor(classElement, field, "TestableGet",
+            TypeName.get(((Type.MethodType)field.type).restype), new FieldGetterStatementGenerator());
+    }
+
+    private MethodSpec buildFieldSetter(Element classElement, JCTree.JCVariableDecl field) {
+        return buildFieldAccessor(classElement, field, "TestableSet",
+            TypeName.VOID, new FieldSetterStatementGenerator());
+    }
+
+    private MethodSpec buildFieldAccessor(Element classElement, JCTree.JCVariableDecl field, String prefix,
+                                          TypeName returnType, FieldStatementGenerator generator) {
+        MethodSpec.Builder builder = MethodSpec.methodBuilder(field.name.toString() + prefix)
+            .addModifiers(Modifier.PUBLIC)
+            .returns(returnType);
+        String className = classElement.getSimpleName().toString();
+        Statement[] statements = generator.fetch(className, field);
+        for (Statement s : statements) {
+            builder.addStatement(s.getLine(), s.getParams());
+        }
+        return builder.build();
     }
 
     private MethodSpec buildMemberMethod(Element classElement, JCTree.JCMethodDecl method) {
@@ -79,8 +110,7 @@ public class TestableClassDevRoleGenerator {
     }
 
     private MethodSpec buildConstructorMethod(Element classElement, JCTree.JCMethodDecl method) {
-        MethodSpec.Builder builder = MethodSpec.constructorBuilder()
-            .addModifiers(Modifier.PUBLIC);
+        MethodSpec.Builder builder = MethodSpec.constructorBuilder().addModifiers(Modifier.PUBLIC);
         for (JCTree.JCVariableDecl p : method.getParameters()) {
             builder.addParameter(getParameterSpec(p));
         }

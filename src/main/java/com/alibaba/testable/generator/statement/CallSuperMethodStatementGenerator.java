@@ -1,4 +1,4 @@
-package com.alibaba.testable.generator;
+package com.alibaba.testable.generator.statement;
 
 import com.alibaba.testable.generator.model.Statement;
 import com.alibaba.testable.util.ConstPool;

@@ -91,9 +91,14 @@ public class TestableProcessor extends BaseProcessor {
         }
     }
 
-    private void processTestRoleClassElement(Element field) {
-        JCTree tree = trees.getTree(field);
-        tree.accept(new TestableClassTestRoleTranslator(treeMaker));
+    private void processTestRoleClassElement(Element clazz) {
+        JCTree tree = trees.getTree(clazz);
+        tree.accept(new TestableClassTestRoleTranslator(getOriginClassName(clazz), treeMaker));
+    }
+
+    private String getOriginClassName(Element clazz) {
+        String testClassName = clazz.getSimpleName().toString();
+        return testClassName.substring(0, testClassName.length() - "Test".length());
     }
 
     private void writeSourceFile(String fullQualityTypeName, String content) throws IOException {

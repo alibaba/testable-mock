@@ -27,8 +27,17 @@ public class TestableClassDevRoleTranslator extends TreeTranslator {
      */
     private List<JCMethodDecl> methods = List.nil();
 
+    /**
+     * Private field to mock
+     */
+    private List<JCTree.JCVariableDecl> fields = List.nil();
+
     public List<JCMethodDecl> getMethods() {
         return methods;
+    }
+
+    public List<JCTree.JCVariableDecl> getPrivateFields() {
+        return fields;
     }
 
     public TestableClassDevRoleTranslator(TreeMaker treeMaker) {
@@ -69,10 +78,14 @@ public class TestableClassDevRoleTranslator extends TreeTranslator {
     }
 
     /**
+     * record all private fields
      * case: Demo d = new Demo()
      */
     @Override
     public void visitVarDef(JCTree.JCVariableDecl jcVariableDecl) {
+        if (jcVariableDecl.mods.getFlags().contains(javax.lang.model.element.Modifier.PRIVATE)) {
+            fields.append(jcVariableDecl);
+        }
         jcVariableDecl.init = checkAndExchangeNewOperation(jcVariableDecl.init);
         super.visitVarDef(jcVariableDecl);
     }
@@ -89,6 +102,11 @@ public class TestableClassDevRoleTranslator extends TreeTranslator {
     @Override
     public void visitNewClass(JCTree.JCNewClass jcNewClass) {
         super.visitNewClass(jcNewClass);
+    }
+
+    @Override
+    public void visitNewArray(JCTree.JCNewArray jcNewArray) {
+        super.visitNewArray(jcNewArray);
     }
 
     private List<JCTree.JCExpression> checkAndExchangeNewOperation(List<JCTree.JCExpression> args) {
