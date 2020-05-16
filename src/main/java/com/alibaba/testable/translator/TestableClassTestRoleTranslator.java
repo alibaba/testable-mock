@@ -1,10 +1,13 @@
 package com.alibaba.testable.translator;
 
+import com.alibaba.testable.translator.tree.TestableFieldAccess;
+import com.alibaba.testable.translator.tree.TestableMethodInvocation;
 import com.alibaba.testable.util.ConstPool;
 import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.tree.TreeMaker;
 import com.sun.tools.javac.tree.TreeTranslator;
 import com.sun.tools.javac.util.Name;
+import com.sun.tools.javac.util.Names;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -18,13 +21,15 @@ import java.util.List;
 public class TestableClassTestRoleTranslator extends TreeTranslator {
 
     private TreeMaker treeMaker;
+    private Names names;
     private String sourceClassName;
     private List<Name> sourceClassIns = new ArrayList<>();
     private List<String> stubbornFields = new ArrayList<>();
 
-    public TestableClassTestRoleTranslator(String pkgName, String className, TreeMaker treeMaker) {
+    public TestableClassTestRoleTranslator(String pkgName, String className, TreeMaker treeMaker, Names names) {
         this.sourceClassName = className;
         this.treeMaker = treeMaker;
+        this.names = names;
         try {
             stubbornFields = Arrays.asList(
                 (String[])Class.forName(pkgName + "." + className + ConstPool.TESTABLE)
@@ -72,9 +77,18 @@ public class TestableClassTestRoleTranslator extends TreeTranslator {
     public void visitExec(JCTree.JCExpressionStatement jcExpressionStatement) {
         if (jcExpressionStatement.expr.getClass().equals(JCTree.JCAssign.class) &&
             isAssignStubbornField((JCTree.JCAssign)jcExpressionStatement.expr)) {
-            //jcExpressionStatement.expr =
+            JCTree.JCAssign assign = (JCTree.JCAssign)jcExpressionStatement.expr;
+            TestableFieldAccess stubbornSetter = new TestableFieldAccess(((JCTree.JCFieldAccess)assign.lhs).selected,
+                getStubbornSetterMethodName(assign), null);
+            jcExpressionStatement.expr = new TestableMethodInvocation(null, stubbornSetter,
+                com.sun.tools.javac.util.List.of(assign.rhs));
         }
         super.visitExec(jcExpressionStatement);
+    }
+
+    private Name getStubbornSetterMethodName(JCTree.JCAssign assign) {
+        String name = ((JCTree.JCFieldAccess)assign.lhs).name.toString() + ConstPool.TESTABLE_SET_METHOD_PREFIX;
+        return names.fromString(name);
     }
 
     private boolean isAssignStubbornField(JCTree.JCAssign expr) {
@@ -85,7 +99,7 @@ public class TestableClassTestRoleTranslator extends TreeTranslator {
 
     private JCTree.JCIdent getTestableClassIdent(JCTree.JCExpression clazz) {
         Name className = ((JCTree.JCIdent)clazz).name;
-        return treeMaker.Ident(className.table.fromString(className + ConstPool.TESTABLE));
+        return treeMaker.Ident(names.fromString(className + ConstPool.TESTABLE));
     }
 
 }

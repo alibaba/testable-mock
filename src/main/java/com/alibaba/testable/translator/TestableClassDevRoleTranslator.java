@@ -10,6 +10,7 @@ import com.sun.tools.javac.tree.TreeTranslator;
 import com.sun.tools.javac.util.List;
 import com.sun.tools.javac.util.ListBuffer;
 import com.sun.tools.javac.util.Name;
+import com.sun.tools.javac.util.Names;
 
 import java.lang.reflect.Modifier;
 
@@ -21,6 +22,7 @@ import java.lang.reflect.Modifier;
 public class TestableClassDevRoleTranslator extends TreeTranslator {
 
     private final TreeMaker treeMaker;
+    private final Names names;
 
     /**
      * Methods to inject
@@ -40,8 +42,9 @@ public class TestableClassDevRoleTranslator extends TreeTranslator {
         return fields;
     }
 
-    public TestableClassDevRoleTranslator(TreeMaker treeMaker) {
+    public TestableClassDevRoleTranslator(TreeMaker treeMaker, Names names) {
         this.treeMaker = treeMaker;
+        this.names = names;
     }
 
     @Override
@@ -135,9 +138,8 @@ public class TestableClassDevRoleTranslator extends TreeTranslator {
         if (isNewOperation(expr)) {
             JCTree.JCNewClass newClassExpr = (JCTree.JCNewClass)expr;
             Name className = ((JCTree.JCIdent)newClassExpr.clazz).name;
-            Name.Table nameTable = className.table;
             try {
-                return getStaticNewCall(newClassExpr, className, nameTable);
+                return getStaticNewCall(newClassExpr, className);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -149,14 +151,13 @@ public class TestableClassDevRoleTranslator extends TreeTranslator {
         return expr != null && expr.getClass().equals(JCTree.JCNewClass.class);
     }
 
-    private TestableMethodInvocation getStaticNewCall(JCTree.JCNewClass newClassExpr, Name className,
-                                                      Name.Table nameTable) {
-        TestableFieldAccess snClass = new TestableFieldAccess(treeMaker.Ident(nameTable.fromString(ConstPool.SN_PKG)),
-            nameTable.fromString(ConstPool.SN_CLS), null);
+    private TestableMethodInvocation getStaticNewCall(JCTree.JCNewClass newClassExpr, Name className) {
+        TestableFieldAccess snClass = new TestableFieldAccess(treeMaker.Ident(names.fromString(ConstPool.SN_PKG)),
+            names.fromString(ConstPool.SN_CLS), null);
         TestableFieldAccess snMethod = new TestableFieldAccess(snClass,
-            nameTable.fromString(ConstPool.SN_METHOD), null);
+            names.fromString(ConstPool.SN_METHOD), null);
         JCTree.JCExpression classType = new TestableFieldAccess(treeMaker.Ident(className),
-            nameTable.fromString("class"), null);
+            names.fromString("class"), null);
         ListBuffer<JCTree.JCExpression> args = ListBuffer.of(classType);
         args.addAll(newClassExpr.args);
         return new TestableMethodInvocation(null, snMethod, args.toList());

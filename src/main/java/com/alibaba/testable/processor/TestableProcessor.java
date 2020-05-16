@@ -86,7 +86,7 @@ public class TestableProcessor extends BaseProcessor {
         String fullQualityTypeName =  packageName + "." + testableTypeName;
         try {
             writeSourceFile(fullQualityTypeName,
-                new TestableClassDevRoleGenerator(trees, treeMaker).fetch(clazz, packageName, testableTypeName));
+                new TestableClassDevRoleGenerator(trees, treeMaker, names).fetch(clazz, packageName, testableTypeName));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -94,7 +94,7 @@ public class TestableProcessor extends BaseProcessor {
 
     private void processTestRoleClassElement(Symbol.ClassSymbol clazz) {
         JCTree tree = trees.getTree(clazz);
-        tree.accept(new TestableClassTestRoleTranslator(getPkgName(clazz), getOriginClassName(clazz), treeMaker));
+        tree.accept(new TestableClassTestRoleTranslator(getPkgName(clazz), getOriginClassName(clazz), treeMaker, names));
     }
 
     private String getPkgName(Symbol.ClassSymbol clazz) {

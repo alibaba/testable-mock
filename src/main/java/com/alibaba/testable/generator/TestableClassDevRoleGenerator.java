@@ -2,20 +2,20 @@ package com.alibaba.testable.generator;
 
 import com.alibaba.testable.generator.model.Statement;
 import com.alibaba.testable.generator.statement.CallSuperMethodStatementGenerator;
-import com.alibaba.testable.generator.statement.FieldGetterStatementGenerator;
-import com.alibaba.testable.generator.statement.FieldSetterStatementGenerator;
-import com.alibaba.testable.generator.statement.FieldStatementGenerator;
 import com.alibaba.testable.translator.TestableClassDevRoleTranslator;
 import com.alibaba.testable.util.ConstPool;
 import com.alibaba.testable.util.StringUtil;
 import com.squareup.javapoet.*;
 import com.sun.tools.javac.api.JavacTrees;
+import com.sun.tools.javac.code.Symbol;
 import com.sun.tools.javac.code.Type;
 import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.tree.TreeMaker;
+import com.sun.tools.javac.util.Names;
 
 import javax.lang.model.element.Element;
 import javax.lang.model.element.Modifier;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -30,15 +30,17 @@ public class TestableClassDevRoleGenerator {
 
     private final JavacTrees trees;
     private final TreeMaker treeMaker;
+    private final Names names;
 
-    public TestableClassDevRoleGenerator(JavacTrees trees, TreeMaker treeMaker) {
+    public TestableClassDevRoleGenerator(JavacTrees trees, TreeMaker treeMaker, Names names) {
         this.trees = trees;
         this.treeMaker = treeMaker;
+        this.names = names;
     }
 
-    public String fetch(Element clazz, String packageName, String className) {
+    public String fetch(Symbol.ClassSymbol clazz, String packageName, String className) {
         JCTree tree = trees.getTree(clazz);
-        TestableClassDevRoleTranslator translator = new TestableClassDevRoleTranslator(treeMaker);
+        TestableClassDevRoleTranslator translator = new TestableClassDevRoleTranslator(treeMaker, names);
         tree.accept(translator);
 
         List<MethodSpec> methodSpecs = new ArrayList<>();
@@ -81,27 +83,36 @@ public class TestableClassDevRoleGenerator {
             .build();
     }
 
-    private MethodSpec buildFieldGetter(Element classElement, JCTree.JCVariableDecl field) {
-        return buildFieldAccessor(classElement, field, "TestableGet",
-            TypeName.get(field.vartype.type), new FieldGetterStatementGenerator());
-    }
-
-    private MethodSpec buildFieldSetter(Element classElement, JCTree.JCVariableDecl field) {
-        return buildFieldAccessor(classElement, field, "TestableSet",
-            TypeName.VOID, new FieldSetterStatementGenerator());
-    }
-
-    private MethodSpec buildFieldAccessor(Element classElement, JCTree.JCVariableDecl field, String prefix,
-                                          TypeName returnType, FieldStatementGenerator generator) {
-        MethodSpec.Builder builder = MethodSpec.methodBuilder(field.name.toString() + prefix)
+    private MethodSpec buildFieldGetter(Symbol.ClassSymbol classElement, JCTree.JCVariableDecl field) {
+        String fieldName = field.name.toString();
+        return MethodSpec.methodBuilder(fieldName + ConstPool.TESTABLE_GET_METHOD_PREFIX)
             .addModifiers(Modifier.PUBLIC)
-            .returns(returnType);
-        String className = classElement.getSimpleName().toString();
-        Statement[] statements = generator.fetch(className, field);
-        for (Statement s : statements) {
-            builder.addStatement(s.getLine(), s.getParams());
-        }
-        return builder.build();
+            .returns(TypeName.get(field.vartype.type))
+            .beginControlFlow("try")
+            .addStatement("$T field = $T.class.getDeclaredField(\"$N\")", Field.class, classElement.type, fieldName)
+            .addStatement("field.setAccessible(true)")
+            .addStatement("return ($T)field.get(this)", field.vartype.type)
+            .nextControlFlow("catch ($T e)", Exception.class)
+            .addStatement("e.printStackTrace()")
+            .addStatement("return null")
+            .endControlFlow()
+            .build();
+    }
+
+    private MethodSpec buildFieldSetter(Symbol.ClassSymbol classElement, JCTree.JCVariableDecl field) {
+        String fieldName = field.name.toString();
+        return MethodSpec.methodBuilder(fieldName + ConstPool.TESTABLE_SET_METHOD_PREFIX)
+            .addModifiers(Modifier.PUBLIC)
+            .addParameter(getParameterSpec(field))
+            .returns(TypeName.VOID)
+            .beginControlFlow("try")
+            .addStatement("$T field = $T.class.getDeclaredField(\"$N\")", Field.class, classElement.type, fieldName)
+            .addStatement("field.setAccessible(true)")
+            .addStatement("field.set(this, $N)", fieldName)
+            .nextControlFlow("catch ($T e)", Exception.class)
+            .addStatement("e.printStackTrace()")
+            .endControlFlow()
+            .build();
     }
 
     private MethodSpec buildMemberMethod(Element classElement, JCTree.JCMethodDecl method) {

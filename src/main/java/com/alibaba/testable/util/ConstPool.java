@@ -13,5 +13,8 @@ public final class ConstPool {
     public static final String SN_METHOD = "w";
     public static final String SN_PKG_CLS = "n.e";
     public static final String STUBBORN_FIELD_METHOD = "stubbornField";
+    public static final String TESTABLE_GET_METHOD_PREFIX = "TestableGet";
+    public static final String TESTABLE_SET_METHOD_PREFIX = "TestableSet";
+
 
 }
