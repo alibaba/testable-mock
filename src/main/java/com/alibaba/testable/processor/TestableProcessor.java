@@ -5,6 +5,7 @@ import com.alibaba.testable.generator.StaticNewClassGenerator;
 import com.alibaba.testable.generator.TestableClassDevRoleGenerator;
 import com.alibaba.testable.translator.TestableClassTestRoleTranslator;
 import com.alibaba.testable.util.ConstPool;
+import com.sun.tools.javac.code.Symbol;
 import com.sun.tools.javac.tree.JCTree;
 
 import javax.annotation.processing.FilerException;
@@ -40,9 +41,9 @@ public class TestableProcessor extends BaseProcessor {
         for (Element element : elements) {
             if (element.getKind().isClass()) {
                 if (isTestClass(element.getSimpleName())) {
-                    processTestRoleClassElement(element);
+                    processTestRoleClassElement((Symbol.ClassSymbol)element);
                 } else {
-                    processDevRoleClassElement(element);
+                    processDevRoleClassElement((Symbol.ClassSymbol)element);
                 }
             }
         }
@@ -79,7 +80,7 @@ public class TestableProcessor extends BaseProcessor {
         return staticNewClassFile.getName().contains(GENERATED_TEST_SOURCES);
     }
 
-    private void processDevRoleClassElement(Element clazz) {
+    private void processDevRoleClassElement(Symbol.ClassSymbol clazz) {
         String packageName = elementUtils.getPackageOf(clazz).getQualifiedName().toString();
         String testableTypeName = getTestableClassName(clazz.getSimpleName());
         String fullQualityTypeName =  packageName + "." + testableTypeName;
@@ -91,12 +92,16 @@ public class TestableProcessor extends BaseProcessor {
         }
     }
 
-    private void processTestRoleClassElement(Element clazz) {
+    private void processTestRoleClassElement(Symbol.ClassSymbol clazz) {
         JCTree tree = trees.getTree(clazz);
-        tree.accept(new TestableClassTestRoleTranslator(getOriginClassName(clazz), treeMaker));
+        tree.accept(new TestableClassTestRoleTranslator(getPkgName(clazz), getOriginClassName(clazz), treeMaker));
     }
 
-    private String getOriginClassName(Element clazz) {
+    private String getPkgName(Symbol.ClassSymbol clazz) {
+        return ((Symbol.PackageSymbol)clazz.owner).fullname.toString();
+    }
+
+    private String getOriginClassName(Symbol.ClassSymbol clazz) {
         String testClassName = clazz.getSimpleName().toString();
         return testClassName.substring(0, testClassName.length() - "Test".length());
     }

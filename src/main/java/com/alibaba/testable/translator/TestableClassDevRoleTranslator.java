@@ -28,7 +28,7 @@ public class TestableClassDevRoleTranslator extends TreeTranslator {
     private List<JCMethodDecl> methods = List.nil();
 
     /**
-     * Private field to mock
+     * Fields to wrap
      */
     private List<JCTree.JCVariableDecl> fields = List.nil();
 
@@ -36,7 +36,7 @@ public class TestableClassDevRoleTranslator extends TreeTranslator {
         return methods;
     }
 
-    public List<JCTree.JCVariableDecl> getPrivateFields() {
+    public List<JCTree.JCVariableDecl> getFields() {
         return fields;
     }
 
@@ -51,7 +51,7 @@ public class TestableClassDevRoleTranslator extends TreeTranslator {
     }
 
     /**
-     * record all methods
+     * Record all methods
      */
     @Override
     public void visitMethodDef(JCMethodDecl jcMethodDecl) {
@@ -60,7 +60,7 @@ public class TestableClassDevRoleTranslator extends TreeTranslator {
     }
 
     /**
-     * case: new Demo()
+     * Case: new Demo()
      */
     @Override
     public void visitExec(JCTree.JCExpressionStatement jcExpressionStatement) {
@@ -69,7 +69,7 @@ public class TestableClassDevRoleTranslator extends TreeTranslator {
     }
 
     /**
-     * case: call(new Demo())
+     * Case: call(new Demo())
      */
     @Override
     public void visitApply(JCTree.JCMethodInvocation tree) {
@@ -78,20 +78,20 @@ public class TestableClassDevRoleTranslator extends TreeTranslator {
     }
 
     /**
-     * record all private fields
-     * case: Demo d = new Demo()
+     * Record all private fields
+     * Case: Demo d = new Demo()
      */
     @Override
     public void visitVarDef(JCTree.JCVariableDecl jcVariableDecl) {
-        if (jcVariableDecl.mods.getFlags().contains(javax.lang.model.element.Modifier.PRIVATE)) {
-            fields.append(jcVariableDecl);
+        if (isStubbornField(jcVariableDecl.mods)) {
+            fields = fields.append(jcVariableDecl);
         }
         jcVariableDecl.init = checkAndExchangeNewOperation(jcVariableDecl.init);
         super.visitVarDef(jcVariableDecl);
     }
 
     /**
-     * case: new Demo().call()
+     * Case: new Demo().call()
      */
     @Override
     public void visitSelect(JCTree.JCFieldAccess jcFieldAccess) {
@@ -99,14 +99,25 @@ public class TestableClassDevRoleTranslator extends TreeTranslator {
         super.visitSelect(jcFieldAccess);
     }
 
+    /**
+     * For break point
+     */
     @Override
     public void visitNewClass(JCTree.JCNewClass jcNewClass) {
         super.visitNewClass(jcNewClass);
     }
 
+    /**
+     * For break point
+     */
     @Override
     public void visitNewArray(JCTree.JCNewArray jcNewArray) {
         super.visitNewArray(jcNewArray);
+    }
+
+    private boolean isStubbornField(JCTree.JCModifiers mods) {
+        return mods.getFlags().contains(javax.lang.model.element.Modifier.PRIVATE) ||
+            mods.getFlags().contains(javax.lang.model.element.Modifier.FINAL);
     }
 
     private List<JCTree.JCExpression> checkAndExchangeNewOperation(List<JCTree.JCExpression> args) {

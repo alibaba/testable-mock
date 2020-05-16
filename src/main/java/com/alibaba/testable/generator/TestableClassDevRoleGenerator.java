@@ -7,6 +7,7 @@ import com.alibaba.testable.generator.statement.FieldSetterStatementGenerator;
 import com.alibaba.testable.generator.statement.FieldStatementGenerator;
 import com.alibaba.testable.translator.TestableClassDevRoleTranslator;
 import com.alibaba.testable.util.ConstPool;
+import com.alibaba.testable.util.StringUtil;
 import com.squareup.javapoet.*;
 import com.sun.tools.javac.api.JavacTrees;
 import com.sun.tools.javac.code.Type;
@@ -51,10 +52,11 @@ public class TestableClassDevRoleGenerator {
                 methodSpecs.add(buildMemberMethod(clazz, method));
             }
         }
-        for (JCTree.JCVariableDecl field : translator.getPrivateFields()) {
+        for (JCTree.JCVariableDecl field : translator.getFields()) {
             methodSpecs.add(buildFieldGetter(clazz, field));
             methodSpecs.add(buildFieldSetter(clazz, field));
         }
+        methodSpecs.add(buildStubbornFieldMethod(translator.getFields()));
 
         TypeSpec.Builder builder = TypeSpec.classBuilder(className)
             .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
@@ -67,9 +69,21 @@ public class TestableClassDevRoleGenerator {
         return javaFile.toString();
     }
 
+    private MethodSpec buildStubbornFieldMethod(List<JCTree.JCVariableDecl> fields) {
+        List<String> fieldNames = new ArrayList<>();
+        for (JCTree.JCVariableDecl f : fields)  {
+            fieldNames.add("\"" + f.name.toString() + "\"");
+        }
+        return MethodSpec.methodBuilder(ConstPool.STUBBORN_FIELD_METHOD)
+            .addModifiers(Modifier.PUBLIC).addModifiers(Modifier.STATIC)
+            .addStatement("return new $T[]{" + StringUtil.join(fieldNames, ",") + "}", String.class)
+            .returns(ArrayTypeName.of(String.class))
+            .build();
+    }
+
     private MethodSpec buildFieldGetter(Element classElement, JCTree.JCVariableDecl field) {
         return buildFieldAccessor(classElement, field, "TestableGet",
-            TypeName.get(((Type.MethodType)field.type).restype), new FieldGetterStatementGenerator());
+            TypeName.get(field.vartype.type), new FieldGetterStatementGenerator());
     }
 
     private MethodSpec buildFieldSetter(Element classElement, JCTree.JCVariableDecl field) {
