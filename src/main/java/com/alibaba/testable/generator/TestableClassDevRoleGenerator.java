@@ -1,7 +1,7 @@
 package com.alibaba.testable.generator;
 
 import com.alibaba.testable.generator.model.Statement;
-import com.alibaba.testable.translator.TestableClassTranslator;
+import com.alibaba.testable.translator.TestableClassDevRoleTranslator;
 import com.alibaba.testable.util.ConstPool;
 import com.squareup.javapoet.*;
 import com.sun.tools.javac.api.JavacTrees;
@@ -21,19 +21,19 @@ import java.util.Set;
  *
  * @author flin
  */
-public class TestableClassGenerator {
+public class TestableClassDevRoleGenerator {
 
     private final JavacTrees trees;
     private final TreeMaker treeMaker;
 
-    public TestableClassGenerator(JavacTrees trees, TreeMaker treeMaker) {
+    public TestableClassDevRoleGenerator(JavacTrees trees, TreeMaker treeMaker) {
         this.trees = trees;
         this.treeMaker = treeMaker;
     }
 
     public String fetch(Element clazz, String packageName, String className) {
         JCTree tree = trees.getTree(clazz);
-        TestableClassTranslator translator = new TestableClassTranslator(treeMaker);
+        TestableClassDevRoleTranslator translator = new TestableClassDevRoleTranslator(treeMaker);
         tree.accept(translator);
 
         List<MethodSpec> methodSpecs = new ArrayList<>();
@@ -90,7 +90,7 @@ public class TestableClassGenerator {
 
     private void addCallSuperStatements(MethodSpec.Builder builder, Element classElement, JCTree.JCMethodDecl method) {
         String className = classElement.getSimpleName().toString();
-        Statement[] statements = new CallSuperMethodStatement().fetch(className, method);
+        Statement[] statements = new CallSuperMethodStatementGenerator().fetch(className, method);
         for (Statement s : statements) {
             builder.addStatement(s.getLine(), s.getParams());
         }

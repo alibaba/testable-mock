@@ -11,11 +11,11 @@ import com.sun.tools.javac.util.Name;
  *
  * @author flin
  */
-public class TestableFieldTranslator extends TreeTranslator {
+public class TestableClassTestRoleTranslator extends TreeTranslator {
 
     private TreeMaker treeMaker;
 
-    public TestableFieldTranslator(TreeMaker treeMaker) {this.treeMaker = treeMaker;}
+    public TestableClassTestRoleTranslator(TreeMaker treeMaker) {this.treeMaker = treeMaker;}
 
     @Override
     public void visitVarDef(JCTree.JCVariableDecl decl) {

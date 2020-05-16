@@ -2,8 +2,8 @@ package com.alibaba.testable.processor;
 
 import com.alibaba.testable.annotation.Testable;
 import com.alibaba.testable.generator.StaticNewClassGenerator;
-import com.alibaba.testable.generator.TestableClassGenerator;
-import com.alibaba.testable.translator.TestableFieldTranslator;
+import com.alibaba.testable.generator.TestableClassDevRoleGenerator;
+import com.alibaba.testable.translator.TestableClassTestRoleTranslator;
 import com.alibaba.testable.util.ConstPool;
 import com.sun.tools.javac.tree.JCTree;
 
@@ -39,9 +39,11 @@ public class TestableProcessor extends BaseProcessor {
         createStaticNewClass();
         for (Element element : elements) {
             if (element.getKind().isClass()) {
-                processClassElement(element);
-            } else if (element.getKind().isField()) {
-                processFieldElement(element);
+                if (isTestClass(element.getSimpleName())) {
+                    processTestRoleClassElement(element);
+                } else {
+                    processDevRoleClassElement(element);
+                }
             }
         }
         return true;
@@ -69,25 +71,29 @@ public class TestableProcessor extends BaseProcessor {
         }
     }
 
+    private boolean isTestClass(Name name) {
+        return name.toString().endsWith("Test");
+    }
+
     private boolean isCompilingTestClass(FileObject staticNewClassFile) {
         return staticNewClassFile.getName().contains(GENERATED_TEST_SOURCES);
     }
 
-    private void processFieldElement(Element field) {
-        JCTree tree = trees.getTree(field);
-        tree.accept(new TestableFieldTranslator(treeMaker));
-    }
-
-    private void processClassElement(Element clazz) {
+    private void processDevRoleClassElement(Element clazz) {
         String packageName = elementUtils.getPackageOf(clazz).getQualifiedName().toString();
         String testableTypeName = getTestableClassName(clazz.getSimpleName());
         String fullQualityTypeName =  packageName + "." + testableTypeName;
         try {
             writeSourceFile(fullQualityTypeName,
-                new TestableClassGenerator(trees, treeMaker).fetch(clazz, packageName, testableTypeName));
+                new TestableClassDevRoleGenerator(trees, treeMaker).fetch(clazz, packageName, testableTypeName));
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private void processTestRoleClassElement(Element field) {
+        JCTree tree = trees.getTree(field);
+        tree.accept(new TestableClassTestRoleTranslator(treeMaker));
     }
 
     private void writeSourceFile(String fullQualityTypeName, String content) throws IOException {

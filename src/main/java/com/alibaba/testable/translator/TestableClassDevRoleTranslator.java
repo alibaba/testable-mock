@@ -18,7 +18,7 @@ import java.lang.reflect.Modifier;
  *
  * @author flin
  */
-public class TestableClassTranslator extends TreeTranslator {
+public class TestableClassDevRoleTranslator extends TreeTranslator {
 
     private final TreeMaker treeMaker;
 
@@ -31,7 +31,7 @@ public class TestableClassTranslator extends TreeTranslator {
         return methods;
     }
 
-    public TestableClassTranslator(TreeMaker treeMaker) {
+    public TestableClassDevRoleTranslator(TreeMaker treeMaker) {
         this.treeMaker = treeMaker;
     }
 

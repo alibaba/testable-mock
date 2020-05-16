@@ -8,7 +8,7 @@ import java.lang.annotation.*;
  * @author flin
  */
 @Retention(RetentionPolicy.SOURCE)
-@Target(ElementType.FIELD)
+@Target(ElementType.METHOD)
 @Documented
 public @interface TestableInject {
 }

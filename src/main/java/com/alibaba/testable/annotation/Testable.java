@@ -10,7 +10,7 @@ import java.lang.annotation.*;
  * @author flin
  */
 @Retention(RetentionPolicy.SOURCE)
-@Target({ElementType.TYPE, ElementType.METHOD, ElementType.FIELD})
+@Target(ElementType.TYPE)
 @Documented
 public @interface Testable {
 
