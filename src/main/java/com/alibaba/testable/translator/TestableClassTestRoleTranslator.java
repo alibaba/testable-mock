@@ -1,17 +1,16 @@
 package com.alibaba.testable.translator;
 
+import com.alibaba.testable.model.TestLibType;
 import com.alibaba.testable.translator.tree.TestableFieldAccess;
 import com.alibaba.testable.translator.tree.TestableMethodInvocation;
 import com.alibaba.testable.util.ConstPool;
+import com.sun.tools.javac.code.Type;
 import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.tree.TreeMaker;
 import com.sun.tools.javac.tree.TreeTranslator;
-import com.sun.tools.javac.util.Name;
-import com.sun.tools.javac.util.Names;
+import com.sun.tools.javac.util.*;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.lang.reflect.Modifier;
 
 /**
  * Travel AST
@@ -20,18 +19,24 @@ import java.util.List;
  */
 public class TestableClassTestRoleTranslator extends TreeTranslator {
 
+    private static final String ANNOTATION_TESTABLE_INJECT = "com.alibaba.testable.annotation.TestableInject";
+    private static final String ANNOTATION_JUNIT5_SETUP = "org.junit.jupiter.api.BeforeEach";
+    private static final String ANNOTATION_JUNIT5_TEST = "org.junit.jupiter.api.Test";
     private TreeMaker treeMaker;
     private Names names;
     private String sourceClassName;
-    private List<Name> sourceClassIns = new ArrayList<>();
-    private List<String> stubbornFields = new ArrayList<>();
+    private ListBuffer<Name> sourceClassIns = new ListBuffer();
+    private List<String> stubbornFields = List.nil();
+    private ListBuffer<Pair<Type, Pair<Name, List<Type>>>> injectMethods = new ListBuffer<>();
+    private String testSetupMethodName;
+    private TestLibType testLibType = TestLibType.JUnit4;
 
     public TestableClassTestRoleTranslator(String pkgName, String className, TreeMaker treeMaker, Names names) {
         this.sourceClassName = className;
         this.treeMaker = treeMaker;
         this.names = names;
         try {
-            stubbornFields = Arrays.asList(
+            stubbornFields = List.from(
                 (String[])Class.forName(pkgName + "." + className + ConstPool.TESTABLE)
                 .getMethod(ConstPool.STUBBORN_FIELD_METHOD)
                 .invoke(null));
@@ -57,6 +62,64 @@ public class TestableClassTestRoleTranslator extends TreeTranslator {
         }
     }
 
+    @Override
+    public void visitExec(JCTree.JCExpressionStatement jcExpressionStatement) {
+        if (jcExpressionStatement.expr.getClass().equals(JCTree.JCAssign.class) &&
+            isAssignStubbornField((JCTree.JCAssign)jcExpressionStatement.expr)) {
+            JCTree.JCAssign assign = (JCTree.JCAssign)jcExpressionStatement.expr;
+            // TODO: Use treeMaker.Apply() and treeMaker.Select()
+            TestableFieldAccess stubbornSetter = new TestableFieldAccess(((JCTree.JCFieldAccess)assign.lhs).selected,
+                getStubbornSetterMethodName(assign), null);
+            jcExpressionStatement.expr = new TestableMethodInvocation(null, stubbornSetter,
+                com.sun.tools.javac.util.List.of(assign.rhs));
+        }
+        super.visitExec(jcExpressionStatement);
+    }
+
+    @Override
+    public void visitMethodDef(JCTree.JCMethodDecl jcMethodDecl) {
+        for (JCTree.JCAnnotation a : jcMethodDecl.mods.annotations) {
+            switch (a.type.tsym.toString()) {
+                case ANNOTATION_TESTABLE_INJECT:
+                    ListBuffer<Type> args = new ListBuffer<>();
+                    for (JCTree.JCVariableDecl p : jcMethodDecl.params) {
+                        args.add(p.vartype.type);
+                    }
+                    injectMethods.add(Pair.of(jcMethodDecl.restype.type, Pair.of(jcMethodDecl.name, args.toList())));
+                    break;
+                case ANNOTATION_JUNIT5_SETUP:
+                    testSetupMethodName = jcMethodDecl.name.toString();
+                    jcMethodDecl.mods.annotations = removeAnnotation(jcMethodDecl.mods.annotations, ANNOTATION_JUNIT5_SETUP);
+                    break;
+                case ANNOTATION_JUNIT5_TEST:
+                    testLibType = TestLibType.JUnit5;
+                    break;
+                default:
+            }
+        }
+        super.visitMethodDef(jcMethodDecl);
+    }
+
+    @Override
+    public void visitClassDef(JCTree.JCClassDecl jcClassDecl) {
+        super.visitClassDef(jcClassDecl);
+        ListBuffer<JCTree> ndefs = new ListBuffer<>();
+        ndefs.addAll(jcClassDecl.defs);
+        JCTree.JCModifiers mods = treeMaker.Modifiers(Modifier.PUBLIC, makeAnnotations());
+        ndefs.add(treeMaker.MethodDef(mods, names.fromString("testableSetup"), null,
+            List.<JCTree.JCTypeParameter>nil(), List.<JCTree.JCVariableDecl>nil(), List.<JCTree.JCExpression>nil(),
+            testableSetupBlock(), null));
+        jcClassDecl.defs = ndefs.toList();
+    }
+
+    private List<JCTree.JCAnnotation> makeAnnotations() {
+        return List.nil();
+    }
+
+    private JCTree.JCBlock testableSetupBlock() {
+        return treeMaker.Block(0, List.<JCTree.JCStatement>nil());
+    }
+
     /**
      * For break point
      */
@@ -73,17 +136,15 @@ public class TestableClassTestRoleTranslator extends TreeTranslator {
         super.visitSelect(jcFieldAccess);
     }
 
-    @Override
-    public void visitExec(JCTree.JCExpressionStatement jcExpressionStatement) {
-        if (jcExpressionStatement.expr.getClass().equals(JCTree.JCAssign.class) &&
-            isAssignStubbornField((JCTree.JCAssign)jcExpressionStatement.expr)) {
-            JCTree.JCAssign assign = (JCTree.JCAssign)jcExpressionStatement.expr;
-            TestableFieldAccess stubbornSetter = new TestableFieldAccess(((JCTree.JCFieldAccess)assign.lhs).selected,
-                getStubbornSetterMethodName(assign), null);
-            jcExpressionStatement.expr = new TestableMethodInvocation(null, stubbornSetter,
-                com.sun.tools.javac.util.List.of(assign.rhs));
+    private List<JCTree.JCAnnotation> removeAnnotation(
+        List<JCTree.JCAnnotation> annotations, String target) {
+        ListBuffer<JCTree.JCAnnotation> nb = new ListBuffer<>();
+        for (JCTree.JCAnnotation i : annotations) {
+            if (!i.type.tsym.toString().equals(target)) {
+                nb.add(i);
+            }
         }
-        super.visitExec(jcExpressionStatement);
+        return nb.toList();
     }
 
     private Name getStubbornSetterMethodName(JCTree.JCAssign assign) {
