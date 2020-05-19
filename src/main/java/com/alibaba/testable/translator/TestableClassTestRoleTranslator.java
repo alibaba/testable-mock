@@ -106,14 +106,19 @@ public class TestableClassTestRoleTranslator extends TreeTranslator {
         ListBuffer<JCTree> ndefs = new ListBuffer<>();
         ndefs.addAll(jcClassDecl.defs);
         JCTree.JCModifiers mods = treeMaker.Modifiers(Modifier.PUBLIC, makeAnnotations());
-        ndefs.add(treeMaker.MethodDef(mods, names.fromString("testableSetup"), null,
+        ndefs.add(treeMaker.MethodDef(mods, names.fromString("testableSetup"), treeMaker.Type(new Type.JCVoidType()),
             List.<JCTree.JCTypeParameter>nil(), List.<JCTree.JCVariableDecl>nil(), List.<JCTree.JCExpression>nil(),
             testableSetupBlock(), null));
         jcClassDecl.defs = ndefs.toList();
     }
 
     private List<JCTree.JCAnnotation> makeAnnotations() {
-        return List.nil();
+        String[] elems = ANNOTATION_JUNIT5_TEST.split("\\.");
+        JCTree.JCExpression e = treeMaker.Ident(names.fromString(elems[0]));
+        for (int i = 1 ; i < elems.length ; i++) {
+            e = treeMaker.Select(e, names.fromString(elems[i]));
+        }
+        return List.of(treeMaker.Annotation(e, List.<JCTree.JCExpression>nil()));
     }
 
     private JCTree.JCBlock testableSetupBlock() {
