@@ -1,7 +1,10 @@
 package n;
 
+import com.sun.tools.javac.util.Pair;
+
 import java.lang.Class;
 import java.lang.Object;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.*;
 
@@ -18,7 +21,7 @@ public final class e {
 
     @Override
     public boolean equals(Object o) {
-      return o.getClass().equals(k.class) && c.equals(((k)o).c) && Arrays.equals(a, ((k)o).a);
+      return o.getClass().equals(e.k.class) && c.equals(((e.k)o).c) && Arrays.equals(a, ((e.k)o).a);
     }
 
     @Override
@@ -44,28 +47,83 @@ public final class e {
   }
 
   public static <T> T w(Class<T> ct, Object... as) {
-    Class[] cs = new Class[as.length / 2];
-    Object[] ps = new Object[as.length / 2];
+    Class[] cs = new Class[as.length];
     for (int i = 0; i < cs.length; i++) {
-      cs[i] = (Class)as[i];
+      cs[i] = as[i].getClass();
     }
-    System.arraycopy(as, ps.length, ps, 0, ps.length);
     if (!pool.isEmpty()) {
       try {
-        v p = pool.get(new k(ct, cs));
+        Pair<k, v> p = getFromPool(new k(ct, cs));
         if (p != null) {
-          Method m = p.o.getClass().getDeclaredMethod(p.m, cs);
+          Method m = p.snd.o.getClass().getDeclaredMethod(p.snd.m, p.fst.a);
           m.setAccessible(true);
-          return (T)m.invoke(p.o, ps);
+          return (T)m.invoke(p.snd.o, as);
         }
       } catch (Exception e) {
         return null;
       }
     }
     try {
-      return ct.getConstructor(cs).newInstance(ps);
+      Constructor c = getFromConstructors(ct.getConstructors(), cs);
+      if (c != null) {
+        return (T)c.newInstance(as);
+      }
     } catch (Exception e) {
       return null;
     }
+    return null;
   }
+
+  private static Constructor getFromConstructors(Constructor<?>[] constructors, Class[] cs) {
+    for (Constructor c : constructors) {
+      if (typeEquals(c.getParameterTypes(), cs)) {
+        return c;
+      }
+    }
+    return null;
+  }
+
+  private static Pair<k, v> getFromPool(k k1) {
+    for (k k2 : pool.keySet()) {
+      if (k1.c.equals(k2.c) && typeEquals(k2.a, k1.a)) {
+        return Pair.of(k2, pool.get(k2));
+      }
+    }
+    return null;
+  }
+
+  /**
+   * @param c1 fact types (can be primary type)
+   * @param c2 user types
+   */
+  private static boolean typeEquals(Class[] c1, Class[] c2) {
+    if (c1.length != c2.length) {
+      return false;
+    }
+    for (int i = 0; i < c1.length; i++) {
+      if (c1[i].equals(c2[i])) {
+        continue;
+      } else if (c1[i].equals(int.class) && c2[i].equals(Integer.class)) {
+        continue;
+      } else if (c1[i].equals(long.class) && c2[i].equals(Long.class)) {
+        continue;
+      } else if (c1[i].equals(short.class) && c2[i].equals(Short.class)) {
+        continue;
+      } else if (c1[i].equals(boolean.class) && c2[i].equals(Boolean.class)) {
+        continue;
+      } else if (c1[i].equals(char.class) && c2[i].equals(Character.class)) {
+        continue;
+      } else if (c1[i].equals(byte.class) && c2[i].equals(Byte.class)) {
+        continue;
+      } else if (c1[i].equals(float.class) && c2[i].equals(Float.class)) {
+        continue;
+      } else if (c1[i].equals(double.class) && c2[i].equals(Double.class)) {
+        continue;
+      } else {
+        return false;
+      }
+    }
+    return true;
+  }
+
 }
