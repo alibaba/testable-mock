@@ -2,16 +2,14 @@ package com.alibaba.testable.generator;
 
 import com.alibaba.testable.generator.model.Statement;
 import com.alibaba.testable.generator.statement.CallSuperMethodStatementGenerator;
+import com.alibaba.testable.model.TestableContext;
 import com.alibaba.testable.translator.TestableClassDevRoleTranslator;
 import com.alibaba.testable.util.ConstPool;
 import com.alibaba.testable.util.StringUtil;
 import com.squareup.javapoet.*;
-import com.sun.tools.javac.api.JavacTrees;
 import com.sun.tools.javac.code.Symbol;
 import com.sun.tools.javac.code.Type;
 import com.sun.tools.javac.tree.JCTree;
-import com.sun.tools.javac.tree.TreeMaker;
-import com.sun.tools.javac.util.Names;
 
 import javax.lang.model.element.Element;
 import javax.lang.model.element.Modifier;
@@ -28,19 +26,15 @@ import java.util.Set;
  */
 public class TestableClassDevRoleGenerator {
 
-    private final JavacTrees trees;
-    private final TreeMaker treeMaker;
-    private final Names names;
+    private final TestableContext cx;
 
-    public TestableClassDevRoleGenerator(JavacTrees trees, TreeMaker treeMaker, Names names) {
-        this.trees = trees;
-        this.treeMaker = treeMaker;
-        this.names = names;
+    public TestableClassDevRoleGenerator(TestableContext cx) {
+        this.cx = cx;
     }
 
     public String fetch(Symbol.ClassSymbol clazz, String packageName, String className) {
-        JCTree tree = trees.getTree(clazz);
-        TestableClassDevRoleTranslator translator = new TestableClassDevRoleTranslator(treeMaker, names);
+        JCTree tree = cx.trees.getTree(clazz);
+        TestableClassDevRoleTranslator translator = new TestableClassDevRoleTranslator(cx);
         tree.accept(translator);
 
         List<MethodSpec> methodSpecs = new ArrayList<>();

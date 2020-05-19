@@ -53,7 +53,7 @@ public class TestableProcessor extends BaseProcessor {
     private void createStaticNewClass() {
         if (!isStaticNewClassExist()) {
             try {
-                writeSourceFile(ConstPool.SN_PKG_CLS, new StaticNewClassGenerator().fetch());
+                writeSourceFile(ConstPool.SN_PKG_CLS, new StaticNewClassGenerator(cx).fetch());
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -62,7 +62,7 @@ public class TestableProcessor extends BaseProcessor {
 
     private boolean isStaticNewClassExist() {
         try {
-            FileObject staticNewClassFile = filter.getResource(SOURCE_OUTPUT, ConstPool.SN_PKG,
+            FileObject staticNewClassFile = cx.filter.getResource(SOURCE_OUTPUT, ConstPool.SN_PKG,
                 ConstPool.SN_CLS + JAVA_POSTFIX);
             return isCompilingTestClass(staticNewClassFile) || staticNewClassFile.getLastModified() > 0;
         } catch (FilerException e) {
@@ -81,20 +81,20 @@ public class TestableProcessor extends BaseProcessor {
     }
 
     private void processDevRoleClassElement(Symbol.ClassSymbol clazz) {
-        String packageName = elementUtils.getPackageOf(clazz).getQualifiedName().toString();
+        String packageName = cx.elementUtils.getPackageOf(clazz).getQualifiedName().toString();
         String testableTypeName = getTestableClassName(clazz.getSimpleName());
         String fullQualityTypeName =  packageName + "." + testableTypeName;
         try {
             writeSourceFile(fullQualityTypeName,
-                new TestableClassDevRoleGenerator(trees, treeMaker, names).fetch(clazz, packageName, testableTypeName));
+                new TestableClassDevRoleGenerator(cx).fetch(clazz, packageName, testableTypeName));
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
     private void processTestRoleClassElement(Symbol.ClassSymbol clazz) {
-        JCTree tree = trees.getTree(clazz);
-        tree.accept(new TestableClassTestRoleTranslator(getPkgName(clazz), getOriginClassName(clazz), treeMaker, names));
+        JCTree tree = cx.trees.getTree(clazz);
+        tree.accept(new TestableClassTestRoleTranslator(getPkgName(clazz), getOriginClassName(clazz), cx));
     }
 
     private String getPkgName(Symbol.ClassSymbol clazz) {
@@ -107,7 +107,7 @@ public class TestableProcessor extends BaseProcessor {
     }
 
     private void writeSourceFile(String fullQualityTypeName, String content) throws IOException {
-        JavaFileObject jfo = filter.createSourceFile(fullQualityTypeName);
+        JavaFileObject jfo = cx.filter.createSourceFile(fullQualityTypeName);
         Writer writer = jfo.openWriter();
         writer.write(content);
         writer.close();
