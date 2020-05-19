@@ -9,6 +9,7 @@ import com.sun.tools.javac.code.Type;
 import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.tree.TreeTranslator;
 import com.sun.tools.javac.util.*;
+import com.sun.tools.javac.tree.JCTree.*;
 
 import java.lang.reflect.Modifier;
 
@@ -23,11 +24,15 @@ public class TestableClassTestRoleTranslator extends TreeTranslator {
     private static final String ANNOTATION_JUNIT5_SETUP = "org.junit.jupiter.api.BeforeEach";
     private static final String ANNOTATION_JUNIT5_TEST = "org.junit.jupiter.api.Test";
     private final TestableContext cx;
-    private String sourceClassName;
+    private String sourceClassName = "";
     private ListBuffer<Name> sourceClassIns = new ListBuffer();
     private List<String> stubbornFields = List.nil();
-    private ListBuffer<Pair<Type, Pair<Name, List<Type>>>> injectMethods = new ListBuffer<>();
-    private String testSetupMethodName;
+
+    /**
+     * MethodName -> (ResultType -> ParameterTypes)
+     */
+    private ListBuffer<Pair<Name, Pair<JCExpression, List<JCExpression>>>> injectMethods = new ListBuffer<>();
+    private String testSetupMethodName = "";
     private TestLibType testLibType = TestLibType.JUnit4;
 
     public TestableClassTestRoleTranslator(String pkgName, String className, TestableContext cx) {
@@ -44,29 +49,39 @@ public class TestableClassTestRoleTranslator extends TreeTranslator {
     }
 
     @Override
-    public void visitVarDef(JCTree.JCVariableDecl jcVariableDecl) {
+    public void visitVarDef(JCVariableDecl jcVariableDecl) {
         super.visitVarDef(jcVariableDecl);
-        if (((JCTree.JCIdent)jcVariableDecl.vartype).name.toString().equals(sourceClassName)) {
+        if (((JCIdent)jcVariableDecl.vartype).name.toString().equals(sourceClassName)) {
             jcVariableDecl.vartype = getTestableClassIdent(jcVariableDecl.vartype);
             sourceClassIns.add(jcVariableDecl.name);
         }
     }
 
     @Override
-    public void visitNewClass(JCTree.JCNewClass jcNewClass) {
+    public void visitNewClass(JCNewClass jcNewClass) {
         super.visitNewClass(jcNewClass);
-        if (((JCTree.JCIdent)jcNewClass.clazz).name.toString().equals(sourceClassName)) {
+        if (getSimpleClassName(jcNewClass).equals(sourceClassName)) {
             jcNewClass.clazz = getTestableClassIdent(jcNewClass.clazz);
         }
     }
 
+    private String getSimpleClassName(JCNewClass jcNewClass) {
+        if (jcNewClass.clazz.getClass().equals(JCIdent.class)) {
+            return ((JCIdent)jcNewClass.clazz).name.toString();
+        } else if (jcNewClass.clazz.getClass().equals(JCFieldAccess.class)) {
+            return ((JCFieldAccess)jcNewClass.clazz).name.toString();
+        } else {
+            return "";
+        }
+    }
+
     @Override
-    public void visitExec(JCTree.JCExpressionStatement jcExpressionStatement) {
-        if (jcExpressionStatement.expr.getClass().equals(JCTree.JCAssign.class) &&
-            isAssignStubbornField((JCTree.JCAssign)jcExpressionStatement.expr)) {
-            JCTree.JCAssign assign = (JCTree.JCAssign)jcExpressionStatement.expr;
+    public void visitExec(JCExpressionStatement jcExpressionStatement) {
+        if (jcExpressionStatement.expr.getClass().equals(JCAssign.class) &&
+            isAssignStubbornField((JCAssign)jcExpressionStatement.expr)) {
+            JCAssign assign = (JCAssign)jcExpressionStatement.expr;
             // TODO: Use treeMaker.Apply() and treeMaker.Select()
-            TestableFieldAccess stubbornSetter = new TestableFieldAccess(((JCTree.JCFieldAccess)assign.lhs).selected,
+            TestableFieldAccess stubbornSetter = new TestableFieldAccess(((JCFieldAccess)assign.lhs).selected,
                 getStubbornSetterMethodName(assign), null);
             jcExpressionStatement.expr = new TestableMethodInvocation(null, stubbornSetter,
                 com.sun.tools.javac.util.List.of(assign.rhs));
@@ -75,15 +90,16 @@ public class TestableClassTestRoleTranslator extends TreeTranslator {
     }
 
     @Override
-    public void visitMethodDef(JCTree.JCMethodDecl jcMethodDecl) {
-        for (JCTree.JCAnnotation a : jcMethodDecl.mods.annotations) {
+    public void visitMethodDef(JCMethodDecl jcMethodDecl) {
+        for (JCAnnotation a : jcMethodDecl.mods.annotations) {
             switch (a.type.tsym.toString()) {
                 case ANNOTATION_TESTABLE_INJECT:
-                    ListBuffer<Type> args = new ListBuffer<>();
-                    for (JCTree.JCVariableDecl p : jcMethodDecl.params) {
-                        args.add(p.vartype.type);
+                    ListBuffer<JCExpression> args = new ListBuffer<>();
+                    for (JCVariableDecl p : jcMethodDecl.params) {
+                        args.add(cx.treeMaker.Select(p.vartype, cx.names.fromString("class")));
                     }
-                    injectMethods.add(Pair.of(jcMethodDecl.restype.type, Pair.of(jcMethodDecl.name, args.toList())));
+                    JCExpression retType = cx.treeMaker.Select(jcMethodDecl.restype, cx.names.fromString("class"));
+                    injectMethods.add(Pair.of(jcMethodDecl.name, Pair.of(retType, args.toList())));
                     break;
                 case ANNOTATION_JUNIT5_SETUP:
                     testSetupMethodName = jcMethodDecl.name.toString();
@@ -99,35 +115,22 @@ public class TestableClassTestRoleTranslator extends TreeTranslator {
     }
 
     @Override
-    public void visitClassDef(JCTree.JCClassDecl jcClassDecl) {
+    public void visitClassDef(JCClassDecl jcClassDecl) {
         super.visitClassDef(jcClassDecl);
         ListBuffer<JCTree> ndefs = new ListBuffer<>();
         ndefs.addAll(jcClassDecl.defs);
-        JCTree.JCModifiers mods = cx.treeMaker.Modifiers(Modifier.PUBLIC, makeAnnotations());
+        JCModifiers mods = cx.treeMaker.Modifiers(Modifier.PUBLIC, makeAnnotations(ANNOTATION_JUNIT5_SETUP));
         ndefs.add(cx.treeMaker.MethodDef(mods, cx.names.fromString("testableSetup"),
-            cx.treeMaker.Type(new Type.JCVoidType()), List.<JCTree.JCTypeParameter>nil(),
-            List.<JCTree.JCVariableDecl>nil(), List.<JCTree.JCExpression>nil(), testableSetupBlock(), null));
+            cx.treeMaker.Type(new Type.JCVoidType()), List.<JCTypeParameter>nil(),
+            List.<JCVariableDecl>nil(), List.<JCExpression>nil(), testableSetupBlock(), null));
         jcClassDecl.defs = ndefs.toList();
-    }
-
-    private List<JCTree.JCAnnotation> makeAnnotations() {
-        String[] elems = ANNOTATION_JUNIT5_TEST.split("\\.");
-        JCTree.JCExpression e = cx.treeMaker.Ident(cx.names.fromString(elems[0]));
-        for (int i = 1 ; i < elems.length ; i++) {
-            e = cx.treeMaker.Select(e, cx.names.fromString(elems[i]));
-        }
-        return List.of(cx.treeMaker.Annotation(e, List.<JCTree.JCExpression>nil()));
-    }
-
-    private JCTree.JCBlock testableSetupBlock() {
-        return cx.treeMaker.Block(0, List.<JCTree.JCStatement>nil());
     }
 
     /**
      * For break point
      */
     @Override
-    public void visitAssign(JCTree.JCAssign jcAssign) {
+    public void visitAssign(JCAssign jcAssign) {
         super.visitAssign(jcAssign);
     }
 
@@ -135,14 +138,53 @@ public class TestableClassTestRoleTranslator extends TreeTranslator {
      * For break point
      */
     @Override
-    public void visitSelect(JCTree.JCFieldAccess jcFieldAccess) {
+    public void visitSelect(JCFieldAccess jcFieldAccess) {
         super.visitSelect(jcFieldAccess);
     }
 
-    private List<JCTree.JCAnnotation> removeAnnotation(
-        List<JCTree.JCAnnotation> annotations, String target) {
-        ListBuffer<JCTree.JCAnnotation> nb = new ListBuffer<>();
-        for (JCTree.JCAnnotation i : annotations) {
+    private List<JCAnnotation> makeAnnotations(String fullAnnotationName) {
+        JCExpression setupAnnotation = nameToExpression(fullAnnotationName);
+        return List.of(cx.treeMaker.Annotation(setupAnnotation, List.<JCExpression>nil()));
+    }
+
+    private JCExpression nameToExpression(String dotName) {
+        String[] nameParts = dotName.split("\\.");
+        JCExpression e = cx.treeMaker.Ident(cx.names.fromString(nameParts[0]));
+        for (int i = 1 ; i < nameParts.length ; i++) {
+            e = cx.treeMaker.Select(e, cx.names.fromString(nameParts[i]));
+        }
+        return e;
+    }
+
+    private JCBlock testableSetupBlock() {
+        ListBuffer<JCStatement> statements = new ListBuffer<>();
+        for (Pair<Name, Pair<JCExpression, List<JCExpression>>> m : injectMethods.toList()) {
+            JCExpression key = nameToExpression("n.e.k");
+            JCExpression classType = m.snd.fst;
+            JCExpression parameterTypes = cx.treeMaker.NewArray(cx.treeMaker.Ident(cx.names.fromString("Class")),
+                List.<JCExpression>nil(), m.snd.snd);
+            JCNewClass keyClass = cx.treeMaker.NewClass(null, List.<JCExpression>nil(), key,
+                List.of(classType, parameterTypes), null);
+            JCExpression value = nameToExpression("n.e.v");
+            JCExpression thisIns = cx.treeMaker.Ident(cx.names.fromString("this"));
+            JCExpression methodName = cx.treeMaker.Literal(m.fst.toString());
+            JCNewClass valClass = cx.treeMaker.NewClass(null, List.<JCExpression>nil(), value,
+                List.of(thisIns, methodName), null);
+            JCExpression addInjectMethod = nameToExpression("n.e.a");
+            JCMethodInvocation apply = cx.treeMaker.Apply(List.<JCExpression>nil(), addInjectMethod,
+                List.from(new JCExpression[] {keyClass, valClass}));
+            statements.append(cx.treeMaker.Exec(apply));
+        }
+        if (!testSetupMethodName.isEmpty()) {
+            statements.append(cx.treeMaker.Exec(cx.treeMaker.Apply(List.<JCExpression>nil(),
+                nameToExpression(testSetupMethodName), List.<JCExpression>nil())));
+        }
+        return cx.treeMaker.Block(0, statements.toList());
+    }
+
+    private List<JCAnnotation> removeAnnotation(List<JCAnnotation> annotations, String target) {
+        ListBuffer<JCAnnotation> nb = new ListBuffer<>();
+        for (JCAnnotation i : annotations) {
             if (!i.type.tsym.toString().equals(target)) {
                 nb.add(i);
             }
@@ -150,19 +192,19 @@ public class TestableClassTestRoleTranslator extends TreeTranslator {
         return nb.toList();
     }
 
-    private Name getStubbornSetterMethodName(JCTree.JCAssign assign) {
-        String name = ((JCTree.JCFieldAccess)assign.lhs).name.toString() + ConstPool.TESTABLE_SET_METHOD_PREFIX;
+    private Name getStubbornSetterMethodName(JCAssign assign) {
+        String name = ((JCFieldAccess)assign.lhs).name.toString() + ConstPool.TESTABLE_SET_METHOD_PREFIX;
         return cx.names.fromString(name);
     }
 
-    private boolean isAssignStubbornField(JCTree.JCAssign expr) {
-        return expr.lhs.getClass().equals(JCTree.JCFieldAccess.class) &&
-            sourceClassIns.contains(((JCTree.JCIdent)((JCTree.JCFieldAccess)(expr).lhs).selected).name) &&
-            stubbornFields.contains(((JCTree.JCFieldAccess)(expr).lhs).name.toString());
+    private boolean isAssignStubbornField(JCAssign expr) {
+        return expr.lhs.getClass().equals(JCFieldAccess.class) &&
+            sourceClassIns.contains(((JCIdent)((JCFieldAccess)(expr).lhs).selected).name) &&
+            stubbornFields.contains(((JCFieldAccess)(expr).lhs).name.toString());
     }
 
-    private JCTree.JCIdent getTestableClassIdent(JCTree.JCExpression clazz) {
-        Name className = ((JCTree.JCIdent)clazz).name;
+    private JCIdent getTestableClassIdent(JCExpression clazz) {
+        Name className = ((JCIdent)clazz).name;
         return cx.treeMaker.Ident(cx.names.fromString(className + ConstPool.TESTABLE));
     }
 
