@@ -12,9 +12,12 @@ public final class ConstPool {
     public static final String SN_CLS = "e";
     public static final String SN_METHOD = "w";
     public static final String SN_PKG_CLS = "n.e";
+    public static final String NS_W_KEY = "n.e.wk";
+    public static final String NS_VAL = "n.e.v";
+    public static final String NS_W_ADD = "n.e.wa";
     public static final String STUBBORN_FIELD_METHOD = "stubbornField";
     public static final String TESTABLE_GET_METHOD_PREFIX = "TestableGet";
     public static final String TESTABLE_SET_METHOD_PREFIX = "TestableSet";
-
+    public static final String TYPE_TO_CLASS = "class";
 
 }

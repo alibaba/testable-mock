@@ -154,7 +154,7 @@ public class TestableClassDevRoleTranslator extends TreeTranslator {
         TestableFieldAccess snMethod = new TestableFieldAccess(snClass,
             cx.names.fromString(ConstPool.SN_METHOD), null);
         JCTree.JCExpression classType = new TestableFieldAccess(cx.treeMaker.Ident(className),
-            cx.names.fromString("class"), null);
+            cx.names.fromString(ConstPool.TYPE_TO_CLASS), null);
         ListBuffer<JCTree.JCExpression> args = ListBuffer.of(classType);
         args.addAll(newClassExpr.args);
         return new TestableMethodInvocation(null, snMethod, args.toList());

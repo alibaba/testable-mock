@@ -10,18 +10,21 @@ import java.util.*;
 
 public final class e {
 
-  public static class k {
-    public Class c;   // target instance type
+  /**
+   * key for contructor pool
+   */
+  public static class wk {
+    public Class c;   // target instance type to new
     public Class[] a; // constructor parameter types
 
-    public k(Class c, Class[] a) {
+    public wk(Class c, Class[] a) {
       this.c = c;
       this.a = a;
     }
 
     @Override
     public boolean equals(Object o) {
-      return o.getClass().equals(e.k.class) && c.equals(((e.k)o).c) && Arrays.equals(a, ((e.k)o).a);
+      return o.getClass().equals(e.wk.class) && c.equals(((e.wk)o).c) && Arrays.equals(a, ((e.wk)o).a);
     }
 
     @Override
@@ -30,9 +33,35 @@ public final class e {
     }
   }
 
+  /**
+   * key for method pool
+   */
+  public static class xk {
+    public String m;  // original member method name
+    public Class[] a; // member method parameter types
+
+    public xk(String m, Class[] a) {
+      this.m = m;
+      this.a = a;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+      return o.getClass().equals(e.xk.class) && m.equals(((e.xk)o).m) && Arrays.equals(a, ((e.xk)o).a);
+    }
+
+    @Override
+    public int hashCode() {
+      return 31 * m.hashCode() + Arrays.hashCode(a);
+    }
+  }
+
+  /**
+   * value for contructor and method pool
+   */
   public static class v {
-    public Object o;  // testable object
-    public String m;  // method to create instance
+    public Object o;  // object which provides substitution
+    public String m;  // substitutional method name
 
     public v(Object o, String m) {
       this.o = o;
@@ -40,20 +69,34 @@ public final class e {
     }
   }
 
-  private static Map<k, v> pool = new HashMap<>();
+  private static Map<wk, v> wp = new HashMap<>();
+  private static Map<xk, v> xp = new HashMap<>();
 
-  public static void a(k ki, v vi) {
-    pool.put(ki, vi);
+  /**
+   * add item to contructor pool
+   */
+  public static void wa(wk k, v vv) {
+    wp.put(k, vv);
   }
 
+  /**
+   * add item to method pool
+   */
+  public static void xa(xk k, v vv) {
+    xp.put(k, vv);
+  }
+
+  /**
+   * subsitituion entry for new
+   */
   public static <T> T w(Class<T> ct, Object... as) {
     Class[] cs = new Class[as.length];
     for (int i = 0; i < cs.length; i++) {
       cs[i] = as[i].getClass();
     }
-    if (!pool.isEmpty()) {
+    if (!wp.isEmpty()) {
       try {
-        Pair<k, v> p = getFromPool(new k(ct, cs));
+        Pair<wk, v> p = gwp(new wk(ct, cs));
         if (p != null) {
           Method m = p.snd.o.getClass().getDeclaredMethod(p.snd.m, p.fst.a);
           m.setAccessible(true);
@@ -64,7 +107,7 @@ public final class e {
       }
     }
     try {
-      Constructor c = getFromConstructors(ct.getConstructors(), cs);
+      Constructor c = gc(ct.getConstructors(), cs);
       if (c != null) {
         return (T)c.newInstance(as);
       }
@@ -74,56 +117,122 @@ public final class e {
     return null;
   }
 
-  private static Constructor getFromConstructors(Constructor<?>[] constructors, Class[] cs) {
-    for (Constructor c : constructors) {
-      if (typeEquals(c.getParameterTypes(), cs)) {
-        return c;
+  /**
+   * subsitituion entry for member call
+   */
+  public static Object x(Object obj, String method, Object... as) {
+    Class[] cs = gcs(as);
+    if (!xp.isEmpty()) {
+      try {
+        Pair<xk, v> p = gxp(new xk(method, cs));
+        if (p != null) {
+          Method m = p.snd.o.getClass().getDeclaredMethod(p.snd.m, p.fst.a);
+          m.setAccessible(true);
+          return m.invoke(p.snd.o, as);
+        }
+      } catch (Exception e) {
+        return null;
       }
+    }
+    try {
+      Method m = gm(obj.getClass().getMethods(), cs);
+      if (m != null) {
+        return m.invoke(obj, as);
+      }
+    } catch (Exception e) {
+      return null;
     }
     return null;
   }
 
-  private static Pair<k, v> getFromPool(k k1) {
-    for (k k2 : pool.keySet()) {
-      if (k1.c.equals(k2.c) && typeEquals(k2.a, k1.a)) {
-        return Pair.of(k2, pool.get(k2));
+  /**
+   * get classes of parameter objects
+   */
+  private static Class[] gcs(Object[] as) {
+    Class[] cs = new Class[as.length];
+    for (int i = 0; i < cs.length; i++) {
+      cs[i] = as[i].getClass();
+    }
+    return cs;
+  }
+
+  /**
+   * get method by parameter matching
+   */
+  private static Method gm(Method[] methods, Class[] cs) {
+    for (Method m : methods) {
+      if (te(m.getParameterTypes(), cs)) {
+        return m;
       }
     }
     return null;
   }
 
   /**
-   * @param c1 fact types (can be primary type)
-   * @param c2 user types
+   * get from method pool by key
    */
-  private static boolean typeEquals(Class[] c1, Class[] c2) {
+  private static Pair<xk, v> gxp(xk k1) {
+    for (xk k2 : xp.keySet()) {
+      if (k1.m.equals(k2.m) && te(k2.a, k1.a)) {
+        return Pair.of(k2, xp.get(k2));
+      }
+    }
+    return null;
+  }
+
+  /**
+   * get contructor by parameter matching
+   */
+  private static Constructor gc(Constructor<?>[] constructors, Class[] cs) {
+    for (Constructor c : constructors) {
+      if (te(c.getParameterTypes(), cs)) {
+        return c;
+      }
+    }
+    return null;
+  }
+
+  /**
+   * get from contructor pool by key
+   */
+  private static Pair<wk, v> gwp(wk k1) {
+    for (wk k2 : wp.keySet()) {
+      if (k1.c.equals(k2.c) && te(k2.a, k1.a)) {
+        return Pair.of(k2, wp.get(k2));
+      }
+    }
+    return null;
+  }
+
+  /**
+   * type equeals
+   */
+  private static boolean te(Class[] c1, Class[] c2) {
     if (c1.length != c2.length) {
       return false;
     }
     for (int i = 0; i < c1.length; i++) {
-      if (c1[i].equals(c2[i])) {
-        continue;
-      } else if (c1[i].equals(int.class) && c2[i].equals(Integer.class)) {
-        continue;
-      } else if (c1[i].equals(long.class) && c2[i].equals(Long.class)) {
-        continue;
-      } else if (c1[i].equals(short.class) && c2[i].equals(Short.class)) {
-        continue;
-      } else if (c1[i].equals(boolean.class) && c2[i].equals(Boolean.class)) {
-        continue;
-      } else if (c1[i].equals(char.class) && c2[i].equals(Character.class)) {
-        continue;
-      } else if (c1[i].equals(byte.class) && c2[i].equals(Byte.class)) {
-        continue;
-      } else if (c1[i].equals(float.class) && c2[i].equals(Float.class)) {
-        continue;
-      } else if (c1[i].equals(double.class) && c2[i].equals(Double.class)) {
-        continue;
-      } else {
+      if (!c1[i].equals(c2[i]) && !fe(c1[i], c2[i])) {
         return false;
       }
     }
     return true;
+  }
+
+  /**
+   * fuzzy equal
+   * @param c1 fact types (can be primary type)
+   * @param c2 user types
+   */
+  private static boolean fe(Class c1, Class c2) {
+     return (c1.equals(int.class) && c2.equals(Integer.class)) ||
+         (c1.equals(long.class) && c2.equals(Long.class)) ||
+         (c1.equals(short.class) && c2.equals(Short.class)) ||
+         (c1.equals(boolean.class) && c2.equals(Boolean.class)) ||
+         (c1.equals(char.class) && c2.equals(Character.class)) ||
+         (c1.equals(byte.class) && c2.equals(Byte.class)) ||
+         (c1.equals(float.class) && c2.equals(Float.class)) ||
+         (c1.equals(double.class) && c2.equals(Double.class));
   }
 
 }

@@ -11,7 +11,10 @@ import com.sun.tools.javac.tree.TreeTranslator;
 import com.sun.tools.javac.util.*;
 import com.sun.tools.javac.tree.JCTree.*;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.Arrays;
 
 /**
  * Travel AST
@@ -23,6 +26,8 @@ public class TestableClassTestRoleTranslator extends TreeTranslator {
     private static final String ANNOTATION_TESTABLE_INJECT = "com.alibaba.testable.annotation.TestableInject";
     private static final String ANNOTATION_JUNIT5_SETUP = "org.junit.jupiter.api.BeforeEach";
     private static final String ANNOTATION_JUNIT5_TEST = "org.junit.jupiter.api.Test";
+    private static final String TYPE_CLASS = "Class";
+    private static final String REF_THIS = "this";
     private final TestableContext cx;
     private String sourceClassName = "";
     private ListBuffer<Name> sourceClassIns = new ListBuffer();
@@ -96,9 +101,9 @@ public class TestableClassTestRoleTranslator extends TreeTranslator {
                 case ANNOTATION_TESTABLE_INJECT:
                     ListBuffer<JCExpression> args = new ListBuffer<>();
                     for (JCVariableDecl p : jcMethodDecl.params) {
-                        args.add(cx.treeMaker.Select(p.vartype, cx.names.fromString("class")));
+                        args.add(cx.treeMaker.Select(p.vartype, cx.names.fromString(ConstPool.TYPE_TO_CLASS)));
                     }
-                    JCExpression retType = cx.treeMaker.Select(jcMethodDecl.restype, cx.names.fromString("class"));
+                    JCExpression retType = cx.treeMaker.Select(jcMethodDecl.restype, cx.names.fromString(ConstPool.TYPE_TO_CLASS));
                     injectMethods.add(Pair.of(jcMethodDecl.name, Pair.of(retType, args.toList())));
                     break;
                 case ANNOTATION_JUNIT5_SETUP:
@@ -159,27 +164,32 @@ public class TestableClassTestRoleTranslator extends TreeTranslator {
     private JCBlock testableSetupBlock() {
         ListBuffer<JCStatement> statements = new ListBuffer<>();
         for (Pair<Name, Pair<JCExpression, List<JCExpression>>> m : injectMethods.toList()) {
-            JCExpression key = nameToExpression("n.e.k");
-            JCExpression classType = m.snd.fst;
-            JCExpression parameterTypes = cx.treeMaker.NewArray(cx.treeMaker.Ident(cx.names.fromString("Class")),
-                List.<JCExpression>nil(), m.snd.snd);
-            JCNewClass keyClass = cx.treeMaker.NewClass(null, List.<JCExpression>nil(), key,
-                List.of(classType, parameterTypes), null);
-            JCExpression value = nameToExpression("n.e.v");
-            JCExpression thisIns = cx.treeMaker.Ident(cx.names.fromString("this"));
-            JCExpression methodName = cx.treeMaker.Literal(m.fst.toString());
-            JCNewClass valClass = cx.treeMaker.NewClass(null, List.<JCExpression>nil(), value,
-                List.of(thisIns, methodName), null);
-            JCExpression addInjectMethod = nameToExpression("n.e.a");
-            JCMethodInvocation apply = cx.treeMaker.Apply(List.<JCExpression>nil(), addInjectMethod,
-                List.from(new JCExpression[] {keyClass, valClass}));
-            statements.append(cx.treeMaker.Exec(apply));
+            statements.append(toGlobalNewStatement(m));
         }
         if (!testSetupMethodName.isEmpty()) {
             statements.append(cx.treeMaker.Exec(cx.treeMaker.Apply(List.<JCExpression>nil(),
                 nameToExpression(testSetupMethodName), List.<JCExpression>nil())));
         }
         return cx.treeMaker.Block(0, statements.toList());
+    }
+
+    private JCStatement toGlobalNewStatement(
+        Pair<Name, Pair<JCExpression, List<JCExpression>>> m) {
+        JCExpression key = nameToExpression(ConstPool.NS_W_KEY);
+        JCExpression classType = m.snd.fst;
+        JCExpression parameterTypes = cx.treeMaker.NewArray(cx.treeMaker.Ident(cx.names.fromString(TYPE_CLASS)),
+            List.<JCExpression>nil(), m.snd.snd);
+        JCNewClass keyClass = cx.treeMaker.NewClass(null, List.<JCExpression>nil(), key,
+            List.of(classType, parameterTypes), null);
+        JCExpression value = nameToExpression(ConstPool.NS_VAL);
+        JCExpression thisIns = cx.treeMaker.Ident(cx.names.fromString(REF_THIS));
+        JCExpression methodName = cx.treeMaker.Literal(m.fst.toString());
+        JCNewClass valClass = cx.treeMaker.NewClass(null, List.<JCExpression>nil(), value,
+            List.of(thisIns, methodName), null);
+        JCExpression addInjectMethod = nameToExpression(ConstPool.NS_W_ADD);
+        JCMethodInvocation apply = cx.treeMaker.Apply(List.<JCExpression>nil(), addInjectMethod,
+            List.from(new JCExpression[] {keyClass, valClass}));
+        return cx.treeMaker.Exec(apply);
     }
 
     private List<JCAnnotation> removeAnnotation(List<JCAnnotation> annotations, String target) {
