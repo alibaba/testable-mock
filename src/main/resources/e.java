@@ -10,93 +10,35 @@ import java.util.*;
 
 public final class e {
 
-  /**
-   * key for contructor pool
-   */
-  public static class wk {
-    public Class c;   // target instance type to new
-    public Class[] a; // constructor parameter types
+  public static class p {
+    public Class c;   // target instance type to new / method return type
+    public Class[] a; // constructor parameter types / member method parameter types
+    public Object o;  // object which provides substitution / object which provides substitution
+    public String m;  // substitutional method name / original member method name
 
-    public wk(Class c, Class[] a) {
+    public p(Class c, String m, Class[] a, Object o) {
       this.c = c;
-      this.a = a;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-      return o.getClass().equals(e.wk.class) && c.equals(((e.wk)o).c) && Arrays.equals(a, ((e.wk)o).a);
-    }
-
-    @Override
-    public int hashCode() {
-      return 31 * c.hashCode() + Arrays.hashCode(a);
-    }
-  }
-
-  /**
-   * key for method pool
-   */
-  public static class xk {
-    public String m;  // original member method name
-    public Class[] a; // member method parameter types
-
-    public xk(String m, Class[] a) {
       this.m = m;
       this.a = a;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-      return o.getClass().equals(e.xk.class) && m.equals(((e.xk)o).m) && Arrays.equals(a, ((e.xk)o).a);
-    }
-
-    @Override
-    public int hashCode() {
-      return 31 * m.hashCode() + Arrays.hashCode(a);
-    }
-  }
-
-  /**
-   * value for contructor pool
-   */
-  public static class wv {
-    public Object o;  // object which provides substitution
-    public String m;  // substitutional method name
-
-    public wv(Object o, String m) {
       this.o = o;
-      this.m = m;
     }
   }
 
-  /**
-   * value for member method pool
-   */
-  public static class xv {
-    public Object o;  // object which provides substitution
-    public Class c;   // method return type
-
-    public xv(Object o, Class c) {
-      this.o = o;
-      this.c = c;
-    }
-  }
-
-  private static Map<wk, wv> wp = new HashMap<>();
-  private static Map<xk, xv> xp = new HashMap<>();
+  private static List<p> pw = new ArrayList<>();
+  private static List<p> pf = new ArrayList<>();
 
   /**
    * add item to contructor pool
    */
-  public static void wa(wk k, wv v) {
-    wp.put(k, v);
+  public static void aw(p np) {
+    pw.add(np);
   }
 
   /**
    * add item to method pool
    */
-  public static void xa(xk k, xv v) {
-    xp.put(k, v);
+  public static void af(p np) {
+    pf.add(np);
   }
 
   /**
@@ -107,13 +49,13 @@ public final class e {
     for (int i = 0; i < cs.length; i++) {
       cs[i] = as[i].getClass();
     }
-    if (!wp.isEmpty()) {
+    if (!pw.isEmpty()) {
       try {
-        Pair<wk, wv> p = gwp(new wk(ct, cs));
-        if (p != null) {
-          Method m = p.snd.o.getClass().getDeclaredMethod(p.snd.m, p.fst.a);
+        p pi = gpw(ct, cs);
+        if (pi != null) {
+          Method m = pi.o.getClass().getDeclaredMethod(pi.m, pi.a);
           m.setAccessible(true);
-          return (T)m.invoke(p.snd.o, as);
+          return (T)m.invoke(pi.o, as);
         }
       } catch (Exception e) {
         return null;
@@ -133,22 +75,22 @@ public final class e {
   /**
    * subsitituion entry for member call
    */
-  public static <T> T x(Object obj, String method, Object... as) {
+  public static <T> T f(Object obj, String mn, Object... as) {
     Class[] cs = gcs(as);
-    if (!xp.isEmpty()) {
+    if (!pf.isEmpty()) {
       try {
-        Pair<xk, xv> p = gxp(new xk(method, cs));
-        if (p != null) {
-          Method m = p.snd.o.getClass().getDeclaredMethod(p.fst.m, p.fst.a);
+        p pi = gpf(mn, cs);
+        if (pi != null) {
+          Method m = pi.o.getClass().getDeclaredMethod(pi.m, pi.a);
           m.setAccessible(true);
-          return (T)m.invoke(p.snd.o, as);
+          return (T)m.invoke(pi.o, as);
         }
       } catch (Exception e) {
         return null;
       }
     }
     try {
-      Method m = gm(obj.getClass().getDeclaredMethods(), method, cs);
+      Method m = gm(obj.getClass().getDeclaredMethods(), mn, cs);
       if (m != null) {
         m.setAccessible(true);
         return (T)m.invoke(obj, as);
@@ -171,11 +113,11 @@ public final class e {
   }
 
   /**
-   * get method by parameter matching
+   * get method by name and parameter matching
    */
-  private static Method gm(Method[] methods, String name, Class[] cs) {
-    for (Method m : methods) {
-      if (m.getName().equals(name) && te(m.getParameterTypes(), cs)) {
+  private static Method gm(Method[] mds, String mn, Class[] cs) {
+    for (Method m : mds) {
+      if (m.getName().equals(mn) && te(m.getParameterTypes(), cs)) {
         return m;
       }
     }
@@ -185,10 +127,10 @@ public final class e {
   /**
    * get from method pool by key
    */
-  private static Pair<xk, xv> gxp(xk k1) {
-    for (xk k2 : xp.keySet()) {
-      if (k1.m.equals(k2.m) && te(k2.a, k1.a)) {
-        return Pair.of(k2, xp.get(k2));
+  private static p gpf(String mn, Class[] cs) {
+    for (p f : pf) {
+      if (f.m.equals(mn) && te(f.a, cs)) {
+        return f;
       }
     }
     return null;
@@ -197,8 +139,8 @@ public final class e {
   /**
    * get contructor by parameter matching
    */
-  private static Constructor gc(Constructor<?>[] constructors, Class[] cs) {
-    for (Constructor c : constructors) {
+  private static Constructor gc(Constructor<?>[] cons, Class[] cs) {
+    for (Constructor c : cons) {
       if (te(c.getParameterTypes(), cs)) {
         return c;
       }
@@ -209,10 +151,10 @@ public final class e {
   /**
    * get from contructor pool by key
    */
-  private static Pair<wk, wv> gwp(wk k1) {
-    for (wk k2 : wp.keySet()) {
-      if (k1.c.equals(k2.c) && te(k2.a, k1.a)) {
-        return Pair.of(k2, wp.get(k2));
+  private static p gpw(Class ct, Class[] cs) {
+    for (p w : pw) {
+      if (w.c.equals(ct) && te(w.a, cs)) {
+        return w;
       }
     }
     return null;

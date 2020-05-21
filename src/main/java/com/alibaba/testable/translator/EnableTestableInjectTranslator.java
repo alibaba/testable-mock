@@ -14,7 +14,7 @@ import com.sun.tools.javac.util.Name;
  *
  * @author flin
  */
-public class TestableClassDevRoleTranslator extends TreeTranslator {
+public class EnableTestableInjectTranslator extends TreeTranslator {
 
     private final TestableContext cx;
 
@@ -36,7 +36,7 @@ public class TestableClassDevRoleTranslator extends TreeTranslator {
         return fields;
     }
 
-    public TestableClassDevRoleTranslator(TestableContext cx) {
+    public EnableTestableInjectTranslator(TestableContext cx) {
         this.cx = cx;
     }
 
@@ -175,7 +175,7 @@ public class TestableClassDevRoleTranslator extends TreeTranslator {
     private JCTree.JCMethodInvocation getGlobalMemberInvocation(Name methodName, List<JCTree.JCExpression> param) {
         JCTree.JCFieldAccess snClass = cx.treeMaker.Select(cx.treeMaker.Ident(cx.names.fromString(ConstPool.NE_PKG)),
             cx.names.fromString(ConstPool.NE_CLS));
-        JCTree.JCFieldAccess snMethod = cx.treeMaker.Select(snClass, cx.names.fromString(ConstPool.NE_INK));
+        JCTree.JCFieldAccess snMethod = cx.treeMaker.Select(snClass, cx.names.fromString(ConstPool.NE_FUN));
         ListBuffer<JCTree.JCExpression> args = new ListBuffer();
         args.add(cx.treeMaker.Ident(cx.names.fromString(ConstPool.REF_THIS)));
         args.add(cx.treeMaker.Literal(methodName.toString()));

@@ -2,7 +2,7 @@ package com.alibaba.testable.processor;
 
 import com.alibaba.testable.annotation.EnableTestableInject;
 import com.alibaba.testable.generator.StaticNewClassGenerator;
-import com.alibaba.testable.generator.TestableClassDevRoleGenerator;
+import com.alibaba.testable.generator.TestableClassGenerator;
 import com.alibaba.testable.util.ConstPool;
 import com.sun.tools.javac.code.Symbol;
 
@@ -76,7 +76,7 @@ public class EnableTestableInjectProcessor extends BaseProcessor {
         String fullQualityTypeName =  packageName + "." + testableTypeName;
         try {
             writeSourceFile(fullQualityTypeName,
-                new TestableClassDevRoleGenerator(cx).fetch(clazz, packageName, testableTypeName));
+                new TestableClassGenerator(cx).fetch(clazz, packageName, testableTypeName));
         } catch (IOException e) {
             e.printStackTrace();
         }

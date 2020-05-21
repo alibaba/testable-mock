@@ -3,7 +3,7 @@ package com.alibaba.testable.generator;
 import com.alibaba.testable.generator.model.Statement;
 import com.alibaba.testable.generator.statement.CallSuperMethodStatementGenerator;
 import com.alibaba.testable.model.TestableContext;
-import com.alibaba.testable.translator.TestableClassDevRoleTranslator;
+import com.alibaba.testable.translator.EnableTestableInjectTranslator;
 import com.alibaba.testable.util.ConstPool;
 import com.squareup.javapoet.*;
 import com.sun.tools.javac.code.Symbol;
@@ -23,17 +23,17 @@ import java.util.Set;
  *
  * @author flin
  */
-public class TestableClassDevRoleGenerator {
+public class TestableClassGenerator {
 
     private final TestableContext cx;
 
-    public TestableClassDevRoleGenerator(TestableContext cx) {
+    public TestableClassGenerator(TestableContext cx) {
         this.cx = cx;
     }
 
     public String fetch(Symbol.ClassSymbol clazz, String packageName, String className) {
         JCTree tree = cx.trees.getTree(clazz);
-        TestableClassDevRoleTranslator translator = new TestableClassDevRoleTranslator(cx);
+        EnableTestableInjectTranslator translator = new EnableTestableInjectTranslator(cx);
         tree.accept(translator);
 
         List<MethodSpec> methodSpecs = new ArrayList<>();

@@ -1,7 +1,7 @@
 package com.alibaba.testable.processor;
 
 import com.alibaba.testable.annotation.EnableTestable;
-import com.alibaba.testable.translator.TestableClassTestRoleTranslator;
+import com.alibaba.testable.translator.EnableTestableTranslator;
 import com.sun.tools.javac.code.Symbol;
 import com.sun.tools.javac.tree.JCTree;
 
@@ -38,7 +38,7 @@ public class EnableTestableProcessor extends BaseProcessor {
 
     private void processClassElement(Symbol.ClassSymbol clazz) {
         JCTree tree = cx.trees.getTree(clazz);
-        tree.accept(new TestableClassTestRoleTranslator(getPkgName(clazz), getOriginClassName(clazz), cx));
+        tree.accept(new EnableTestableTranslator(getPkgName(clazz), getOriginClassName(clazz), cx));
     }
 
     private String getPkgName(Symbol.ClassSymbol clazz) {
