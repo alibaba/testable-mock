@@ -8,7 +8,7 @@
     <description>Unit test enhancement toolkit</description>
     <groupId>com.alibaba</groupId>
     <artifactId>testable</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>0.0.2-SNAPSHOT</version>
 
     <properties>
         <plugin.compiler.version>3.8.1</plugin.compiler.version>
