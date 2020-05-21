@@ -1,12 +1,10 @@
 package com.alibaba.testable.processor;
 
-import com.alibaba.testable.annotation.Testable;
+import com.alibaba.testable.annotation.EnableTestableInject;
 import com.alibaba.testable.generator.StaticNewClassGenerator;
 import com.alibaba.testable.generator.TestableClassDevRoleGenerator;
-import com.alibaba.testable.translator.TestableClassTestRoleTranslator;
 import com.alibaba.testable.util.ConstPool;
 import com.sun.tools.javac.code.Symbol;
-import com.sun.tools.javac.tree.JCTree;
 
 import javax.annotation.processing.FilerException;
 import javax.annotation.processing.RoundEnvironment;
@@ -27,24 +25,20 @@ import static javax.tools.StandardLocation.SOURCE_OUTPUT;
 /**
  * @author flin
  */
-@SupportedAnnotationTypes("com.alibaba.testable.annotation.Testable")
+@SupportedAnnotationTypes("com.alibaba.testable.annotation.EnableTestableInject")
 @SupportedSourceVersion(SourceVersion.RELEASE_7)
-public class TestableProcessor extends BaseProcessor {
+public class EnableTestableInjectProcessor extends BaseProcessor {
 
     private static final String JAVA_POSTFIX = ".java";
     private static final String GENERATED_TEST_SOURCES = "generated-test-sources";
 
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
-        Set<? extends Element> elements = roundEnv.getElementsAnnotatedWith(Testable.class);
+        Set<? extends Element> elements = roundEnv.getElementsAnnotatedWith(EnableTestableInject.class);
         createStaticNewClass();
         for (Element element : elements) {
             if (element.getKind().isClass()) {
-                if (isTestClass(element.getSimpleName())) {
-                    processTestRoleClassElement((Symbol.ClassSymbol)element);
-                } else {
-                    processDevRoleClassElement((Symbol.ClassSymbol)element);
-                }
+                processClassElement((Symbol.ClassSymbol)element);
             }
         }
         return true;
@@ -72,15 +66,11 @@ public class TestableProcessor extends BaseProcessor {
         }
     }
 
-    private boolean isTestClass(Name name) {
-        return name.toString().endsWith("Test");
-    }
-
     private boolean isCompilingTestClass(FileObject staticNewClassFile) {
         return staticNewClassFile.getName().contains(GENERATED_TEST_SOURCES);
     }
 
-    private void processDevRoleClassElement(Symbol.ClassSymbol clazz) {
+    private void processClassElement(Symbol.ClassSymbol clazz) {
         String packageName = cx.elementUtils.getPackageOf(clazz).getQualifiedName().toString();
         String testableTypeName = getTestableClassName(clazz.getSimpleName());
         String fullQualityTypeName =  packageName + "." + testableTypeName;
@@ -90,20 +80,6 @@ public class TestableProcessor extends BaseProcessor {
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
-
-    private void processTestRoleClassElement(Symbol.ClassSymbol clazz) {
-        JCTree tree = cx.trees.getTree(clazz);
-        tree.accept(new TestableClassTestRoleTranslator(getPkgName(clazz), getOriginClassName(clazz), cx));
-    }
-
-    private String getPkgName(Symbol.ClassSymbol clazz) {
-        return ((Symbol.PackageSymbol)clazz.owner).fullname.toString();
-    }
-
-    private String getOriginClassName(Symbol.ClassSymbol clazz) {
-        String testClassName = clazz.getSimpleName().toString();
-        return testClassName.substring(0, testClassName.length() - "Test".length());
     }
 
     private void writeSourceFile(String fullQualityTypeName, String content) throws IOException {

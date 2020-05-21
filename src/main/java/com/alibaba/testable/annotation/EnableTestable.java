@@ -3,12 +3,13 @@ package com.alibaba.testable.annotation;
 import java.lang.annotation.*;
 
 /**
- * Use marked method to replace the ones in source class
+ * Make test class able to access private field and method in source class
  *
  * @author flin
  */
 @Retention(RetentionPolicy.SOURCE)
-@Target(ElementType.METHOD)
+@Target(ElementType.TYPE)
 @Documented
-public @interface TestableInject {
+public @interface EnableTestable {
+
 }

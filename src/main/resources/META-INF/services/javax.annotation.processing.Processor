@@ -1,1 +1,2 @@
-com.alibaba.testable.processor.TestableProcessor
+com.alibaba.testable.processor.EnableTestableProcessor
+com.alibaba.testable.processor.EnableTestableInjectProcessor
