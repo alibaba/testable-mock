@@ -55,15 +55,22 @@ public class TestableClassTestRoleTranslator extends TreeTranslator {
         }
     }
 
+    /**
+     * Demo d = new Demo() -> DemoTestable d = new Demo()
+     */
     @Override
     public void visitVarDef(JCVariableDecl jcVariableDecl) {
         super.visitVarDef(jcVariableDecl);
-        if (((JCIdent)jcVariableDecl.vartype).name.toString().equals(sourceClassName)) {
+        if (jcVariableDecl.vartype.getClass().equals(JCIdent.class) &&
+            ((JCIdent)jcVariableDecl.vartype).name.toString().equals(sourceClassName)) {
             jcVariableDecl.vartype = getTestableClassIdent(jcVariableDecl.vartype);
             sourceClassIns.add(jcVariableDecl.name);
         }
     }
 
+    /**
+     * Demo d = new Demo() -> Demo d = new DemoTestable()
+     */
     @Override
     public void visitNewClass(JCNewClass jcNewClass) {
         super.visitNewClass(jcNewClass);
@@ -72,16 +79,9 @@ public class TestableClassTestRoleTranslator extends TreeTranslator {
         }
     }
 
-    private String getSimpleClassName(JCNewClass jcNewClass) {
-        if (jcNewClass.clazz.getClass().equals(JCIdent.class)) {
-            return ((JCIdent)jcNewClass.clazz).name.toString();
-        } else if (jcNewClass.clazz.getClass().equals(JCFieldAccess.class)) {
-            return ((JCFieldAccess)jcNewClass.clazz).name.toString();
-        } else {
-            return "";
-        }
-    }
-
+    /**
+     * d.privateField = val -> d.privateFieldTestableSet(val)
+     */
     @Override
     public void visitExec(JCExpressionStatement jcExpressionStatement) {
         if (jcExpressionStatement.expr.getClass().equals(JCAssign.class) &&
@@ -95,6 +95,9 @@ public class TestableClassTestRoleTranslator extends TreeTranslator {
         super.visitExec(jcExpressionStatement);
     }
 
+    /**
+     * Search for TestableInject and TestSetup annotations
+     */
     @Override
     public void visitMethodDef(JCMethodDecl jcMethodDecl) {
         for (JCAnnotation a : jcMethodDecl.mods.annotations) {
@@ -122,6 +125,9 @@ public class TestableClassTestRoleTranslator extends TreeTranslator {
         super.visitMethodDef(jcMethodDecl);
     }
 
+    /**
+     * Generate test setup method to initialize n.e.pool
+     */
     @Override
     public void visitClassDef(JCClassDecl jcClassDecl) {
         super.visitClassDef(jcClassDecl);
@@ -135,7 +141,7 @@ public class TestableClassTestRoleTranslator extends TreeTranslator {
     }
 
     /**
-     * For break point
+     * For setter break point
      */
     @Override
     public void visitAssign(JCAssign jcAssign) {
@@ -143,11 +149,21 @@ public class TestableClassTestRoleTranslator extends TreeTranslator {
     }
 
     /**
-     * For break point
+     * For getter break point
      */
     @Override
     public void visitSelect(JCFieldAccess jcFieldAccess) {
         super.visitSelect(jcFieldAccess);
+    }
+
+    private String getSimpleClassName(JCNewClass jcNewClass) {
+        if (jcNewClass.clazz.getClass().equals(JCIdent.class)) {
+            return ((JCIdent)jcNewClass.clazz).name.toString();
+        } else if (jcNewClass.clazz.getClass().equals(JCFieldAccess.class)) {
+            return ((JCFieldAccess)jcNewClass.clazz).name.toString();
+        } else {
+            return "";
+        }
     }
 
     private List<JCAnnotation> makeAnnotations(String fullAnnotationName) {
