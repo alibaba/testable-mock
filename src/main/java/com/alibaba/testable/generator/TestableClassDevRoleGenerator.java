@@ -5,7 +5,6 @@ import com.alibaba.testable.generator.statement.CallSuperMethodStatementGenerato
 import com.alibaba.testable.model.TestableContext;
 import com.alibaba.testable.translator.TestableClassDevRoleTranslator;
 import com.alibaba.testable.util.ConstPool;
-import com.alibaba.testable.util.StringUtil;
 import com.squareup.javapoet.*;
 import com.sun.tools.javac.code.Symbol;
 import com.sun.tools.javac.code.Type;
@@ -52,7 +51,6 @@ public class TestableClassDevRoleGenerator {
             methodSpecs.add(buildFieldGetter(clazz, field));
             methodSpecs.add(buildFieldSetter(clazz, field));
         }
-        methodSpecs.add(buildStubbornFieldMethod(translator.getFields()));
 
         TypeSpec.Builder builder = TypeSpec.classBuilder(className)
             .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
@@ -63,18 +61,6 @@ public class TestableClassDevRoleGenerator {
         TypeSpec testableClass = builder.build();
         JavaFile javaFile = JavaFile.builder(packageName, testableClass).build();
         return javaFile.toString();
-    }
-
-    private MethodSpec buildStubbornFieldMethod(List<JCTree.JCVariableDecl> fields) {
-        List<String> fieldNames = new ArrayList<>();
-        for (JCTree.JCVariableDecl f : fields)  {
-            fieldNames.add("\"" + f.name.toString() + "\"");
-        }
-        return MethodSpec.methodBuilder(ConstPool.STUBBORN_FIELD_METHOD)
-            .addModifiers(Modifier.PUBLIC).addModifiers(Modifier.STATIC)
-            .addStatement("return new $T[]{" + StringUtil.join(fieldNames, ",") + "}", String.class)
-            .returns(ArrayTypeName.of(String.class))
-            .build();
     }
 
     private MethodSpec buildFieldGetter(Symbol.ClassSymbol classElement, JCTree.JCVariableDecl field) {

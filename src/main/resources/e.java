@@ -57,33 +57,46 @@ public final class e {
   }
 
   /**
-   * value for contructor and method pool
+   * value for contructor pool
    */
-  public static class v {
+  public static class wv {
     public Object o;  // object which provides substitution
     public String m;  // substitutional method name
 
-    public v(Object o, String m) {
+    public wv(Object o, String m) {
       this.o = o;
       this.m = m;
     }
   }
 
-  private static Map<wk, v> wp = new HashMap<>();
-  private static Map<xk, v> xp = new HashMap<>();
+  /**
+   * value for member method pool
+   */
+  public static class xv {
+    public Object o;  // object which provides substitution
+    public Class c;   // method return type
+
+    public xv(Object o, Class c) {
+      this.o = o;
+      this.c = c;
+    }
+  }
+
+  private static Map<wk, wv> wp = new HashMap<>();
+  private static Map<xk, xv> xp = new HashMap<>();
 
   /**
    * add item to contructor pool
    */
-  public static void wa(wk k, v vv) {
-    wp.put(k, vv);
+  public static void wa(wk k, wv v) {
+    wp.put(k, v);
   }
 
   /**
    * add item to method pool
    */
-  public static void xa(xk k, v vv) {
-    xp.put(k, vv);
+  public static void xa(xk k, xv v) {
+    xp.put(k, v);
   }
 
   /**
@@ -96,7 +109,7 @@ public final class e {
     }
     if (!wp.isEmpty()) {
       try {
-        Pair<wk, v> p = gwp(new wk(ct, cs));
+        Pair<wk, wv> p = gwp(new wk(ct, cs));
         if (p != null) {
           Method m = p.snd.o.getClass().getDeclaredMethod(p.snd.m, p.fst.a);
           m.setAccessible(true);
@@ -120,24 +133,25 @@ public final class e {
   /**
    * subsitituion entry for member call
    */
-  public static Object x(Object obj, String method, Object... as) {
+  public static <T> T x(Object obj, String method, Object... as) {
     Class[] cs = gcs(as);
     if (!xp.isEmpty()) {
       try {
-        Pair<xk, v> p = gxp(new xk(method, cs));
+        Pair<xk, xv> p = gxp(new xk(method, cs));
         if (p != null) {
-          Method m = p.snd.o.getClass().getDeclaredMethod(p.snd.m, p.fst.a);
+          Method m = p.snd.o.getClass().getDeclaredMethod(p.fst.m, p.fst.a);
           m.setAccessible(true);
-          return m.invoke(p.snd.o, as);
+          return (T)m.invoke(p.snd.o, as);
         }
       } catch (Exception e) {
         return null;
       }
     }
     try {
-      Method m = gm(obj.getClass().getMethods(), cs);
+      Method m = gm(obj.getClass().getDeclaredMethods(), method, cs);
       if (m != null) {
-        return m.invoke(obj, as);
+        m.setAccessible(true);
+        return (T)m.invoke(obj, as);
       }
     } catch (Exception e) {
       return null;
@@ -159,9 +173,9 @@ public final class e {
   /**
    * get method by parameter matching
    */
-  private static Method gm(Method[] methods, Class[] cs) {
+  private static Method gm(Method[] methods, String name, Class[] cs) {
     for (Method m : methods) {
-      if (te(m.getParameterTypes(), cs)) {
+      if (m.getName().equals(name) && te(m.getParameterTypes(), cs)) {
         return m;
       }
     }
@@ -171,7 +185,7 @@ public final class e {
   /**
    * get from method pool by key
    */
-  private static Pair<xk, v> gxp(xk k1) {
+  private static Pair<xk, xv> gxp(xk k1) {
     for (xk k2 : xp.keySet()) {
       if (k1.m.equals(k2.m) && te(k2.a, k1.a)) {
         return Pair.of(k2, xp.get(k2));
@@ -195,7 +209,7 @@ public final class e {
   /**
    * get from contructor pool by key
    */
-  private static Pair<wk, v> gwp(wk k1) {
+  private static Pair<wk, wv> gwp(wk k1) {
     for (wk k2 : wp.keySet()) {
       if (k1.c.equals(k2.c) && te(k2.a, k1.a)) {
         return Pair.of(k2, wp.get(k2));

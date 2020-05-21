@@ -53,7 +53,7 @@ public class TestableProcessor extends BaseProcessor {
     private void createStaticNewClass() {
         if (!isStaticNewClassExist()) {
             try {
-                writeSourceFile(ConstPool.SN_PKG_CLS, new StaticNewClassGenerator(cx).fetch());
+                writeSourceFile(ConstPool.NE_PKG_CLS, new StaticNewClassGenerator(cx).fetch());
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -62,8 +62,8 @@ public class TestableProcessor extends BaseProcessor {
 
     private boolean isStaticNewClassExist() {
         try {
-            FileObject staticNewClassFile = cx.filter.getResource(SOURCE_OUTPUT, ConstPool.SN_PKG,
-                ConstPool.SN_CLS + JAVA_POSTFIX);
+            FileObject staticNewClassFile = cx.filter.getResource(SOURCE_OUTPUT, ConstPool.NE_PKG,
+                ConstPool.NE_CLS + JAVA_POSTFIX);
             return isCompilingTestClass(staticNewClassFile) || staticNewClassFile.getLastModified() > 0;
         } catch (FilerException e) {
             return true;
