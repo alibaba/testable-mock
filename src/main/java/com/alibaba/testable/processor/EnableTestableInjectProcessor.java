@@ -2,9 +2,10 @@ package com.alibaba.testable.processor;
 
 import com.alibaba.testable.annotation.EnableTestableInject;
 import com.alibaba.testable.generator.StaticNewClassGenerator;
-import com.alibaba.testable.generator.TestableClassGenerator;
+import com.alibaba.testable.translator.EnableTestableInjectTranslator;
 import com.alibaba.testable.util.ConstPool;
 import com.sun.tools.javac.code.Symbol;
+import com.sun.tools.javac.tree.JCTree;
 
 import javax.annotation.processing.FilerException;
 import javax.annotation.processing.RoundEnvironment;
@@ -12,7 +13,6 @@ import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
-import javax.lang.model.element.Name;
 import javax.lang.model.element.TypeElement;
 import javax.tools.FileObject;
 import javax.tools.JavaFileObject;
@@ -71,15 +71,9 @@ public class EnableTestableInjectProcessor extends BaseProcessor {
     }
 
     private void processClassElement(Symbol.ClassSymbol clazz) {
-        String packageName = cx.elementUtils.getPackageOf(clazz).getQualifiedName().toString();
-        String testableTypeName = getTestableClassName(clazz.getSimpleName());
-        String fullQualityTypeName =  packageName + "." + testableTypeName;
-        try {
-            writeSourceFile(fullQualityTypeName,
-                new TestableClassGenerator(cx).fetch(clazz, packageName, testableTypeName));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        JCTree tree = cx.trees.getTree(clazz);
+        EnableTestableInjectTranslator translator = new EnableTestableInjectTranslator(cx);
+        tree.accept(translator);
     }
 
     private void writeSourceFile(String fullQualityTypeName, String content) throws IOException {
@@ -87,10 +81,6 @@ public class EnableTestableInjectProcessor extends BaseProcessor {
         Writer writer = jfo.openWriter();
         writer.write(content);
         writer.close();
-    }
-
-    private String getTestableClassName(Name className) {
-        return className.toString().replace(".", "_") + ConstPool.TESTABLE;
     }
 
 }
