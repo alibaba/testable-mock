@@ -2,8 +2,7 @@ package com.alibaba.testable.translator;
 
 import com.alibaba.testable.model.TestableContext;
 import com.alibaba.testable.util.ConstPool;
-import com.sun.tools.javac.tree.JCTree;
-import com.sun.tools.javac.tree.JCTree.JCMethodDecl;
+import com.sun.tools.javac.tree.JCTree.*;
 import com.sun.tools.javac.tree.TreeTranslator;
 import com.sun.tools.javac.util.List;
 import com.sun.tools.javac.util.ListBuffer;
@@ -26,13 +25,13 @@ public class EnableTestableInjectTranslator extends TreeTranslator {
     /**
      * Fields to wrap
      */
-    private List<JCTree.JCVariableDecl> fields = List.nil();
+    private List<JCVariableDecl> fields = List.nil();
 
     public List<JCMethodDecl> getMethods() {
         return methods;
     }
 
-    public List<JCTree.JCVariableDecl> getFields() {
+    public List<JCVariableDecl> getFields() {
         return fields;
     }
 
@@ -54,7 +53,7 @@ public class EnableTestableInjectTranslator extends TreeTranslator {
      * Case: member()
      */
     @Override
-    public void visitExec(JCTree.JCExpressionStatement jcExpressionStatement) {
+    public void visitExec(JCExpressionStatement jcExpressionStatement) {
         jcExpressionStatement.expr = checkAndExchange(jcExpressionStatement.expr);
         super.visitExec(jcExpressionStatement);
     }
@@ -64,7 +63,7 @@ public class EnableTestableInjectTranslator extends TreeTranslator {
      * Case: call(new Demo())
      */
     @Override
-    public void visitApply(JCTree.JCMethodInvocation tree) {
+    public void visitApply(JCMethodInvocation tree) {
         tree.args = checkAndExchange(tree.args);
         super.visitApply(tree);
     }
@@ -74,7 +73,7 @@ public class EnableTestableInjectTranslator extends TreeTranslator {
      * Case: return member()
      */
     @Override
-    public void visitReturn(JCTree.JCReturn jcReturn) {
+    public void visitReturn(JCReturn jcReturn) {
         jcReturn.expr = checkAndExchange(jcReturn.expr);
         super.visitReturn(jcReturn);
     }
@@ -85,7 +84,7 @@ public class EnableTestableInjectTranslator extends TreeTranslator {
      * Case: Demo d = member()
      */
     @Override
-    public void visitVarDef(JCTree.JCVariableDecl jcVariableDecl) {
+    public void visitVarDef(JCVariableDecl jcVariableDecl) {
         if (isStubbornField(jcVariableDecl.mods)) {
             fields = fields.append(jcVariableDecl);
         }
@@ -98,7 +97,7 @@ public class EnableTestableInjectTranslator extends TreeTranslator {
      * Case: member().call()
      */
     @Override
-    public void visitSelect(JCTree.JCFieldAccess jcFieldAccess) {
+    public void visitSelect(JCFieldAccess jcFieldAccess) {
         jcFieldAccess.selected = checkAndExchange(jcFieldAccess.selected);
         super.visitSelect(jcFieldAccess);
     }
@@ -107,7 +106,7 @@ public class EnableTestableInjectTranslator extends TreeTranslator {
      * For new operation break point
      */
     @Override
-    public void visitNewClass(JCTree.JCNewClass jcNewClass) {
+    public void visitNewClass(JCNewClass jcNewClass) {
         super.visitNewClass(jcNewClass);
     }
 
@@ -115,18 +114,18 @@ public class EnableTestableInjectTranslator extends TreeTranslator {
      * For new operation break point
      */
     @Override
-    public void visitNewArray(JCTree.JCNewArray jcNewArray) {
+    public void visitNewArray(JCNewArray jcNewArray) {
         super.visitNewArray(jcNewArray);
     }
 
-    private boolean isStubbornField(JCTree.JCModifiers mods) {
+    private boolean isStubbornField(JCModifiers mods) {
         return mods.getFlags().contains(javax.lang.model.element.Modifier.PRIVATE) ||
             mods.getFlags().contains(javax.lang.model.element.Modifier.FINAL);
     }
 
-    private List<JCTree.JCExpression> checkAndExchange(List<JCTree.JCExpression> args) {
+    private List<JCExpression> checkAndExchange(List<JCExpression> args) {
         if (args != null) {
-            JCTree.JCExpression[] es = new JCTree.JCExpression[args.length()];
+            JCExpression[] es = new JCExpression[args.length()];
             for (int i = 0; i < args.length(); i++) {
                 es[i] = checkAndExchange(args.get(i));
             }
@@ -135,51 +134,51 @@ public class EnableTestableInjectTranslator extends TreeTranslator {
         return null;
     }
 
-    private JCTree.JCExpression checkAndExchange(JCTree.JCExpression expr) {
+    private JCExpression checkAndExchange(JCExpression expr) {
         if (isNewOperation(expr)) {
-            JCTree.JCNewClass newClassExpr = (JCTree.JCNewClass)expr;
-            Name className = ((JCTree.JCIdent)newClassExpr.clazz).name;
+            JCNewClass newClassExpr = (JCNewClass)expr;
+            Name className = ((JCIdent)newClassExpr.clazz).name;
             try {
                 return getGlobalNewInvocation(newClassExpr, className);
             } catch (Exception e) {
                 e.printStackTrace();
             }
         } else if (isMemberMethodInvocation(expr)) {
-            Name methodName = ((JCTree.JCIdent)((JCTree.JCMethodInvocation)expr).meth).name;
-            List<JCTree.JCExpression> args = ((JCTree.JCMethodInvocation)expr).args;
+            Name methodName = ((JCIdent)((JCMethodInvocation)expr).meth).name;
+            List<JCExpression> args = ((JCMethodInvocation)expr).args;
             return getGlobalMemberInvocation(methodName, args);
         }
         return expr;
     }
 
-    private boolean isMemberMethodInvocation(JCTree.JCExpression expr) {
-        return expr != null && expr.getClass().equals(JCTree.JCMethodInvocation.class) &&
-            ((JCTree.JCMethodInvocation)expr).meth.getClass().equals(JCTree.JCIdent.class);
+    private boolean isMemberMethodInvocation(JCExpression expr) {
+        return expr != null && expr.getClass().equals(JCMethodInvocation.class) &&
+            ((JCMethodInvocation)expr).meth.getClass().equals(JCIdent.class);
     }
 
-    private boolean isNewOperation(JCTree.JCExpression expr) {
-        return expr != null && expr.getClass().equals(JCTree.JCNewClass.class);
+    private boolean isNewOperation(JCExpression expr) {
+        return expr != null && expr.getClass().equals(JCNewClass.class);
     }
 
-    private JCTree.JCMethodInvocation getGlobalNewInvocation(JCTree.JCNewClass newClassExpr, Name className) {
-        JCTree.JCFieldAccess snClass = cx.treeMaker.Select(cx.treeMaker.Ident(cx.names.fromString(ConstPool.NE_PKG)),
+    private JCMethodInvocation getGlobalNewInvocation(JCNewClass newClassExpr, Name className) {
+        JCFieldAccess snClass = cx.treeMaker.Select(cx.treeMaker.Ident(cx.names.fromString(ConstPool.NE_PKG)),
             cx.names.fromString(ConstPool.NE_CLS));
-        JCTree.JCFieldAccess snMethod = cx.treeMaker.Select(snClass, cx.names.fromString(ConstPool.NE_NEW));
-        JCTree.JCExpression classType = cx.treeMaker.Select(cx.treeMaker.Ident(className),
+        JCFieldAccess snMethod = cx.treeMaker.Select(snClass, cx.names.fromString(ConstPool.NE_NEW));
+        JCExpression classType = cx.treeMaker.Select(cx.treeMaker.Ident(className),
             cx.names.fromString(ConstPool.TYPE_TO_CLASS));
-        ListBuffer<JCTree.JCExpression> args = ListBuffer.of(classType);
+        ListBuffer<JCExpression> args = ListBuffer.of(classType);
         args.addAll(newClassExpr.args);
-        return cx.treeMaker.Apply(List.<JCTree.JCExpression>nil(), snMethod, args.toList());
+        return cx.treeMaker.Apply(List.<JCExpression>nil(), snMethod, args.toList());
     }
 
-    private JCTree.JCMethodInvocation getGlobalMemberInvocation(Name methodName, List<JCTree.JCExpression> param) {
-        JCTree.JCFieldAccess snClass = cx.treeMaker.Select(cx.treeMaker.Ident(cx.names.fromString(ConstPool.NE_PKG)),
+    private JCMethodInvocation getGlobalMemberInvocation(Name methodName, List<JCExpression> param) {
+        JCFieldAccess snClass = cx.treeMaker.Select(cx.treeMaker.Ident(cx.names.fromString(ConstPool.NE_PKG)),
             cx.names.fromString(ConstPool.NE_CLS));
-        JCTree.JCFieldAccess snMethod = cx.treeMaker.Select(snClass, cx.names.fromString(ConstPool.NE_FUN));
-        ListBuffer<JCTree.JCExpression> args = new ListBuffer();
+        JCFieldAccess snMethod = cx.treeMaker.Select(snClass, cx.names.fromString(ConstPool.NE_FUN));
+        ListBuffer<JCExpression> args = new ListBuffer();
         args.add(cx.treeMaker.Ident(cx.names.fromString(ConstPool.REF_THIS)));
         args.add(cx.treeMaker.Literal(methodName.toString()));
         args.addAll(param);
-        return cx.treeMaker.Apply(List.<JCTree.JCExpression>nil(), snMethod, args.toList());
+        return cx.treeMaker.Apply(List.<JCExpression>nil(), snMethod, args.toList());
     }
 }

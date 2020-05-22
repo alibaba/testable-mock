@@ -1,13 +1,17 @@
 package com.alibaba.testable.translator;
 
+import com.alibaba.testable.generator.PrivateAccessStatementGenerator;
 import com.alibaba.testable.generator.TestSetupMethodGenerator;
 import com.alibaba.testable.model.TestLibType;
 import com.alibaba.testable.model.TestableContext;
 import com.alibaba.testable.util.ConstPool;
 import com.sun.tools.javac.tree.JCTree;
-import com.sun.tools.javac.tree.TreeTranslator;
-import com.sun.tools.javac.util.*;
 import com.sun.tools.javac.tree.JCTree.*;
+import com.sun.tools.javac.tree.TreeTranslator;
+import com.sun.tools.javac.util.List;
+import com.sun.tools.javac.util.ListBuffer;
+import com.sun.tools.javac.util.Name;
+import com.sun.tools.javac.util.Pair;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -25,11 +29,13 @@ public class EnableTestableTranslator extends TreeTranslator {
     private final ListBuffer<Name> sourceClassIns = new ListBuffer<>();
     private final ListBuffer<String> stubbornFields = new ListBuffer<>();
     private final TestSetupMethodGenerator testSetupMethodGenerator;
+    private final PrivateAccessStatementGenerator privateAccessStatementGenerator;
 
     public EnableTestableTranslator(String pkgName, String className, TestableContext cx) {
         this.sourceClassName = className;
         this.cx = cx;
         this.testSetupMethodGenerator = new TestSetupMethodGenerator(cx);
+        this.privateAccessStatementGenerator = new PrivateAccessStatementGenerator(cx);
         try {
             Class<?> cls = Class.forName(pkgName + "." + className);
             Field[] fields = cls.getDeclaredFields();
@@ -69,17 +75,13 @@ public class EnableTestableTranslator extends TreeTranslator {
     }
 
     /**
-     * d.privateField = val -> d.privateFieldTestableSet(val)
+     * d.privateField = val -> PrivateAccessor.set(d, "privateField", val)
      */
     @Override
     public void visitExec(JCExpressionStatement jcExpressionStatement) {
         if (jcExpressionStatement.expr.getClass().equals(JCAssign.class) &&
             isAssignStubbornField((JCAssign)jcExpressionStatement.expr)) {
-            JCAssign assign = (JCAssign)jcExpressionStatement.expr;
-            JCFieldAccess stubbornSetter = cx.treeMaker.Select(((JCFieldAccess)assign.lhs).selected,
-                getStubbornSetterMethodName(assign));
-            jcExpressionStatement.expr = cx.treeMaker.Apply(List.<JCExpression>nil(), stubbornSetter,
-                com.sun.tools.javac.util.List.of(assign.rhs));
+            jcExpressionStatement.expr = privateAccessStatementGenerator.fetchSetterStatement(jcExpressionStatement);
         }
         super.visitExec(jcExpressionStatement);
     }
@@ -160,11 +162,6 @@ public class EnableTestableTranslator extends TreeTranslator {
             }
         }
         return nb.toList();
-    }
-
-    private Name getStubbornSetterMethodName(JCAssign assign) {
-        String name = ((JCFieldAccess)assign.lhs).name.toString() + ConstPool.TESTABLE_SET_METHOD_PREFIX;
-        return cx.names.fromString(name);
     }
 
     private boolean isAssignStubbornField(JCAssign expr) {

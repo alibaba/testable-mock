@@ -18,10 +18,9 @@ import java.lang.reflect.Modifier;
  *
  * @author flin
  */
-public class TestSetupMethodGenerator {
+public class TestSetupMethodGenerator extends BaseGenerator {
 
     private static final String TYPE_CLASS = "Class";
-    private final TestableContext cx;
 
     /**
      * MethodName -> (ResultType -> ParameterTypes)
@@ -32,7 +31,7 @@ public class TestSetupMethodGenerator {
     public final ListBuffer<Method> memberMethods = new ListBuffer<>();
 
     public TestSetupMethodGenerator(TestableContext cx) {
-        this.cx = cx;
+        super(cx);
     }
 
     public JCMethodDecl fetch() {
@@ -63,14 +62,6 @@ public class TestSetupMethodGenerator {
         return cx.treeMaker.Block(0, statements.toList());
     }
 
-    private JCExpression nameToExpression(String dotName) {
-        String[] nameParts = dotName.split("\\.");
-        JCExpression e = cx.treeMaker.Ident(cx.names.fromString(nameParts[0]));
-        for (int i = 1; i < nameParts.length; i++) {
-            e = cx.treeMaker.Select(e, cx.names.fromString(nameParts[i]));
-        }
-        return e;
-    }
 
     private boolean isMemberMethod(Pair<Name, Pair<JCExpression, List<JCExpression>>> m) {
         for (Method method : memberMethods) {

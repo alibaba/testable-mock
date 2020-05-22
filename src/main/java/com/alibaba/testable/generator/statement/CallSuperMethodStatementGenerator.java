@@ -3,7 +3,7 @@ package com.alibaba.testable.generator.statement;
 import com.alibaba.testable.generator.model.Statement;
 import com.alibaba.testable.util.ConstPool;
 import com.alibaba.testable.util.StringUtil;
-import com.sun.tools.javac.tree.JCTree;
+import com.sun.tools.javac.tree.JCTree.*;
 import java.lang.reflect.Method;
 import javax.lang.model.element.Modifier;
 import java.util.ArrayList;
@@ -16,7 +16,7 @@ import java.util.List;
  */
 public class CallSuperMethodStatementGenerator {
 
-    public Statement[] fetch(String className, JCTree.JCMethodDecl method) {
+    public Statement[] fetch(String className, JCMethodDecl method) {
         if (method.getModifiers().getFlags().contains(Modifier.PRIVATE)) {
             return reflectCall(className, method);
         } else {
@@ -24,11 +24,11 @@ public class CallSuperMethodStatementGenerator {
         }
     }
 
-    private Statement[] commonCall(JCTree.JCMethodDecl method) {
+    private Statement[] commonCall(JCMethodDecl method) {
         List<Object> args = new ArrayList<>();
         StringBuilder code = new StringBuilder();
         List<String> placeholders = new ArrayList<>();
-        for (JCTree.JCVariableDecl p : method.params) {
+        for (JCVariableDecl p : method.params) {
             args.add(p.name.toString());
             placeholders.add("$N");
         }
@@ -40,7 +40,7 @@ public class CallSuperMethodStatementGenerator {
         return new Statement[] { returnStatement(method, new Statement(code.toString(), args.toArray())) };
     }
 
-    private Statement[] reflectCall(String className, JCTree.JCMethodDecl method) {
+    private Statement[] reflectCall(String className, JCMethodDecl method) {
         List<Statement> statements = new ArrayList<>();
         statements.add(getMethodStatement(className, method));
         statements.add(setAccessibleStatement());
@@ -48,20 +48,20 @@ public class CallSuperMethodStatementGenerator {
         return statements.toArray(new Statement[0]);
     }
 
-    private Statement returnStatement(JCTree.JCMethodDecl method, Statement statement) {
+    private Statement returnStatement(JCMethodDecl method, Statement statement) {
         if (method.restype != null && !method.restype.toString().equals(ConstPool.TYPE_VOID)) {
             statement.setLine("return " + statement.getLine());
         }
         return statement;
     }
 
-    private Statement getMethodStatement(String className, JCTree.JCMethodDecl method) {
+    private Statement getMethodStatement(String className, JCMethodDecl method) {
         List<Object> args = new ArrayList<>();
         StringBuilder code = new StringBuilder();
         code.append("$T m = ");
         args.add(Method.class);
         code.append(className).append(".class.getDeclaredMethod(\"").append(method.name).append("\"");
-        for (JCTree.JCVariableDecl p : method.params) {
+        for (JCVariableDecl p : method.params) {
             code.append(", $T.class");
             args.add(p.sym.type);
         }
@@ -73,13 +73,13 @@ public class CallSuperMethodStatementGenerator {
         return new Statement("m.setAccessible(true)", new Object[0]);
     }
 
-    private Statement invokeStatement(JCTree.JCMethodDecl method) {
+    private Statement invokeStatement(JCMethodDecl method) {
         StringBuilder code = new StringBuilder();
         if (!method.restype.toString().equals(ConstPool.TYPE_VOID)) {
             code.append("(").append(method.restype).append(")");
         }
         code.append("m.invoke(this");
-        for (JCTree.JCVariableDecl p : method.params) {
+        for (JCVariableDecl p : method.params) {
             code.append(", ").append(p.name);
         }
         code.append(")");

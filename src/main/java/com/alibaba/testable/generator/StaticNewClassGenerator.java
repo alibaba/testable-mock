@@ -11,12 +11,10 @@ import java.nio.file.Files;
  *
  * @author flin
  */
-public class StaticNewClassGenerator {
-
-    private final TestableContext cx;
+public class StaticNewClassGenerator extends BaseGenerator {
 
     public StaticNewClassGenerator(TestableContext cx) {
-        this.cx = cx;
+        super(cx);
     }
 
     public String fetch() {
