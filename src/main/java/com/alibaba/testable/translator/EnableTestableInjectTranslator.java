@@ -13,7 +13,7 @@ import com.sun.tools.javac.util.Name;
  *
  * @author flin
  */
-public class EnableTestableInjectTranslator extends TreeTranslator {
+public class EnableTestableInjectTranslator extends BaseTranslator {
 
     private final TestableContext cx;
 
@@ -123,18 +123,8 @@ public class EnableTestableInjectTranslator extends TreeTranslator {
             mods.getFlags().contains(javax.lang.model.element.Modifier.FINAL);
     }
 
-    private List<JCExpression> checkAndExchange(List<JCExpression> args) {
-        if (args != null) {
-            JCExpression[] es = new JCExpression[args.length()];
-            for (int i = 0; i < args.length(); i++) {
-                es[i] = checkAndExchange(args.get(i));
-            }
-            return List.from(es);
-        }
-        return null;
-    }
-
-    private JCExpression checkAndExchange(JCExpression expr) {
+    @Override
+    protected JCExpression checkAndExchange(JCExpression expr) {
         if (isNewOperation(expr)) {
             JCNewClass newClassExpr = (JCNewClass)expr;
             Name className = ((JCIdent)newClassExpr.clazz).name;
@@ -175,7 +165,7 @@ public class EnableTestableInjectTranslator extends TreeTranslator {
         JCFieldAccess snClass = cx.treeMaker.Select(cx.treeMaker.Ident(cx.names.fromString(ConstPool.NE_PKG)),
             cx.names.fromString(ConstPool.NE_CLS));
         JCFieldAccess snMethod = cx.treeMaker.Select(snClass, cx.names.fromString(ConstPool.NE_FUN));
-        ListBuffer<JCExpression> args = new ListBuffer();
+        ListBuffer<JCExpression> args = new ListBuffer<>();
         args.add(cx.treeMaker.Ident(cx.names.fromString(ConstPool.REF_THIS)));
         args.add(cx.treeMaker.Literal(methodName.toString()));
         args.addAll(param);

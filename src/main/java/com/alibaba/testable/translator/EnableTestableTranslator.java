@@ -7,13 +7,13 @@ import com.alibaba.testable.model.TestableContext;
 import com.alibaba.testable.util.ConstPool;
 import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.tree.JCTree.*;
-import com.sun.tools.javac.tree.TreeTranslator;
 import com.sun.tools.javac.util.List;
 import com.sun.tools.javac.util.ListBuffer;
 import com.sun.tools.javac.util.Name;
 import com.sun.tools.javac.util.Pair;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
 
@@ -22,12 +22,13 @@ import java.util.Arrays;
  *
  * @author flin
  */
-public class EnableTestableTranslator extends TreeTranslator {
+public class EnableTestableTranslator extends BaseTranslator {
 
     private final TestableContext cx;
     private String sourceClassName = "";
     private final ListBuffer<Name> sourceClassIns = new ListBuffer<>();
-    private final ListBuffer<String> stubbornFields = new ListBuffer<>();
+    private final ListBuffer<String> privateOrFinalFields = new ListBuffer<>();
+    private final ListBuffer<String> privateMethods = new ListBuffer<>();
     private final TestSetupMethodGenerator testSetupMethodGenerator;
     private final PrivateAccessStatementGenerator privateAccessStatementGenerator;
 
@@ -41,7 +42,13 @@ public class EnableTestableTranslator extends TreeTranslator {
             Field[] fields = cls.getDeclaredFields();
             for (Field f : fields) {
                 if (Modifier.isFinal(f.getModifiers()) || Modifier.isPrivate(f.getModifiers())) {
-                    stubbornFields.add(f.getName());
+                    privateOrFinalFields.add(f.getName());
+                }
+            }
+            Method[] methods = cls.getDeclaredMethods();
+            for (Method m : methods) {
+                if (Modifier.isPrivate(m.getModifiers())) {
+                    privateMethods.add(m.getName());
                 }
             }
             testSetupMethodGenerator.memberMethods.addAll(Arrays.asList(cls.getDeclaredMethods()));
@@ -50,39 +57,27 @@ public class EnableTestableTranslator extends TreeTranslator {
         }
     }
 
-    /**
-     * Demo d = new Demo() -> DemoTestable d = new Demo()
-     */
     @Override
     public void visitVarDef(JCVariableDecl jcVariableDecl) {
         super.visitVarDef(jcVariableDecl);
         if (jcVariableDecl.vartype.getClass().equals(JCIdent.class) &&
             ((JCIdent)jcVariableDecl.vartype).name.toString().equals(sourceClassName)) {
-            jcVariableDecl.vartype = getTestableClassIdent(jcVariableDecl.vartype);
             sourceClassIns.add(jcVariableDecl.name);
         }
     }
 
     /**
-     * Demo d = new Demo() -> Demo d = new DemoTestable()
-     */
-    @Override
-    public void visitNewClass(JCNewClass jcNewClass) {
-        super.visitNewClass(jcNewClass);
-        if (getSimpleClassName(jcNewClass).equals(sourceClassName)) {
-            jcNewClass.clazz = getTestableClassIdent(jcNewClass.clazz);
-        }
-    }
-
-    /**
      * d.privateField = val -> PrivateAccessor.set(d, "privateField", val)
+     * d.privateMethod(args) -> PrivateAccessor.invoke(d, "privateMethod", args)
      */
     @Override
     public void visitExec(JCExpressionStatement jcExpressionStatement) {
         if (jcExpressionStatement.expr.getClass().equals(JCAssign.class) &&
-            isAssignStubbornField((JCAssign)jcExpressionStatement.expr)) {
-            jcExpressionStatement.expr = privateAccessStatementGenerator.fetchSetterStatement(jcExpressionStatement);
+            isPrivateField((JCAssign)jcExpressionStatement.expr)) {
+            jcExpressionStatement.expr = privateAccessStatementGenerator.fetchSetterStatement(
+                (JCAssign)jcExpressionStatement.expr);
         }
+        jcExpressionStatement.expr = checkAndExchange(jcExpressionStatement.expr);
         super.visitExec(jcExpressionStatement);
     }
 
@@ -129,7 +124,16 @@ public class EnableTestableTranslator extends TreeTranslator {
     }
 
     /**
-     * For setter break point
+     * For private invoke invocation break point
+     */
+    @Override
+    public void visitApply(JCMethodInvocation tree) {
+        tree.args = checkAndExchange(tree.args);
+        super.visitApply(tree);
+    }
+
+    /**
+     * For private setter break point
      */
     @Override
     public void visitAssign(JCAssign jcAssign) {
@@ -137,21 +141,20 @@ public class EnableTestableTranslator extends TreeTranslator {
     }
 
     /**
-     * For getter break point
+     * For private getter break point
      */
     @Override
     public void visitSelect(JCFieldAccess jcFieldAccess) {
         super.visitSelect(jcFieldAccess);
     }
 
-    private String getSimpleClassName(JCNewClass jcNewClass) {
-        if (jcNewClass.clazz.getClass().equals(JCIdent.class)) {
-            return ((JCIdent)jcNewClass.clazz).name.toString();
-        } else if (jcNewClass.clazz.getClass().equals(JCFieldAccess.class)) {
-            return ((JCFieldAccess)jcNewClass.clazz).name.toString();
-        } else {
-            return "";
+    @Override
+    protected JCExpression checkAndExchange(JCExpression expr) {
+        if (expr.getClass().equals(JCMethodInvocation.class) &&
+            isPrivateMethod((JCMethodInvocation)expr)) {
+            expr = privateAccessStatementGenerator.fetchInvokeStatement((JCMethodInvocation)expr);
         }
+        return expr;
     }
 
     private List<JCAnnotation> removeAnnotation(List<JCAnnotation> annotations, String target) {
@@ -164,15 +167,18 @@ public class EnableTestableTranslator extends TreeTranslator {
         return nb.toList();
     }
 
-    private boolean isAssignStubbornField(JCAssign expr) {
+    private boolean isPrivateField(JCAssign expr) {
         return expr.lhs.getClass().equals(JCFieldAccess.class) &&
+            ((JCFieldAccess)(expr).lhs).selected.getClass().equals(JCIdent.class) &&
             sourceClassIns.contains(((JCIdent)((JCFieldAccess)(expr).lhs).selected).name) &&
-            stubbornFields.contains(((JCFieldAccess)(expr).lhs).name.toString());
+            privateOrFinalFields.contains(((JCFieldAccess)(expr).lhs).name.toString());
     }
 
-    private JCIdent getTestableClassIdent(JCExpression clazz) {
-        Name className = ((JCIdent)clazz).name;
-        return cx.treeMaker.Ident(cx.names.fromString(className + ConstPool.TESTABLE));
+    private boolean isPrivateMethod(JCMethodInvocation expr) {
+        return expr.meth.getClass().equals(JCFieldAccess.class) &&
+            ((JCFieldAccess)(expr).meth).selected.getClass().equals(JCIdent.class) &&
+            sourceClassIns.contains(((JCIdent)((JCFieldAccess)(expr).meth).selected).name) &&
+            privateMethods.contains(((JCFieldAccess)(expr).meth).name.toString());
     }
 
 }
