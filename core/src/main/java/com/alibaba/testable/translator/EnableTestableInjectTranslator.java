@@ -170,7 +170,8 @@ public class EnableTestableInjectTranslator extends BaseTranslator {
         args.addAll(param);
         JCMethodInvocation apply = cx.treeMaker.Apply(List.<JCExpression>nil(), snMethod, args.toList());
         for (JCMethodDecl m : methods) {
-            if (m.restype != null && m.name.equals(methodName) && paramEquals(m.params, param)) {
+            if (m.restype != null && !m.restype.toString().equals(ConstPool.VOID) &&
+                m.name.equals(methodName) && paramEquals(m.params, param)) {
                 JCTypeCast cast = cx.treeMaker.TypeCast(m.restype, apply);
                 return cx.treeMaker.Parens(cast);
             }

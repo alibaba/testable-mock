@@ -26,6 +26,7 @@ target/
 *.java~
 *.properties~
 *.xml~
+dependency-reduced-pom.xml
 
 # system ignore
 .DS_Store

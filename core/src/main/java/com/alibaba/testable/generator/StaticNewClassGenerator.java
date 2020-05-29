@@ -2,9 +2,10 @@ package com.alibaba.testable.generator;
 
 import com.alibaba.testable.model.TestableContext;
 
-import java.io.File;
+import java.io.BufferedReader;
 import java.io.IOException;
-import java.nio.file.Files;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 
 /**
  * Generate global n.e class code
@@ -18,13 +19,17 @@ public class StaticNewClassGenerator extends BaseGenerator {
     }
 
     public String fetch() {
-        ClassLoader classLoader = this.getClass().getClassLoader();
-        File file = new File(classLoader.getResource("e.java").getFile());
-        if (!file.exists()) {
-            cx.logger.error("Failed to fetch testable new stand-in.");
-        }
+        InputStream in = getClass().getResourceAsStream("/e.java");
+        BufferedReader reader = new BufferedReader(new InputStreamReader(in));
         try {
-            return new String(Files.readAllBytes(file.toPath()));
+            String line;
+            StringBuffer buffer = new StringBuffer();
+            while ((line = reader.readLine()) != null)
+            {
+                buffer.append(line).append('\n');
+            }
+            reader.close();
+            return buffer.toString();
         } catch (IOException e) {
             cx.logger.error("Failed to generate testable new stand-in.");
             return "";

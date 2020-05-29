@@ -15,6 +15,7 @@ public final class ConstPool {
     public static final String NE_ADD_F = NE_PKG_CLS + ".af";
     public static final String TYPE_TO_CLASS = "class";
     public static final String REF_THIS = "this";
+    public static final String VOID = "void";
     public static final String TESTABLE_PRIVATE_ACCESSOR = "com.alibaba.testable.accessor.PrivateAccessor";
     public static final String ANNOTATION_TESTABLE_INJECT = "com.alibaba.testable.annotation.TestableInject";
     public static final String ANNOTATION_JUNIT5_SETUP = "org.junit.jupiter.api.BeforeEach";
