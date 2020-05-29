@@ -3,7 +3,6 @@ package com.alibaba.testable.translator;
 import com.alibaba.testable.model.TestableContext;
 import com.alibaba.testable.util.ConstPool;
 import com.sun.tools.javac.tree.JCTree.*;
-import com.sun.tools.javac.tree.TreeTranslator;
 import com.sun.tools.javac.util.List;
 import com.sun.tools.javac.util.ListBuffer;
 import com.sun.tools.javac.util.Name;
@@ -49,8 +48,8 @@ public class EnableTestableInjectTranslator extends BaseTranslator {
     }
 
     /**
-     * Case: new Demo()
-     * Case: member()
+     * new Demo() -> n.e.w(Demo.class)
+     * member() -> n.e.f(this, "member")
      */
     @Override
     public void visitExec(JCExpressionStatement jcExpressionStatement) {
@@ -59,18 +58,8 @@ public class EnableTestableInjectTranslator extends BaseTranslator {
     }
 
     /**
-     * For member method invocation break point
-     * Case: call(new Demo())
-     */
-    @Override
-    public void visitApply(JCMethodInvocation tree) {
-        tree.args = checkAndExchange(tree.args);
-        super.visitApply(tree);
-    }
-
-    /**
-     * Case: return new Demo()
-     * Case: return member()
+     * return new Demo() -> return n.e.w(Demo.class)
+     * return member() -> return n.e.f(this, "member")
      */
     @Override
     public void visitReturn(JCReturn jcReturn) {
@@ -80,8 +69,8 @@ public class EnableTestableInjectTranslator extends BaseTranslator {
 
     /**
      * Record all private fields
-     * Case: Demo d = new Demo()
-     * Case: Demo d = member()
+     * Demo d = new Demo() -> Demo d = n.e.w(Demo.class)
+     * Demo d = member() -> Demo d = n.e.f(this, "member")
      */
     @Override
     public void visitVarDef(JCVariableDecl jcVariableDecl) {
@@ -93,13 +82,23 @@ public class EnableTestableInjectTranslator extends BaseTranslator {
     }
 
     /**
-     * Case: new Demo().call()
-     * Case: member().call()
+     * new Demo().call() -> n.e.w(Demo.class).call()
+     * member().call() -> n.e.f(this, "member").call()
      */
     @Override
     public void visitSelect(JCFieldAccess jcFieldAccess) {
         jcFieldAccess.selected = checkAndExchange(jcFieldAccess.selected);
         super.visitSelect(jcFieldAccess);
+    }
+
+    /**
+     * For member method invocation break point
+     * call(new Demo()) -> call(n.e.w(Demo.class))
+     */
+    @Override
+    public void visitApply(JCMethodInvocation tree) {
+        tree.args = checkAndExchange(tree.args);
+        super.visitApply(tree);
     }
 
     /**
@@ -150,7 +149,7 @@ public class EnableTestableInjectTranslator extends BaseTranslator {
         return expr != null && expr.getClass().equals(JCNewClass.class);
     }
 
-    private JCMethodInvocation getGlobalNewInvocation(JCNewClass newClassExpr, Name className) {
+    private JCExpression getGlobalNewInvocation(JCNewClass newClassExpr, Name className) {
         JCFieldAccess snClass = cx.treeMaker.Select(cx.treeMaker.Ident(cx.names.fromString(ConstPool.NE_PKG)),
             cx.names.fromString(ConstPool.NE_CLS));
         JCFieldAccess snMethod = cx.treeMaker.Select(snClass, cx.names.fromString(ConstPool.NE_NEW));
@@ -161,7 +160,7 @@ public class EnableTestableInjectTranslator extends BaseTranslator {
         return cx.treeMaker.Apply(List.<JCExpression>nil(), snMethod, args.toList());
     }
 
-    private JCMethodInvocation getGlobalMemberInvocation(Name methodName, List<JCExpression> param) {
+    private JCExpression getGlobalMemberInvocation(Name methodName, List<JCExpression> param) {
         JCFieldAccess snClass = cx.treeMaker.Select(cx.treeMaker.Ident(cx.names.fromString(ConstPool.NE_PKG)),
             cx.names.fromString(ConstPool.NE_CLS));
         JCFieldAccess snMethod = cx.treeMaker.Select(snClass, cx.names.fromString(ConstPool.NE_FUN));
@@ -169,6 +168,23 @@ public class EnableTestableInjectTranslator extends BaseTranslator {
         args.add(cx.treeMaker.Ident(cx.names.fromString(ConstPool.REF_THIS)));
         args.add(cx.treeMaker.Literal(methodName.toString()));
         args.addAll(param);
-        return cx.treeMaker.Apply(List.<JCExpression>nil(), snMethod, args.toList());
+        JCMethodInvocation apply = cx.treeMaker.Apply(List.<JCExpression>nil(), snMethod, args.toList());
+        for (JCMethodDecl m : methods) {
+            if (m.restype != null && m.name.equals(methodName) && paramEquals(m.params, param)) {
+                JCTypeCast cast = cx.treeMaker.TypeCast(m.restype, apply);
+                return cx.treeMaker.Parens(cast);
+            }
+        }
+        return apply;
+    }
+
+    private boolean paramEquals(List<JCVariableDecl> p1, List<JCExpression> p2) {
+        if (p1.length() != p2.length()) {
+            return false;
+        }
+        for (int i = 0; i < p1.length(); i++) {
+            // TODO: Compare parameters type
+        }
+        return true;
     }
 }
