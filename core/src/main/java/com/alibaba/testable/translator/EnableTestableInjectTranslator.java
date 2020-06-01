@@ -15,36 +15,11 @@ import com.sun.tools.javac.util.Name;
 public class EnableTestableInjectTranslator extends BaseTranslator {
 
     private final TestableContext cx;
+    private List<JCMethodDecl> methods;
 
-    /**
-     * Methods to inject
-     */
-    private List<JCMethodDecl> methods = List.nil();
-
-    /**
-     * Fields to wrap
-     */
-    private List<JCVariableDecl> fields = List.nil();
-
-    public List<JCMethodDecl> getMethods() {
-        return methods;
-    }
-
-    public List<JCVariableDecl> getFields() {
-        return fields;
-    }
-
-    public EnableTestableInjectTranslator(TestableContext cx) {
+    public EnableTestableInjectTranslator(TestableContext cx, List<JCMethodDecl> methods) {
         this.cx = cx;
-    }
-
-    /**
-     * Record all methods
-     */
-    @Override
-    public void visitMethodDef(JCMethodDecl jcMethodDecl) {
-        super.visitMethodDef(jcMethodDecl);
-        methods = methods.append(jcMethodDecl);
+        this.methods = methods;
     }
 
     /**
@@ -68,15 +43,11 @@ public class EnableTestableInjectTranslator extends BaseTranslator {
     }
 
     /**
-     * Record all private fields
      * Demo d = new Demo() -> Demo d = n.e.w(Demo.class)
      * Demo d = member() -> Demo d = n.e.f(this, "member")
      */
     @Override
     public void visitVarDef(JCVariableDecl jcVariableDecl) {
-        if (isStubbornField(jcVariableDecl.mods)) {
-            fields = fields.append(jcVariableDecl);
-        }
         jcVariableDecl.init = checkAndExchange(jcVariableDecl.init);
         super.visitVarDef(jcVariableDecl);
     }
@@ -115,11 +86,6 @@ public class EnableTestableInjectTranslator extends BaseTranslator {
     @Override
     public void visitNewArray(JCNewArray jcNewArray) {
         super.visitNewArray(jcNewArray);
-    }
-
-    private boolean isStubbornField(JCModifiers mods) {
-        return mods.getFlags().contains(javax.lang.model.element.Modifier.PRIVATE) ||
-            mods.getFlags().contains(javax.lang.model.element.Modifier.FINAL);
     }
 
     @Override

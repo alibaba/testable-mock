@@ -3,6 +3,7 @@ package com.alibaba.testable.processor;
 import com.alibaba.testable.annotation.EnableTestableInject;
 import com.alibaba.testable.generator.StaticNewClassGenerator;
 import com.alibaba.testable.translator.EnableTestableInjectTranslator;
+import com.alibaba.testable.translator.MethodRecordTranslator;
 import com.alibaba.testable.util.ConstPool;
 import com.sun.tools.javac.code.Symbol;
 import com.sun.tools.javac.tree.JCTree;
@@ -72,8 +73,9 @@ public class EnableTestableInjectProcessor extends BaseProcessor {
 
     private void processClassElement(Symbol.ClassSymbol clazz) {
         JCTree tree = cx.trees.getTree(clazz);
-        EnableTestableInjectTranslator translator = new EnableTestableInjectTranslator(cx);
-        tree.accept(translator);
+        MethodRecordTranslator methodRecordTranslator = new MethodRecordTranslator();
+        tree.accept(methodRecordTranslator);
+        tree.accept(new EnableTestableInjectTranslator(cx, methodRecordTranslator.getMethods()));
     }
 
     private void writeSourceFile(String fullQualityTypeName, String content) throws IOException {
