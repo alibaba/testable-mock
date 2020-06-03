@@ -63,6 +63,16 @@ public class EnableTestableInjectTranslator extends BaseTranslator {
     }
 
     /**
+     * member() + new Demo() -> n.e.f(this, "member") + n.e.w(Demo.class)
+     */
+    @Override
+    public void visitBinary(JCBinary jcBinary) {
+        jcBinary.lhs = checkAndExchange(jcBinary.lhs);
+        jcBinary.rhs = checkAndExchange(jcBinary.rhs);
+        super.visitBinary(jcBinary);
+    }
+
+    /**
      * For member method invocation break point
      * call(new Demo()) -> call(n.e.w(Demo.class))
      */
