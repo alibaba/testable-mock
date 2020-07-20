@@ -1,5 +1,7 @@
 package com.alibaba.testable;
 
+import com.alibaba.testable.transformer.TestableFileTransformer;
+
 import java.lang.instrument.Instrumentation;
 
 public class PreMain {
@@ -9,4 +11,3 @@ public class PreMain {
     }
 
 }
-

@@ -1,14 +1,20 @@
-package com.alibaba.testable;
+package com.alibaba.testable.visitor;
 
+import com.alibaba.testable.model.MethodInfo;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
-public class ClassPrinter extends ClassVisitor {
+import java.util.List;
 
-    public ClassPrinter(ClassWriter cw) {
+public class TestableVisitor extends ClassVisitor {
+
+    private List<MethodInfo> methods;
+
+    public TestableVisitor(ClassWriter cw, List<MethodInfo> methods) {
         super(Opcodes.ASM8, cw);
+        this.methods = methods;
     }
 
     @Override
