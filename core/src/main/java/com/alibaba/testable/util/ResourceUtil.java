@@ -29,6 +29,10 @@ public class ResourceUtil {
 
     public static byte[] fetchBinary(String fileName) {
         InputStream in = ResourceUtil.class.getResourceAsStream("/" + fileName);
+        if (in == null) {
+            System.err.println("Resource " + fileName + " not exist");
+            return new byte[] {};
+        }
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
         final int bufLen = 4 * 1024;
         byte[] buf = new byte[bufLen];
@@ -40,7 +44,7 @@ public class ResourceUtil {
             buffer.close();
             return buffer.toByteArray();
         } catch (IOException e) {
-            System.err.println("Failed to fetch text file: " + fileName);
+            System.err.println("Failed to fetch file: " + fileName);
             return new byte[] {};
         }
     }

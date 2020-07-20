@@ -1,5 +1,7 @@
 package com.alibaba.testable.accessor;
 
+import com.alibaba.testable.util.TypeUtil;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
@@ -31,11 +33,8 @@ public class PrivateAccessor {
 
     public static <T> T invoke(Object ref, String method, Object... args) {
         try {
-            Class[] cls = new Class[args.length];
-            for (int i = 0; i < args.length; i++) {
-                cls[i] = args[i].getClass();
-            }
-            Method declaredMethod = ref.getClass().getDeclaredMethod(method, cls);
+            Class[] cls = TypeUtil.gcs(args);
+            Method declaredMethod = TypeUtil.gm(ref.getClass().getDeclaredMethods(), method, cls);
             declaredMethod.setAccessible(true);
             return (T)declaredMethod.invoke(ref, args);
         } catch (Exception e) {

@@ -5,7 +5,7 @@ package com.alibaba.testable.util;
  */
 public final class ConstPool {
 
-    public static final String NE_PKG = "generated_testable.n";
+    public static final String NE_PKG = "testable_internal.n";
     public static final String NE_CLS = "e";
     public static final String NE_NEW = "w";
     public static final String NE_FUN = "f";
