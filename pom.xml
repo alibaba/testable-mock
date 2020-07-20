@@ -9,8 +9,8 @@
   <packaging>pom</packaging>
 
   <modules>
-    <module>core</module>
     <module>agent</module>
+    <module>core</module>
   </modules>
 
 </project>
