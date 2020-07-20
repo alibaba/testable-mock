@@ -8,7 +8,6 @@ import com.alibaba.testable.util.ResourceUtil;
 import com.sun.tools.javac.code.Symbol;
 import com.sun.tools.javac.tree.JCTree;
 
-import javax.annotation.processing.FilerException;
 import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.annotation.processing.SupportedSourceVersion;
@@ -23,8 +22,6 @@ import java.io.OutputStream;
 import java.io.Writer;
 import java.util.Set;
 
-import static javax.tools.StandardLocation.SOURCE_OUTPUT;
-
 /**
  * @author flin
  */
@@ -33,7 +30,11 @@ import static javax.tools.StandardLocation.SOURCE_OUTPUT;
 public class EnableTestableInjectProcessor extends BaseProcessor {
 
     private static final String JAVA_POSTFIX = ".java";
-    private static final String GENERATED_TEST_SOURCES = "generated-test-sources";
+    private static final String AGENT_TARGET_FOLDER = "generated_testable";
+    private static final String AGENT_TARGET_FILE = "agent.jar";
+    private static final String AGENT_SOURCE_FILE = "testable-agent.jar";
+    private static final String NE_SOURCE_FILE = ConstPool.NE_CLS + JAVA_POSTFIX;
+    private static boolean hasFirstClassCompiled = false;
 
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
@@ -48,30 +49,22 @@ public class EnableTestableInjectProcessor extends BaseProcessor {
     }
 
     private void createStaticNewClass() {
-        if (!isStaticNewClassExist()) {
+        if (!checkFirstClassCompiled()) {
             try {
-                writeSourceFile(ConstPool.NE_PKG_CLS, ResourceUtil.fetchText("e.java"));
-                writeBinaryFile("testable", "agent.jar", ResourceUtil.fetchBinary("testable-agent.jar"));
+                writeBinaryFile(AGENT_TARGET_FOLDER, AGENT_TARGET_FILE, ResourceUtil.fetchBinary(AGENT_SOURCE_FILE));
+                writeSourceFile(ConstPool.NE_PKG_CLS, ResourceUtil.fetchText(NE_SOURCE_FILE));
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
     }
 
-    private boolean isStaticNewClassExist() {
-        try {
-            FileObject staticNewClassFile = cx.filter.getResource(SOURCE_OUTPUT, ConstPool.NE_PKG,
-                ConstPool.NE_CLS + JAVA_POSTFIX);
-            return isCompilingTestClass(staticNewClassFile) || staticNewClassFile.getLastModified() > 0;
-        } catch (FilerException e) {
-            return true;
-        } catch (IOException e) {
+    private boolean checkFirstClassCompiled() {
+        if (!hasFirstClassCompiled) {
+            hasFirstClassCompiled = true;
             return false;
         }
-    }
-
-    private boolean isCompilingTestClass(FileObject staticNewClassFile) {
-        return staticNewClassFile.getName().contains(GENERATED_TEST_SOURCES);
+        return true;
     }
 
     private void processClassElement(Symbol.ClassSymbol clazz) {

@@ -5,11 +5,11 @@ package com.alibaba.testable.util;
  */
 public final class ConstPool {
 
-    public static final String NE_PKG = "n";
+    public static final String NE_PKG = "generated_testable.n";
     public static final String NE_CLS = "e";
     public static final String NE_NEW = "w";
     public static final String NE_FUN = "f";
-    public static final String NE_PKG_CLS = NE_PKG + ".e";
+    public static final String NE_PKG_CLS = NE_PKG + "." + NE_CLS;
     public static final String NE_POOL = NE_PKG_CLS + ".p";
     public static final String NE_ADD_W = NE_PKG_CLS + ".aw";
     public static final String NE_ADD_F = NE_PKG_CLS + ".af";

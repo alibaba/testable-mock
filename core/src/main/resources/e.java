@@ -1,4 +1,4 @@
-package n;
+package generated_testable.n;
 
 import com.sun.tools.javac.util.Pair;
 
