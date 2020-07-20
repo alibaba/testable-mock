@@ -1,10 +1,10 @@
 package com.alibaba.testable.processor;
 
 import com.alibaba.testable.annotation.EnableTestableInject;
-import com.alibaba.testable.generator.StaticNewClassGenerator;
 import com.alibaba.testable.translator.EnableTestableInjectTranslator;
 import com.alibaba.testable.translator.MethodRecordTranslator;
 import com.alibaba.testable.util.ConstPool;
+import com.alibaba.testable.util.ResourceUtil;
 import com.sun.tools.javac.code.Symbol;
 import com.sun.tools.javac.tree.JCTree;
 
@@ -17,7 +17,9 @@ import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
 import javax.tools.FileObject;
 import javax.tools.JavaFileObject;
+import javax.tools.StandardLocation;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.Writer;
 import java.util.Set;
 
@@ -48,7 +50,8 @@ public class EnableTestableInjectProcessor extends BaseProcessor {
     private void createStaticNewClass() {
         if (!isStaticNewClassExist()) {
             try {
-                writeSourceFile(ConstPool.NE_PKG_CLS, new StaticNewClassGenerator(cx).fetch());
+                writeSourceFile(ConstPool.NE_PKG_CLS, ResourceUtil.fetchText("e.java"));
+                writeBinaryFile("testable", "agent.jar", ResourceUtil.fetchBinary("testable-agent.jar"));
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -82,7 +85,16 @@ public class EnableTestableInjectProcessor extends BaseProcessor {
         JavaFileObject jfo = cx.filter.createSourceFile(fullQualityTypeName);
         Writer writer = jfo.openWriter();
         writer.write(content);
+        writer.flush();
         writer.close();
+    }
+
+    private void writeBinaryFile(String path, String fileName, byte[] content) throws IOException {
+        FileObject resource = cx.filter.createResource(StandardLocation.SOURCE_OUTPUT, path, fileName);
+        OutputStream out = resource.openOutputStream();
+        out.write(content);
+        out.flush();
+        out.close();
     }
 
 }
