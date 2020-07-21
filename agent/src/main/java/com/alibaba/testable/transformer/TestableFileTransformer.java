@@ -23,8 +23,8 @@ public class TestableFileTransformer implements ClassFileTransformer {
 
     public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined,
                             ProtectionDomain protectionDomain, byte[] classfileBuffer) {
-        if (isSystemClass(loader, className)) {
-            // Ignore system class
+        if (isSystemClass(loader, className) || loadedClassNames.contains(className)) {
+            // Ignore system class and duplicate class
             return null;
         }
 
@@ -36,6 +36,7 @@ public class TestableFileTransformer implements ClassFileTransformer {
         }
 
         try {
+            loadedClassNames.add(className);
             return new TestableClassTransformer(className).getBytes();
         } catch (IOException e) {
             return null;
