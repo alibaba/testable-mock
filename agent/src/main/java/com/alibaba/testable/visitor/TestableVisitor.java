@@ -8,6 +8,9 @@ import org.objectweb.asm.Opcodes;
 
 import java.util.List;
 
+/**
+ * @author flin
+ */
 public class TestableVisitor extends ClassVisitor {
 
     private List<MethodInfo> methods;

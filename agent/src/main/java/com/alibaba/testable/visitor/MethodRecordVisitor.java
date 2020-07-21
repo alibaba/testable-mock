@@ -11,7 +11,7 @@ public class MethodRecordVisitor extends ClassVisitor {
     /**
      * Member methods
      */
-    private List<MethodInfo> methods = new ArrayList<MethodInfo>();
+    private final List<MethodInfo> methods = new ArrayList<MethodInfo>();
     private boolean needTransform;
 
     private static final String ENABLE_TESTABLE_INJECT = "Lcom/alibaba/testable/annotation/EnableTestableInject;";

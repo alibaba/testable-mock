@@ -1,5 +1,8 @@
 package com.alibaba.testable.model;
 
+/**
+ * @author flin
+ */
 public class MethodInfo {
 
     private int access;

@@ -11,6 +11,9 @@ import java.security.ProtectionDomain;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * @author flin
+ */
 public class TestableFileTransformer implements ClassFileTransformer {
 
     private static final String ENABLE_TESTABLE = "com.alibaba.testable.annotation.EnableTestable";
@@ -18,7 +21,7 @@ public class TestableFileTransformer implements ClassFileTransformer {
     private static final String SLASH = "/";
     private static final String TEST_POSTFIX = "Test";
 
-    private static Set<String> loadedClassNames = new HashSet<String>();
+    private static final Set<String> loadedClassNames = new HashSet<String>();
 
     public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined,
                             ProtectionDomain protectionDomain, byte[] classfileBuffer) {
