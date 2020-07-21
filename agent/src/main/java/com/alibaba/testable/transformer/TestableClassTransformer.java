@@ -1,6 +1,7 @@
 package com.alibaba.testable.transformer;
 
 import com.alibaba.testable.model.TravelStatus;
+import com.alibaba.testable.util.ClassUtil;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Opcodes;
@@ -18,6 +19,8 @@ import static com.alibaba.testable.constant.Const.SYS_CLASSES;
  */
 public class TestableClassTransformer implements Opcodes {
 
+    private static final String CONSTRUCTOR = "<init>";
+    private static final String TESTABLE_NE = "testable_internal/n/e";
     private final ClassNode cn = new ClassNode();
 
     public TestableClassTransformer(String className) throws IOException {
@@ -35,7 +38,7 @@ public class TestableClassTransformer implements Opcodes {
     private void transform() {
         List<String> methodNames = new ArrayList<String>();
         for (MethodNode m : cn.methods) {
-            if (!"<init>".equals(m.name)) {
+            if (!CONSTRUCTOR.equals(m.name)) {
                 methodNames.add(m.name);
             }
         }
@@ -49,47 +52,42 @@ public class TestableClassTransformer implements Opcodes {
         TravelStatus status = TravelStatus.INIT;
         String target = "";
         int rangeStart = 0;
-        for (int i = 0; i < instructions.length; i++) {
+        int i = 0;
+        do {
             if (instructions[i].getOpcode() == Opcodes.NEW) {
                 TypeInsnNode node = (TypeInsnNode)instructions[i];
-                if (!SYS_CLASSES.contains(node.desc) && node.desc.equals("com/alibaba/testable/BlackBox")) {
+                if (!SYS_CLASSES.contains(node.desc)) {
                     target = node.desc;
                     status = TravelStatus.NEW_REP;
                     rangeStart = i;
                 }
-            }
-            if (instructions[i].getOpcode() == Opcodes.INVOKESPECIAL) {
+            } else if (instructions[i].getOpcode() == Opcodes.INVOKESPECIAL) {
                 MethodInsnNode node = (MethodInsnNode)instructions[i];
                 if (methodNames.contains(node.name) && cn.name.equals(node.owner)) {
                     status = TravelStatus.MEM_REP;
-                }
-                if (TravelStatus.NEW_REP == status && "<init>".equals(node.name) && target.equals(node.owner)) {
-                    replaceNewOps(mn, instructions, rangeStart, i);
+                } else if (TravelStatus.NEW_REP == status && CONSTRUCTOR.equals(node.name) && target.equals(node.owner)) {
+                    instructions = replaceNewOps(mn, instructions, rangeStart, i);
+                    i = rangeStart;
+                    status = TravelStatus.INIT;
                 }
             }
-        }
+            i++;
+        } while (i < instructions.length);
     }
 
-    private void replaceNewOps(MethodNode mn, AbstractInsnNode[] instructions, int start, int end) {
-
+    private AbstractInsnNode[] replaceNewOps(MethodNode mn, AbstractInsnNode[] instructions, int start, int end) {
+        String classType = ((TypeInsnNode)instructions[start]).desc;
+        String paramTypes = ((MethodInsnNode)instructions[end]).desc;
+        mn.instructions.insertBefore(instructions[start], new LdcInsnNode(Type.getType("L" + classType + ";")));
         InsnList il = new InsnList();
-        il.add(new LdcInsnNode(Type.getType("Lcom/alibaba/testable/BlackBox;")));
-        il.add(new InsnNode(ICONST_1));
-        il.add(new TypeInsnNode(ANEWARRAY, "java/lang/Object"));
-        il.add(new InsnNode(DUP));
-        il.add(new InsnNode(ICONST_0));
-        il.add(new LdcInsnNode("something"));
-        il.add(new InsnNode(AASTORE));
-        il.add(new MethodInsnNode(INVOKESTATIC, "testable_internal/n/e",
-            "w", "(Ljava/lang/Class;[Ljava/lang/Object;)Ljava/lang/Object;", false));
-        il.add(new TypeInsnNode(CHECKCAST, "com/alibaba/testable/BlackBox"));
-        mn.instructions.insert(instructions[end], il);
-
-        for (int z = start; z <= end; z++) {
-            mn.instructions.remove(instructions[z]);
-        }
-
-        mn.maxStack += 4;
+        il.add(new MethodInsnNode(INVOKESTATIC, TESTABLE_NE, "w", ClassUtil.generateTargetDesc(paramTypes), false));
+        il.add(new TypeInsnNode(CHECKCAST, classType));
+        mn.instructions.insertBefore(instructions[end], il);
+        mn.instructions.remove(instructions[start]);
+        mn.instructions.remove(instructions[start + 1]);
+        mn.instructions.remove(instructions[end]);
+        mn.maxStack += 1;
+        return mn.instructions.toArray();
     }
 
 }

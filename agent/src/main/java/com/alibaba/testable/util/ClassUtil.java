@@ -30,4 +30,34 @@ public class ClassUtil {
         }
     }
 
+    public static String generateTargetDesc(String paramTypes) {
+        int paramCount = 0;
+        boolean travelingClass = false;
+        for (byte b : paramTypes.getBytes()) {
+            if (travelingClass) {
+                if (b == ';') {
+                    travelingClass = false;
+                }
+            } else {
+                if (b == 'B' || b == 'C' || b == 'D' || b == 'F' || b == 'I' || b == 'J' || b == 'S' || b == 'Z') {
+                    paramCount++;
+                } else if (b == 'L') {
+                    travelingClass = true;
+                    paramCount++;
+                } else if (b == ')') {
+                    break;
+                }
+            }
+        }
+        return "(Ljava/lang/Class;" + repeat("Ljava/lang/Object;", paramCount) + ")Ljava/lang/Object;";
+    }
+
+    private static String repeat(String text, int times) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < times; i++) {
+            sb.append(text);
+        }
+        return sb.toString();
+    }
+
 }

@@ -41,10 +41,62 @@ public final class e {
         pf.add(np);
     }
 
+    public static <T> T w(Class<T> ct) {
+        return wi(ct);
+    }
+
+    public static <T> T w(Class<T> ct, Object a1) {
+        return wi(ct, a1);
+    }
+
+    public static <T> T w(Class<T> ct, Object a1, Object a2) {
+        return wi(ct, a1, a2);
+    }
+
+    public static <T> T w(Class<T> ct, Object a1, Object a2, Object a3) {
+        return wi(ct, a1, a2, a3);
+    }
+
+    public static <T> T w(Class<T> ct, Object a1, Object a2, Object a3, Object a4) {
+        return wi(ct, a1, a2, a3, a4);
+    }
+
+    public static <T> T w(Class<T> ct, Object a1, Object a2, Object a3, Object a4, Object a5) {
+        return wi(ct, a1, a2, a3, a4, a5);
+    }
+
+    public static <T> T w(Class<T> ct, Object a1, Object a2, Object a3, Object a4, Object a5, Object a6) {
+        return wi(ct, a1, a2, a3, a4, a5, a6);
+    }
+
+    public static <T> T w(Class<T> ct, Object a1, Object a2, Object a3, Object a4, Object a5, Object a6, Object a7) {
+        return wi(ct, a1, a2, a3, a4, a5, a6, a7);
+    }
+
+    public static <T> T w(Class<T> ct, Object a1, Object a2, Object a3, Object a4, Object a5, Object a6, Object a7, Object a8) {
+        return wi(ct, a1, a2, a3, a4, a5, a6, a7, a8);
+    }
+
+    public static <T> T w(Class<T> ct, Object a1, Object a2, Object a3, Object a4, Object a5, Object a6, Object a7, Object a8, Object a9) {
+        return wi(ct, a1, a2, a3, a4, a5, a6, a7, a8, a9);
+    }
+
+    public static <T> T w(Class<T> ct, Object a1, Object a2, Object a3, Object a4, Object a5, Object a6, Object a7, Object a8, Object a9, Object a10) {
+        return wi(ct, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10);
+    }
+
+    public static <T> T w(Class<T> ct, Object a1, Object a2, Object a3, Object a4, Object a5, Object a6, Object a7, Object a8, Object a9, Object a10, Object a11) {
+        return wi(ct, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11);
+    }
+
+    public static <T> T w(Class<T> ct, Object a1, Object a2, Object a3, Object a4, Object a5, Object a6, Object a7, Object a8, Object a9, Object a10, Object a11, Object a12) {
+        return wi(ct, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12);
+    }
+
     /**
      * substitution entry for new
      */
-    public static <T> T w(Class<T> ct, Object... as) {
+    public static <T> T wi(Class<T> ct, Object... as) {
         Class[] cs = TypeUtil.gcs(as);
         if (!pw.isEmpty()) {
             try {
