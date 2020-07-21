@@ -14,6 +14,8 @@ class ClassUtilTest {
             ClassUtil.generateTargetDesc("(Ljava/lang/String;IDLjava/lang/String;ZLjava/net/URL;)V"));
         assertEquals("(Ljava/lang/Class;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;",
             ClassUtil.generateTargetDesc("(ZLjava/lang/String;IJFDCSBZ)V"));
+        assertEquals("(Ljava/lang/Class;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;",
+            ClassUtil.generateTargetDesc("(Ljava/lang/String;[I[Ljava/lang/String;)V"));
     }
 
 }
