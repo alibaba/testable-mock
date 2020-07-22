@@ -1,4 +1,4 @@
-package com.alibaba.testable.transformer;
+package com.alibaba.testable.handler;
 
 import com.alibaba.testable.model.TravelStatus;
 import com.alibaba.testable.util.ClassUtil;
@@ -17,25 +17,22 @@ import static com.alibaba.testable.constant.Const.SYS_CLASSES;
 /**
  * @author flin
  */
-public class TestableClassTransformer implements Opcodes {
+public class TestableClassHandler implements Opcodes {
 
     private static final String CONSTRUCTOR = "<init>";
     private static final String TESTABLE_NE = "n/e";
-    private final ClassNode cn = new ClassNode();
 
-    public TestableClassTransformer(String className) throws IOException {
+    public byte[] getBytes(String className) throws IOException {
         ClassReader cr = new ClassReader(className);
+        ClassNode cn = new ClassNode();
         cr.accept(cn, 0);
-    }
-
-    public byte[] getBytes() {
-        transform();
+        transform(cn);
         ClassWriter cw = new ClassWriter( 0);
         cn.accept(cw);
         return cw.toByteArray();
     }
 
-    private void transform() {
+    private void transform(ClassNode cn) {
         List<String> methodNames = new ArrayList<String>();
         for (MethodNode m : cn.methods) {
             if (!CONSTRUCTOR.equals(m.name)) {
@@ -43,11 +40,11 @@ public class TestableClassTransformer implements Opcodes {
             }
         }
         for (MethodNode m : cn.methods) {
-            transformMethod(m, methodNames);
+            transformMethod(cn, m, methodNames);
         }
     }
 
-    private void transformMethod(MethodNode mn, List<String> methodNames) {
+    private void transformMethod(ClassNode cn, MethodNode mn, List<String> methodNames) {
         AbstractInsnNode[] instructions = mn.instructions.toArray();
         TravelStatus status = TravelStatus.INIT;
         String target = "";

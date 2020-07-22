@@ -1,5 +1,6 @@
 package com.alibaba.testable.transformer;
 
+import com.alibaba.testable.handler.TestableClassHandler;
 import com.alibaba.testable.util.ClassUtil;
 
 import java.io.IOException;
@@ -13,7 +14,7 @@ import java.util.Set;
 /**
  * @author flin
  */
-public class TestableFileTransformer implements ClassFileTransformer {
+public class TestableClassTransformer implements ClassFileTransformer {
 
     private static final String ENABLE_TESTABLE = "com.alibaba.testable.annotation.EnableTestable";
     private static final String ENABLE_TESTABLE_INJECT = "com.alibaba.testable.annotation.EnableTestableInject";
@@ -22,7 +23,7 @@ public class TestableFileTransformer implements ClassFileTransformer {
     private static final Set<String> loadedClassNames = new HashSet<String>();
 
     public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined,
-                            ProtectionDomain protectionDomain, byte[] classfileBuffer) {
+                            ProtectionDomain protectionDomain, byte[] classFileBuffer) {
         if (isSystemClass(loader, className) || loadedClassNames.contains(className)) {
             // Ignore system class and duplicate class
             return null;
@@ -37,7 +38,7 @@ public class TestableFileTransformer implements ClassFileTransformer {
 
         try {
             loadedClassNames.add(className);
-            return new TestableClassTransformer(className).getBytes();
+            return new TestableClassHandler().getBytes(className);
         } catch (IOException e) {
             return null;
         }
