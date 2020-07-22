@@ -20,7 +20,7 @@ import static com.alibaba.testable.constant.Const.SYS_CLASSES;
 public class TestableClassTransformer implements Opcodes {
 
     private static final String CONSTRUCTOR = "<init>";
-    private static final String TESTABLE_NE = "testable_internal/n/e";
+    private static final String TESTABLE_NE = "n/e";
     private final ClassNode cn = new ClassNode();
 
     public TestableClassTransformer(String className) throws IOException {

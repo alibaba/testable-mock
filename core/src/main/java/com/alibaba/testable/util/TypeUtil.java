@@ -2,16 +2,136 @@ package com.alibaba.testable.util;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
 
+/**
+ * @author flin
+ */
 public class TypeUtil {
+
+    /**
+     * Information of substitution method
+     */
+    public static class TestableSubstitution {
+        public Class type;   // target instance type to new / method return type
+        public Class[] parameterTypes; // constructor parameter types / member method parameter types
+        public Object targetObject;  // object which provides substitution / object which provides substitution
+        public String methodName;  // substitution method name / original member method name
+
+        public TestableSubstitution(Class type, String methodName, Class[] parameterTypes, Object targetObject) {
+            this.type = type;
+            this.methodName = methodName;
+            this.parameterTypes = parameterTypes;
+            this.targetObject = targetObject;
+        }
+    }
+
+    private static List<TestableSubstitution> mockNewPool = new ArrayList<>();
+    private static List<TestableSubstitution> mockMemberPool = new ArrayList<>();
+
+    /**
+     * add item to constructor pool
+     */
+    public static void addToConstructorPool(TestableSubstitution np) {
+        mockNewPool.add(np);
+    }
+
+    /**
+     * add item to method pool
+     */
+    public static void addToMemberMethodPool(TestableSubstitution np) {
+        mockMemberPool.add(np);
+    }
+
+    /**
+     * substitution entry for new
+     */
+    public static <T> T wrapNew(Class<T> ct, Object... as) {
+        Class[] cs = TypeUtil.getClassesFromObjects(as);
+        if (!mockNewPool.isEmpty()) {
+            try {
+                TestableSubstitution pi = getFromConstructorPool(ct, cs);
+                if (pi != null) {
+                    Method m = pi.targetObject.getClass().getDeclaredMethod(pi.methodName, pi.parameterTypes);
+                    m.setAccessible(true);
+                    return (T)m.invoke(pi.targetObject, as);
+                }
+            } catch (Exception e) {
+                return null;
+            }
+        }
+        try {
+            Constructor c = TypeUtil.getConstructorByParameterTypes(ct.getConstructors(), cs);
+            if (c != null) {
+                return (T)c.newInstance(as);
+            }
+        } catch (Exception e) {
+            return null;
+        }
+        return null;
+    }
+
+    /**
+     * substitution entry for member call
+     */
+    public static <T> T wrapCall(Object obj, String mn, Object... as) {
+        Class[] cs = TypeUtil.getClassesFromObjects(as);
+        if (!mockMemberPool.isEmpty()) {
+            try {
+                TestableSubstitution pi = getFromMemberMethodPool(mn, cs);
+                if (pi != null) {
+                    Method m = pi.targetObject.getClass().getDeclaredMethod(pi.methodName, pi.parameterTypes);
+                    m.setAccessible(true);
+                    return (T)m.invoke(pi.targetObject, as);
+                }
+            } catch (Exception e) {
+                return null;
+            }
+        }
+        try {
+            Method m = TypeUtil.getMethodByNameAndParameterTypes(obj.getClass().getDeclaredMethods(), mn, cs);
+            if (m != null) {
+                m.setAccessible(true);
+                return (T)m.invoke(obj, as);
+            }
+        } catch (Exception e) {
+            return null;
+        }
+        return null;
+    }
+
+    /**
+     * get from method pool by key
+     */
+    private static TestableSubstitution getFromMemberMethodPool(String methodName, Class[] parameterTypes) {
+        for (TestableSubstitution f : mockMemberPool) {
+            if (f.methodName.equals(methodName) && TypeUtil.typeEquals(f.parameterTypes, parameterTypes)) {
+                return f;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * get from constructor pool by key
+     */
+    private static TestableSubstitution getFromConstructorPool(Class type, Class[] parameterTypes) {
+        for (TestableSubstitution w : mockNewPool) {
+            if (w.type.equals(type) && TypeUtil.typeEquals(w.parameterTypes, parameterTypes)) {
+                return w;
+            }
+        }
+        return null;
+    }
 
     /**
      * get classes of parameter objects
      */
-    public static Class[] gcs(Object[] as) {
-        Class[] cs = new Class[as.length];
+    public static Class[] getClassesFromObjects(Object[] parameterObjects) {
+        Class[] cs = new Class[parameterObjects.length];
         for (int i = 0; i < cs.length; i++) {
-            cs[i] = as[i].getClass();
+            cs[i] = parameterObjects[i].getClass();
         }
         return cs;
     }
@@ -19,9 +139,12 @@ public class TypeUtil {
     /**
      * get method by name and parameter matching
      */
-    public static Method gm(Method[] mds, String mn, Class[] cs) {
-        for (Method m : mds) {
-            if (m.getName().equals(mn) && te(m.getParameterTypes(), cs)) {
+    public static Method getMethodByNameAndParameterTypes(Method[] availableMethods,
+                                                          String methodName,
+                                                          Class[] parameterTypes) {
+        for (Method m : availableMethods) {
+            if (m.getName().equals(methodName) &&
+                typeEquals(m.getParameterTypes(), parameterTypes)) {
                 return m;
             }
         }
@@ -31,9 +154,10 @@ public class TypeUtil {
     /**
      * get constructor by parameter matching
      */
-    public static Constructor gc(Constructor<?>[] cons, Class[] cs) {
-        for (Constructor c : cons) {
-            if (te(c.getParameterTypes(), cs)) {
+    public static Constructor getConstructorByParameterTypes(Constructor<?>[] constructors,
+                                                             Class[] parameterTypes) {
+        for (Constructor c : constructors) {
+            if (typeEquals(c.getParameterTypes(), parameterTypes)) {
                 return c;
             }
         }
@@ -43,12 +167,13 @@ public class TypeUtil {
     /**
      * type equeals
      */
-    public static boolean te(Class[] c1, Class[] c2) {
-        if (c1.length != c2.length) {
+    public static boolean typeEquals(Class[] classesLeft, Class[] classesRight) {
+        if (classesLeft.length != classesRight.length) {
             return false;
         }
-        for (int i = 0; i < c1.length; i++) {
-            if (!c1[i].equals(c2[i]) && !fe(c1[i], c2[i])) {
+        for (int i = 0; i < classesLeft.length; i++) {
+            if (!classesLeft[i].equals(classesRight[i]) &&
+                !fuzzyEqual(classesLeft[i], classesRight[i])) {
                 return false;
             }
         }
@@ -57,18 +182,18 @@ public class TypeUtil {
 
     /**
      * fuzzy equal
-     * @param c1 fact types (can be primary type)
-     * @param c2 user types
+     * @param factTypes fact types (can be primary type)
+     * @param userTypes user types
      */
-    private static boolean fe(Class c1, Class c2) {
-        return (c1.equals(int.class) && c2.equals(Integer.class)) ||
-            (c1.equals(long.class) && c2.equals(Long.class)) ||
-            (c1.equals(short.class) && c2.equals(Short.class)) ||
-            (c1.equals(boolean.class) && c2.equals(Boolean.class)) ||
-            (c1.equals(char.class) && c2.equals(Character.class)) ||
-            (c1.equals(byte.class) && c2.equals(Byte.class)) ||
-            (c1.equals(float.class) && c2.equals(Float.class)) ||
-            (c1.equals(double.class) && c2.equals(Double.class));
+    private static boolean fuzzyEqual(Class factTypes, Class userTypes) {
+        return (factTypes.equals(int.class) && userTypes.equals(Integer.class)) ||
+            (factTypes.equals(long.class) && userTypes.equals(Long.class)) ||
+            (factTypes.equals(short.class) && userTypes.equals(Short.class)) ||
+            (factTypes.equals(boolean.class) && userTypes.equals(Boolean.class)) ||
+            (factTypes.equals(char.class) && userTypes.equals(Character.class)) ||
+            (factTypes.equals(byte.class) && userTypes.equals(Byte.class)) ||
+            (factTypes.equals(float.class) && userTypes.equals(Float.class)) ||
+            (factTypes.equals(double.class) && userTypes.equals(Double.class));
     }
 
 }

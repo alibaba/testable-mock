@@ -5,14 +5,14 @@ package com.alibaba.testable.util;
  */
 public final class ConstPool {
 
-    public static final String NE_PKG = "testable_internal.n";
+    public static final String NE_PKG = "n";
     public static final String NE_CLS = "e";
     public static final String NE_NEW = "w";
     public static final String NE_FUN = "f";
-    public static final String NE_PKG_CLS = NE_PKG + "." + NE_CLS;
-    public static final String NE_POOL = NE_PKG_CLS + ".p";
-    public static final String NE_ADD_W = NE_PKG_CLS + ".aw";
-    public static final String NE_ADD_F = NE_PKG_CLS + ".af";
+    public static final String TYPE_UTIL = "com.alibaba.testable.util.TypeUtil";
+    public static final String CLASS_SUBSTITUTION = TYPE_UTIL + ".TestableSubstitution";
+    public static final String METHOD_ADD_TO_CON_POLL = TYPE_UTIL + ".addToConstructorPool";
+    public static final String METHOD_ADD_TO_MEM_POOL = TYPE_UTIL + ".addToMemberMethodPool";
     public static final String TYPE_TO_CLASS = "class";
     public static final String REF_THIS = "this";
     public static final String VOID = "void";

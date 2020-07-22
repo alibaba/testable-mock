@@ -50,9 +50,9 @@ public class TestSetupMethodGenerator extends BaseGenerator {
         ListBuffer<JCStatement> statements = new ListBuffer<>();
         for (Pair<Name, Pair<JCExpression, List<JCExpression>>> m : injectMethods.toList()) {
             if (isMemberMethod(m)) {
-                statements.append(addToPoolStatement(m, ConstPool.NE_ADD_F));
+                statements.append(addToPoolStatement(m, ConstPool.METHOD_ADD_TO_MEM_POOL));
             } else {
-                statements.append(addToPoolStatement(m, ConstPool.NE_ADD_W));
+                statements.append(addToPoolStatement(m, ConstPool.METHOD_ADD_TO_CON_POLL));
             }
         }
         if (!testSetupMethodName.isEmpty()) {
@@ -86,7 +86,7 @@ public class TestSetupMethodGenerator extends BaseGenerator {
     }
 
     private JCStatement addToPoolStatement(Pair<Name, Pair<JCExpression, List<JCExpression>>> m, String addPoolMethod) {
-        JCExpression pool = nameToExpression(ConstPool.NE_POOL);
+        JCExpression pool = nameToExpression(ConstPool.CLASS_SUBSTITUTION);
         JCExpression classType = m.snd.fst;
         JCExpression methodName = cx.treeMaker.Literal(m.fst.toString());
         JCExpression parameterTypes = cx.treeMaker.NewArray(cx.treeMaker.Ident(cx.names.fromString(TYPE_CLASS)),
