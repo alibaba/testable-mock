@@ -33,38 +33,38 @@ public class TypeUtil {
     /**
      * add item to constructor pool
      */
-    public static void addToConstructorPool(TestableSubstitution np) {
-        mockNewPool.add(np);
+    public static void addToConstructorPool(TestableSubstitution substitution) {
+        mockNewPool.add(substitution);
     }
 
     /**
      * add item to method pool
      */
-    public static void addToMemberMethodPool(TestableSubstitution np) {
-        mockMemberPool.add(np);
+    public static void addToMemberMethodPool(TestableSubstitution substitution) {
+        mockMemberPool.add(substitution);
     }
 
     /**
      * substitution entry for new
      */
-    public static <T> T wrapNew(Class<T> ct, Object... as) {
-        Class[] cs = TypeUtil.getClassesFromObjects(as);
+    public static <T> T wrapNew(Class<T> classType, Object... parameters) {
+        Class[] cs = TypeUtil.getClassesFromObjects(parameters);
         if (!mockNewPool.isEmpty()) {
             try {
-                TestableSubstitution pi = getFromConstructorPool(ct, cs);
+                TestableSubstitution pi = getFromConstructorPool(classType, cs);
                 if (pi != null) {
                     Method m = pi.targetObject.getClass().getDeclaredMethod(pi.methodName, pi.parameterTypes);
                     m.setAccessible(true);
-                    return (T)m.invoke(pi.targetObject, as);
+                    return (T)m.invoke(pi.targetObject, parameters);
                 }
             } catch (Exception e) {
                 return null;
             }
         }
         try {
-            Constructor c = TypeUtil.getConstructorByParameterTypes(ct.getConstructors(), cs);
+            Constructor c = TypeUtil.getConstructorByParameterTypes(classType.getConstructors(), cs);
             if (c != null) {
-                return (T)c.newInstance(as);
+                return (T)c.newInstance(parameters);
             }
         } catch (Exception e) {
             return null;
@@ -75,25 +75,25 @@ public class TypeUtil {
     /**
      * substitution entry for member call
      */
-    public static <T> T wrapCall(Object obj, String mn, Object... as) {
-        Class[] cs = TypeUtil.getClassesFromObjects(as);
+    public static <T> T wrapCall(Object targetObject, String methodName, Object... parameters) {
+        Class[] cs = TypeUtil.getClassesFromObjects(parameters);
         if (!mockMemberPool.isEmpty()) {
             try {
-                TestableSubstitution pi = getFromMemberMethodPool(mn, cs);
+                TestableSubstitution pi = getFromMemberMethodPool(methodName, cs);
                 if (pi != null) {
                     Method m = pi.targetObject.getClass().getDeclaredMethod(pi.methodName, pi.parameterTypes);
                     m.setAccessible(true);
-                    return (T)m.invoke(pi.targetObject, as);
+                    return (T)m.invoke(pi.targetObject, parameters);
                 }
             } catch (Exception e) {
                 return null;
             }
         }
         try {
-            Method m = TypeUtil.getMethodByNameAndParameterTypes(obj.getClass().getDeclaredMethods(), mn, cs);
+            Method m = TypeUtil.getMethodByNameAndParameterTypes(targetObject.getClass().getDeclaredMethods(), methodName, cs);
             if (m != null) {
                 m.setAccessible(true);
-                return (T)m.invoke(obj, as);
+                return (T)m.invoke(targetObject, parameters);
             }
         } catch (Exception e) {
             return null;
