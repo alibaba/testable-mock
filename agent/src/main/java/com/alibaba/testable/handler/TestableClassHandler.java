@@ -1,7 +1,7 @@
 package com.alibaba.testable.handler;
 
-import com.alibaba.testable.model.TravelStatus;
 import com.alibaba.testable.util.ClassUtil;
+import com.alibaba.testable.util.StringUtil;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Opcodes;
@@ -21,6 +21,12 @@ public class TestableClassHandler implements Opcodes {
 
     private static final String CONSTRUCTOR = "<init>";
     private static final String TESTABLE_NE = "n/e";
+    private static final String TESTABLE_W = "w";
+    private static final String TESTABLE_F = "f";
+    private static final String CONSTRUCTOR_DESC_PREFIX = "(Ljava/lang/Class;";
+    private static final String METHOD_DESC_PREFIX = "(Ljava/lang/Object;Ljava/lang/String;";
+    private static final String OBJECT_DESC = "Ljava/lang/Object;";
+    private static final String METHOD_DESC_POSTFIX = ")Ljava/lang/Object;";
 
     public byte[] getBytes(String className) throws IOException {
         ClassReader cr = new ClassReader(className);
@@ -46,38 +52,50 @@ public class TestableClassHandler implements Opcodes {
 
     private void transformMethod(ClassNode cn, MethodNode mn, List<String> methodNames) {
         AbstractInsnNode[] instructions = mn.instructions.toArray();
-        TravelStatus status = TravelStatus.INIT;
-        String target = "";
-        int rangeStart = 0;
         int i = 0;
         do {
-            if (instructions[i].getOpcode() == Opcodes.NEW) {
-                TypeInsnNode node = (TypeInsnNode)instructions[i];
-                if (!SYS_CLASSES.contains(node.desc)) {
-                    target = node.desc;
-                    status = TravelStatus.NEW_REP;
-                    rangeStart = i;
-                }
-            } else if (instructions[i].getOpcode() == Opcodes.INVOKESPECIAL) {
+            if (instructions[i].getOpcode() == Opcodes.INVOKESPECIAL) {
                 MethodInsnNode node = (MethodInsnNode)instructions[i];
-                if (methodNames.contains(node.name) && cn.name.equals(node.owner)) {
-                    status = TravelStatus.MEM_REP;
-                } else if (TravelStatus.NEW_REP == status && CONSTRUCTOR.equals(node.name) && target.equals(node.owner)) {
-                    instructions = replaceNewOps(mn, instructions, rangeStart, i);
+                int rangeEnd = i;
+                if (cn.name.equals(node.owner) && methodNames.contains(node.name)) {
+                    int rangeStart = getMemberMethodStart(instructions, rangeEnd);
+                    instructions = replaceMemberCallOps(mn, instructions, rangeStart, rangeEnd);
                     i = rangeStart;
-                    status = TravelStatus.INIT;
+                } else if (CONSTRUCTOR.equals(node.name) && !SYS_CLASSES.contains(node.owner)) {
+                    int rangeStart = getConstructorStart(instructions, node.owner, rangeEnd);
+                    instructions = replaceNewOps(mn, instructions, rangeStart, rangeEnd);
+                    i = rangeStart;
                 }
             }
             i++;
         } while (i < instructions.length);
     }
 
+    private int getConstructorStart(AbstractInsnNode[] instructions, String target, int rangeEnd) {
+        for (int i = rangeEnd - 1; i > 0; i--) {
+            if (instructions[i].getOpcode() == Opcodes.NEW && ((TypeInsnNode)instructions[i]).desc.equals(target)) {
+                return i;
+            }
+        }
+        return 0;
+    }
+
+    private int getMemberMethodStart(AbstractInsnNode[] instructions, int rangeEnd) {
+        for (int i = rangeEnd - 1; i > 0; i--) {
+            if (instructions[i].getOpcode() == Opcodes.ALOAD && ((VarInsnNode)instructions[i]).var == 0) {
+                return i;
+            }
+        }
+        return 0;
+    }
+
     private AbstractInsnNode[] replaceNewOps(MethodNode mn, AbstractInsnNode[] instructions, int start, int end) {
         String classType = ((TypeInsnNode)instructions[start]).desc;
-        String paramTypes = ((MethodInsnNode)instructions[end]).desc;
+        String constructorDesc = ((MethodInsnNode)instructions[end]).desc;
         mn.instructions.insertBefore(instructions[start], new LdcInsnNode(Type.getType("L" + classType + ";")));
         InsnList il = new InsnList();
-        il.add(new MethodInsnNode(INVOKESTATIC, TESTABLE_NE, "w", ClassUtil.generateTargetDesc(paramTypes), false));
+        il.add(new MethodInsnNode(INVOKESTATIC, TESTABLE_NE, TESTABLE_W,
+            getConstructorSubstitutionDesc(constructorDesc), false));
         il.add(new TypeInsnNode(CHECKCAST, classType));
         mn.instructions.insertBefore(instructions[end], il);
         mn.instructions.remove(instructions[start]);
@@ -85,6 +103,31 @@ public class TestableClassHandler implements Opcodes {
         mn.instructions.remove(instructions[end]);
         mn.maxStack += 1;
         return mn.instructions.toArray();
+    }
+
+    private String getConstructorSubstitutionDesc(String constructorDesc) {
+        int paramCount = ClassUtil.getParameterCount(constructorDesc);
+        return CONSTRUCTOR_DESC_PREFIX + StringUtil.repeat(OBJECT_DESC, paramCount) + METHOD_DESC_POSTFIX;
+    }
+
+    private AbstractInsnNode[] replaceMemberCallOps(MethodNode mn, AbstractInsnNode[] instructions, int start, int end) {
+        String methodDesc = ((MethodInsnNode)instructions[end]).desc;
+        String returnType = ClassUtil.getReturnType(methodDesc);
+        String methodName = ((MethodInsnNode)instructions[end]).name;
+        mn.instructions.insert(instructions[start], new LdcInsnNode(methodName));
+        InsnList il = new InsnList();
+        il.add(new MethodInsnNode(INVOKESTATIC, TESTABLE_NE, TESTABLE_F,
+            getMethodSubstitutionDesc(methodDesc), false));
+        il.add(new TypeInsnNode(CHECKCAST, returnType));
+        mn.instructions.insertBefore(instructions[end], il);
+        mn.instructions.remove(instructions[end]);
+        mn.maxStack += 1;
+        return mn.instructions.toArray();
+    }
+
+    private String getMethodSubstitutionDesc(String methodDesc) {
+        int paramCount = ClassUtil.getParameterCount(methodDesc);
+        return METHOD_DESC_PREFIX + StringUtil.repeat(OBJECT_DESC, paramCount) + METHOD_DESC_POSTFIX;
     }
 
 }

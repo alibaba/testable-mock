@@ -30,7 +30,7 @@ public class ClassUtil {
         }
     }
 
-    public static String generateTargetDesc(String paramTypes) {
+    public static int getParameterCount(String paramTypes) {
         int paramCount = 0;
         boolean travelingClass = false;
         for (byte b : paramTypes.getBytes()) {
@@ -49,15 +49,11 @@ public class ClassUtil {
                 }
             }
         }
-        return "(Ljava/lang/Class;" + repeat("Ljava/lang/Object;", paramCount) + ")Ljava/lang/Object;";
+        return paramCount;
     }
 
-    private static String repeat(String text, int times) {
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < times; i++) {
-            sb.append(text);
-        }
-        return sb.toString();
+    public static String getReturnType(String desc) {
+        return null;
     }
 
 }
