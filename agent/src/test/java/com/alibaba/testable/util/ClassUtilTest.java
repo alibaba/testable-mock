@@ -7,15 +7,17 @@ import static org.junit.jupiter.api.Assertions.*;
 class ClassUtilTest {
 
     @Test
-    void should_able_to_generate_target_desc() {
-        assertEquals("(Ljava/lang/Class;Ljava/lang/Object;)Ljava/lang/Object;",
-            ClassUtil.getParameterCount("(Ljava/lang/String;)V"));
-        assertEquals("(Ljava/lang/Class;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;",
-            ClassUtil.getParameterCount("(Ljava/lang/String;IDLjava/lang/String;ZLjava/net/URL;)V"));
-        assertEquals("(Ljava/lang/Class;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;",
-            ClassUtil.getParameterCount("(ZLjava/lang/String;IJFDCSBZ)V"));
-        assertEquals("(Ljava/lang/Class;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;",
-            ClassUtil.getParameterCount("(Ljava/lang/String;[I[Ljava/lang/String;)V"));
+    void should_able_to_get_parameter_count() {
+        assertEquals(1, ClassUtil.getParameterCount("(Ljava/lang/String;)V"));
+        assertEquals(6, ClassUtil.getParameterCount("(Ljava/lang/String;IDLjava/lang/String;ZLjava/net/URL;)V"));
+        assertEquals(10, ClassUtil.getParameterCount("(ZLjava/lang/String;IJFDCSBZ)V"));
+        assertEquals(3, ClassUtil.getParameterCount("(Ljava/lang/String;[I[Ljava/lang/String;)V"));
+    }
+
+    @Test
+    void should_able_to_get_return_type() {
+        assertEquals("", ClassUtil.getReturnType("(Ljava/lang/String;)V"));
+        assertEquals("java/lang/String", ClassUtil.getReturnType("(Ljava/lang/String;)Ljava/lang/String;"));
     }
 
 }

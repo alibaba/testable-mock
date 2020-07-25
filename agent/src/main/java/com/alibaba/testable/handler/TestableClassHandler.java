@@ -1,7 +1,6 @@
 package com.alibaba.testable.handler;
 
 import com.alibaba.testable.util.ClassUtil;
-import com.alibaba.testable.util.StringUtil;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Opcodes;
@@ -9,8 +8,8 @@ import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.*;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import static com.alibaba.testable.constant.Const.SYS_CLASSES;
 
@@ -39,7 +38,7 @@ public class TestableClassHandler implements Opcodes {
     }
 
     private void transform(ClassNode cn) {
-        List<String> methodNames = new ArrayList<String>();
+        Set<String> methodNames = new HashSet<String>();
         for (MethodNode m : cn.methods) {
             if (!CONSTRUCTOR.equals(m.name)) {
                 methodNames.add(m.name);
@@ -50,21 +49,24 @@ public class TestableClassHandler implements Opcodes {
         }
     }
 
-    private void transformMethod(ClassNode cn, MethodNode mn, List<String> methodNames) {
+    private void transformMethod(ClassNode cn, MethodNode mn, Set<String> methodNames) {
         AbstractInsnNode[] instructions = mn.instructions.toArray();
         int i = 0;
         do {
             if (instructions[i].getOpcode() == Opcodes.INVOKESPECIAL) {
                 MethodInsnNode node = (MethodInsnNode)instructions[i];
-                int rangeEnd = i;
                 if (cn.name.equals(node.owner) && methodNames.contains(node.name)) {
-                    int rangeStart = getMemberMethodStart(instructions, rangeEnd);
-                    instructions = replaceMemberCallOps(mn, instructions, rangeStart, rangeEnd);
-                    i = rangeStart;
+                    int rangeStart = getMemberMethodStart(instructions, i);
+                    if (rangeStart >= 0) {
+                        instructions = replaceMemberCallOps(mn, instructions, rangeStart, i);
+                        i = rangeStart;
+                    }
                 } else if (CONSTRUCTOR.equals(node.name) && !SYS_CLASSES.contains(node.owner)) {
-                    int rangeStart = getConstructorStart(instructions, node.owner, rangeEnd);
-                    instructions = replaceNewOps(mn, instructions, rangeStart, rangeEnd);
-                    i = rangeStart;
+                    int rangeStart = getConstructorStart(instructions, node.owner, i);
+                    if (rangeStart >= 0) {
+                        instructions = replaceNewOps(mn, instructions, rangeStart, i);
+                        i = rangeStart;
+                    }
                 }
             }
             i++;
@@ -72,21 +74,21 @@ public class TestableClassHandler implements Opcodes {
     }
 
     private int getConstructorStart(AbstractInsnNode[] instructions, String target, int rangeEnd) {
-        for (int i = rangeEnd - 1; i > 0; i--) {
+        for (int i = rangeEnd - 1; i >= 0; i--) {
             if (instructions[i].getOpcode() == Opcodes.NEW && ((TypeInsnNode)instructions[i]).desc.equals(target)) {
                 return i;
             }
         }
-        return 0;
+        return -1;
     }
 
     private int getMemberMethodStart(AbstractInsnNode[] instructions, int rangeEnd) {
-        for (int i = rangeEnd - 1; i > 0; i--) {
+        for (int i = rangeEnd - 1; i >= 0; i--) {
             if (instructions[i].getOpcode() == Opcodes.ALOAD && ((VarInsnNode)instructions[i]).var == 0) {
                 return i;
             }
         }
-        return 0;
+        return -1;
     }
 
     private AbstractInsnNode[] replaceNewOps(MethodNode mn, AbstractInsnNode[] instructions, int start, int end) {
@@ -107,7 +109,7 @@ public class TestableClassHandler implements Opcodes {
 
     private String getConstructorSubstitutionDesc(String constructorDesc) {
         int paramCount = ClassUtil.getParameterCount(constructorDesc);
-        return CONSTRUCTOR_DESC_PREFIX + StringUtil.repeat(OBJECT_DESC, paramCount) + METHOD_DESC_POSTFIX;
+        return CONSTRUCTOR_DESC_PREFIX + ClassUtil.repeat(OBJECT_DESC, paramCount) + METHOD_DESC_POSTFIX;
     }
 
     private AbstractInsnNode[] replaceMemberCallOps(MethodNode mn, AbstractInsnNode[] instructions, int start, int end) {
@@ -127,7 +129,7 @@ public class TestableClassHandler implements Opcodes {
 
     private String getMethodSubstitutionDesc(String methodDesc) {
         int paramCount = ClassUtil.getParameterCount(methodDesc);
-        return METHOD_DESC_PREFIX + StringUtil.repeat(OBJECT_DESC, paramCount) + METHOD_DESC_POSTFIX;
+        return METHOD_DESC_PREFIX + ClassUtil.repeat(OBJECT_DESC, paramCount) + METHOD_DESC_POSTFIX;
     }
 
 }

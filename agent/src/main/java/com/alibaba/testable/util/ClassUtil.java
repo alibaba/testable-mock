@@ -30,10 +30,10 @@ public class ClassUtil {
         }
     }
 
-    public static int getParameterCount(String paramTypes) {
+    public static int getParameterCount(String desc) {
         int paramCount = 0;
         boolean travelingClass = false;
-        for (byte b : paramTypes.getBytes()) {
+        for (byte b : desc.getBytes()) {
             if (travelingClass) {
                 if (b == ';') {
                     travelingClass = false;
@@ -53,7 +53,26 @@ public class ClassUtil {
     }
 
     public static String getReturnType(String desc) {
-        return null;
+        int returnTypeEdge = desc.lastIndexOf(')');
+        boolean isArrayType = false;
+        if (desc.charAt(returnTypeEdge + 1) == '[') {
+            isArrayType = true;
+            returnTypeEdge++;
+        }
+        switch (desc.charAt(returnTypeEdge + 1)) {
+            case 'L':
+                return desc.substring(returnTypeEdge + 2, desc.length() - 1);
+            default:
+                return "";
+        }
+    }
+
+    public static String repeat(String text, int times) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < times; i++) {
+            sb.append(text);
+        }
+        return sb.toString();
     }
 
 }
