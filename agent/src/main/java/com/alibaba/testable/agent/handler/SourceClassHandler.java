@@ -96,7 +96,7 @@ public class SourceClassHandler extends ClassHandler {
     }
 
     private String getConstructorSubstitutionDesc(String constructorDesc) {
-        int paramCount = ClassUtil.getParameterCount(constructorDesc);
+        int paramCount = ClassUtil.getParameterTypes(constructorDesc).size();
         return CONSTRUCTOR_DESC_PREFIX + StringUtil.repeat(OBJECT_DESC, paramCount) + METHOD_DESC_POSTFIX;
     }
 
@@ -116,7 +116,7 @@ public class SourceClassHandler extends ClassHandler {
     }
 
     private String getMethodSubstitutionDesc(String methodDesc) {
-        int paramCount = ClassUtil.getParameterCount(methodDesc);
+        int paramCount = ClassUtil.getParameterTypes(methodDesc).size();
         return METHOD_DESC_PREFIX + StringUtil.repeat(OBJECT_DESC, paramCount) + METHOD_DESC_POSTFIX;
     }
 

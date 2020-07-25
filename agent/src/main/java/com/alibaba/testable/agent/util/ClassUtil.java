@@ -46,8 +46,8 @@ public class ClassUtil {
         }
     }
 
-    public static int getParameterCount(String desc) {
-        int paramCount = 0;
+    public static List<Byte> getParameterTypes(String desc) {
+        List<Byte> parameterTypes = new ArrayList<Byte>();
         boolean travelingClass = false;
         for (byte b : desc.getBytes()) {
             if (travelingClass) {
@@ -57,16 +57,16 @@ public class ClassUtil {
             } else {
                 if (b == TYPE_BYTE || b == TYPE_CHAR || b == TYPE_DOUBLE || b == TYPE_FLOAT
                     || b == TYPE_INT || b == TYPE_LONG || b == TYPE_SHORT || b == TYPE_BOOL) {
-                    paramCount++;
+                    parameterTypes.add(b);
                 } else if (b == TYPE_CLASS) {
                     travelingClass = true;
-                    paramCount++;
+                    parameterTypes.add(b);
                 } else if (b == PARAM_END) {
                     break;
                 }
             }
         }
-        return paramCount;
+        return parameterTypes;
     }
 
     public static String getReturnType(String desc) {

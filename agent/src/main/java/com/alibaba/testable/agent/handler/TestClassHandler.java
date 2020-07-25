@@ -12,16 +12,16 @@ import java.util.List;
  */
 public class TestClassHandler extends ClassHandler {
 
-    private static final List<String> testAnnotations = new ArrayList<String>();
+    private static final List<String> TEST_ANNOTATIONS = new ArrayList<String>();
     private static final String TESTABLE_SETUP_METHOD_NAME = "testableSetup";
 
     static {
         // JUnit4
-        testAnnotations.add(ClassUtil.toByteCodeClassName("org.junit.Test"));
+        TEST_ANNOTATIONS.add(ClassUtil.toByteCodeClassName("org.junit.Test"));
         // JUnit5
-        testAnnotations.add(ClassUtil.toByteCodeClassName("org.junit.jupiter.api.Test"));
+        TEST_ANNOTATIONS.add(ClassUtil.toByteCodeClassName("org.junit.jupiter.api.Test"));
         // TestNG
-        testAnnotations.add(ClassUtil.toByteCodeClassName("org.testng.annotations.Test"));
+        TEST_ANNOTATIONS.add(ClassUtil.toByteCodeClassName("org.testng.annotations.Test"));
     }
 
     @Override
@@ -39,7 +39,7 @@ public class TestClassHandler extends ClassHandler {
         for (AnnotationNode n : mn.visibleAnnotations) {
             visibleAnnotationNames.add(n.desc);
         }
-        if (CollectionUtil.containsAny(visibleAnnotationNames, testAnnotations)) {
+        if (CollectionUtil.containsAny(visibleAnnotationNames, TEST_ANNOTATIONS)) {
             InsnList il = new InsnList();
             il.add(new VarInsnNode(ALOAD, 0));
             il.add(new MethodInsnNode(INVOKESPECIAL, cn.name, TESTABLE_SETUP_METHOD_NAME, "()V", false));

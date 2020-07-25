@@ -8,10 +8,10 @@ class ClassUtilTest {
 
     @Test
     void should_able_to_get_parameter_count() {
-        assertEquals(1, ClassUtil.getParameterCount("(Ljava/lang/String;)V"));
-        assertEquals(6, ClassUtil.getParameterCount("(Ljava/lang/String;IDLjava/lang/String;ZLjava/net/URL;)V"));
-        assertEquals(10, ClassUtil.getParameterCount("(ZLjava/lang/String;IJFDCSBZ)V"));
-        assertEquals(3, ClassUtil.getParameterCount("(Ljava/lang/String;[I[Ljava/lang/String;)V"));
+        assertEquals(1, ClassUtil.getParameterTypes("(Ljava/lang/String;)V").size());
+        assertEquals(6, ClassUtil.getParameterTypes("(Ljava/lang/String;IDLjava/lang/String;ZLjava/net/URL;)V").size());
+        assertEquals(10, ClassUtil.getParameterTypes("(ZLjava/lang/String;IJFDCSBZ)V").size());
+        assertEquals(3, ClassUtil.getParameterTypes("(Ljava/lang/String;[I[Ljava/lang/String;)V").size());
     }
 
     @Test
