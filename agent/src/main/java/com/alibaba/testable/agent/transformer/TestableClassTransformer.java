@@ -1,6 +1,7 @@
 package com.alibaba.testable.agent.transformer;
 
-import com.alibaba.testable.agent.handler.TestableClassHandler;
+import com.alibaba.testable.agent.handler.SourceClassHandler;
+import com.alibaba.testable.agent.handler.TestClassHandler;
 import com.alibaba.testable.agent.util.ClassUtil;
 
 import java.io.IOException;
@@ -31,27 +32,22 @@ public class TestableClassTransformer implements ClassFileTransformer {
 
         List<String> annotations = ClassUtil.getAnnotations(className);
         List<String> testAnnotations = ClassUtil.getAnnotations(className + TEST_POSTFIX);
-        if (!isNeedTransform(annotations, testAnnotations)) {
-            // Neither EnableTestable on test class, nor EnableTestableInject on source class
-            return null;
-        }
-
         try {
-            loadedClassNames.add(className);
-            return new TestableClassHandler().getBytes(className);
+            if (annotations.contains(ENABLE_TESTABLE_INJECT) || testAnnotations.contains(ENABLE_TESTABLE)) {
+                loadedClassNames.add(className);
+                return new SourceClassHandler().getBytes(className);
+            } else if (annotations.contains(ENABLE_TESTABLE)) {
+                loadedClassNames.add(className);
+                return new TestClassHandler().getBytes(className);
+            }
         } catch (IOException e) {
             return null;
         }
+        return null;
     }
 
     private boolean isSystemClass(ClassLoader loader, String className) {
         return !(loader instanceof URLClassLoader) || null == className || className.startsWith("jdk/");
-    }
-
-    private boolean isNeedTransform(List<String> annotations, List<String> testAnnotations) {
-        return annotations != null &&
-            (annotations.contains(ENABLE_TESTABLE_INJECT) ||
-                (testAnnotations != null && testAnnotations.contains(ENABLE_TESTABLE)));
     }
 
 }

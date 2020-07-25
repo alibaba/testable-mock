@@ -16,7 +16,7 @@ import java.util.Set;
 /**
  * @author flin
  */
-public class TestableClassHandler implements Opcodes {
+public class SourceClassHandler extends ClassHandler {
 
     private static final String CONSTRUCTOR = "<init>";
     private static final String TESTABLE_NE = "n/e";
@@ -27,17 +27,8 @@ public class TestableClassHandler implements Opcodes {
     private static final String OBJECT_DESC = "Ljava/lang/Object;";
     private static final String METHOD_DESC_POSTFIX = ")Ljava/lang/Object;";
 
-    public byte[] getBytes(String className) throws IOException {
-        ClassReader cr = new ClassReader(className);
-        ClassNode cn = new ClassNode();
-        cr.accept(cn, 0);
-        transform(cn);
-        ClassWriter cw = new ClassWriter( 0);
-        cn.accept(cw);
-        return cw.toByteArray();
-    }
-
-    private void transform(ClassNode cn) {
+    @Override
+    protected void transform(ClassNode cn) {
         Set<String> methodNames = new HashSet<String>();
         for (MethodNode m : cn.methods) {
             if (!CONSTRUCTOR.equals(m.name)) {

@@ -86,25 +86,14 @@ public class EnableTestableTranslator extends BaseTranslator {
     @Override
     public void visitMethodDef(JCMethodDecl jcMethodDecl) {
         for (JCAnnotation a : jcMethodDecl.mods.annotations) {
-            switch (a.type.tsym.toString()) {
-                case ConstPool.ANNOTATION_TESTABLE_INJECT:
-                    ListBuffer<JCExpression> args = new ListBuffer<>();
-                    for (JCVariableDecl p : jcMethodDecl.params) {
-                        args.add(cx.treeMaker.Select(p.vartype, cx.names.fromString(ConstPool.TYPE_TO_CLASS)));
-                    }
-                    JCExpression retType = jcMethodDecl.restype == null ? null :
-                        cx.treeMaker.Select(jcMethodDecl.restype, cx.names.fromString(ConstPool.TYPE_TO_CLASS));
-                    testSetupMethodGenerator.injectMethods.add(Pair.of(jcMethodDecl.name, Pair.of(retType, args.toList())));
-                    break;
-                case ConstPool.ANNOTATION_JUNIT5_SETUP:
-                    testSetupMethodGenerator.testSetupMethodName = jcMethodDecl.name.toString();
-                    jcMethodDecl.mods.annotations = removeAnnotation(jcMethodDecl.mods.annotations,
-                        ConstPool.ANNOTATION_JUNIT5_SETUP);
-                    break;
-                case ConstPool.ANNOTATION_JUNIT5_TEST:
-                    testSetupMethodGenerator.testLibType = TestLibType.JUnit5;
-                    break;
-                default:
+            if (ConstPool.ANNOTATION_TESTABLE_INJECT.equals(a.type.tsym.toString())) {
+                ListBuffer<JCExpression> args = new ListBuffer<>();
+                for (JCVariableDecl p : jcMethodDecl.params) {
+                    args.add(cx.treeMaker.Select(p.vartype, cx.names.fromString(ConstPool.CLASS_OF_TYPE)));
+                }
+                JCExpression retType = jcMethodDecl.restype == null ? null :
+                    cx.treeMaker.Select(jcMethodDecl.restype, cx.names.fromString(ConstPool.CLASS_OF_TYPE));
+                testSetupMethodGenerator.injectMethods.add(Pair.of(jcMethodDecl.name, Pair.of(retType, args.toList())));
             }
         }
         super.visitMethodDef(jcMethodDecl);

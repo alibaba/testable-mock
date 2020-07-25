@@ -19,14 +19,10 @@ import java.lang.reflect.Modifier;
  */
 public class TestSetupMethodGenerator extends BaseGenerator {
 
-    private static final String TYPE_CLASS = "Class";
-
     /**
      * MethodName -> (ResultType -> ParameterTypes)
      */
     public ListBuffer<Pair<Name, Pair<JCExpression, List<JCExpression>>>> injectMethods = new ListBuffer<>();
-    public String testSetupMethodName = "";
-    public TestLibType testLibType = TestLibType.JUnit4;
     public final ListBuffer<Method> memberMethods = new ListBuffer<>();
 
     public TestSetupMethodGenerator(TestableContext cx) {
@@ -34,15 +30,10 @@ public class TestSetupMethodGenerator extends BaseGenerator {
     }
 
     public JCMethodDecl fetch() {
-        JCModifiers mods = cx.treeMaker.Modifiers(Modifier.PUBLIC, makeAnnotations(ConstPool.ANNOTATION_JUNIT5_SETUP));
-        return cx.treeMaker.MethodDef(mods, cx.names.fromString("testableSetup"),
+        JCModifiers mods = cx.treeMaker.Modifiers(Modifier.PUBLIC);
+        return cx.treeMaker.MethodDef(mods, cx.names.fromString(ConstPool.TESTABLE_SETUP_METHOD_NAME),
             cx.treeMaker.Type(new Type.JCVoidType()), List.<JCTypeParameter>nil(),
             List.<JCVariableDecl>nil(), List.<JCExpression>nil(), testableSetupBlock(), null);
-    }
-
-    private List<JCAnnotation> makeAnnotations(String fullAnnotationName) {
-        JCExpression setupAnnotation = nameToExpression(fullAnnotationName);
-        return List.of(cx.treeMaker.Annotation(setupAnnotation, List.<JCExpression>nil()));
     }
 
     private JCBlock testableSetupBlock() {
@@ -54,13 +45,8 @@ public class TestSetupMethodGenerator extends BaseGenerator {
                 statements.append(addToPoolStatement(m, ConstPool.METHOD_ADD_TO_CON_POLL));
             }
         }
-        if (!testSetupMethodName.isEmpty()) {
-            statements.append(cx.treeMaker.Exec(cx.treeMaker.Apply(List.<JCExpression>nil(),
-                nameToExpression(testSetupMethodName), List.<JCExpression>nil())));
-        }
         return cx.treeMaker.Block(0, statements.toList());
     }
-
 
     private boolean isMemberMethod(Pair<Name, Pair<JCExpression, List<JCExpression>>> m) {
         for (Method method : memberMethods) {
@@ -88,7 +74,7 @@ public class TestSetupMethodGenerator extends BaseGenerator {
         JCExpression pool = nameToExpression(ConstPool.CLASS_SUBSTITUTION);
         JCExpression classType = m.snd.fst;
         JCExpression methodName = cx.treeMaker.Literal(m.fst.toString());
-        JCExpression parameterTypes = cx.treeMaker.NewArray(cx.treeMaker.Ident(cx.names.fromString(TYPE_CLASS)),
+        JCExpression parameterTypes = cx.treeMaker.NewArray(cx.treeMaker.Ident(cx.names.fromString(ConstPool.TYPE_CLASS)),
             List.<JCExpression>nil(), m.snd.snd);
         JCExpression thisIns = cx.treeMaker.Ident(cx.names.fromString(ConstPool.REF_THIS));
         JCNewClass poolClass = cx.treeMaker.NewClass(null, List.<JCExpression>nil(), pool,

@@ -42,7 +42,7 @@ public class ClassUtil {
             }
             return annotations;
         } catch (IOException e) {
-            return null;
+            return new ArrayList<String>();
         }
     }
 
