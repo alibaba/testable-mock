@@ -17,7 +17,7 @@ import java.util.Set;
  */
 public class TestableClassTransformer implements ClassFileTransformer {
 
-    private static final String ENABLE_TESTABLE = "com.alibaba.testable.annotation.EnableTestable";
+    private static final String ENABLE_TESTABLE = "com.alibaba.testable.core.annotation.EnableTestable";
     private static final String ENABLE_TESTABLE_INJECT = "com.alibaba.testable.annotation.EnableTestableInject";
     private static final String TEST_POSTFIX = "Test";
 

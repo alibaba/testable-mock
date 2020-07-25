@@ -22,7 +22,7 @@ import java.util.Set;
 /**
  * @author flin
  */
-@SupportedAnnotationTypes("com.alibaba.testable.annotation.EnableTestable")
+@SupportedAnnotationTypes("com.alibaba.testable.core.annotation.EnableTestable")
 @SupportedSourceVersion(SourceVersion.RELEASE_7)
 public class EnableTestableProcessor extends BaseProcessor {
 
