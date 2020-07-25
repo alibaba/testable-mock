@@ -10,6 +10,7 @@
 
   <modules>
     <module>agent</module>
+    <module>annotation</module>
     <module>core</module>
   </modules>
 
