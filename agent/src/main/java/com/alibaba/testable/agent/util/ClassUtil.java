@@ -1,6 +1,6 @@
 package com.alibaba.testable.agent.util;
 
-import com.alibaba.testable.agent.constant.Const;
+import com.alibaba.testable.agent.constant.ConstPool;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.tree.AnnotationNode;
 import org.objectweb.asm.tree.ClassNode;
@@ -37,7 +37,7 @@ public class ClassUtil {
             ClassNode cn = new ClassNode();
             new ClassReader(className).accept(cn, 0);
             for (AnnotationNode an : cn.visibleAnnotations) {
-                String annotationName = an.desc.replace(Const.SLASH, Const.DOT).substring(1, an.desc.length() - 1);
+                String annotationName = an.desc.replace(ConstPool.SLASH, ConstPool.DOT).substring(1, an.desc.length() - 1);
                 annotations.add(annotationName);
             }
             return annotations;
@@ -98,4 +98,7 @@ public class ClassUtil {
         }
     }
 
+    public static String toByteCodeClassName(String className) {
+        return TYPE_CLASS + className.replace(ConstPool.DOT, ConstPool.SLASH) + CLASS_END;
+    }
 }

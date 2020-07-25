@@ -6,7 +6,7 @@ import java.util.List;
 /**
  * @author flin
  */
-public class Const {
+public class ConstPool {
 
     public static final String DOT = ".";
     public static final String SLASH = "/";

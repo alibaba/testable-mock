@@ -1,15 +1,12 @@
 package com.alibaba.testable.agent.handler;
 
-import com.alibaba.testable.agent.constant.Const;
+import com.alibaba.testable.agent.constant.ConstPool;
 import com.alibaba.testable.agent.util.ClassUtil;
 import com.alibaba.testable.agent.util.StringUtil;
-import org.objectweb.asm.ClassReader;
-import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.*;
 
-import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -52,7 +49,7 @@ public class SourceClassHandler extends ClassHandler {
                         instructions = replaceMemberCallOps(mn, instructions, rangeStart, i);
                         i = rangeStart;
                     }
-                } else if (CONSTRUCTOR.equals(node.name) && !Const.SYS_CLASSES.contains(node.owner)) {
+                } else if (CONSTRUCTOR.equals(node.name) && !ConstPool.SYS_CLASSES.contains(node.owner)) {
                     int rangeStart = getConstructorStart(instructions, node.owner, i);
                     if (rangeStart >= 0) {
                         instructions = replaceNewOps(mn, instructions, rangeStart, i);

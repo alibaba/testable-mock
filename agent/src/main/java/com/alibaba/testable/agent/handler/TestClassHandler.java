@@ -1,5 +1,6 @@
 package com.alibaba.testable.agent.handler;
 
+import com.alibaba.testable.agent.util.ClassUtil;
 import com.alibaba.testable.agent.util.CollectionUtil;
 import org.objectweb.asm.tree.*;
 
@@ -16,11 +17,11 @@ public class TestClassHandler extends ClassHandler {
 
     static {
         // JUnit4
-        testAnnotations.add("org.junit.Test");
+        testAnnotations.add(ClassUtil.toByteCodeClassName("org.junit.Test"));
         // JUnit5
-        testAnnotations.add("org.junit.jupiter.api.Test");
+        testAnnotations.add(ClassUtil.toByteCodeClassName("org.junit.jupiter.api.Test"));
         // TestNG
-        testAnnotations.add("org.testng.annotations.Test");
+        testAnnotations.add(ClassUtil.toByteCodeClassName("org.testng.annotations.Test"));
     }
 
     @Override
@@ -32,6 +33,9 @@ public class TestClassHandler extends ClassHandler {
 
     private void transformMethod(ClassNode cn, MethodNode mn) {
         List<String> visibleAnnotationNames = new ArrayList<String>();
+        if (mn.visibleAnnotations == null) {
+            return;
+        }
         for (AnnotationNode n : mn.visibleAnnotations) {
             visibleAnnotationNames.add(n.desc);
         }
