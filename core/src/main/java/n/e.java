@@ -1,7 +1,7 @@
 package n;
 
-import static com.alibaba.testable.util.TypeUtil.wrapCall;
-import static com.alibaba.testable.util.TypeUtil.wrapNew;
+import static com.alibaba.testable.core.util.TypeUtil.wrapCall;
+import static com.alibaba.testable.core.util.TypeUtil.wrapNew;
 
 public final class e {
 

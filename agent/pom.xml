@@ -34,7 +34,7 @@
         <configuration>
           <archive>
             <manifestEntries>
-              <Premain-Class>com.alibaba.testable.PreMain</Premain-Class>
+              <Premain-Class>com.alibaba.testable.agent.PreMain</Premain-Class>
               <Can-Retransform-Classes>true</Can-Retransform-Classes>
             </manifestEntries>
           </archive>
