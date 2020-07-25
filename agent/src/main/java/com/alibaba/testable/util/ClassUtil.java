@@ -15,6 +15,19 @@ import static com.alibaba.testable.constant.Const.*;
  */
 public class ClassUtil {
 
+    private static final char TYPE_BYTE = 'B';
+    private static final char TYPE_CHAR = 'C';
+    private static final char TYPE_DOUBLE = 'D';
+    private static final char TYPE_FLOAT = 'F';
+    private static final char TYPE_INT = 'I';
+    private static final char TYPE_LONG = 'J';
+    private static final char TYPE_CLASS = 'L';
+    private static final char TYPE_SHORT = 'S';
+    private static final char TYPE_BOOL = 'Z';
+    private static final char PARAM_END = ')';
+    private static final char CLASS_END = ';';
+    private static final char TYPE_ARRAY = '[';
+
     public static List<String> getAnnotations(String className) {
         try {
             List<String> annotations = new ArrayList<String>();
@@ -35,16 +48,17 @@ public class ClassUtil {
         boolean travelingClass = false;
         for (byte b : desc.getBytes()) {
             if (travelingClass) {
-                if (b == ';') {
+                if (b == CLASS_END) {
                     travelingClass = false;
                 }
             } else {
-                if (b == 'B' || b == 'C' || b == 'D' || b == 'F' || b == 'I' || b == 'J' || b == 'S' || b == 'Z') {
+                if (b == TYPE_BYTE || b == TYPE_CHAR || b == TYPE_DOUBLE || b == TYPE_FLOAT
+                    || b == TYPE_INT || b == TYPE_LONG || b == TYPE_SHORT || b == TYPE_BOOL) {
                     paramCount++;
-                } else if (b == 'L') {
+                } else if (b == TYPE_CLASS) {
                     travelingClass = true;
                     paramCount++;
-                } else if (b == ')') {
+                } else if (b == PARAM_END) {
                     break;
                 }
             }
@@ -53,15 +67,29 @@ public class ClassUtil {
     }
 
     public static String getReturnType(String desc) {
-        int returnTypeEdge = desc.lastIndexOf(')');
-        boolean isArrayType = false;
-        if (desc.charAt(returnTypeEdge + 1) == '[') {
-            isArrayType = true;
-            returnTypeEdge++;
+        int returnTypeEdge = desc.lastIndexOf(PARAM_END);
+        if (desc.charAt(returnTypeEdge + 1) == TYPE_ARRAY) {
+            return desc.substring(returnTypeEdge + 1);
         }
         switch (desc.charAt(returnTypeEdge + 1)) {
-            case 'L':
+            case TYPE_CLASS:
                 return desc.substring(returnTypeEdge + 2, desc.length() - 1);
+            case TYPE_BYTE:
+                return "java/lang/Byte";
+            case TYPE_CHAR:
+                return "java/lang/Character";
+            case TYPE_DOUBLE:
+                return "java/lang/Double";
+            case TYPE_FLOAT:
+                return "java/lang/Float";
+            case TYPE_INT:
+                return "java/lang/Integer";
+            case TYPE_LONG:
+                return "java/lang/Long";
+            case TYPE_SHORT:
+                return "java/lang/Short";
+            case TYPE_BOOL:
+                return "java/lang/Boolean";
             default:
                 return "";
         }

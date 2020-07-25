@@ -17,7 +17,10 @@ class ClassUtilTest {
     @Test
     void should_able_to_get_return_type() {
         assertEquals("", ClassUtil.getReturnType("(Ljava/lang/String;)V"));
+        assertEquals("java/lang/Integer", ClassUtil.getReturnType("(Ljava/lang/String;)I"));
+        assertEquals("[I", ClassUtil.getReturnType("(Ljava/lang/String;)[I"));
         assertEquals("java/lang/String", ClassUtil.getReturnType("(Ljava/lang/String;)Ljava/lang/String;"));
+        assertEquals("[Ljava/lang/String;", ClassUtil.getReturnType("(Ljava/lang/String;)[Ljava/lang/String;"));
     }
 
 }
