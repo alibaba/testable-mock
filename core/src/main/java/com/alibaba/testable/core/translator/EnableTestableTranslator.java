@@ -86,7 +86,7 @@ public class EnableTestableTranslator extends BaseTranslator {
     @Override
     public void visitMethodDef(JCMethodDecl jcMethodDecl) {
         for (JCAnnotation a : jcMethodDecl.mods.annotations) {
-            if (ConstPool.ANNOTATION_TESTABLE_INJECT.equals(a.type.tsym.toString())) {
+            if (a.type != null && ConstPool.ANNOTATION_TESTABLE_INJECT.equals(a.type.tsym.toString())) {
                 ListBuffer<JCExpression> args = new ListBuffer<>();
                 for (JCVariableDecl p : jcMethodDecl.params) {
                     args.add(cx.treeMaker.Select(p.vartype, cx.names.fromString(ConstPool.CLASS_OF_TYPE)));
@@ -143,16 +143,6 @@ public class EnableTestableTranslator extends BaseTranslator {
             expr = privateAccessStatementGenerator.fetchInvokeStatement((JCMethodInvocation)expr);
         }
         return expr;
-    }
-
-    private List<JCAnnotation> removeAnnotation(List<JCAnnotation> annotations, String target) {
-        ListBuffer<JCAnnotation> nb = new ListBuffer<>();
-        for (JCAnnotation i : annotations) {
-            if (!i.type.tsym.toString().equals(target)) {
-                nb.add(i);
-            }
-        }
-        return nb.toList();
     }
 
     private boolean isPrivateField(JCAssign expr) {
