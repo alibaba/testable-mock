@@ -18,14 +18,24 @@ public class TestableUtil {
     }
 
     public static String currentTestCaseName(Object testClassRef) {
+        return currentTestCaseName(testClassRef.getClass());
+    }
+
+    public static String currentTestCaseName(Class testClass) {
         StackTraceElement[] stack = getMainThread().getStackTrace();
-        String testClassName = testClassRef.getClass().getName();
+        String testClassName = getRealClassName(testClass);
         for (int i = stack.length - 1; i >= 0; i--) {
             if (stack[i].getClassName().equals(testClassName)) {
                 return stack[i].getMethodName();
             }
         }
         return "";
+    }
+
+    private static String getRealClassName(Class testClass) {
+        String className = testClass.getName();
+        int posOfInnerClass = className.lastIndexOf('$');
+        return posOfInnerClass > 0 ? className.substring(0, posOfInnerClass) : className;
     }
 
     private static Thread getMainThread() {
