@@ -11,6 +11,8 @@ public class ConstPool {
     public static final String DOT = ".";
     public static final String SLASH = "/";
 
+    public static final String TEST_POSTFIX = "Test";
+
     public static final List<String> SYS_CLASSES = new ArrayList<String>();
     static {
         SYS_CLASSES.add("java/lang/StringBuilder");

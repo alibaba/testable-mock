@@ -2,6 +2,7 @@ package com.alibaba.testable.core.processor;
 
 import com.alibaba.testable.core.annotation.EnableTestable;
 import com.alibaba.testable.core.translator.EnableTestableTranslator;
+import com.alibaba.testable.core.util.ConstPool;
 import com.alibaba.testable.core.util.ResourceUtil;
 import com.sun.tools.javac.code.Symbol;
 import com.sun.tools.javac.tree.JCTree;
@@ -42,7 +43,7 @@ public class EnableTestableProcessor extends BaseProcessor {
     }
 
     private boolean isTestClass(Name name) {
-        return name.toString().endsWith("Test");
+        return name.toString().endsWith(ConstPool.TEST_POSTFIX);
     }
 
     private void processClassElement(Symbol.ClassSymbol clazz) {
@@ -56,7 +57,7 @@ public class EnableTestableProcessor extends BaseProcessor {
 
     private String getOriginClassName(Symbol.ClassSymbol clazz) {
         String testClassName = clazz.getSimpleName().toString();
-        return testClassName.substring(0, testClassName.length() - "Test".length());
+        return testClassName.substring(0, testClassName.length() - ConstPool.TEST_POSTFIX.length());
     }
 
     private void createTestableAgentJar() {

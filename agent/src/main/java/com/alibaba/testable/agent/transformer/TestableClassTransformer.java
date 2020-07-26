@@ -1,5 +1,6 @@
 package com.alibaba.testable.agent.transformer;
 
+import com.alibaba.testable.agent.constant.ConstPool;
 import com.alibaba.testable.agent.handler.SourceClassHandler;
 import com.alibaba.testable.agent.handler.TestClassHandler;
 import com.alibaba.testable.agent.util.ClassUtil;
@@ -19,7 +20,6 @@ public class TestableClassTransformer implements ClassFileTransformer {
 
     private static final String ENABLE_TESTABLE = "com.alibaba.testable.core.annotation.EnableTestable";
     private static final String ENABLE_TESTABLE_INJECT = "com.alibaba.testable.core.annotation.EnableTestableInject";
-    private static final String TEST_POSTFIX = "Test";
 
     private static final Set<String> loadedClassNames = new HashSet<String>();
 
@@ -31,7 +31,7 @@ public class TestableClassTransformer implements ClassFileTransformer {
         }
 
         List<String> annotations = ClassUtil.getAnnotations(className);
-        List<String> testAnnotations = ClassUtil.getAnnotations(className + TEST_POSTFIX);
+        List<String> testAnnotations = ClassUtil.getAnnotations(className + ConstPool.TEST_POSTFIX);
         try {
             if (annotations.contains(ENABLE_TESTABLE_INJECT) || testAnnotations.contains(ENABLE_TESTABLE)) {
                 loadedClassNames.add(className);
