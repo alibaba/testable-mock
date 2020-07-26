@@ -8,6 +8,7 @@ import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.*;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -83,9 +84,10 @@ public class SourceClassHandler extends ClassHandler {
         String classType = ((TypeInsnNode)instructions[start]).desc;
         String constructorDesc = ((MethodInsnNode)instructions[end]).desc;
         mn.instructions.insertBefore(instructions[start], new LdcInsnNode(Type.getType("L" + classType + ";")));
+        List<Byte> parameterTypes = ClassUtil.getParameterTypes(constructorDesc);
         InsnList il = new InsnList();
         il.add(new MethodInsnNode(INVOKESTATIC, TESTABLE_NE, TESTABLE_W,
-            getConstructorSubstitutionDesc(constructorDesc), false));
+            getConstructorSubstitutionDesc(parameterTypes.size()), false));
         il.add(new TypeInsnNode(CHECKCAST, classType));
         mn.instructions.insertBefore(instructions[end], il);
         mn.instructions.remove(instructions[start]);
@@ -95,9 +97,8 @@ public class SourceClassHandler extends ClassHandler {
         return mn.instructions.toArray();
     }
 
-    private String getConstructorSubstitutionDesc(String constructorDesc) {
-        int paramCount = ClassUtil.getParameterTypes(constructorDesc).size();
-        return CONSTRUCTOR_DESC_PREFIX + StringUtil.repeat(OBJECT_DESC, paramCount) + METHOD_DESC_POSTFIX;
+    private String getConstructorSubstitutionDesc(int parameterCount) {
+        return CONSTRUCTOR_DESC_PREFIX + StringUtil.repeat(OBJECT_DESC, parameterCount) + METHOD_DESC_POSTFIX;
     }
 
     private AbstractInsnNode[] replaceMemberCallOps(MethodNode mn, AbstractInsnNode[] instructions, int start, int end) {
@@ -105,9 +106,10 @@ public class SourceClassHandler extends ClassHandler {
         String returnType = ClassUtil.getReturnType(methodDesc);
         String methodName = ((MethodInsnNode)instructions[end]).name;
         mn.instructions.insert(instructions[start], new LdcInsnNode(methodName));
+        List<Byte> parameterTypes = ClassUtil.getParameterTypes(methodDesc);
         InsnList il = new InsnList();
         il.add(new MethodInsnNode(INVOKESTATIC, TESTABLE_NE, TESTABLE_F,
-            getMethodSubstitutionDesc(methodDesc), false));
+            getMethodSubstitutionDesc(parameterTypes.size()), false));
         il.add(new TypeInsnNode(CHECKCAST, returnType));
         mn.instructions.insertBefore(instructions[end], il);
         mn.instructions.remove(instructions[end]);
@@ -115,9 +117,8 @@ public class SourceClassHandler extends ClassHandler {
         return mn.instructions.toArray();
     }
 
-    private String getMethodSubstitutionDesc(String methodDesc) {
-        int paramCount = ClassUtil.getParameterTypes(methodDesc).size();
-        return METHOD_DESC_PREFIX + StringUtil.repeat(OBJECT_DESC, paramCount) + METHOD_DESC_POSTFIX;
+    private String getMethodSubstitutionDesc(int parameterCount) {
+        return METHOD_DESC_PREFIX + StringUtil.repeat(OBJECT_DESC, parameterCount) + METHOD_DESC_POSTFIX;
     }
 
 }
