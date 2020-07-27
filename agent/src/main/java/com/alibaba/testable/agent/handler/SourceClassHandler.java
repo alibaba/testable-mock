@@ -1,12 +1,15 @@
 package com.alibaba.testable.agent.handler;
 
 import com.alibaba.testable.agent.constant.ConstPool;
+import com.alibaba.testable.agent.model.MethodInfo;
 import com.alibaba.testable.agent.util.ClassUtil;
+import com.alibaba.testable.agent.util.CollectionUtil;
 import com.alibaba.testable.agent.util.StringUtil;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.*;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -24,33 +27,42 @@ public class SourceClassHandler extends ClassHandler {
     private static final String METHOD_DESC_PREFIX = "(Ljava/lang/Object;Ljava/lang/String;";
     private static final String OBJECT_DESC = "Ljava/lang/Object;";
     private static final String METHOD_DESC_POSTFIX = ")Ljava/lang/Object;";
+    private List<MethodInfo> injectMethods;
+
+    public SourceClassHandler(List<MethodInfo> injectMethods) {
+        this.injectMethods = injectMethods;
+    }
 
     @Override
     protected void transform(ClassNode cn) {
-        Set<String> methodNames = new HashSet<String>();
+        List<MethodInfo> methods = new ArrayList<MethodInfo>();
         for (MethodNode m : cn.methods) {
             if (!CONSTRUCTOR.equals(m.name)) {
-                methodNames.add(m.name);
+                methods.add(new MethodInfo(m.name, m.desc));
             }
         }
+        Set<MethodInfo> memberInjectMethods = CollectionUtil.getCrossSet(methods, injectMethods);
+        Set<MethodInfo> newOperatorInjectMethods = CollectionUtil.getMinusSet(injectMethods, memberInjectMethods);
         for (MethodNode m : cn.methods) {
-            transformMethod(cn, m, methodNames);
+            transformMethod(cn, m, memberInjectMethods, MethodInfo.descSet(newOperatorInjectMethods));
         }
     }
 
-    private void transformMethod(ClassNode cn, MethodNode mn, Set<String> methodNames) {
+    private void transformMethod(ClassNode cn, MethodNode mn, Set<MethodInfo> memberInjectMethods,
+                                 Set<String> newOperatorInjectDesc) {
         AbstractInsnNode[] instructions = mn.instructions.toArray();
         int i = 0;
         do {
             if (instructions[i].getOpcode() == Opcodes.INVOKESPECIAL) {
                 MethodInsnNode node = (MethodInsnNode)instructions[i];
-                if (cn.name.equals(node.owner) && methodNames.contains(node.name)) {
+                if (cn.name.equals(node.owner) && memberInjectMethods.contains(new MethodInfo(node.name, node.desc))) {
                     int rangeStart = getMemberMethodStart(instructions, i);
                     if (rangeStart >= 0) {
                         instructions = replaceMemberCallOps(mn, instructions, rangeStart, i);
                         i = rangeStart;
                     }
-                } else if (CONSTRUCTOR.equals(node.name) && !ConstPool.SYS_CLASSES.contains(node.owner)) {
+                } else if (CONSTRUCTOR.equals(node.name) &&
+                    newOperatorInjectDesc.contains(getConstructorInjectDesc(node))) {
                     int rangeStart = getConstructorStart(instructions, node.owner, i);
                     if (rangeStart >= 0) {
                         instructions = replaceNewOps(mn, instructions, rangeStart, i);
@@ -60,6 +72,11 @@ public class SourceClassHandler extends ClassHandler {
             }
             i++;
         } while (i < instructions.length);
+    }
+
+    private String getConstructorInjectDesc(MethodInsnNode constructorNode) {
+        return constructorNode.desc.substring(0, constructorNode.desc.length() - 1) +
+            ClassUtil.toByteCodeClassName(constructorNode.owner);
     }
 
     private int getConstructorStart(AbstractInsnNode[] instructions, String target, int rangeEnd) {

@@ -1,9 +1,11 @@
 package com.alibaba.testable.agent.util;
 
 import com.alibaba.testable.agent.constant.ConstPool;
+import com.alibaba.testable.agent.model.MethodInfo;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.tree.AnnotationNode;
 import org.objectweb.asm.tree.ClassNode;
+import org.objectweb.asm.tree.MethodNode;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -37,12 +39,37 @@ public class ClassUtil {
             ClassNode cn = new ClassNode();
             new ClassReader(className).accept(cn, 0);
             for (AnnotationNode an : cn.visibleAnnotations) {
-                String annotationName = an.desc.replace(ConstPool.SLASH, ConstPool.DOT).substring(1, an.desc.length() - 1);
-                annotations.add(annotationName);
+                annotations.add(toDotSeparateFullClassName(an.desc));
             }
             return annotations;
         } catch (Exception e) {
             return new ArrayList<String>();
+        }
+    }
+
+    public static List<MethodInfo> getTestableInjectMethods(String className) {
+        try {
+            List<MethodInfo> methodInfos = new ArrayList<MethodInfo>();
+            ClassNode cn = new ClassNode();
+            new ClassReader(className).accept(cn, 0);
+            for (MethodNode mn : cn.methods) {
+                checkMethodAnnotation(methodInfos, mn);
+            }
+            return methodInfos;
+        } catch (Exception e) {
+            return new ArrayList<MethodInfo>();
+        }
+    }
+
+    private static void checkMethodAnnotation(List<MethodInfo> methodInfos, MethodNode mn) {
+        if (mn.visibleAnnotations == null) {
+            return;
+        }
+        for (AnnotationNode an : mn.visibleAnnotations) {
+            if (toDotSeparateFullClassName(an.desc).equals(ConstPool.TESTABLE_INJECT)) {
+                methodInfos.add(new MethodInfo(mn.name, mn.desc));
+                break;
+            }
         }
     }
 
@@ -101,4 +128,9 @@ public class ClassUtil {
     public static String toByteCodeClassName(String className) {
         return TYPE_CLASS + className.replace(ConstPool.DOT, ConstPool.SLASH) + CLASS_END;
     }
+
+    public static String toDotSeparateFullClassName(String className) {
+        return className.replace(ConstPool.SLASH, ConstPool.DOT).substring(1, className.length() - 1);
+    }
+
 }

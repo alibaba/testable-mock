@@ -3,6 +3,7 @@ package com.alibaba.testable.agent.transformer;
 import com.alibaba.testable.agent.constant.ConstPool;
 import com.alibaba.testable.agent.handler.SourceClassHandler;
 import com.alibaba.testable.agent.handler.TestClassHandler;
+import com.alibaba.testable.agent.model.MethodInfo;
 import com.alibaba.testable.agent.util.ClassUtil;
 
 import java.io.IOException;
@@ -18,9 +19,6 @@ import java.util.Set;
  */
 public class TestableClassTransformer implements ClassFileTransformer {
 
-    private static final String ENABLE_TESTABLE = "com.alibaba.testable.core.annotation.EnableTestable";
-    private static final String ENABLE_TESTABLE_INJECT = "com.alibaba.testable.core.annotation.EnableTestableInject";
-
     private static final Set<String> loadedClassNames = new HashSet<String>();
 
     public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined,
@@ -33,10 +31,11 @@ public class TestableClassTransformer implements ClassFileTransformer {
         List<String> annotations = ClassUtil.getAnnotations(className);
         List<String> testAnnotations = ClassUtil.getAnnotations(className + ConstPool.TEST_POSTFIX);
         try {
-            if (annotations.contains(ENABLE_TESTABLE_INJECT) || testAnnotations.contains(ENABLE_TESTABLE)) {
+            if (testAnnotations.contains(ConstPool.ENABLE_TESTABLE)) {
                 loadedClassNames.add(className);
-                return new SourceClassHandler().getBytes(className);
-            } else if (annotations.contains(ENABLE_TESTABLE)) {
+                List<MethodInfo> injectMethods = ClassUtil.getTestableInjectMethods(className + ConstPool.TEST_POSTFIX);
+                return new SourceClassHandler(injectMethods).getBytes(className);
+            } else if (annotations.contains(ConstPool.ENABLE_TESTABLE)) {
                 loadedClassNames.add(className);
                 return new TestClassHandler().getBytes(className);
             }

@@ -7,7 +7,7 @@ import java.lang.annotation.*;
  *
  * @author flin
  */
-@Retention(RetentionPolicy.SOURCE)
+@Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
 @Documented
 public @interface TestableInject {

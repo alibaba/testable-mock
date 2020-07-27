@@ -12,4 +12,9 @@ import java.lang.annotation.*;
 @Documented
 public @interface EnableTestableInject {
 
+    /**
+     * Test class names
+     */
+    String[] value();
+
 }

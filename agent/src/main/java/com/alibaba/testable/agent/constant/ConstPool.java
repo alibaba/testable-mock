@@ -1,8 +1,5 @@
 package com.alibaba.testable.agent.constant;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * @author flin
  */
@@ -13,9 +10,6 @@ public class ConstPool {
 
     public static final String TEST_POSTFIX = "Test";
 
-    public static final List<String> SYS_CLASSES = new ArrayList<String>();
-    static {
-        SYS_CLASSES.add("java/lang/StringBuilder");
-    }
-
+    public static final String ENABLE_TESTABLE = "com.alibaba.testable.core.annotation.EnableTestable";
+    public static final String TESTABLE_INJECT = "com.alibaba.testable.core.annotation.TestableInject";
 }
