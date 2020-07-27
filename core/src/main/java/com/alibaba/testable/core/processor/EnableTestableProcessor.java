@@ -2,7 +2,7 @@ package com.alibaba.testable.core.processor;
 
 import com.alibaba.testable.core.annotation.EnableTestable;
 import com.alibaba.testable.core.translator.EnableTestableTranslator;
-import com.alibaba.testable.core.util.ConstPool;
+import com.alibaba.testable.core.constant.ConstPool;
 import com.alibaba.testable.core.util.ResourceUtil;
 import com.sun.tools.javac.code.Symbol;
 import com.sun.tools.javac.tree.JCTree;
@@ -61,21 +61,14 @@ public class EnableTestableProcessor extends BaseProcessor {
     }
 
     private void createTestableAgentJar() {
-        if (!checkFirstClassCompiled()) {
+        if (!hasFirstClassCompiled) {
+            hasFirstClassCompiled = true;
             byte[] bytes = ResourceUtil.fetchBinary(TESTABLE_AGENT_JAR);
             if (bytes.length == 0) {
                 cx.logger.error("Failed to generate testable agent jar");
             }
             writeBinaryFile("", TESTABLE_AGENT_JAR, bytes);
         }
-    }
-
-    private boolean checkFirstClassCompiled() {
-        if (!hasFirstClassCompiled) {
-            hasFirstClassCompiled = true;
-            return false;
-        }
-        return true;
     }
 
     private void writeBinaryFile(String path, String fileName, byte[] content) {

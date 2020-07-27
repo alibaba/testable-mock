@@ -3,14 +3,12 @@ package com.alibaba.testable.core.util;
 import java.io.*;
 
 /**
- * Generate global n.e class code
- *
  * @author flin
  */
 public class ResourceUtil {
 
-    public static String fetchText(String fileName) {
-        InputStream in = ResourceUtil.class.getResourceAsStream("/" + fileName);
+    public static String fetchText(String filePath) {
+        InputStream in = ResourceUtil.class.getResourceAsStream("/" + filePath);
         BufferedReader reader = new BufferedReader(new InputStreamReader(in));
         StringBuilder buffer = new StringBuilder();
         String line;
@@ -22,15 +20,15 @@ public class ResourceUtil {
             reader.close();
             return buffer.toString();
         } catch (IOException e) {
-            System.err.println("Failed to fetch text file: " + fileName);
+            System.err.println("Failed to fetch text file: " + filePath);
             return "";
         }
     }
 
-    public static byte[] fetchBinary(String fileName) {
-        InputStream in = ResourceUtil.class.getResourceAsStream("/" + fileName);
+    public static byte[] fetchBinary(String filePath) {
+        InputStream in = ResourceUtil.class.getResourceAsStream("/" + filePath);
         if (in == null) {
-            System.err.println("Resource " + fileName + " not exist");
+            System.err.println("Resource " + filePath + " not exist");
             return new byte[] {};
         }
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
@@ -44,7 +42,7 @@ public class ResourceUtil {
             buffer.close();
             return buffer.toByteArray();
         } catch (IOException e) {
-            System.err.println("Failed to fetch file: " + fileName);
+            System.err.println("Failed to fetch file: " + filePath);
             return new byte[] {};
         }
     }

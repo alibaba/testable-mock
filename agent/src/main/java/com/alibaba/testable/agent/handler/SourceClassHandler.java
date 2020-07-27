@@ -87,7 +87,7 @@ public class SourceClassHandler extends ClassHandler {
         List<Byte> parameterTypes = ClassUtil.getParameterTypes(constructorDesc);
         InsnList il = new InsnList();
         il.add(new MethodInsnNode(INVOKESTATIC, TESTABLE_NE, TESTABLE_W,
-            getConstructorSubstitutionDesc(parameterTypes.size()), false));
+            getConstructorSubstitutionDesc(parameterTypes.size())));
         il.add(new TypeInsnNode(CHECKCAST, classType));
         mn.instructions.insertBefore(instructions[end], il);
         mn.instructions.remove(instructions[start]);
@@ -109,7 +109,7 @@ public class SourceClassHandler extends ClassHandler {
         List<Byte> parameterTypes = ClassUtil.getParameterTypes(methodDesc);
         InsnList il = new InsnList();
         il.add(new MethodInsnNode(INVOKESTATIC, TESTABLE_NE, TESTABLE_F,
-            getMethodSubstitutionDesc(parameterTypes.size()), false));
+            getMethodSubstitutionDesc(parameterTypes.size())));
         il.add(new TypeInsnNode(CHECKCAST, returnType));
         mn.instructions.insertBefore(instructions[end], il);
         mn.instructions.remove(instructions[end]);

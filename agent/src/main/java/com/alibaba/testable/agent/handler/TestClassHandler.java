@@ -14,6 +14,7 @@ public class TestClassHandler extends ClassHandler {
 
     private static final List<String> TEST_ANNOTATIONS = new ArrayList<String>();
     private static final String TESTABLE_SETUP_METHOD_NAME = "testableSetup";
+    private static final String TESTABLE_SETUP_METHOD_DESC = "()V";
 
     static {
         // JUnit4
@@ -42,7 +43,7 @@ public class TestClassHandler extends ClassHandler {
         if (CollectionUtil.containsAny(visibleAnnotationNames, TEST_ANNOTATIONS)) {
             InsnList il = new InsnList();
             il.add(new VarInsnNode(ALOAD, 0));
-            il.add(new MethodInsnNode(INVOKESPECIAL, cn.name, TESTABLE_SETUP_METHOD_NAME, "()V", false));
+            il.add(new MethodInsnNode(INVOKESPECIAL, cn.name, TESTABLE_SETUP_METHOD_NAME, TESTABLE_SETUP_METHOD_DESC));
             mn.instructions.insertBefore(mn.instructions.get(0), il);
         }
     }

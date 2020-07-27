@@ -41,7 +41,7 @@ public class ClassUtil {
                 annotations.add(annotationName);
             }
             return annotations;
-        } catch (IOException e) {
+        } catch (Exception e) {
             return new ArrayList<String>();
         }
     }

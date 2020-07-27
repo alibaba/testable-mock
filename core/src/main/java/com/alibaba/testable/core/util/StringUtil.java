@@ -2,6 +2,9 @@ package com.alibaba.testable.core.util;
 
 import java.util.List;
 
+/**
+ * @author flin
+ */
 public class StringUtil {
 
     static public String join(List<String> list, String conjunction)
