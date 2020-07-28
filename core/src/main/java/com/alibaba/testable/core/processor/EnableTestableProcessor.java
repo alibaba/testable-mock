@@ -48,16 +48,11 @@ public class EnableTestableProcessor extends BaseProcessor {
 
     private void processClassElement(Symbol.ClassSymbol clazz) {
         JCTree tree = cx.trees.getTree(clazz);
-        tree.accept(new EnableTestableTranslator(getPkgName(clazz), getOriginClassName(clazz), cx));
+        tree.accept(new EnableTestableTranslator(getPkgName(clazz), clazz.getSimpleName().toString(), cx));
     }
 
     private String getPkgName(Symbol.ClassSymbol clazz) {
         return ((Symbol.PackageSymbol)clazz.owner).fullname.toString();
-    }
-
-    private String getOriginClassName(Symbol.ClassSymbol clazz) {
-        String testClassName = clazz.getSimpleName().toString();
-        return testClassName.substring(0, testClassName.length() - ConstPool.TEST_POSTFIX.length());
     }
 
     private void createTestableAgentJar() {
