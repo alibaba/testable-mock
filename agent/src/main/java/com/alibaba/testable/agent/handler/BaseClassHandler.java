@@ -10,7 +10,7 @@ import java.io.IOException;
 /**
  * @author flin
  */
-abstract public class ClassHandler implements Opcodes {
+abstract public class BaseClassHandler implements Opcodes {
 
     public byte[] getBytes(String className) throws IOException {
         ClassReader cr = new ClassReader(className);

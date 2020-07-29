@@ -4,20 +4,17 @@ import com.alibaba.testable.agent.constant.ConstPool;
 import com.alibaba.testable.agent.model.MethodInfo;
 import com.alibaba.testable.agent.util.ClassUtil;
 import com.alibaba.testable.agent.util.CollectionUtil;
-import com.alibaba.testable.agent.util.StringUtil;
 import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.*;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 /**
  * @author flin
  */
-public class SourceClassHandler extends ClassHandler {
+public class SourceClassHandler extends BaseClassHandler {
 
     private static final String CONSTRUCTOR = "<init>";
     private final List<MethodInfo> injectMethods;

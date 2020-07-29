@@ -11,7 +11,7 @@ import java.util.List;
 /**
  * @author flin
  */
-public class TestClassHandler extends ClassHandler {
+public class TestClassHandler extends BaseClassHandler {
 
     private static final List<String> TEST_ANNOTATIONS = new ArrayList<String>();
 

@@ -1,21 +1,18 @@
 package com.alibaba.testable.core.translator;
 
+import com.alibaba.testable.core.constant.ConstPool;
 import com.alibaba.testable.core.generator.PrivateAccessStatementGenerator;
-import com.alibaba.testable.core.generator.TestSetupMethodGenerator;
 import com.alibaba.testable.core.generator.TestableRefFieldGenerator;
 import com.alibaba.testable.core.model.TestableContext;
-import com.alibaba.testable.core.constant.ConstPool;
 import com.alibaba.testable.core.util.TypeUtil;
 import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.tree.JCTree.*;
 import com.sun.tools.javac.util.ListBuffer;
 import com.sun.tools.javac.util.Name;
-import com.sun.tools.javac.util.Pair;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.Arrays;
 
 /**
  * Travel AST
@@ -24,21 +21,17 @@ import java.util.Arrays;
  */
 public class EnableTestableTranslator extends BaseTranslator {
 
-    private final TestableContext cx;
     private final String testClassName;
     private final String sourceClassName;
     private final ListBuffer<Name> sourceClassIns = new ListBuffer<>();
     private final ListBuffer<String> privateOrFinalFields = new ListBuffer<>();
     private final ListBuffer<String> privateMethods = new ListBuffer<>();
-    private final TestSetupMethodGenerator testSetupMethodGenerator;
     private final PrivateAccessStatementGenerator privateAccessStatementGenerator;
     private final TestableRefFieldGenerator testableRefFieldGenerator;
 
     public EnableTestableTranslator(String pkgName, String testClassName, TestableContext cx) {
         this.testClassName = testClassName;
         this.sourceClassName = testClassName.substring(0, testClassName.length() - ConstPool.TEST_POSTFIX.length());
-        this.cx = cx;
-        this.testSetupMethodGenerator = new TestSetupMethodGenerator(cx);
         this.privateAccessStatementGenerator = new PrivateAccessStatementGenerator(cx);
         this.testableRefFieldGenerator = new TestableRefFieldGenerator(cx, pkgName + "." + testClassName);
         try {
@@ -55,7 +48,6 @@ public class EnableTestableTranslator extends BaseTranslator {
                     privateMethods.add(m.getName());
                 }
             }
-            testSetupMethodGenerator.memberMethods.addAll(Arrays.asList(cls.getDeclaredMethods()));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -93,13 +85,6 @@ public class EnableTestableTranslator extends BaseTranslator {
         for (JCAnnotation a : jcMethodDecl.mods.annotations) {
             if (a.type != null && ConstPool.ANNOTATION_TESTABLE_INJECT.equals(a.type.tsym.toString())) {
                 TypeUtil.toPublicFlags(jcMethodDecl.getModifiers());
-                ListBuffer<JCExpression> args = new ListBuffer<>();
-                for (JCVariableDecl p : jcMethodDecl.params) {
-                    args.add(cx.treeMaker.Select(p.vartype, cx.names.fromString(ConstPool.CLASS_OF_TYPE)));
-                }
-                JCExpression retType = jcMethodDecl.restype == null ? null :
-                    cx.treeMaker.Select(jcMethodDecl.restype, cx.names.fromString(ConstPool.CLASS_OF_TYPE));
-                testSetupMethodGenerator.injectMethods.add(Pair.of(jcMethodDecl.name, Pair.of(retType, args.toList())));
             }
         }
         super.visitMethodDef(jcMethodDecl);
@@ -114,7 +99,6 @@ public class EnableTestableTranslator extends BaseTranslator {
         if (jcClassDecl.name.toString().equals(testClassName)) {
             ListBuffer<JCTree> ndefs = new ListBuffer<>();
             ndefs.addAll(jcClassDecl.defs);
-            ndefs.add(testSetupMethodGenerator.fetch());
             ndefs.add(testableRefFieldGenerator.fetch());
             jcClassDecl.defs = ndefs.toList();
         }

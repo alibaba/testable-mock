@@ -1,17 +1,23 @@
 package com.alibaba.testable.core.util;
 
+import com.alibaba.testable.core.constant.ConstPool;
+
 /**
  * @author flin
  */
 public class TestableUtil {
 
-    private static final String TESTABLE_NE = "n.e";
+    public static String currentMemberMethodName(Object testClassRef) {
+        return currentMemberMethodName(testClassRef.getClass());
+    }
 
-    public static String currentMemberMethodName() {
-        StackTraceElement[] stack = Thread.currentThread().getStackTrace();
-        for (int i = 0; i < stack.length; i++) {
-            if (stack[i].getClassName().equals(TESTABLE_NE)) {
-                return stack[i + 1].getMethodName();
+    public static String currentMemberMethodName(Class<?> testClass) {
+        StackTraceElement[] stack = getMainThread().getStackTrace();
+        String testClassName = getRealClassName(testClass);
+        String sourceClassName = testClassName.substring(0, testClassName.length() - ConstPool.TEST_POSTFIX.length());
+        for (int i = stack.length - 1; i >= 0; i--) {
+            if (stack[i].getClassName().equals(sourceClassName)) {
+                return stack[i].getMethodName();
             }
         }
         return "";
@@ -21,7 +27,7 @@ public class TestableUtil {
         return currentTestCaseName(testClassRef.getClass());
     }
 
-    public static String currentTestCaseName(Class testClass) {
+    public static String currentTestCaseName(Class<?> testClass) {
         StackTraceElement[] stack = getMainThread().getStackTrace();
         String testClassName = getRealClassName(testClass);
         for (int i = stack.length - 1; i >= 0; i--) {
@@ -32,7 +38,7 @@ public class TestableUtil {
         return "";
     }
 
-    private static String getRealClassName(Class testClass) {
+    private static String getRealClassName(Class<?> testClass) {
         String className = testClass.getName();
         int posOfInnerClass = className.lastIndexOf('$');
         return posOfInnerClass > 0 ? className.substring(0, posOfInnerClass) : className;
