@@ -5,6 +5,7 @@ import com.alibaba.testable.core.generator.TestSetupMethodGenerator;
 import com.alibaba.testable.core.generator.TestableRefFieldGenerator;
 import com.alibaba.testable.core.model.TestableContext;
 import com.alibaba.testable.core.constant.ConstPool;
+import com.alibaba.testable.core.util.TypeUtil;
 import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.tree.JCTree.*;
 import com.sun.tools.javac.util.ListBuffer;
@@ -24,8 +25,8 @@ import java.util.Arrays;
 public class EnableTestableTranslator extends BaseTranslator {
 
     private final TestableContext cx;
-    private String testClassName;
-    private String sourceClassName;
+    private final String testClassName;
+    private final String sourceClassName;
     private final ListBuffer<Name> sourceClassIns = new ListBuffer<>();
     private final ListBuffer<String> privateOrFinalFields = new ListBuffer<>();
     private final ListBuffer<String> privateMethods = new ListBuffer<>();
@@ -85,12 +86,13 @@ public class EnableTestableTranslator extends BaseTranslator {
     }
 
     /**
-     * Search for TestableInject and TestSetup annotations
+     * Search for TestableInject annotations
      */
     @Override
     public void visitMethodDef(JCMethodDecl jcMethodDecl) {
         for (JCAnnotation a : jcMethodDecl.mods.annotations) {
             if (a.type != null && ConstPool.ANNOTATION_TESTABLE_INJECT.equals(a.type.tsym.toString())) {
+                TypeUtil.toPublicFlags(jcMethodDecl.getModifiers());
                 ListBuffer<JCExpression> args = new ListBuffer<>();
                 for (JCVariableDecl p : jcMethodDecl.params) {
                     args.add(cx.treeMaker.Select(p.vartype, cx.names.fromString(ConstPool.CLASS_OF_TYPE)));
