@@ -20,14 +20,7 @@ import java.util.Set;
 public class SourceClassHandler extends ClassHandler {
 
     private static final String CONSTRUCTOR = "<init>";
-    private static final String TESTABLE_NE = "n/e";
-    private static final String TESTABLE_W = "w";
-    private static final String TESTABLE_F = "f";
-    private static final String CONSTRUCTOR_DESC_PREFIX = "(Ljava/lang/Class;";
-    private static final String METHOD_DESC_PREFIX = "(Ljava/lang/Object;Ljava/lang/String;";
-    private static final String OBJECT_DESC = "Ljava/lang/Object;";
-    private static final String METHOD_DESC_POSTFIX = ")Ljava/lang/Object;";
-    private List<MethodInfo> injectMethods;
+    private final List<MethodInfo> injectMethods;
 
     public SourceClassHandler(List<MethodInfo> injectMethods) {
         this.injectMethods = injectMethods;
@@ -44,12 +37,12 @@ public class SourceClassHandler extends ClassHandler {
         Set<MethodInfo> memberInjectMethods = CollectionUtil.getCrossSet(methods, injectMethods);
         Set<MethodInfo> newOperatorInjectMethods = CollectionUtil.getMinusSet(injectMethods, memberInjectMethods);
         for (MethodNode m : cn.methods) {
-            transformMethod(cn, m, memberInjectMethods, MethodInfo.descSet(newOperatorInjectMethods));
+            transformMethod(cn, m, memberInjectMethods, newOperatorInjectMethods);
         }
     }
 
     private void transformMethod(ClassNode cn, MethodNode mn, Set<MethodInfo> memberInjectMethods,
-                                 Set<String> newOperatorInjectDesc) {
+                                 Set<MethodInfo> newOperatorInjectMethods) {
         AbstractInsnNode[] instructions = mn.instructions.toArray();
         int i = 0;
         do {
@@ -58,20 +51,31 @@ public class SourceClassHandler extends ClassHandler {
                 if (cn.name.equals(node.owner) && memberInjectMethods.contains(new MethodInfo(node.name, node.desc))) {
                     int rangeStart = getMemberMethodStart(instructions, i);
                     if (rangeStart >= 0) {
-                        instructions = replaceMemberCallOps(mn, instructions, rangeStart, i);
+                        instructions = replaceMemberCallOps(cn, mn, instructions, rangeStart, i);
                         i = rangeStart;
                     }
-                } else if (CONSTRUCTOR.equals(node.name) &&
-                    newOperatorInjectDesc.contains(getConstructorInjectDesc(node))) {
-                    int rangeStart = getConstructorStart(instructions, node.owner, i);
-                    if (rangeStart >= 0) {
-                        instructions = replaceNewOps(mn, instructions, rangeStart, i);
-                        i = rangeStart;
+                } else if (CONSTRUCTOR.equals(node.name)) {
+                    String newOperatorInjectMethodName = getNewOperatorInjectMethodName(newOperatorInjectMethods, node);
+                    if (newOperatorInjectMethodName.length() > 0) {
+                        int rangeStart = getConstructorStart(instructions, node.owner, i);
+                        if (rangeStart >= 0) {
+                            instructions = replaceNewOps(cn, mn, newOperatorInjectMethodName, instructions, rangeStart, i);
+                            i = rangeStart;
+                        }
                     }
                 }
             }
             i++;
         } while (i < instructions.length);
+    }
+
+    private String getNewOperatorInjectMethodName(Set<MethodInfo> newOperatorInjectMethods, MethodInsnNode node) {
+        for (MethodInfo m : newOperatorInjectMethods) {
+            if (m.getDesc().equals(getConstructorInjectDesc(node))) {
+                return m.getName();
+            }
+        }
+        return "";
     }
 
     private String getConstructorInjectDesc(MethodInsnNode constructorNode) {
@@ -97,45 +101,37 @@ public class SourceClassHandler extends ClassHandler {
         return -1;
     }
 
-    private AbstractInsnNode[] replaceNewOps(MethodNode mn, AbstractInsnNode[] instructions, int start, int end) {
+    private AbstractInsnNode[] replaceNewOps(ClassNode cn, MethodNode mn, String newOperatorInjectMethodName,
+                                             AbstractInsnNode[] instructions, int start, int end) {
         String classType = ((TypeInsnNode)instructions[start]).desc;
         String constructorDesc = ((MethodInsnNode)instructions[end]).desc;
-        mn.instructions.insertBefore(instructions[start], new LdcInsnNode(Type.getType("L" + classType + ";")));
-        List<Byte> parameterTypes = ClassUtil.getParameterTypes(constructorDesc);
-        InsnList il = new InsnList();
-        il.add(new MethodInsnNode(INVOKESTATIC, TESTABLE_NE, TESTABLE_W,
-            getConstructorSubstitutionDesc(parameterTypes.size())));
-        il.add(new TypeInsnNode(CHECKCAST, classType));
-        mn.instructions.insertBefore(instructions[end], il);
+        String testClassName = cn.name + ConstPool.TEST_POSTFIX;
+        mn.instructions.insertBefore(instructions[start], new FieldInsnNode(GETSTATIC, testClassName,
+            ConstPool.TESTABLE_INJECT_REF, ClassUtil.toByteCodeClassName(testClassName)));
+        mn.instructions.insertBefore(instructions[end], new MethodInsnNode(INVOKEVIRTUAL, testClassName,
+            newOperatorInjectMethodName, getConstructorInjectDesc(constructorDesc, classType), false));
         mn.instructions.remove(instructions[start]);
         mn.instructions.remove(instructions[start + 1]);
         mn.instructions.remove(instructions[end]);
-        mn.maxStack += 1;
         return mn.instructions.toArray();
     }
 
-    private String getConstructorSubstitutionDesc(int parameterCount) {
-        return CONSTRUCTOR_DESC_PREFIX + StringUtil.repeat(OBJECT_DESC, parameterCount) + METHOD_DESC_POSTFIX;
+    private String getConstructorInjectDesc(String constructorDesc, String classType) {
+        return constructorDesc.substring(0, constructorDesc.length() - 1) +
+            ClassUtil.toByteCodeClassName(classType);
     }
 
-    private AbstractInsnNode[] replaceMemberCallOps(MethodNode mn, AbstractInsnNode[] instructions, int start, int end) {
-        String methodDesc = ((MethodInsnNode)instructions[end]).desc;
-        String returnType = ClassUtil.getReturnType(methodDesc);
-        String methodName = ((MethodInsnNode)instructions[end]).name;
-        mn.instructions.insert(instructions[start], new LdcInsnNode(methodName));
-        List<Byte> parameterTypes = ClassUtil.getParameterTypes(methodDesc);
-        InsnList il = new InsnList();
-        il.add(new MethodInsnNode(INVOKESTATIC, TESTABLE_NE, TESTABLE_F,
-            getMethodSubstitutionDesc(parameterTypes.size())));
-        il.add(new TypeInsnNode(CHECKCAST, returnType));
-        mn.instructions.insertBefore(instructions[end], il);
+    private AbstractInsnNode[] replaceMemberCallOps(ClassNode cn, MethodNode mn, AbstractInsnNode[] instructions,
+                                                    int start, int end) {
+        MethodInsnNode method = (MethodInsnNode)instructions[end];
+        String testClassName = cn.name + ConstPool.TEST_POSTFIX;
+        mn.instructions.insertBefore(instructions[start], new FieldInsnNode(GETSTATIC, testClassName,
+            ConstPool.TESTABLE_INJECT_REF, ClassUtil.toByteCodeClassName(testClassName)));
+        mn.instructions.insertBefore(instructions[end], new MethodInsnNode(INVOKEVIRTUAL, testClassName,
+            method.name, method.desc, false));
+        mn.instructions.remove(instructions[start]);
         mn.instructions.remove(instructions[end]);
-        mn.maxStack += 1;
         return mn.instructions.toArray();
-    }
-
-    private String getMethodSubstitutionDesc(int parameterCount) {
-        return METHOD_DESC_PREFIX + StringUtil.repeat(OBJECT_DESC, parameterCount) + METHOD_DESC_POSTFIX;
     }
 
 }
