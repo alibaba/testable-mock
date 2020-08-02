@@ -22,6 +22,10 @@ abstract public class BaseClassHandler implements Opcodes {
         return cw.toByteArray();
     }
 
+    /**
+     * Transform class byte code
+     * @param cn original class node
+     */
     abstract protected void transform(ClassNode cn);
 
 }

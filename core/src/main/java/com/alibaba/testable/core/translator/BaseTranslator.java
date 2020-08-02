@@ -17,9 +17,14 @@ public abstract class BaseTranslator extends TreeTranslator {
             }
             return List.from(es);
         }
-        return null;
+        return List.nil();
     }
 
+    /**
+     * Exchange private method invoke with private accessor
+     * @param expr original expression
+     * @return exchanged expression
+     */
     protected abstract JCExpression checkAndExchange(JCExpression expr);
 
 }

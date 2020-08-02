@@ -19,7 +19,7 @@ import java.util.Set;
  */
 public class TestableClassTransformer implements ClassFileTransformer {
 
-    private static final Set<String> loadedClassNames = new HashSet<String>();
+    private final Set<String> loadedClassNames = new HashSet<String>();
 
     public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined,
                             ProtectionDomain protectionDomain, byte[] classFileBuffer) {

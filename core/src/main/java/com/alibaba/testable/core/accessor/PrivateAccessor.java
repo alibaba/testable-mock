@@ -33,14 +33,17 @@ public class PrivateAccessor {
 
     public static <T> T invoke(Object ref, String method, Object... args) {
         try {
-            Class[] cls = TypeUtil.getClassesFromObjects(args);
+            Class<?>[] cls = TypeUtil.getClassesFromObjects(args);
             Method declaredMethod = TypeUtil.getMethodByNameAndParameterTypes(ref.getClass().getDeclaredMethods(), method, cls);
-            declaredMethod.setAccessible(true);
-            return (T)declaredMethod.invoke(ref, args);
+            if (declaredMethod != null) {
+                declaredMethod.setAccessible(true);
+                return (T)declaredMethod.invoke(ref, args);
+            }
         } catch (Exception e) {
             e.printStackTrace();
             return null;
         }
+        return null;
     }
 
 }

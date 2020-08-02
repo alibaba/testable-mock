@@ -1,28 +1,16 @@
 package com.alibaba.testable.agent.model;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
-
 /**
  * @author flin
  */
 public class MethodInfo {
 
-    private String name;
-    private String desc;
+    private final String name;
+    private final String desc;
 
     public MethodInfo(String name, String desc) {
         this.name = name;
         this.desc = desc;
-    }
-
-    public static Set<String> descSet(Collection<MethodInfo> methodInfos) {
-        Set<String> set = new HashSet<String>();
-        for (MethodInfo m : methodInfos) {
-            set.add(m.desc);
-        }
-        return set;
     }
 
     public String getName() {
