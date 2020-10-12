@@ -78,19 +78,6 @@ public class EnableTestableTranslator extends BaseTranslator {
     }
 
     /**
-     * Search for TestableInject annotations
-     */
-    @Override
-    public void visitMethodDef(JCMethodDecl jcMethodDecl) {
-        for (JCAnnotation a : jcMethodDecl.mods.annotations) {
-            if (a.type != null && ConstPool.ANNOTATION_TESTABLE_INJECT.equals(a.type.tsym.toString())) {
-                TypeUtil.toPublicFlags(jcMethodDecl.getModifiers());
-            }
-        }
-        super.visitMethodDef(jcMethodDecl);
-    }
-
-    /**
      * Generate test setup method to initialize n.e.pool
      */
     @Override

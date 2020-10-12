@@ -27,14 +27,27 @@ public class TestClassHandler extends BaseClassHandler {
         for (AnnotationNode n : mn.visibleAnnotations) {
             visibleAnnotationNames.add(n.desc);
         }
-        if (!visibleAnnotationNames.contains(ConstPool.TESTABLE_INJECT) && couldBeTestMethod(mn)) {
-            InsnList il = new InsnList();
-            il.add(new VarInsnNode(ALOAD, 0));
-            il.add(new FieldInsnNode(PUTSTATIC, cn.name, ConstPool.TESTABLE_INJECT_REF, ClassUtil.toByteCodeClassName(cn.name)));
-            mn.instructions.insertBefore(mn.instructions.get(0), il);
+        if (visibleAnnotationNames.contains(ClassUtil.toByteCodeClassName(ConstPool.TESTABLE_INJECT))) {
+            mn.access &= ~ACC_PRIVATE;
+            mn.access &= ~ACC_PROTECTED;
+            mn.access |= ACC_PUBLIC;
+        } else if (couldBeTestMethod(mn)) {
+            injectTestableRef(cn, mn);
         }
     }
 
+    private void injectTestableRef(ClassNode cn, MethodNode mn) {
+        InsnList il = new InsnList();
+        il.add(new VarInsnNode(ALOAD, 0));
+        il.add(new FieldInsnNode(PUTSTATIC, cn.name, ConstPool.TESTABLE_INJECT_REF,
+            ClassUtil.toByteCodeClassName(cn.name)));
+        mn.instructions.insertBefore(mn.instructions.get(0), il);
+    }
+
+    /**
+     * Different unit test framework may have different @Test annotation
+     * but they should always NOT private, protected or static
+     */
     private boolean couldBeTestMethod(MethodNode mn) {
         return (mn.access & (ACC_PRIVATE | ACC_PROTECTED | ACC_STATIC)) == 0 ;
     }

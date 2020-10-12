@@ -1,26 +1,11 @@
 package com.alibaba.testable.core.util;
 
-import com.sun.tools.javac.tree.JCTree;
-
-import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @author flin
  */
 public class TypeUtil {
-
-    /**
-     * Convert modifier to public
-     */
-    public static void toPublicFlags(JCTree.JCModifiers modifiers) {
-        modifiers.flags &= ~Modifier.PRIVATE;
-        modifiers.flags &= ~Modifier.PROTECTED;
-        modifiers.flags |= Modifier.PUBLIC;
-    }
 
     /**
      * get classes of parameter objects
