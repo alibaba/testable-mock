@@ -22,6 +22,10 @@ public class SourceClassHandler extends BaseClassHandler {
         this.injectMethods = injectMethods;
     }
 
+    /**
+     * Handle bytecode of source class
+     * @param cn original class node
+     */
     @Override
     protected void transform(ClassNode cn) {
         List<MethodInfo> methods = new ArrayList<MethodInfo>();

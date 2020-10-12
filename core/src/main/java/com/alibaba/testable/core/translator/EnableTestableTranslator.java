@@ -2,10 +2,7 @@ package com.alibaba.testable.core.translator;
 
 import com.alibaba.testable.core.constant.ConstPool;
 import com.alibaba.testable.core.generator.PrivateAccessStatementGenerator;
-import com.alibaba.testable.core.generator.TestableRefFieldGenerator;
 import com.alibaba.testable.core.model.TestableContext;
-import com.alibaba.testable.core.util.TypeUtil;
-import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.tree.JCTree.*;
 import com.sun.tools.javac.util.ListBuffer;
 import com.sun.tools.javac.util.Name;
@@ -21,19 +18,15 @@ import java.lang.reflect.Modifier;
  */
 public class EnableTestableTranslator extends BaseTranslator {
 
-    private final String testClassName;
     private final String sourceClassName;
     private final ListBuffer<Name> sourceClassIns = new ListBuffer<>();
     private final ListBuffer<String> privateOrFinalFields = new ListBuffer<>();
     private final ListBuffer<String> privateMethods = new ListBuffer<>();
     private final PrivateAccessStatementGenerator privateAccessStatementGenerator;
-    private final TestableRefFieldGenerator testableRefFieldGenerator;
 
     public EnableTestableTranslator(String pkgName, String testClassName, TestableContext cx) {
-        this.testClassName = testClassName;
         this.sourceClassName = testClassName.substring(0, testClassName.length() - ConstPool.TEST_POSTFIX.length());
         this.privateAccessStatementGenerator = new PrivateAccessStatementGenerator(cx);
-        this.testableRefFieldGenerator = new TestableRefFieldGenerator(cx, pkgName + "." + testClassName);
         try {
             Class<?> cls = Class.forName(pkgName + "." + sourceClassName);
             Field[] fields = cls.getDeclaredFields();
@@ -75,20 +68,6 @@ public class EnableTestableTranslator extends BaseTranslator {
         }
         jcExpressionStatement.expr = checkAndExchange(jcExpressionStatement.expr);
         super.visitExec(jcExpressionStatement);
-    }
-
-    /**
-     * Generate test setup method to initialize n.e.pool
-     */
-    @Override
-    public void visitClassDef(JCClassDecl jcClassDecl) {
-        super.visitClassDef(jcClassDecl);
-        if (jcClassDecl.name.toString().equals(testClassName)) {
-            ListBuffer<JCTree> ndefs = new ListBuffer<>();
-            ndefs.addAll(jcClassDecl.defs);
-            ndefs.add(testableRefFieldGenerator.fetch());
-            jcClassDecl.defs = ndefs.toList();
-        }
     }
 
     /**

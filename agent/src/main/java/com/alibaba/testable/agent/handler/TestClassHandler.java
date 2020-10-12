@@ -12,11 +12,17 @@ import java.util.List;
  */
 public class TestClassHandler extends BaseClassHandler {
 
+    /**
+     * Handle bytecode of test class
+     * @param cn original class node
+     */
     @Override
     protected void transform(ClassNode cn) {
         for (MethodNode m : cn.methods) {
             transformMethod(cn, m);
         }
+        cn.fields.add(new FieldNode(ACC_PUBLIC | ACC_STATIC, ConstPool.TESTABLE_INJECT_REF,
+            ClassUtil.toByteCodeClassName(cn.name), null, null));
     }
 
     private void transformMethod(ClassNode cn, MethodNode mn) {
