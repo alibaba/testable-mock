@@ -16,7 +16,6 @@ import java.util.Set;
  */
 public class SourceClassHandler extends BaseClassHandler {
 
-    private static final String CONSTRUCTOR = "<init>";
     private final List<MethodInfo> injectMethods;
 
     public SourceClassHandler(List<MethodInfo> injectMethods) {
@@ -27,7 +26,7 @@ public class SourceClassHandler extends BaseClassHandler {
     protected void transform(ClassNode cn) {
         List<MethodInfo> methods = new ArrayList<MethodInfo>();
         for (MethodNode m : cn.methods) {
-            if (!CONSTRUCTOR.equals(m.name)) {
+            if (!ConstPool.CONSTRUCTOR.equals(m.name)) {
                 methods.add(new MethodInfo(m.name, m.desc));
             }
         }
@@ -51,7 +50,7 @@ public class SourceClassHandler extends BaseClassHandler {
                         instructions = replaceMemberCallOps(cn, mn, instructions, rangeStart, i);
                         i = rangeStart;
                     }
-                } else if (CONSTRUCTOR.equals(node.name)) {
+                } else if (ConstPool.CONSTRUCTOR.equals(node.name)) {
                     String newOperatorInjectMethodName = getNewOperatorInjectMethodName(newOperatorInjectMethods, node);
                     if (newOperatorInjectMethodName.length() > 0) {
                         int rangeStart = getConstructorStart(instructions, node.owner, i);

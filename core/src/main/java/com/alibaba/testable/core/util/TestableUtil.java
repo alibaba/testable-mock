@@ -7,11 +7,11 @@ import com.alibaba.testable.core.constant.ConstPool;
  */
 public class TestableUtil {
 
-    public static String currentMemberMethodName(Object testClassRef) {
-        return currentMemberMethodName(testClassRef.getClass());
+    public static String sourceMemberMethodName(Object testClassRef) {
+        return sourceMemberMethodName(testClassRef.getClass());
     }
 
-    public static String currentMemberMethodName(Class<?> testClass) {
+    public static String sourceMemberMethodName(Class<?> testClass) {
         StackTraceElement[] stack = getMainThread().getStackTrace();
         String testClassName = getRealClassName(testClass);
         String sourceClassName = testClassName.substring(0, testClassName.length() - ConstPool.TEST_POSTFIX.length());

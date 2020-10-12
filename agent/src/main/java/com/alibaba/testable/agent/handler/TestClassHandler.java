@@ -2,7 +2,6 @@ package com.alibaba.testable.agent.handler;
 
 import com.alibaba.testable.agent.constant.ConstPool;
 import com.alibaba.testable.agent.util.ClassUtil;
-import com.alibaba.testable.agent.util.CollectionUtil;
 import org.objectweb.asm.tree.*;
 
 import java.util.ArrayList;
@@ -12,17 +11,6 @@ import java.util.List;
  * @author flin
  */
 public class TestClassHandler extends BaseClassHandler {
-
-    private static final List<String> TEST_ANNOTATIONS = new ArrayList<String>();
-
-    static {
-        // JUnit4
-        TEST_ANNOTATIONS.add(ClassUtil.toByteCodeClassName("org.junit.Test"));
-        // JUnit5
-        TEST_ANNOTATIONS.add(ClassUtil.toByteCodeClassName("org.junit.jupiter.api.Test"));
-        // TestNG
-        TEST_ANNOTATIONS.add(ClassUtil.toByteCodeClassName("org.testng.annotations.Test"));
-    }
 
     @Override
     protected void transform(ClassNode cn) {
@@ -39,12 +27,16 @@ public class TestClassHandler extends BaseClassHandler {
         for (AnnotationNode n : mn.visibleAnnotations) {
             visibleAnnotationNames.add(n.desc);
         }
-        if (CollectionUtil.containsAny(visibleAnnotationNames, TEST_ANNOTATIONS)) {
+        if (!visibleAnnotationNames.contains(ConstPool.TESTABLE_INJECT) && couldBeTestMethod(mn)) {
             InsnList il = new InsnList();
             il.add(new VarInsnNode(ALOAD, 0));
             il.add(new FieldInsnNode(PUTSTATIC, cn.name, ConstPool.TESTABLE_INJECT_REF, ClassUtil.toByteCodeClassName(cn.name)));
             mn.instructions.insertBefore(mn.instructions.get(0), il);
         }
+    }
+
+    private boolean couldBeTestMethod(MethodNode mn) {
+        return (mn.access & (ACC_PRIVATE | ACC_PROTECTED | ACC_STATIC)) == 0 ;
     }
 
 }

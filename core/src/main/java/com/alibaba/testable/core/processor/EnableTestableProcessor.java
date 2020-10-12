@@ -69,10 +69,10 @@ public class EnableTestableProcessor extends BaseProcessor {
     private void writeBinaryFile(String path, String fileName, byte[] content) {
         try {
             FileObject resource = cx.filter.createResource(StandardLocation.SOURCE_OUTPUT, path, fileName);
-            OutputStream out = resource.openOutputStream();
-            out.write(content);
-            out.flush();
-            out.close();
+            try (OutputStream out = resource.openOutputStream()) {
+                out.write(content);
+                out.flush();
+            }
         } catch (IOException e) {
             e.printStackTrace();
             cx.logger.error("Failed to write " + fileName);

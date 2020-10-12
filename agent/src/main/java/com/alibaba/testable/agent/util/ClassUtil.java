@@ -82,8 +82,7 @@ public class ClassUtil {
                     travelingClass = false;
                 }
             } else {
-                if (b == TYPE_BYTE || b == TYPE_CHAR || b == TYPE_DOUBLE || b == TYPE_FLOAT
-                    || b == TYPE_INT || b == TYPE_LONG || b == TYPE_SHORT || b == TYPE_BOOL) {
+                if (isPrimaryType(b)) {
                     parameterTypes.add(b);
                 } else if (b == TYPE_CLASS) {
                     travelingClass = true;
@@ -131,6 +130,11 @@ public class ClassUtil {
 
     public static String toDotSeparateFullClassName(String className) {
         return className.replace(ConstPool.SLASH, ConstPool.DOT).substring(1, className.length() - 1);
+    }
+
+    private static boolean isPrimaryType(byte b) {
+        return b == TYPE_BYTE || b == TYPE_CHAR || b == TYPE_DOUBLE || b == TYPE_FLOAT
+            || b == TYPE_INT || b == TYPE_LONG || b == TYPE_SHORT || b == TYPE_BOOL;
     }
 
 }
