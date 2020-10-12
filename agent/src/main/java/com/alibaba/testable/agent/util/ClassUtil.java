@@ -7,9 +7,10 @@ import org.objectweb.asm.tree.AnnotationNode;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.MethodNode;
 
-import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author flin
@@ -28,6 +29,18 @@ public class ClassUtil {
     private static final char PARAM_END = ')';
     private static final char CLASS_END = ';';
     private static final char TYPE_ARRAY = '[';
+
+    private static final Map<Character, String> TYPE_MAPPING = new HashMap<Character, String>();
+    static {
+        TYPE_MAPPING.put(TYPE_BYTE, "java/lang/Byte");
+        TYPE_MAPPING.put(TYPE_CHAR, "java/lang/Character");
+        TYPE_MAPPING.put(TYPE_DOUBLE, "java/lang/Double");
+        TYPE_MAPPING.put(TYPE_FLOAT, "java/lang/Float");
+        TYPE_MAPPING.put(TYPE_INT, "java/lang/Integer");
+        TYPE_MAPPING.put(TYPE_LONG, "java/lang/Long");
+        TYPE_MAPPING.put(TYPE_SHORT, "java/lang/Short");
+        TYPE_MAPPING.put(TYPE_BOOL, "java/lang/Boolean");
+    }
 
     /**
      * Get annotation on class definition
@@ -97,30 +110,15 @@ public class ClassUtil {
 
     public static String getReturnType(String desc) {
         int returnTypeEdge = desc.lastIndexOf(PARAM_END);
-        if (desc.charAt(returnTypeEdge + 1) == TYPE_ARRAY) {
+        char typeChar = desc.charAt(returnTypeEdge + 1);
+        if (typeChar == TYPE_ARRAY) {
             return desc.substring(returnTypeEdge + 1);
-        }
-        switch (desc.charAt(returnTypeEdge + 1)) {
-            case TYPE_CLASS:
-                return desc.substring(returnTypeEdge + 2, desc.length() - 1);
-            case TYPE_BYTE:
-                return "java/lang/Byte";
-            case TYPE_CHAR:
-                return "java/lang/Character";
-            case TYPE_DOUBLE:
-                return "java/lang/Double";
-            case TYPE_FLOAT:
-                return "java/lang/Float";
-            case TYPE_INT:
-                return "java/lang/Integer";
-            case TYPE_LONG:
-                return "java/lang/Long";
-            case TYPE_SHORT:
-                return "java/lang/Short";
-            case TYPE_BOOL:
-                return "java/lang/Boolean";
-            default:
-                return "";
+        } else if (typeChar == TYPE_CLASS) {
+            return desc.substring(returnTypeEdge + 2, desc.length() - 1);
+        } else if (TYPE_MAPPING.containsKey(typeChar)) {
+            return TYPE_MAPPING.get(typeChar);
+        } else {
+            return "";
         }
     }
 
