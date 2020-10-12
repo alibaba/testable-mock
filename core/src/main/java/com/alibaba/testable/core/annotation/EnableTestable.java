@@ -11,10 +11,4 @@ import java.lang.annotation.*;
 @Target(ElementType.TYPE)
 @Documented
 public @interface EnableTestable {
-
-    /**
-     * Whether use compile time code modification
-     */
-    boolean withoutAgent() default false;
-
 }

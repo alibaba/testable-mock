@@ -4,6 +4,7 @@ import com.alibaba.testable.agent.constant.ConstPool;
 import com.alibaba.testable.agent.model.MethodInfo;
 import com.alibaba.testable.agent.util.ClassUtil;
 import com.alibaba.testable.agent.util.CollectionUtil;
+import com.alibaba.testable.agent.util.StringUtil;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.*;
 
@@ -31,7 +32,7 @@ public class SourceClassHandler extends BaseClassHandler {
         List<MethodInfo> methods = new ArrayList<MethodInfo>();
         for (MethodNode m : cn.methods) {
             if (!ConstPool.CONSTRUCTOR.equals(m.name)) {
-                methods.add(new MethodInfo(m.name, m.desc));
+                methods.add(new MethodInfo(cn.name, m.name, m.desc));
             }
         }
         Set<MethodInfo> memberInjectMethods = CollectionUtil.getCrossSet(methods, injectMethods);
@@ -48,13 +49,15 @@ public class SourceClassHandler extends BaseClassHandler {
         do {
             if (instructions[i].getOpcode() == Opcodes.INVOKESPECIAL) {
                 MethodInsnNode node = (MethodInsnNode)instructions[i];
-                if (cn.name.equals(node.owner) && memberInjectMethods.contains(new MethodInfo(node.name, node.desc))) {
+                if (cn.name.equals(node.owner) && memberInjectMethods.contains(new MethodInfo(cn.name, node.name, node.desc))) {
+                    // it's a member method and an inject method for it exist
                     int rangeStart = getMemberMethodStart(instructions, i);
                     if (rangeStart >= 0) {
                         instructions = replaceMemberCallOps(cn, mn, instructions, rangeStart, i);
                         i = rangeStart;
                     }
                 } else if (ConstPool.CONSTRUCTOR.equals(node.name)) {
+                    // it's a new operation
                     String newOperatorInjectMethodName = getNewOperatorInjectMethodName(newOperatorInjectMethods, node);
                     if (newOperatorInjectMethodName.length() > 0) {
                         int rangeStart = getConstructorStart(instructions, node.owner, i);
@@ -105,7 +108,7 @@ public class SourceClassHandler extends BaseClassHandler {
                                              AbstractInsnNode[] instructions, int start, int end) {
         String classType = ((TypeInsnNode)instructions[start]).desc;
         String constructorDesc = ((MethodInsnNode)instructions[end]).desc;
-        String testClassName = cn.name + ConstPool.TEST_POSTFIX;
+        String testClassName = StringUtil.getTestClassName(cn.name);
         mn.instructions.insertBefore(instructions[start], new FieldInsnNode(GETSTATIC, testClassName,
             ConstPool.TESTABLE_INJECT_REF, ClassUtil.toByteCodeClassName(testClassName)));
         mn.instructions.insertBefore(instructions[end], new MethodInsnNode(INVOKEVIRTUAL, testClassName,
@@ -124,7 +127,7 @@ public class SourceClassHandler extends BaseClassHandler {
     private AbstractInsnNode[] replaceMemberCallOps(ClassNode cn, MethodNode mn, AbstractInsnNode[] instructions,
                                                     int start, int end) {
         MethodInsnNode method = (MethodInsnNode)instructions[end];
-        String testClassName = cn.name + ConstPool.TEST_POSTFIX;
+        String testClassName = StringUtil.getTestClassName(cn.name);
         mn.instructions.insertBefore(instructions[start], new FieldInsnNode(GETSTATIC, testClassName,
             ConstPool.TESTABLE_INJECT_REF, ClassUtil.toByteCodeClassName(testClassName)));
         mn.instructions.insertBefore(instructions[end], new MethodInsnNode(INVOKEVIRTUAL, testClassName,

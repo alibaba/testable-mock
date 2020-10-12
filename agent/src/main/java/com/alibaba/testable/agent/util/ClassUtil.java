@@ -31,6 +31,9 @@ public class ClassUtil {
     private static final char TYPE_ARRAY = '[';
 
     private static final Map<Character, String> TYPE_MAPPING = new HashMap<Character, String>();
+    private static final String TARGET_CLASS = "targetClass";
+    private static final String TARGET_METHOD = "targetMethod";
+
     static {
         TYPE_MAPPING.put(TYPE_BYTE, "java/lang/Byte");
         TYPE_MAPPING.put(TYPE_CHAR, "java/lang/Character");
@@ -60,13 +63,17 @@ public class ClassUtil {
         }
     }
 
+    /**
+     * Get testable inject method from test class
+     * @param className test class name
+     */
     public static List<MethodInfo> getTestableInjectMethods(String className) {
         try {
             List<MethodInfo> methodInfos = new ArrayList<MethodInfo>();
             ClassNode cn = new ClassNode();
             new ClassReader(className).accept(cn, 0);
             for (MethodNode mn : cn.methods) {
-                checkMethodAnnotation(methodInfos, mn);
+                checkMethodAnnotation(cn, methodInfos, mn);
             }
             return methodInfos;
         } catch (Exception e) {
@@ -74,16 +81,28 @@ public class ClassUtil {
         }
     }
 
-    private static void checkMethodAnnotation(List<MethodInfo> methodInfos, MethodNode mn) {
+    private static void checkMethodAnnotation(ClassNode cn, List<MethodInfo> methodInfos, MethodNode mn) {
         if (mn.visibleAnnotations == null) {
             return;
         }
         for (AnnotationNode an : mn.visibleAnnotations) {
             if (toDotSeparateFullClassName(an.desc).equals(ConstPool.TESTABLE_INJECT)) {
-                methodInfos.add(new MethodInfo(mn.name, mn.desc));
+                String targetClass = getAnnotationParameter(an, TARGET_CLASS, StringUtil.getSourceClassName(cn.name));
+                String targetMethod = getAnnotationParameter(an, TARGET_METHOD, mn.name);
+                methodInfos.add(new MethodInfo(toSlashSeparateName(targetClass), targetMethod, mn.desc));
                 break;
             }
         }
+    }
+
+    private static String getAnnotationParameter(AnnotationNode an, String key, String defaultValue) {
+        if (an.values != null) {
+            int i = an.values.indexOf(key);
+            if (i % 2 == 0) {
+                return (String)an.values.get(i+1);
+            }
+        }
+        return defaultValue;
     }
 
     public static List<Byte> getParameterTypes(String desc) {
@@ -122,8 +141,12 @@ public class ClassUtil {
         }
     }
 
+    private static String toSlashSeparateName(String name) {
+        return name.replace(ConstPool.DOT, ConstPool.SLASH);
+    }
+
     public static String toByteCodeClassName(String className) {
-        return TYPE_CLASS + className.replace(ConstPool.DOT, ConstPool.SLASH) + CLASS_END;
+        return TYPE_CLASS + toSlashSeparateName(className) + CLASS_END;
     }
 
     public static String toDotSeparateFullClassName(String className) {

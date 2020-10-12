@@ -11,10 +11,4 @@ import java.lang.annotation.*;
 @Target(ElementType.TYPE)
 @Documented
 public @interface EnableTestableInject {
-
-    /**
-     * Test class names
-     */
-    String[] value();
-
 }
