@@ -67,7 +67,11 @@ public class SourceClassHandler extends BaseClassHandler {
                     // it's a member method of current class and an inject method for it exist
                     int rangeStart = getMemberMethodStart(instructions, i);
                     if (rangeStart >= 0) {
-                        instructions = replaceMemberCallOps(cn, mn, instructions, rangeStart, i);
+                        if (cn.name.equals(node.owner)) {
+                            instructions = replaceMemberCallOps(cn, mn, instructions, rangeStart, i);
+                        } else {
+                            instructions = replaceCommonCallOps(cn, mn, instructions, node.owner, rangeStart, i);
+                        }
                         i = rangeStart;
                     }
                 } else if (ConstPool.CONSTRUCTOR.equals(node.name)) {
@@ -134,7 +138,7 @@ public class SourceClassHandler extends BaseClassHandler {
                                              AbstractInsnNode[] instructions, int start, int end) {
         String classType = ((TypeInsnNode)instructions[start]).desc;
         String constructorDesc = ((MethodInsnNode)instructions[end]).desc;
-        String testClassName = StringUtil.getTestClassName(cn.name);
+        String testClassName = ClassUtil.getTestClassName(cn.name);
         mn.instructions.insertBefore(instructions[start], new FieldInsnNode(GETSTATIC, testClassName,
             ConstPool.TESTABLE_INJECT_REF, ClassUtil.toByteCodeClassName(testClassName)));
         mn.instructions.insertBefore(instructions[end], new MethodInsnNode(INVOKEVIRTUAL, testClassName,
@@ -153,7 +157,7 @@ public class SourceClassHandler extends BaseClassHandler {
     private AbstractInsnNode[] replaceMemberCallOps(ClassNode cn, MethodNode mn, AbstractInsnNode[] instructions,
                                                     int start, int end) {
         MethodInsnNode method = (MethodInsnNode)instructions[end];
-        String testClassName = StringUtil.getTestClassName(cn.name);
+        String testClassName = ClassUtil.getTestClassName(cn.name);
         mn.instructions.insertBefore(instructions[start], new FieldInsnNode(GETSTATIC, testClassName,
             ConstPool.TESTABLE_INJECT_REF, ClassUtil.toByteCodeClassName(testClassName)));
         mn.instructions.insertBefore(instructions[end], new MethodInsnNode(INVOKEVIRTUAL, testClassName,
@@ -161,6 +165,23 @@ public class SourceClassHandler extends BaseClassHandler {
         mn.instructions.remove(instructions[start]);
         mn.instructions.remove(instructions[end]);
         return mn.instructions.toArray();
+    }
+
+    private AbstractInsnNode[] replaceCommonCallOps(ClassNode cn, MethodNode mn, AbstractInsnNode[] instructions,
+                                                    String ownerClass, int start, int end) {
+        mn.maxStack++;
+        MethodInsnNode method = (MethodInsnNode)instructions[end];
+        String testClassName = ClassUtil.getTestClassName(cn.name);
+        mn.instructions.insertBefore(instructions[start], new FieldInsnNode(GETSTATIC, testClassName,
+            ConstPool.TESTABLE_INJECT_REF, ClassUtil.toByteCodeClassName(testClassName)));
+        mn.instructions.insertBefore(instructions[end], new MethodInsnNode(INVOKEVIRTUAL, testClassName,
+            method.name, addFirstParameter(method.desc, ownerClass), false));
+        mn.instructions.remove(instructions[end]);
+        return mn.instructions.toArray();
+    }
+
+    private String addFirstParameter(String desc, String ownerClass) {
+        return "(" + ClassUtil.toByteCodeClassName(ownerClass) + desc.substring(1);
     }
 
 }

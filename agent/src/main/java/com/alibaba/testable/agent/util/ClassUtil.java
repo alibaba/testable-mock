@@ -1,11 +1,9 @@
 package com.alibaba.testable.agent.util;
 
 import com.alibaba.testable.agent.constant.ConstPool;
-import com.alibaba.testable.agent.model.MethodInfo;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.tree.AnnotationNode;
 import org.objectweb.asm.tree.ClassNode;
-import org.objectweb.asm.tree.MethodNode;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -31,8 +29,6 @@ public class ClassUtil {
     private static final char TYPE_ARRAY = '[';
 
     private static final Map<Character, String> TYPE_MAPPING = new HashMap<Character, String>();
-    private static final String TARGET_CLASS = "targetClass";
-    private static final String TARGET_METHOD = "targetMethod";
 
     static {
         TYPE_MAPPING.put(TYPE_BYTE, "java/lang/Byte");
@@ -64,47 +60,24 @@ public class ClassUtil {
     }
 
     /**
-     * Get testable inject method from test class
-     * @param className test class name
+     * get test class name from source class name
+     * @param sourceClassName source class name
      */
-    public static List<MethodInfo> getTestableInjectMethods(String className) {
-        try {
-            List<MethodInfo> methodInfos = new ArrayList<MethodInfo>();
-            ClassNode cn = new ClassNode();
-            new ClassReader(className).accept(cn, 0);
-            for (MethodNode mn : cn.methods) {
-                checkMethodAnnotation(cn, methodInfos, mn);
-            }
-            return methodInfos;
-        } catch (Exception e) {
-            return new ArrayList<MethodInfo>();
-        }
+    public static String getTestClassName(String sourceClassName) {
+        return sourceClassName + ConstPool.TEST_POSTFIX;
     }
 
-    private static void checkMethodAnnotation(ClassNode cn, List<MethodInfo> methodInfos, MethodNode mn) {
-        if (mn.visibleAnnotations == null) {
-            return;
-        }
-        for (AnnotationNode an : mn.visibleAnnotations) {
-            if (toDotSeparateFullClassName(an.desc).equals(ConstPool.TESTABLE_INJECT)) {
-                String targetClass = getAnnotationParameter(an, TARGET_CLASS, StringUtil.getSourceClassName(cn.name));
-                String targetMethod = getAnnotationParameter(an, TARGET_METHOD, mn.name);
-                methodInfos.add(new MethodInfo(toSlashSeparateName(targetClass), targetMethod, mn.desc));
-                break;
-            }
-        }
+    /**
+     * get source class name from test class name
+     * @param testClassName test class name
+     */
+    public static String getSourceClassName(String testClassName) {
+        return testClassName.substring(0, testClassName.length() - ConstPool.TEST_POSTFIX.length());
     }
 
-    private static String getAnnotationParameter(AnnotationNode an, String key, String defaultValue) {
-        if (an.values != null) {
-            int i = an.values.indexOf(key);
-            if (i % 2 == 0) {
-                return (String)an.values.get(i+1);
-            }
-        }
-        return defaultValue;
-    }
-
+    /**
+     * parse method desc, fetch parameter types
+     */
     public static List<Byte> getParameterTypes(String desc) {
         List<Byte> parameterTypes = new ArrayList<Byte>();
         boolean travelingClass = false;
@@ -127,6 +100,9 @@ public class ClassUtil {
         return parameterTypes;
     }
 
+    /**
+     * parse method desc, fetch return value types
+     */
     public static String getReturnType(String desc) {
         int returnTypeEdge = desc.lastIndexOf(PARAM_END);
         char typeChar = desc.charAt(returnTypeEdge + 1);
@@ -141,14 +117,23 @@ public class ClassUtil {
         }
     }
 
-    private static String toSlashSeparateName(String name) {
+    /**
+     * convert dot separated name to slash separated name
+     */
+    public static String toSlashSeparatedName(String name) {
         return name.replace(ConstPool.DOT, ConstPool.SLASH);
     }
 
+    /**
+     * convert dot separated name to byte code class name
+     */
     public static String toByteCodeClassName(String className) {
-        return TYPE_CLASS + toSlashSeparateName(className) + CLASS_END;
+        return TYPE_CLASS + toSlashSeparatedName(className) + CLASS_END;
     }
 
+    /**
+     * convert byte code class name to dot separated human readable name
+     */
     public static String toDotSeparateFullClassName(String className) {
         return className.replace(ConstPool.SLASH, ConstPool.DOT).substring(1, className.length() - 1);
     }
