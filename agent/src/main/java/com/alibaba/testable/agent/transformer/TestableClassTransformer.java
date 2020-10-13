@@ -86,12 +86,15 @@ public class TestableClassTransformer implements ClassFileTransformer {
                 String targetClass = getAnnotationParameter(an, TARGET_CLASS, sourceClassName);
                 String targetMethod = getAnnotationParameter(an, TARGET_METHOD, mn.name);
                 if (sourceClassName.equals(targetClass)) {
-                    methodInfos.add(new MethodInfo(toSlashSeparatedName(targetClass), targetMethod, mn.desc));
+                    // member method of the source class
+                    methodInfos.add(new MethodInfo(
+                        toSlashSeparatedName(targetClass), targetMethod, null, mn.desc));
                 } else {
+                    // member method of a common class
                     ImmutablePair<String, String> methodDescPair = extractFirstParameter(mn.desc);
                     if (methodDescPair != null && methodDescPair.left.equals(ClassUtil.toByteCodeClassName(targetClass))) {
                         methodInfos.add(new MethodInfo(
-                            toSlashSeparatedName(targetClass), targetMethod, methodDescPair.right));
+                            toSlashSeparatedName(targetClass), targetMethod, mn.name, methodDescPair.right));
                     }
                 }
                 break;

@@ -39,7 +39,7 @@ public class SourceClassHandler extends BaseClassHandler {
         for (MethodNode m : cn.methods) {
             // record all member method names
             if (!ConstPool.CONSTRUCTOR.equals(m.name)) {
-                methods.add(new MethodInfo(cn.name, m.name, m.desc));
+                methods.add(new MethodInfo(cn.name, m.name, null, m.desc));
             }
         }
         // member methods which has injection stub
@@ -59,18 +59,23 @@ public class SourceClassHandler extends BaseClassHandler {
     private void transformMethod(ClassNode cn, MethodNode mn, Set<MethodInfo> memberInjectMethods,
                                  Set<MethodInfo> newOperatorInjectMethods) {
         AbstractInsnNode[] instructions = mn.instructions.toArray();
+        List<MethodInfo> memberInjectMethodList = new ArrayList<MethodInfo>(memberInjectMethods);
         int i = 0;
         do {
             if (invokeOps.contains(instructions[i].getOpcode())) {
                 MethodInsnNode node = (MethodInsnNode)instructions[i];
-                if (memberInjectMethods.contains(new MethodInfo(node.owner, node.name, node.desc))) {
-                    // it's a member method of current class and an inject method for it exist
+                int index = memberInjectMethodList.indexOf(new MethodInfo(node.owner, node.name, null, node.desc));
+                if (index >= 0) {
+                    // it's a member method and an inject method for it exist
                     int rangeStart = getMemberMethodStart(instructions, i);
                     if (rangeStart >= 0) {
                         if (cn.name.equals(node.owner)) {
+                            // member method of current class
                             instructions = replaceMemberCallOps(cn, mn, instructions, rangeStart, i);
                         } else {
-                            instructions = replaceCommonCallOps(cn, mn, instructions, node.owner, rangeStart, i);
+                            // member method of other class
+                            String method = memberInjectMethodList.get(index).getSubstitutionMethod();
+                            instructions = replaceCommonCallOps(cn, mn, instructions, node.owner, method, rangeStart, i);
                         }
                         i = rangeStart;
                     }
@@ -168,14 +173,14 @@ public class SourceClassHandler extends BaseClassHandler {
     }
 
     private AbstractInsnNode[] replaceCommonCallOps(ClassNode cn, MethodNode mn, AbstractInsnNode[] instructions,
-                                                    String ownerClass, int start, int end) {
+                                                    String ownerClass, String substitutionMethod, int start, int end) {
         mn.maxStack++;
         MethodInsnNode method = (MethodInsnNode)instructions[end];
         String testClassName = ClassUtil.getTestClassName(cn.name);
         mn.instructions.insertBefore(instructions[start], new FieldInsnNode(GETSTATIC, testClassName,
             ConstPool.TESTABLE_INJECT_REF, ClassUtil.toByteCodeClassName(testClassName)));
         mn.instructions.insertBefore(instructions[end], new MethodInsnNode(INVOKEVIRTUAL, testClassName,
-            method.name, addFirstParameter(method.desc, ownerClass), false));
+            substitutionMethod, addFirstParameter(method.desc, ownerClass), false));
         mn.instructions.remove(instructions[end]);
         return mn.instructions.toArray();
     }

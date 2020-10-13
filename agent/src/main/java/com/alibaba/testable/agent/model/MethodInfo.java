@@ -5,13 +5,28 @@ package com.alibaba.testable.agent.model;
  */
 public class MethodInfo {
 
+    /**
+     * name of the class this method belongs to
+     */
     private final String clazz;
+    /**
+     * name of the method
+     */
     private final String name;
+    /**
+     * name of the substitution method
+     * Note: this field do NOT join the `equals()` or `hashCode()` calculation
+     */
+    private final String substitutionMethod;
+    /**
+     * parameter and return value of the method
+     */
     private final String desc;
 
-    public MethodInfo(String clazz, String name, String desc) {
+    public MethodInfo(String clazz, String name, String substitutionMethod, String desc) {
         this.clazz = clazz;
         this.name = name;
+        this.substitutionMethod = substitutionMethod;
         this.desc = desc;
     }
 
@@ -21,6 +36,10 @@ public class MethodInfo {
 
     public String getName() {
         return name;
+    }
+
+    public String getSubstitutionMethod() {
+        return substitutionMethod;
     }
 
     public String getDesc() {
