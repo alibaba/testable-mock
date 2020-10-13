@@ -2,6 +2,7 @@ package com.alibaba.testable.agent.handler;
 
 import com.alibaba.testable.agent.constant.ConstPool;
 import com.alibaba.testable.agent.model.MethodInfo;
+import com.alibaba.testable.agent.util.BytecodeUtil;
 import com.alibaba.testable.agent.util.ClassUtil;
 import com.alibaba.testable.agent.util.CollectionUtil;
 import com.alibaba.testable.agent.util.StringUtil;
@@ -9,6 +10,7 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.*;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -18,6 +20,10 @@ import java.util.Set;
 public class SourceClassHandler extends BaseClassHandler {
 
     private final List<MethodInfo> injectMethods;
+    private final Set<Integer> invokeOps = new HashSet<Integer>() {{
+        add(Opcodes.INVOKESPECIAL);
+        add(Opcodes.INVOKEVIRTUAL);
+    }};
 
     public SourceClassHandler(List<MethodInfo> injectMethods) {
         this.injectMethods = injectMethods;
@@ -31,11 +37,19 @@ public class SourceClassHandler extends BaseClassHandler {
     protected void transform(ClassNode cn) {
         List<MethodInfo> methods = new ArrayList<MethodInfo>();
         for (MethodNode m : cn.methods) {
+            // record all member method names
             if (!ConstPool.CONSTRUCTOR.equals(m.name)) {
                 methods.add(new MethodInfo(cn.name, m.name, m.desc));
             }
         }
+        // member methods which has injection stub
         Set<MethodInfo> memberInjectMethods = CollectionUtil.getCrossSet(methods, injectMethods);
+        for (MethodInfo mi : injectMethods) {
+            if (!mi.getClazz().equals(cn.name)) {
+                memberInjectMethods.add(mi);
+            }
+        }
+        // new operations which has injection stub
         Set<MethodInfo> newOperatorInjectMethods = CollectionUtil.getMinusSet(injectMethods, memberInjectMethods);
         for (MethodNode m : cn.methods) {
             transformMethod(cn, m, memberInjectMethods, newOperatorInjectMethods);
@@ -47,10 +61,10 @@ public class SourceClassHandler extends BaseClassHandler {
         AbstractInsnNode[] instructions = mn.instructions.toArray();
         int i = 0;
         do {
-            if (instructions[i].getOpcode() == Opcodes.INVOKESPECIAL) {
+            if (invokeOps.contains(instructions[i].getOpcode())) {
                 MethodInsnNode node = (MethodInsnNode)instructions[i];
-                if (cn.name.equals(node.owner) && memberInjectMethods.contains(new MethodInfo(cn.name, node.name, node.desc))) {
-                    // it's a member method and an inject method for it exist
+                if (memberInjectMethods.contains(new MethodInfo(node.owner, node.name, node.desc))) {
+                    // it's a member method of current class and an inject method for it exist
                     int rangeStart = getMemberMethodStart(instructions, i);
                     if (rangeStart >= 0) {
                         instructions = replaceMemberCallOps(cn, mn, instructions, rangeStart, i);
@@ -96,8 +110,20 @@ public class SourceClassHandler extends BaseClassHandler {
     }
 
     private int getMemberMethodStart(AbstractInsnNode[] instructions, int rangeEnd) {
+        int stackLevel = ClassUtil.getParameterTypes(((MethodInsnNode)instructions[rangeEnd]).desc).size();
         for (int i = rangeEnd - 1; i >= 0; i--) {
-            if (instructions[i].getOpcode() == Opcodes.ALOAD && ((VarInsnNode)instructions[i]).var == 0) {
+            switch (instructions[i].getOpcode()) {
+                case Opcodes.INVOKEINTERFACE:
+                case Opcodes.INVOKEVIRTUAL:
+                case Opcodes.INVOKESPECIAL:
+                case Opcodes.INVOKEDYNAMIC:
+                case Opcodes.INVOKESTATIC:
+                    stackLevel += ClassUtil.getParameterTypes(((MethodInsnNode)instructions[i]).desc).size();
+                    break;
+                default:
+                    stackLevel -= BytecodeUtil.stackEffect(instructions[i].getOpcode());
+            }
+            if (stackLevel < 0) {
                 return i;
             }
         }

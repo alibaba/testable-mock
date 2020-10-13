@@ -15,6 +15,7 @@ class ClassUtilTest {
 
     @Test
     void should_able_to_get_parameter_count() {
+        assertEquals(0, ClassUtil.getParameterTypes("()V").size());
         assertEquals(1, ClassUtil.getParameterTypes("(Ljava/lang/String;)V").size());
         assertEquals(6, ClassUtil.getParameterTypes("(Ljava/lang/String;IDLjava/lang/String;ZLjava/net/URL;)V").size());
         assertEquals(10, ClassUtil.getParameterTypes("(ZLjava/lang/String;IJFDCSBZ)V").size());
