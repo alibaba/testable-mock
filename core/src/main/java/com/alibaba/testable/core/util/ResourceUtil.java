@@ -13,8 +13,7 @@ public class ResourceUtil {
         StringBuilder buffer = new StringBuilder();
         String line;
         try {
-            while ((line = reader.readLine()) != null)
-            {
+            while ((line = reader.readLine()) != null) {
                 buffer.append(line).append('\n');
             }
             reader.close();

@@ -60,4 +60,14 @@ public class TestableContext {
         this.names = names;
     }
 
+    public TestableContext(TestableLogger logger, Filer filter) {
+        this.logger = logger;
+        this.filter = filter;
+        this.elementUtils = null;
+        this.typeUtils = null;
+        this.trees = null;
+        this.treeMaker = null;
+        this.names = null;
+    }
+
 }
