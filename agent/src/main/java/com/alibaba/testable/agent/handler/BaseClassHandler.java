@@ -12,8 +12,8 @@ import java.io.IOException;
  */
 abstract public class BaseClassHandler implements Opcodes {
 
-    public byte[] getBytes(String className) throws IOException {
-        ClassReader cr = new ClassReader(className);
+    public byte[] getBytes(byte[] classFileBuffer) throws IOException {
+        ClassReader cr = new ClassReader(classFileBuffer);
         ClassNode cn = new ClassNode();
         cr.accept(cn, 0);
         transform(cn);

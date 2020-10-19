@@ -46,11 +46,11 @@ public class TestableClassTransformer implements ClassFileTransformer {
                 // it's a source class with testable enabled
                 loadedClassNames.add(className);
                 List<MethodInfo> injectMethods = getTestableInjectMethods(ClassUtil.getTestClassName(className));
-                return new SourceClassHandler(injectMethods).getBytes(className);
+                return new SourceClassHandler(injectMethods).getBytes(classFileBuffer);
             } else if (annotations.contains(ConstPool.ENABLE_TESTABLE)) {
                 // it's a test class with testable enabled
                 loadedClassNames.add(className);
-                return new TestClassHandler().getBytes(className);
+                return new TestClassHandler().getBytes(classFileBuffer);
             }
         } catch (IOException e) {
             return null;
