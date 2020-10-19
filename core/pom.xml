@@ -4,11 +4,11 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <name>Testable</name>
     <description>Unit test enhancement toolkit</description>
     <groupId>com.alibaba.testable</groupId>
     <artifactId>core</artifactId>
     <version>0.1.0-SNAPSHOT</version>
+    <name>testable-core</name>
 
     <properties>
         <plugin.compiler.version>3.8.1</plugin.compiler.version>
