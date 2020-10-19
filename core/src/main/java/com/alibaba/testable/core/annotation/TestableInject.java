@@ -13,16 +13,6 @@ import java.lang.annotation.*;
 public @interface TestableInject {
 
     /**
-     * only enable for invocation from specified methods
-     */
-    String[] sourceMethods() default {};
-
-    /**
-     * only enable for invocation from specified test cases
-     */
-    String[] testMethods() default {};
-
-    /**
      * mock method of specified class instead of the class under test
      */
     String targetClass() default "";
