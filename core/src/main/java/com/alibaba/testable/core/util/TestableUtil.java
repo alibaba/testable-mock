@@ -7,11 +7,8 @@ import com.alibaba.testable.core.constant.ConstPool;
  */
 public class TestableUtil {
 
-    public static String sourceMemberMethodName(Object testClassRef) {
-        return sourceMemberMethodName(testClassRef.getClass());
-    }
-
-    public static String sourceMemberMethodName(Class<?> testClass) {
+    public static String currentSourceMethodName(Object testClassRef) {
+        Class<?> testClass = testClassRef.getClass();
         StackTraceElement[] stack = getMainThread().getStackTrace();
         String testClassName = getRealClassName(testClass);
         String sourceClassName = testClassName.substring(0, testClassName.length() - ConstPool.TEST_POSTFIX.length());
@@ -24,10 +21,7 @@ public class TestableUtil {
     }
 
     public static String currentTestCaseName(Object testClassRef) {
-        return currentTestCaseName(testClassRef.getClass());
-    }
-
-    public static String currentTestCaseName(Class<?> testClass) {
+        Class<?> testClass = testClassRef.getClass();
         StackTraceElement[] stack = getMainThread().getStackTrace();
         String testClassName = getRealClassName(testClass);
         for (int i = stack.length - 1; i >= 0; i--) {

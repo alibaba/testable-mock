@@ -4,14 +4,14 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>com.alibaba.testable</groupId>
-  <artifactId>parent</artifactId>
+  <artifactId>demo</artifactId>
   <version>1.0.0-SNAPSHOT</version>
   <packaging>pom</packaging>
+  <name>demos</name>
 
   <modules>
-    <module>agent</module>
-    <module>core</module>
-    <module>demo</module>
+    <module>java-demo</module>
+    <module>kotlin-demo</module>
   </modules>
 
 </project>
