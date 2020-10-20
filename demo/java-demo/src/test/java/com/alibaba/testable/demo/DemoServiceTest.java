@@ -3,11 +3,12 @@ package com.alibaba.testable.demo;
 import com.alibaba.testable.core.accessor.PrivateAccessor;
 import com.alibaba.testable.core.annotation.EnableTestable;
 import com.alibaba.testable.core.annotation.TestableInject;
-import com.alibaba.testable.core.util.TestableUtil;
 import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.Callable;
 
+import static com.alibaba.testable.core.util.TestableUtil.SOURCE_METHOD;
+import static com.alibaba.testable.core.util.TestableUtil.TEST_CASE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @EnableTestable
@@ -40,7 +41,7 @@ class DemoServiceTest {
 
     @TestableInject
     private String callFromDifferentMethod() {
-        switch (TestableUtil.currentSourceMethodName(this)) {
+        switch (SOURCE_METHOD) {
             case "callerOne": return "mock_one";
             default: return "mock_others";
         }
@@ -80,25 +81,15 @@ class DemoServiceTest {
 
     @Test
     void should_able_to_get_source_method_name() throws Exception {
-        assertEquals("mock_one", demoService.callerOne());
-        assertEquals("mock_others", demoService.callerTwo());
-        assertEquals("mock_one_mock_others", new Callable<String>() {
-            @Override
-            public String call() {
-                return demoService.callerOne() + "_" + demoService.callerTwo();
-            }
-        }.call());
+        assertEquals("mock_one_mock_others", demoService.callerTwo() + "_" + demoService.callerOne());
+        assertEquals("mock_one_mock_others", ((Callable<String>)() ->
+            demoService.callerOne() + "_" + demoService.callerTwo()).call());
     }
 
     @Test
     void should_able_to_get_test_case_name() throws Exception {
-        assertEquals("should_able_to_get_test_case_name", TestableUtil.currentTestCaseName(this));
-        assertEquals("should_able_to_get_test_case_name", new Callable<String>() {
-            @Override
-            public String call() {
-                return TestableUtil.currentTestCaseName(this);
-            }
-        }.call());
+        assertEquals("should_able_to_get_test_case_name", TEST_CASE);
+        assertEquals("should_able_to_get_test_case_name", ((Callable<String>)() -> TEST_CASE).call());
     }
 
 }

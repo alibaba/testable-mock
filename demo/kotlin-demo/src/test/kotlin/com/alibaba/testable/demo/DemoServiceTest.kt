@@ -3,8 +3,9 @@ package com.alibaba.testable.demo
 import com.alibaba.testable.core.accessor.PrivateAccessor
 import com.alibaba.testable.core.annotation.EnableTestable
 import com.alibaba.testable.core.annotation.TestableInject
-import com.alibaba.testable.core.util.TestableUtil
-import org.junit.jupiter.api.Assertions
+import com.alibaba.testable.core.util.TestableUtil.SOURCE_METHOD
+import com.alibaba.testable.core.util.TestableUtil.TEST_CASE
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import java.util.concurrent.Callable
 
@@ -28,7 +29,7 @@ internal class DemoServiceTest {
     private fun startsWith(self: BlackBox, s: String) = false
 
     @TestableInject
-    private fun callFromDifferentMethod() = when (TestableUtil.currentSourceMethodName(this)) {
+    private fun callFromDifferentMethod() = when (SOURCE_METHOD) {
         "callerOne" -> "mock_one"
         else -> "mock_others"
     }
@@ -37,45 +38,42 @@ internal class DemoServiceTest {
 
     @Test
     fun should_able_to_test_private_method() {
-        Assertions.assertEquals("hello - 1", PrivateAccessor.invoke(demoService, "privateFunc", "hello", 1))
+        assertEquals("hello - 1", PrivateAccessor.invoke(demoService, "privateFunc", "hello", 1))
     }
 
     @Test
     fun should_able_to_test_private_field() {
         PrivateAccessor.set(demoService, "count", 3)
-        Assertions.assertEquals("5", demoService.privateFieldAccessFunc())
-        Assertions.assertEquals(5, PrivateAccessor.get(demoService, "count"))
+        assertEquals("5", demoService.privateFieldAccessFunc())
+        assertEquals(5, PrivateAccessor.get(demoService, "count"))
     }
 
     @Test
     fun should_able_to_test_new_object() {
-        Assertions.assertEquals("mock_something", demoService.newFunc())
+        assertEquals("mock_something", demoService.newFunc())
     }
 
     @Test
     fun should_able_to_test_member_method() {
-        Assertions.assertEquals("{ \"res\": \"mock_hello\"}", demoService.outerFunc("hello"))
+        assertEquals("{ \"res\": \"mock_hello\"}", demoService.outerFunc("hello"))
     }
 
     @Test
     fun should_able_to_test_common_method() {
-        Assertions.assertEquals("trim_string__sub_string__false", demoService.commonFunc())
+        assertEquals("trim_string__sub_string__false", demoService.commonFunc())
     }
 
     @Test
     fun should_able_to_get_source_method_name() {
-            Assertions.assertEquals("mock_one", demoService.callerOne())
-        Assertions.assertEquals("mock_others", demoService.callerTwo())
-        Assertions.assertEquals("mock_one_mock_others", Callable<String> {
+        assertEquals("mock_one_mock_others", demoService.callerTwo() + "_" + demoService.callerOne())
+        assertEquals("mock_one_mock_others", Callable<String> {
             demoService.callerOne() + "_" + demoService.callerTwo()
         }.call())
     }
 
     @Test
     fun should_able_to_get_test_case_name() {
-        Assertions.assertEquals("should_able_to_get_test_case_name", TestableUtil.currentTestCaseName(this))
-        Assertions.assertEquals("should_able_to_get_test_case_name", Callable<String> {
-            TestableUtil.currentTestCaseName(this)
-        }.call())
+        assertEquals("should_able_to_get_test_case_name", TEST_CASE)
+        assertEquals("should_able_to_get_test_case_name", Callable<String> { TEST_CASE }.call())
     }
 }
