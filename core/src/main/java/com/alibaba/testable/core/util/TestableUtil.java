@@ -7,9 +7,6 @@ import com.alibaba.testable.core.constant.ConstPool;
  */
 public class TestableUtil {
 
-    public static String TEST_CASE;
-    public static String SOURCE_METHOD;
-
     public static String currentSourceMethodName(Object testClassRef) {
         Class<?> testClass = testClassRef.getClass();
         StackTraceElement[] stack = getMainThread().getStackTrace();

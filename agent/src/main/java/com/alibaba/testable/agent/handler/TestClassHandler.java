@@ -14,6 +14,7 @@ import java.util.Map;
  */
 public class TestClassHandler extends BaseClassHandler {
 
+    private static final String CLASS_TESTABLE_TOOL = "com/alibaba/testable/core/tool/TestableTool";
     private static final String CLASS_TESTABLE_UTIL = "com/alibaba/testable/core/util/TestableUtil";
     private static final String FIELD_TEST_CASE = "TEST_CASE";
     private static final String FIELD_SOURCE_METHOD = "SOURCE_METHOD";
@@ -75,7 +76,7 @@ public class TestClassHandler extends BaseClassHandler {
     }
 
     private boolean isTestableUtilField(FieldInsnNode fieldInsnNode) {
-        return fieldInsnNode.owner.equals(CLASS_TESTABLE_UTIL) &&
+        return fieldInsnNode.owner.equals(CLASS_TESTABLE_TOOL) &&
             (fieldInsnNode.name.equals(FIELD_TEST_CASE) || fieldInsnNode.name.equals(FIELD_SOURCE_METHOD));
     }
 

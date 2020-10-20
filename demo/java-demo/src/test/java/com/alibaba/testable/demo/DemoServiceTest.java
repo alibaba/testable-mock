@@ -7,8 +7,8 @@ import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.Callable;
 
-import static com.alibaba.testable.core.util.TestableUtil.SOURCE_METHOD;
-import static com.alibaba.testable.core.util.TestableUtil.TEST_CASE;
+import static com.alibaba.testable.core.tool.TestableTool.SOURCE_METHOD;
+import static com.alibaba.testable.core.tool.TestableTool.TEST_CASE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @EnableTestable

@@ -3,8 +3,8 @@ package com.alibaba.testable.demo
 import com.alibaba.testable.core.accessor.PrivateAccessor
 import com.alibaba.testable.core.annotation.EnableTestable
 import com.alibaba.testable.core.annotation.TestableInject
-import com.alibaba.testable.core.util.TestableUtil.SOURCE_METHOD
-import com.alibaba.testable.core.util.TestableUtil.TEST_CASE
+import com.alibaba.testable.core.tool.TestableTool.SOURCE_METHOD
+import com.alibaba.testable.core.tool.TestableTool.TEST_CASE
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import java.util.concurrent.Callable

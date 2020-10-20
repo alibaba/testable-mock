@@ -1,5 +1,8 @@
 # Release Note
 
+## v0.1.1
+- use `TestableTool` class to expose test context
+
 ## v0.1.0
 - move generated agent jar to class folder
 - now support mock method of any object
