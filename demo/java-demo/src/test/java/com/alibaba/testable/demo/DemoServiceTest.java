@@ -6,6 +6,7 @@ import com.alibaba.testable.core.annotation.TestableInject;
 import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.Callable;
+import java.util.concurrent.Executors;
 
 import static com.alibaba.testable.core.tool.TestableTool.SOURCE_METHOD;
 import static com.alibaba.testable.core.tool.TestableTool.TEST_CASE;
@@ -41,6 +42,9 @@ class DemoServiceTest {
 
     @TestableInject
     private String callFromDifferentMethod() {
+        if (TEST_CASE.equals("should_able_to_get_test_case_name")) {
+            return "mock_special";
+        }
         switch (SOURCE_METHOD) {
             case "callerOne": return "mock_one";
             default: return "mock_others";
@@ -81,15 +85,19 @@ class DemoServiceTest {
 
     @Test
     void should_able_to_get_source_method_name() throws Exception {
-        assertEquals("mock_one_mock_others", demoService.callerTwo() + "_" + demoService.callerOne());
-        assertEquals("mock_one_mock_others", ((Callable<String>)() ->
-            demoService.callerOne() + "_" + demoService.callerTwo()).call());
+        // synchronous
+        assertEquals("mock_one_mock_others", demoService.callerOne() + "_" + demoService.callerTwo());
+        // asynchronous
+        assertEquals("mock_one_mock_others",
+            Executors.newSingleThreadExecutor().submit(() -> demoService.callerOne() + "_" + demoService.callerTwo()).get());
     }
 
     @Test
     void should_able_to_get_test_case_name() throws Exception {
-        assertEquals("should_able_to_get_test_case_name", TEST_CASE);
-        assertEquals("should_able_to_get_test_case_name", ((Callable<String>)() -> TEST_CASE).call());
+        // synchronous
+        assertEquals("mock_special", demoService.callerOne());
+        // asynchronous
+        assertEquals("mock_special", Executors.newSingleThreadExecutor().submit(() -> demoService.callerOne()).get());
     }
 
 }

@@ -83,10 +83,11 @@ public class TestClassHandler extends BaseClassHandler {
     private AbstractInsnNode[] replaceTestableUtilField(MethodNode mn, AbstractInsnNode[] instructions,
                                                         String fieldName, int pos) {
         InsnList insnNodes = new InsnList();
-        insnNodes.insert(new VarInsnNode(ALOAD, 0));
+        // NOTE: will insert in reversed order
         insnNodes.insert(new MethodInsnNode(INVOKESTATIC, CLASS_TESTABLE_UTIL, FIELD_TO_METHOD_MAPPING.get(fieldName),
             SIGNATURE_TESTABLE_UTIL_METHOD, false));
-        mn.instructions.insertBefore(instructions[pos], insnNodes);
+        insnNodes.insert(new VarInsnNode(ALOAD, 0));
+        mn.instructions.insert(instructions[pos], insnNodes);
         mn.instructions.remove(instructions[pos]);
         return mn.instructions.toArray();
     }

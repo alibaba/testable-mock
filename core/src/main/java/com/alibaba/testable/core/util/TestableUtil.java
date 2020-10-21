@@ -7,19 +7,27 @@ import com.alibaba.testable.core.constant.ConstPool;
  */
 public class TestableUtil {
 
+    /**
+     * Get the last visit method in source file
+     * @param testClassRef usually `this` variable of the test class
+     * @return method name
+     */
     public static String currentSourceMethodName(Object testClassRef) {
         Class<?> testClass = testClassRef.getClass();
-        StackTraceElement[] stack = getMainThread().getStackTrace();
         String testClassName = getRealClassName(testClass);
         String sourceClassName = testClassName.substring(0, testClassName.length() - ConstPool.TEST_POSTFIX.length());
-        for (int i = stack.length - 1; i >= 0; i--) {
-            if (stack[i].getClassName().equals(sourceClassName)) {
-                return stack[i].getMethodName();
-            }
+        String sourceMethod = findLastMethodFromSourceClass(sourceClassName, getMainThread().getStackTrace());
+        if (sourceMethod.isEmpty()) {
+            return findLastMethodFromSourceClass(sourceClassName, Thread.currentThread().getStackTrace());
         }
-        return "";
+        return sourceMethod;
     }
 
+    /**
+     * Get current test case method
+     * @param testClassRef usually `this` variable of the test class
+     * @return method name
+     */
     public static String currentTestCaseName(Object testClassRef) {
         Class<?> testClass = testClassRef.getClass();
         StackTraceElement[] stack = getMainThread().getStackTrace();
@@ -27,6 +35,15 @@ public class TestableUtil {
         for (int i = stack.length - 1; i >= 0; i--) {
             if (stack[i].getClassName().equals(testClassName)) {
                 return stack[i].getMethodName();
+            }
+        }
+        return "";
+    }
+
+    private static String findLastMethodFromSourceClass(String sourceClassName, StackTraceElement[] stack) {
+        for (StackTraceElement element : stack) {
+            if (element.getClassName().equals(sourceClassName)) {
+                return element.getMethodName();
             }
         }
         return "";
@@ -44,6 +61,7 @@ public class TestableUtil {
                 return t;
             }
         }
+        // usually impossible to go here
         return Thread.currentThread();
     }
 

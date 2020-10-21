@@ -7,6 +7,11 @@ import java.util.List;
  */
 public class StringUtil {
 
+    /**
+     * Join strings
+     * @param list strings to join
+     * @param conjunction connection character
+     */
     static public String join(List<String> list, String conjunction)
     {
         StringBuilder sb = new StringBuilder();

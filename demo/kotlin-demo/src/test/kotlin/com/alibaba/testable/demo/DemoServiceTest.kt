@@ -7,7 +7,7 @@ import com.alibaba.testable.core.tool.TestableTool.SOURCE_METHOD
 import com.alibaba.testable.core.tool.TestableTool.TEST_CASE
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
-import java.util.concurrent.Callable
+import java.util.concurrent.Executors
 
 
 @EnableTestable
@@ -29,9 +29,15 @@ internal class DemoServiceTest {
     private fun startsWith(self: BlackBox, s: String) = false
 
     @TestableInject
-    private fun callFromDifferentMethod() = when (SOURCE_METHOD) {
-        "callerOne" -> "mock_one"
-        else -> "mock_others"
+    private fun callFromDifferentMethod(): String {
+        return if (TEST_CASE == "should_able_to_get_test_case_name") {
+            "mock_special"
+        } else {
+            when (SOURCE_METHOD) {
+                "callerOne" -> "mock_one"
+                else -> "mock_others"
+            }
+        }
     }
 
     private val demoService = DemoService()
@@ -65,15 +71,21 @@ internal class DemoServiceTest {
 
     @Test
     fun should_able_to_get_source_method_name() {
-        assertEquals("mock_one_mock_others", demoService.callerTwo() + "_" + demoService.callerOne())
-        assertEquals("mock_one_mock_others", Callable<String> {
+        // synchronous
+        assertEquals("mock_one_mock_others", demoService.callerOne() + "_" + demoService.callerTwo())
+        // asynchronous
+        assertEquals("mock_one_mock_others", Executors.newSingleThreadExecutor().submit<String> {
             demoService.callerOne() + "_" + demoService.callerTwo()
-        }.call())
+        }.get())
     }
 
     @Test
     fun should_able_to_get_test_case_name() {
-        assertEquals("should_able_to_get_test_case_name", TEST_CASE)
-        assertEquals("should_able_to_get_test_case_name", Callable<String> { TEST_CASE }.call())
+        // synchronous
+        assertEquals("mock_special", demoService.callerOne())
+        // asynchronous
+        assertEquals("mock_special", Executors.newSingleThreadExecutor().submit<String> {
+            demoService.callerOne()
+        }.get())
     }
 }

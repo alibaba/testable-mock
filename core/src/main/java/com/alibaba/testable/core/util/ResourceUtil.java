@@ -7,6 +7,10 @@ import java.io.*;
  */
 public class ResourceUtil {
 
+    /**
+     * Read content of a text file from resource folder
+     * @param filePath file to read
+     */
     public static String fetchText(String filePath) {
         InputStream in = ResourceUtil.class.getResourceAsStream("/" + filePath);
         BufferedReader reader = new BufferedReader(new InputStreamReader(in));
@@ -24,6 +28,10 @@ public class ResourceUtil {
         }
     }
 
+    /**
+     * Read content of a binary file from resource folder
+     * @param filePath file to read
+     */
     public static byte[] fetchBinary(String filePath) {
         InputStream in = ResourceUtil.class.getResourceAsStream("/" + filePath);
         if (in == null) {
