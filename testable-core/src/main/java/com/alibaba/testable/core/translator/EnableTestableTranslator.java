@@ -19,9 +19,9 @@ import java.lang.reflect.Modifier;
 public class EnableTestableTranslator extends BaseTranslator {
 
     private final String sourceClassName;
-    private final ListBuffer<Name> sourceClassIns = new ListBuffer<>();
-    private final ListBuffer<String> privateOrFinalFields = new ListBuffer<>();
-    private final ListBuffer<String> privateMethods = new ListBuffer<>();
+    private final ListBuffer<Name> sourceClassIns = new ListBuffer<Name>();
+    private final ListBuffer<String> privateOrFinalFields = new ListBuffer<String>();
+    private final ListBuffer<String> privateMethods = new ListBuffer<String>();
     private final PrivateAccessStatementGenerator privateAccessStatementGenerator;
 
     public EnableTestableTranslator(String pkgName, String testClassName, TestableContext cx) {

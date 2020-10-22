@@ -9,8 +9,12 @@
   <url>http://maven.apache.org</url>
 
   <properties>
-    <java.version>1.8</java.version>
     <testable.version>0.2.0-SNAPSHOT</testable.version>
+    <java.version>1.6</java.version>
+    <project.compiler.level>1.6</project.compiler.level>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <plugin.compiler.version>3.8.1</plugin.compiler.version>
+    <maven.plugin.version>3.6.0</maven.plugin.version>
   </properties>
 
   <dependencies>
@@ -41,8 +45,18 @@
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>${plugin.compiler.version}</version>
+        <configuration>
+          <source>${project.compiler.level}</source>
+          <target>${project.compiler.level}</target>
+          <encoding>${project.build.sourceEncoding}</encoding>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-plugin-plugin</artifactId>
-        <version>3.6.0</version>
+        <version>${maven.plugin.version}</version>
       </plugin>
     </plugins>
   </build>

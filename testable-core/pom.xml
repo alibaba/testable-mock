@@ -11,10 +11,10 @@
     <name>testable-core</name>
 
     <properties>
-        <plugin.compiler.version>3.8.1</plugin.compiler.version>
-        <plugin.resources.version>3.1.0</plugin.resources.version>
+        <java.version>1.6</java.version>
+        <project.compiler.level>1.6</project.compiler.level>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <project.compiler.level>1.7</project.compiler.level>
+        <plugin.compiler.version>3.8.1</plugin.compiler.version>
     </properties>
 
     <dependencies>

@@ -11,7 +11,7 @@ class StringUtilTest {
 
     @Test
     void should_able_to_join_string() {
-        List<String> list = new ArrayList<>(4);
+        List<String> list = new ArrayList<String>(4);
         list.add("a");
         list.add("b");
         list.add("c");
