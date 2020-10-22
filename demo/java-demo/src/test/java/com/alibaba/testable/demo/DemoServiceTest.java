@@ -25,17 +25,17 @@ class DemoServiceTest {
         return "mock_" + text;
     }
 
-    @TestableInject(targetClass="java.lang.String")
+    @TestableInject(targetClass = String.class)
     private String trim(String self) {
         return "trim_string";
     }
 
-    @TestableInject(targetClass="java.lang.String", targetMethod = "substring")
+    @TestableInject(targetClass = String.class, targetMethod = "substring")
     private String sub(String self, int i, int j) {
         return "sub_string";
     }
 
-    @TestableInject(targetClass="java.lang.String")
+    @TestableInject(targetClass = String.class)
     private boolean startsWith(String self, String s) {
         return false;
     }

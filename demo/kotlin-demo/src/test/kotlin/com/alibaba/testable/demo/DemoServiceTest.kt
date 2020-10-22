@@ -19,13 +19,13 @@ internal class DemoServiceTest {
     @TestableInject
     private fun innerFunc(text: String) = "mock_$text"
 
-    @TestableInject(targetClass = "com.alibaba.testable.demo.BlackBox")
+    @TestableInject(targetClass = BlackBox::class)
     private fun trim(self: BlackBox) = "trim_string"
 
-    @TestableInject(targetClass = "com.alibaba.testable.demo.BlackBox", targetMethod = "substring")
+    @TestableInject(targetClass = BlackBox::class, targetMethod = "substring")
     private fun sub(self: BlackBox, i: Int, j: Int) = "sub_string"
 
-    @TestableInject(targetClass = "com.alibaba.testable.demo.BlackBox")
+    @TestableInject(targetClass = BlackBox::class)
     private fun startsWith(self: BlackBox, s: String) = false
 
     @TestableInject

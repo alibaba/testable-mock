@@ -15,7 +15,7 @@ public @interface TestableInject {
     /**
      * mock method of specified class instead of the class under test
      */
-    String targetClass() default "";
+    Class targetClass() default Object.class;
 
     /**
      * mock specified method instead of method with same name

@@ -7,6 +7,7 @@ import com.alibaba.testable.agent.model.ImmutablePair;
 import com.alibaba.testable.agent.model.MethodInfo;
 import com.alibaba.testable.agent.util.ClassUtil;
 import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AnnotationNode;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.MethodNode;
@@ -112,7 +113,12 @@ public class TestableClassTransformer implements ClassFileTransformer {
         if (an.values != null) {
             int i = an.values.indexOf(key);
             if (i % 2 == 0) {
-                return (String)an.values.get(i+1);
+                Object value = an.values.get(i + 1);
+                if (value instanceof Type) {
+                    // fit for `targetClass` parameter
+                    return ClassUtil.toSlashSeparateFullClassName(value.toString());
+                }
+                return value.toString();
             }
         }
         return defaultValue;

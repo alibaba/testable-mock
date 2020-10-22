@@ -118,6 +118,13 @@ public class ClassUtil {
     }
 
     /**
+     * convert slash separated name to dot separated name
+     */
+    public static String toDotSeparatedName(String name) {
+        return name.replace(ConstPool.SLASH, ConstPool.DOT);
+    }
+
+    /**
      * convert dot separated name to slash separated name
      */
     public static String toSlashSeparatedName(String name) {
@@ -135,7 +142,14 @@ public class ClassUtil {
      * convert byte code class name to dot separated human readable name
      */
     public static String toDotSeparateFullClassName(String className) {
-        return className.replace(ConstPool.SLASH, ConstPool.DOT).substring(1, className.length() - 1);
+        return toDotSeparatedName(className).substring(1, className.length() - 1);
+    }
+
+    /**
+     * convert byte code class name to slash separated human readable name
+     */
+    public static String toSlashSeparateFullClassName(String className) {
+        return toSlashSeparatedName(className).substring(1, className.length() - 1);
     }
 
     private static boolean isPrimaryType(byte b) {
