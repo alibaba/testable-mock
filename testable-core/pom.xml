@@ -6,7 +6,7 @@
 
     <description>Unit test enhancement toolkit</description>
     <groupId>com.alibaba.testable</groupId>
-    <artifactId>core</artifactId>
+    <artifactId>testable-core</artifactId>
     <version>0.1.1-SNAPSHOT</version>
     <name>testable-core</name>
 
@@ -65,7 +65,7 @@
                             <outputDirectory>${basedir}/target/classes</outputDirectory>
                             <resources>
                                 <resource>
-                                    <directory>${basedir}/../agent/target</directory>
+                                    <directory>${basedir}/../testable-agent/target</directory>
                                     <includes>
                                         <include>testable-agent.jar</include>
                                     </includes>

@@ -9,8 +9,9 @@
   <packaging>pom</packaging>
 
   <modules>
-    <module>agent</module>
-    <module>core</module>
+    <module>testable-agent</module>
+    <module>testable-core</module>
+    <module>testable-maven-plugin</module>
     <module>demo</module>
   </modules>
 

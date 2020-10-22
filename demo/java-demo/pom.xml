@@ -27,7 +27,7 @@
 
 		<dependency>
 			<groupId>com.alibaba.testable</groupId>
-			<artifactId>core</artifactId>
+			<artifactId>testable-core</artifactId>
 			<version>${testable.version}</version>
 			<scope>provided</scope>
 		</dependency>
@@ -56,12 +56,17 @@
 				<artifactId>spring-boot-maven-plugin</artifactId>
 			</plugin>
 			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-surefire-plugin</artifactId>
-				<configuration>
-<!--					<argLine>@{argLine} -javaagent:${project.build.directory}/test-classes/testable-agent.jar</argLine>-->
-					<argLine>@{argLine} -javaagent:${settings.localRepository}/com/alibaba/testable/agent/${testable.version}/agent-${testable.version}.jar</argLine>
-				</configuration>
+				<groupId>com.alibaba.testable</groupId>
+				<artifactId>testable-maven-plugin</artifactId>
+				<version>${testable.version}</version>
+				<executions>
+					<execution>
+						<id>prepare</id>
+						<goals>
+							<goal>prepare</goal>
+						</goals>
+					</execution>
+				</executions>
 			</plugin>
 			<plugin>
 				<groupId>org.jacoco</groupId>

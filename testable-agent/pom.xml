@@ -4,7 +4,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>com.alibaba.testable</groupId>
-  <artifactId>agent</artifactId>
+  <artifactId>testable-agent</artifactId>
   <version>0.1.1-SNAPSHOT</version>
   <packaging>jar</packaging>
   <name>testable-agent</name>
