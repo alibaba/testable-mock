@@ -5,7 +5,7 @@
 
   <groupId>com.alibaba.testable</groupId>
   <artifactId>testable-agent</artifactId>
-  <version>0.1.1-SNAPSHOT</version>
+  <version>0.2.0-SNAPSHOT</version>
   <packaging>jar</packaging>
   <name>testable-agent</name>
 

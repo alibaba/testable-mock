@@ -1,11 +1,12 @@
 # Release Note
 
-## v0.1.1
+## v0.2.0
 - use `TestableTool` class to expose test context
+- add `testable-maven-plugin` module
 
 ## v0.1.0
 - move generated agent jar to class folder
-- now support mock method of any object
+- support mock method of any object
 
 ## v0.0.5
 - use dynamically runtime modification to replace static `e.java` file

@@ -4,9 +4,14 @@
   <groupId>com.alibaba.testable</groupId>
   <artifactId>testable-maven-plugin</artifactId>
   <packaging>maven-plugin</packaging>
-  <version>0.1.1-SNAPSHOT</version>
+  <version>${testable.version}</version>
   <name>testable-maven-plugin</name>
   <url>http://maven.apache.org</url>
+
+  <properties>
+    <java.version>1.8</java.version>
+    <testable.version>0.2.0-SNAPSHOT</testable.version>
+  </properties>
 
   <dependencies>
     <dependency>
@@ -28,7 +33,7 @@
     <dependency>
       <groupId>com.alibaba.testable</groupId>
       <artifactId>testable-agent</artifactId>
-      <version>0.1.1-SNAPSHOT</version>
+      <version>${testable.version}</version>
     </dependency>
   </dependencies>
 
