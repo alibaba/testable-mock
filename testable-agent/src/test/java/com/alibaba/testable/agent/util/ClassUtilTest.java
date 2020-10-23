@@ -2,15 +2,19 @@ package com.alibaba.testable.agent.util;
 
 import org.junit.jupiter.api.Test;
 
+import java.lang.ref.WeakReference;
+import java.util.Map;
+import java.util.WeakHashMap;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class ClassUtilTest {
 
     @Test
     void should_able_to_get_annotation() {
-        assertEquals(0, ClassUtil.getAnnotations("class.not.exist").size());
-        assertEquals(0, ClassUtil.getAnnotations("com.alibaba.testable.agent.util.ClassUtil").size());
-        assertEquals("org.apiguardian.api.API", ClassUtil.getAnnotations("org.junit.jupiter.api.Assertions").get(0));
+        assertEquals(false, ClassUtil.anyMethodHasAnnotation("class.not.exist", ""));
+        assertEquals(false, ClassUtil.anyMethodHasAnnotation("org.junit.jupiter.api.Assertions", "annotation.not.exist"));
+        assertEquals(true, ClassUtil.anyMethodHasAnnotation("org.junit.jupiter.api.Assertions", "org.apiguardian.api.API"));
     }
 
     @Test

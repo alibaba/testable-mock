@@ -1,14 +1,13 @@
 package com.alibaba.testable.agent.util;
 
 import com.alibaba.testable.agent.constant.ConstPool;
+import com.alibaba.testable.agent.tool.ComparableWeakRef;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.tree.AnnotationNode;
 import org.objectweb.asm.tree.ClassNode;
+import org.objectweb.asm.tree.MethodNode;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author flin
@@ -29,6 +28,8 @@ public class ClassUtil {
     private static final char TYPE_ARRAY = '[';
 
     private static final Map<Character, String> TYPE_MAPPING = new HashMap<Character, String>();
+    private static final Map<ComparableWeakRef<String>, Boolean> loadedClass =
+        new WeakHashMap<ComparableWeakRef<String>, Boolean>();
 
     static {
         TYPE_MAPPING.put(TYPE_BYTE, "java/lang/Byte");
@@ -42,21 +43,33 @@ public class ClassUtil {
     }
 
     /**
-     * Get annotation on class definition
+     * Check whether any method in specified class has specified annotation
      * @param className class that need to explore
+     * @param annotationName annotation to look for
      */
-    public static List<String> getAnnotations(String className) {
+    public static boolean anyMethodHasAnnotation(String className, String annotationName) {
+        Boolean found = loadedClass.get(new ComparableWeakRef<String>(className));
+        if (found != null) {
+            return found;
+        }
         try {
-            List<String> annotations = new ArrayList<String>();
             ClassNode cn = new ClassNode();
             new ClassReader(className).accept(cn, 0);
-            for (AnnotationNode an : cn.visibleAnnotations) {
-                annotations.add(toDotSeparateFullClassName(an.desc));
+            for (MethodNode mn : cn.methods) {
+                if (mn.visibleAnnotations != null) {
+                    for (AnnotationNode an : mn.visibleAnnotations) {
+                        if (toDotSeparateFullClassName(an.desc).equals(annotationName)) {
+                            loadedClass.put(new ComparableWeakRef<String>(className), true);
+                            return true;
+                        }
+                    }
+                }
             }
-            return annotations;
         } catch (Exception e) {
-            return new ArrayList<String>();
+            // ignore
         }
+        loadedClass.put(new ComparableWeakRef<String>(className), false);
+        return false;
     }
 
     /**

@@ -5,6 +5,7 @@ import com.alibaba.testable.agent.handler.SourceClassHandler;
 import com.alibaba.testable.agent.handler.TestClassHandler;
 import com.alibaba.testable.agent.model.ImmutablePair;
 import com.alibaba.testable.agent.model.MethodInfo;
+import com.alibaba.testable.agent.tool.ComparableWeakRef;
 import com.alibaba.testable.agent.util.ClassUtil;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.Type;
@@ -17,7 +18,6 @@ import java.lang.instrument.ClassFileTransformer;
 import java.net.URLClassLoader;
 import java.security.ProtectionDomain;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -29,34 +29,41 @@ import static com.alibaba.testable.agent.util.ClassUtil.toSlashSeparatedName;
  */
 public class TestableClassTransformer implements ClassFileTransformer {
 
-    private final Set<String> loadedClassNames = new HashSet<String>();
+    private final Set<ComparableWeakRef<String>> loadedClassNames = ComparableWeakRef.getWeekHashSet();
     private static final String TARGET_CLASS = "targetClass";
     private static final String TARGET_METHOD = "targetMethod";
 
+    @Override
     public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined,
                             ProtectionDomain protectionDomain, byte[] classFileBuffer) {
-        if (isSystemClass(loader, className) || loadedClassNames.contains(className)) {
+        if (isSystemClass(loader, className) || loadedClassNames.contains(new ComparableWeakRef<String>(className))) {
             // Ignore system class and reloaded class
             return null;
         }
-
-        List<String> annotations = ClassUtil.getAnnotations(className);
-        List<String> testAnnotations = ClassUtil.getAnnotations(ClassUtil.getTestClassName(className));
         try {
-            if (testAnnotations.contains(ConstPool.ENABLE_TESTABLE)) {
+            if (shouldTransformAsSourceClass(className)) {
                 // it's a source class with testable enabled
-                loadedClassNames.add(className);
+                loadedClassNames.add(new ComparableWeakRef<String>(className));
                 List<MethodInfo> injectMethods = getTestableInjectMethods(ClassUtil.getTestClassName(className));
                 return new SourceClassHandler(injectMethods).getBytes(classFileBuffer);
-            } else if (annotations.contains(ConstPool.ENABLE_TESTABLE)) {
+            } else if (shouldTransformAsTestClass(className)) {
                 // it's a test class with testable enabled
-                loadedClassNames.add(className);
+                loadedClassNames.add(new ComparableWeakRef<String>(className));
                 return new TestClassHandler().getBytes(classFileBuffer);
             }
         } catch (IOException e) {
             return null;
         }
         return null;
+    }
+
+    private boolean shouldTransformAsSourceClass(String className) {
+        return ClassUtil.anyMethodHasAnnotation(ClassUtil.getTestClassName(className), ConstPool.TESTABLE_INJECT);
+    }
+
+    private boolean shouldTransformAsTestClass(String className) {
+        return className.endsWith(ConstPool.TEST_POSTFIX) &&
+            ClassUtil.anyMethodHasAnnotation(className, ConstPool.TESTABLE_INJECT);
     }
 
     private boolean isSystemClass(ClassLoader loader, String className) {

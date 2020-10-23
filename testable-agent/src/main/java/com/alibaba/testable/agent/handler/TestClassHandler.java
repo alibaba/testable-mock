@@ -41,7 +41,7 @@ public class TestClassHandler extends BaseClassHandler {
 
     private void transformMethod(ClassNode cn, MethodNode mn) {
         handleAnnotation(cn, mn);
-        handleInstruction(cn, mn);
+        handleInstruction(mn);
     }
 
     private void handleAnnotation(ClassNode cn, MethodNode mn) {
@@ -61,7 +61,7 @@ public class TestClassHandler extends BaseClassHandler {
         }
     }
 
-    private void handleInstruction(ClassNode cn, MethodNode mn) {
+    private void handleInstruction(MethodNode mn) {
         AbstractInsnNode[] instructions = mn.instructions.toArray();
         int i = 0;
         do {
