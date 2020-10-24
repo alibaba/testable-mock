@@ -16,7 +16,7 @@ import java.lang.reflect.Modifier;
  *
  * @author flin
  */
-public class EnableTestableTranslator extends BaseTranslator {
+public class EnablePrivateAccessTranslator extends BaseTranslator {
 
     private final String sourceClassName;
     private final ListBuffer<Name> sourceClassIns = new ListBuffer<Name>();
@@ -24,7 +24,7 @@ public class EnableTestableTranslator extends BaseTranslator {
     private final ListBuffer<String> privateMethods = new ListBuffer<String>();
     private final PrivateAccessStatementGenerator privateAccessStatementGenerator;
 
-    public EnableTestableTranslator(String pkgName, String testClassName, TestableContext cx) {
+    public EnablePrivateAccessTranslator(String pkgName, String testClassName, TestableContext cx) {
         this.sourceClassName = testClassName.substring(0, testClassName.length() - ConstPool.TEST_POSTFIX.length());
         this.privateAccessStatementGenerator = new PrivateAccessStatementGenerator(cx);
         try {

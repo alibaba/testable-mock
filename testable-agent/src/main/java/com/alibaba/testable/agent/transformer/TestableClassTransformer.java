@@ -44,7 +44,7 @@ public class TestableClassTransformer implements ClassFileTransformer {
             if (shouldTransformAsSourceClass(className)) {
                 // it's a source class with testable enabled
                 loadedClassNames.add(new ComparableWeakRef<String>(className));
-                List<MethodInfo> injectMethods = getTestableInjectMethods(ClassUtil.getTestClassName(className));
+                List<MethodInfo> injectMethods = getTestableMockMethods(ClassUtil.getTestClassName(className));
                 return new SourceClassHandler(injectMethods).getBytes(classFileBuffer);
             } else if (shouldTransformAsTestClass(className)) {
                 // it's a test class with testable enabled
@@ -58,19 +58,19 @@ public class TestableClassTransformer implements ClassFileTransformer {
     }
 
     private boolean shouldTransformAsSourceClass(String className) {
-        return ClassUtil.anyMethodHasAnnotation(ClassUtil.getTestClassName(className), ConstPool.TESTABLE_INJECT);
+        return ClassUtil.anyMethodHasAnnotation(ClassUtil.getTestClassName(className), ConstPool.TESTABLE_MOCK);
     }
 
     private boolean shouldTransformAsTestClass(String className) {
         return className.endsWith(ConstPool.TEST_POSTFIX) &&
-            ClassUtil.anyMethodHasAnnotation(className, ConstPool.TESTABLE_INJECT);
+            ClassUtil.anyMethodHasAnnotation(className, ConstPool.TESTABLE_MOCK);
     }
 
     private boolean isSystemClass(ClassLoader loader, String className) {
         return !(loader instanceof URLClassLoader) || null == className || className.startsWith("jdk/");
     }
 
-    private List<MethodInfo> getTestableInjectMethods(String className) {
+    private List<MethodInfo> getTestableMockMethods(String className) {
         try {
             List<MethodInfo> methodInfos = new ArrayList<MethodInfo>();
             ClassNode cn = new ClassNode();
@@ -89,7 +89,7 @@ public class TestableClassTransformer implements ClassFileTransformer {
             return;
         }
         for (AnnotationNode an : mn.visibleAnnotations) {
-            if (toDotSeparateFullClassName(an.desc).equals(ConstPool.TESTABLE_INJECT)) {
+            if (toDotSeparateFullClassName(an.desc).equals(ConstPool.TESTABLE_MOCK)) {
                 String sourceClassName = ClassUtil.getSourceClassName(cn.name);
                 String targetClass = getAnnotationParameter(an, TARGET_CLASS, sourceClassName);
                 String targetMethod = getAnnotationParameter(an, TARGET_METHOD, mn.name);

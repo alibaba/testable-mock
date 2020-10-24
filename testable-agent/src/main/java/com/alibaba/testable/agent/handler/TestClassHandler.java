@@ -52,7 +52,7 @@ public class TestClassHandler extends BaseClassHandler {
         for (AnnotationNode n : mn.visibleAnnotations) {
             visibleAnnotationNames.add(n.desc);
         }
-        if (visibleAnnotationNames.contains(ClassUtil.toByteCodeClassName(ConstPool.TESTABLE_INJECT))) {
+        if (visibleAnnotationNames.contains(ClassUtil.toByteCodeClassName(ConstPool.TESTABLE_MOCK))) {
             mn.access &= ~ACC_PRIVATE;
             mn.access &= ~ACC_PROTECTED;
             mn.access |= ACC_PUBLIC;

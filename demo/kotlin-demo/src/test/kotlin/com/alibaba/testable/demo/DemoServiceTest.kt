@@ -1,8 +1,8 @@
 package com.alibaba.testable.demo
 
 import com.alibaba.testable.core.accessor.PrivateAccessor
-import com.alibaba.testable.core.annotation.EnableTestable
-import com.alibaba.testable.core.annotation.TestableInject
+import com.alibaba.testable.core.annotation.EnablePrivateAccess
+import com.alibaba.testable.core.annotation.TestableMock
 import com.alibaba.testable.core.tool.TestableTool.SOURCE_METHOD
 import com.alibaba.testable.core.tool.TestableTool.TEST_CASE
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -10,25 +10,25 @@ import org.junit.jupiter.api.Test
 import java.util.concurrent.Executors
 
 
-@EnableTestable
+@EnablePrivateAccess
 internal class DemoServiceTest {
 
-    @TestableInject
+    @TestableMock
     private fun createBlackBox(text: String) = BlackBox("mock_$text")
 
-    @TestableInject
+    @TestableMock
     private fun innerFunc(text: String) = "mock_$text"
 
-    @TestableInject(targetClass = BlackBox::class)
+    @TestableMock(targetClass = BlackBox::class)
     private fun trim(self: BlackBox) = "trim_string"
 
-    @TestableInject(targetClass = BlackBox::class, targetMethod = "substring")
+    @TestableMock(targetClass = BlackBox::class, targetMethod = "substring")
     private fun sub(self: BlackBox, i: Int, j: Int) = "sub_string"
 
-    @TestableInject(targetClass = BlackBox::class)
+    @TestableMock(targetClass = BlackBox::class)
     private fun startsWith(self: BlackBox, s: String) = false
 
-    @TestableInject
+    @TestableMock
     private fun callFromDifferentMethod(): String {
         return if (TEST_CASE == "should_able_to_get_test_case_name") {
             "mock_special"

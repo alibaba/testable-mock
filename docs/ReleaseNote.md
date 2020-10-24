@@ -3,6 +3,8 @@
 ## v0.2.0
 - use `TestableTool` class to expose test context
 - add `testable-maven-plugin` module
+- remove dependence on EnableTestable annotation in `testable-agent`
+- rename annotations to reflect the actual use
 
 ## v0.1.0
 - move generated agent jar to class folder

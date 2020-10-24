@@ -1,1 +1,1 @@
-com.alibaba.testable.core.processor.EnableTestableProcessor
+com.alibaba.testable.core.processor.EnablePrivateAccessProcessor

@@ -10,7 +10,7 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
 @Documented
-public @interface TestableInject {
+public @interface TestableMock {
 
     /**
      * mock method of specified class instead of the class under test

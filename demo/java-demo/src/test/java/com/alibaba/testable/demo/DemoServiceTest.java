@@ -1,46 +1,45 @@
 package com.alibaba.testable.demo;
 
 import com.alibaba.testable.core.accessor.PrivateAccessor;
-import com.alibaba.testable.core.annotation.EnableTestable;
-import com.alibaba.testable.core.annotation.TestableInject;
+import com.alibaba.testable.core.annotation.EnablePrivateAccess;
+import com.alibaba.testable.core.annotation.TestableMock;
 import org.junit.jupiter.api.Test;
 
-import java.util.concurrent.Callable;
 import java.util.concurrent.Executors;
 
 import static com.alibaba.testable.core.tool.TestableTool.SOURCE_METHOD;
 import static com.alibaba.testable.core.tool.TestableTool.TEST_CASE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@EnableTestable
+@EnablePrivateAccess
 class DemoServiceTest {
 
-    @TestableInject
+    @TestableMock
     private BlackBox createBlackBox(String text) {
         return new BlackBox("mock_" + text);
     }
 
-    @TestableInject
+    @TestableMock
     private String innerFunc(String text) {
         return "mock_" + text;
     }
 
-    @TestableInject(targetClass = String.class)
+    @TestableMock(targetClass = String.class)
     private String trim(String self) {
         return "trim_string";
     }
 
-    @TestableInject(targetClass = String.class, targetMethod = "substring")
+    @TestableMock(targetClass = String.class, targetMethod = "substring")
     private String sub(String self, int i, int j) {
         return "sub_string";
     }
 
-    @TestableInject(targetClass = String.class)
+    @TestableMock(targetClass = String.class)
     private boolean startsWith(String self, String s) {
         return false;
     }
 
-    @TestableInject
+    @TestableMock
     private String callFromDifferentMethod() {
         if (TEST_CASE.equals("should_able_to_get_test_case_name")) {
             return "mock_special";

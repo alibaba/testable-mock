@@ -1,9 +1,9 @@
 package com.alibaba.testable.core.processor;
 
-import com.alibaba.testable.core.annotation.EnableTestable;
+import com.alibaba.testable.core.annotation.EnablePrivateAccess;
 import com.alibaba.testable.core.constant.ConstPool;
 import com.alibaba.testable.core.model.TestableContext;
-import com.alibaba.testable.core.translator.EnableTestableTranslator;
+import com.alibaba.testable.core.translator.EnablePrivateAccessTranslator;
 import com.alibaba.testable.core.util.TestableLogger;
 import com.sun.tools.javac.api.JavacTrees;
 import com.sun.tools.javac.code.Symbol;
@@ -26,8 +26,8 @@ import java.util.Set;
 /**
  * @author flin
  */
-@SupportedAnnotationTypes("com.alibaba.testable.core.annotation.EnableTestable")
-public class EnableTestableProcessor extends AbstractProcessor {
+@SupportedAnnotationTypes("com.alibaba.testable.core.annotation.EnablePrivateAccess")
+public class EnablePrivateAccessProcessor extends AbstractProcessor {
 
     private TestableContext cx;
 
@@ -59,7 +59,7 @@ public class EnableTestableProcessor extends AbstractProcessor {
         if (cx.names == null) {
             return true;
         }
-        Set<? extends Element> elements = roundEnv.getElementsAnnotatedWith(EnableTestable.class);
+        Set<? extends Element> elements = roundEnv.getElementsAnnotatedWith(EnablePrivateAccess.class);
         for (Element element : elements) {
             if (element.getKind().isClass() && isTestClass(element.getSimpleName())) {
                 processClassElement((Symbol.ClassSymbol)element);
@@ -81,7 +81,7 @@ public class EnableTestableProcessor extends AbstractProcessor {
     private void processClassElement(Symbol.ClassSymbol clazz) {
         JCTree tree = cx.trees.getTree(clazz);
         String pkgName = ((Symbol.PackageSymbol)clazz.owner).fullname.toString();
-        tree.accept(new EnableTestableTranslator(pkgName, clazz.getSimpleName().toString(), cx));
+        tree.accept(new EnablePrivateAccessTranslator(pkgName, clazz.getSimpleName().toString(), cx));
     }
 
 }
