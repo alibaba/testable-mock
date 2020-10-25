@@ -3,7 +3,7 @@ package com.alibaba.testable.agent.transformer;
 import com.alibaba.testable.agent.constant.ConstPool;
 import com.alibaba.testable.agent.handler.SourceClassHandler;
 import com.alibaba.testable.agent.handler.TestClassHandler;
-import com.alibaba.testable.agent.model.ImmutablePair;
+import com.alibaba.testable.agent.tool.ImmutablePair;
 import com.alibaba.testable.agent.model.MethodInfo;
 import com.alibaba.testable.agent.tool.ComparableWeakRef;
 import com.alibaba.testable.agent.util.ClassUtil;

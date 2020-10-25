@@ -20,7 +20,9 @@ public class TestClassHandler extends BaseClassHandler {
     private static final String FIELD_SOURCE_METHOD = "SOURCE_METHOD";
     private static final String METHOD_CURRENT_TEST_CASE_NAME = "currentTestCaseName";
     private static final String METHOD_CURRENT_SOURCE_METHOD_NAME = "currentSourceMethodName";
+    private static final String METHOD_COUNT_MOCK_INVOKE = "countMockInvoke";
     private static final String SIGNATURE_TESTABLE_UTIL_METHOD = "(Ljava/lang/Object;)Ljava/lang/String;";
+    private static final String SIGNATURE_INVOKE_COUNTER_METHOD = "()V";
     private static final Map<String, String> FIELD_TO_METHOD_MAPPING = new HashMap<String, String>() {{
         put(FIELD_TEST_CASE, METHOD_CURRENT_TEST_CASE_NAME);
         put(FIELD_SOURCE_METHOD, METHOD_CURRENT_SOURCE_METHOD_NAME);
@@ -56,6 +58,7 @@ public class TestClassHandler extends BaseClassHandler {
             mn.access &= ~ACC_PRIVATE;
             mn.access &= ~ACC_PROTECTED;
             mn.access |= ACC_PUBLIC;
+            injectInvokeCounter(mn);
         } else if (couldBeTestMethod(mn)) {
             injectTestableRef(cn, mn);
         }
@@ -90,6 +93,12 @@ public class TestClassHandler extends BaseClassHandler {
         mn.instructions.insert(instructions[pos], insnNodes);
         mn.instructions.remove(instructions[pos]);
         return mn.instructions.toArray();
+    }
+
+    private void injectInvokeCounter(MethodNode mn) {
+        MethodInsnNode node = new MethodInsnNode(INVOKESTATIC, CLASS_TESTABLE_UTIL, METHOD_COUNT_MOCK_INVOKE,
+            SIGNATURE_INVOKE_COUNTER_METHOD, false);
+        mn.instructions.insertBefore(mn.instructions.get(0), node);
     }
 
     private void injectTestableRef(ClassNode cn, MethodNode mn) {

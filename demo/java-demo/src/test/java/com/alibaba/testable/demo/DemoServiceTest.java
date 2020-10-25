@@ -7,8 +7,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.Executors;
 
-import static com.alibaba.testable.core.tool.TestableTool.SOURCE_METHOD;
-import static com.alibaba.testable.core.tool.TestableTool.TEST_CASE;
+import static com.alibaba.testable.core.tool.TestableTool.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @EnablePrivateAccess
@@ -70,16 +69,21 @@ class DemoServiceTest {
     @Test
     void should_able_to_test_new_object() throws Exception {
         assertEquals("mock_something", demoService.newFunc());
+        verify("createBlackBox").times(1);
     }
 
     @Test
     void should_able_to_test_member_method() throws Exception {
         assertEquals("{ \"res\": \"mock_hello\"}", demoService.outerFunc("hello"));
+        verify("innerFunc").times(1);
     }
 
     @Test
     void should_able_to_test_common_method() throws Exception {
         assertEquals("trim_string__sub_string__false", demoService.commonFunc());
+        verify("trim").times(1);
+        verify("sub").times(1);
+        verify("startsWith").times(1);
     }
 
     @Test
@@ -89,6 +93,7 @@ class DemoServiceTest {
         // asynchronous
         assertEquals("mock_one_mock_others",
             Executors.newSingleThreadExecutor().submit(() -> demoService.callerOne() + "_" + demoService.callerTwo()).get());
+        verify("callFromDifferentMethod").times(4);
     }
 
     @Test
@@ -97,6 +102,7 @@ class DemoServiceTest {
         assertEquals("mock_special", demoService.callerOne());
         // asynchronous
         assertEquals("mock_special", Executors.newSingleThreadExecutor().submit(() -> demoService.callerOne()).get());
+        verify("callFromDifferentMethod").times(2);
     }
 
 }
