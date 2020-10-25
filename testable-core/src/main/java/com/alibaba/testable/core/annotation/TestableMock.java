@@ -13,11 +13,6 @@ import java.lang.annotation.*;
 public @interface TestableMock {
 
     /**
-     * mock method of specified class instead of the class under test
-     */
-    Class targetClass() default Object.class;
-
-    /**
      * mock specified method instead of method with same name
      */
     String targetMethod() default "";

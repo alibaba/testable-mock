@@ -8,7 +8,6 @@ import com.alibaba.testable.agent.model.MethodInfo;
 import com.alibaba.testable.agent.tool.ComparableWeakRef;
 import com.alibaba.testable.agent.util.ClassUtil;
 import org.objectweb.asm.ClassReader;
-import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AnnotationNode;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.MethodNode;
@@ -22,7 +21,6 @@ import java.util.List;
 import java.util.Set;
 
 import static com.alibaba.testable.agent.util.ClassUtil.toDotSeparateFullClassName;
-import static com.alibaba.testable.agent.util.ClassUtil.toSlashSeparatedName;
 
 /**
  * @author flin
@@ -30,7 +28,6 @@ import static com.alibaba.testable.agent.util.ClassUtil.toSlashSeparatedName;
 public class TestableClassTransformer implements ClassFileTransformer {
 
     private final Set<ComparableWeakRef<String>> loadedClassNames = ComparableWeakRef.getWeekHashSet();
-    private static final String TARGET_CLASS = "targetClass";
     private static final String TARGET_METHOD = "targetMethod";
 
     @Override
@@ -85,47 +82,44 @@ public class TestableClassTransformer implements ClassFileTransformer {
     }
 
     private void checkMethodAnnotation(ClassNode cn, List<MethodInfo> methodInfos, MethodNode mn) {
-        if (mn.visibleAnnotations == null) {
+        ImmutablePair<String, String> methodDescPair = extractFirstParameter(mn.desc);
+        if (methodDescPair == null || mn.visibleAnnotations == null) {
             return;
         }
         for (AnnotationNode an : mn.visibleAnnotations) {
             if (toDotSeparateFullClassName(an.desc).equals(ConstPool.TESTABLE_MOCK)) {
-                String sourceClassName = ClassUtil.getSourceClassName(cn.name);
-                String targetClass = getAnnotationParameter(an, TARGET_CLASS, sourceClassName);
+                String targetClass = ClassUtil.toSlashSeparateFullClassName(methodDescPair.left);
                 String targetMethod = getAnnotationParameter(an, TARGET_METHOD, mn.name);
-                if (sourceClassName.equals(targetClass)) {
-                    // member method of the source class
-                    methodInfos.add(new MethodInfo(
-                        toSlashSeparatedName(targetClass), targetMethod, null, mn.desc));
+                if (targetMethod.equals(ConstPool.CONSTRUCTOR)) {
+                    String sourceClassName = ClassUtil.getSourceClassName(cn.name);
+                    methodInfos.add(new MethodInfo(sourceClassName, targetMethod, mn.name, mn.desc));
                 } else {
-                    // member method of a common class
-                    ImmutablePair<String, String> methodDescPair = extractFirstParameter(mn.desc);
-                    if (methodDescPair != null && methodDescPair.left.equals(ClassUtil.toByteCodeClassName(targetClass))) {
-                        methodInfos.add(new MethodInfo(
-                            toSlashSeparatedName(targetClass), targetMethod, mn.name, methodDescPair.right));
-                    }
+                    methodInfos.add(new MethodInfo(targetClass, targetMethod, mn.name, methodDescPair.right));
                 }
                 break;
             }
         }
     }
 
+    /**
+     * Split desc to "first parameter" and "desc of rest parameters"
+     * @param desc method desc
+     */
     private ImmutablePair<String, String> extractFirstParameter(String desc) {
         // assume first parameter is a class
         int pos = desc.indexOf(";");
         return pos < 0 ? null : ImmutablePair.of(desc.substring(1, pos + 1), "(" + desc.substring(pos + 1));
     }
 
-    private String getAnnotationParameter(AnnotationNode an, String key, String defaultValue) {
+    /**
+     * Read value of annotation parameter
+     */
+    private <T> T getAnnotationParameter(AnnotationNode an, String key, T defaultValue) {
         if (an.values != null) {
-            int i = an.values.indexOf(key);
-            if (i % 2 == 0) {
-                Object value = an.values.get(i + 1);
-                if (value instanceof Type) {
-                    // fit for `targetClass` parameter
-                    return ClassUtil.toSlashSeparateFullClassName(value.toString());
+            for (int i = 0; i < an.values.size(); i += 2) {
+                if (an.values.get(i).equals(key)) {
+                    return (T)(an.values.get(i + 1));
                 }
-                return value.toString();
             }
         }
         return defaultValue;

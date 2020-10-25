@@ -12,23 +12,23 @@ import java.util.concurrent.Executors
 @EnablePrivateAccess
 internal class DemoServiceTest {
 
-    @TestableMock
+    @TestableMock(targetMethod = CONSTRUCTOR)
     private fun createBlackBox(text: String) = BlackBox("mock_$text")
 
     @TestableMock
-    private fun innerFunc(text: String) = "mock_$text"
+    private fun innerFunc(self: DemoService, text: String) = "mock_$text"
 
-    @TestableMock(targetClass = BlackBox::class)
+    @TestableMock
     private fun trim(self: BlackBox) = "trim_string"
 
-    @TestableMock(targetClass = BlackBox::class, targetMethod = "substring")
+    @TestableMock(targetMethod = "substring")
     private fun sub(self: BlackBox, i: Int, j: Int) = "sub_string"
 
-    @TestableMock(targetClass = BlackBox::class)
+    @TestableMock
     private fun startsWith(self: BlackBox, s: String) = false
 
     @TestableMock
-    private fun callFromDifferentMethod(): String {
+    private fun callFromDifferentMethod(self: DemoService): String {
         return if (TEST_CASE == "should_able_to_get_test_case_name") {
             "mock_special"
         } else {

@@ -4,8 +4,6 @@ import com.alibaba.testable.agent.constant.ConstPool;
 import com.alibaba.testable.agent.model.MethodInfo;
 import com.alibaba.testable.agent.util.BytecodeUtil;
 import com.alibaba.testable.agent.util.ClassUtil;
-import com.alibaba.testable.agent.util.CollectionUtil;
-import com.alibaba.testable.agent.util.StringUtil;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.*;
 
@@ -35,22 +33,15 @@ public class SourceClassHandler extends BaseClassHandler {
      */
     @Override
     protected void transform(ClassNode cn) {
-        List<MethodInfo> methods = new ArrayList<MethodInfo>();
-        for (MethodNode m : cn.methods) {
-            // record all member method names
-            if (!ConstPool.CONSTRUCTOR.equals(m.name)) {
-                methods.add(new MethodInfo(cn.name, m.name, null, m.desc));
-            }
-        }
-        // member methods which has injection stub
-        Set<MethodInfo> memberInjectMethods = CollectionUtil.getCrossSet(methods, injectMethods);
+        Set<MethodInfo> memberInjectMethods = new HashSet<MethodInfo>();
+        Set<MethodInfo> newOperatorInjectMethods = new HashSet<MethodInfo>();
         for (MethodInfo mi : injectMethods) {
-            if (!mi.getClazz().equals(cn.name)) {
+            if (mi.getName().equals(ConstPool.CONSTRUCTOR)) {
+                newOperatorInjectMethods.add(mi);
+            } else {
                 memberInjectMethods.add(mi);
             }
         }
-        // new operations which has injection stub
-        Set<MethodInfo> newOperatorInjectMethods = CollectionUtil.getMinusSet(injectMethods, memberInjectMethods);
         for (MethodNode m : cn.methods) {
             transformMethod(cn, m, memberInjectMethods, newOperatorInjectMethods);
         }
@@ -64,25 +55,19 @@ public class SourceClassHandler extends BaseClassHandler {
         do {
             if (invokeOps.contains(instructions[i].getOpcode())) {
                 MethodInsnNode node = (MethodInsnNode)instructions[i];
-                int index = memberInjectMethodList.indexOf(new MethodInfo(node.owner, node.name, null, node.desc));
-                if (index >= 0) {
+                String memberInjectMethodName = getMemberInjectMethodName(memberInjectMethodList, node);
+                if (memberInjectMethodName != null) {
                     // it's a member method and an inject method for it exist
                     int rangeStart = getMemberMethodStart(instructions, i);
                     if (rangeStart >= 0) {
-                        if (cn.name.equals(node.owner)) {
-                            // member method of current class
-                            instructions = replaceMemberCallOps(cn, mn, instructions, rangeStart, i);
-                        } else {
-                            // member method of other class
-                            String method = memberInjectMethodList.get(index).getSubstitutionMethod();
-                            instructions = replaceCommonCallOps(cn, mn, instructions, node.owner, method, rangeStart, i);
-                        }
+                        instructions = replaceMemberCallOps(cn, mn, instructions, node.owner, memberInjectMethodName, rangeStart, i);
                         i = rangeStart;
                     }
                 } else if (ConstPool.CONSTRUCTOR.equals(node.name)) {
                     // it's a new operation
                     String newOperatorInjectMethodName = getNewOperatorInjectMethodName(newOperatorInjectMethods, node);
-                    if (newOperatorInjectMethodName.length() > 0) {
+                    if (newOperatorInjectMethodName != null) {
+                        // and an inject method for it exist
                         int rangeStart = getConstructorStart(instructions, node.owner, i);
                         if (rangeStart >= 0) {
                             instructions = replaceNewOps(cn, mn, newOperatorInjectMethodName, instructions, rangeStart, i);
@@ -95,13 +80,22 @@ public class SourceClassHandler extends BaseClassHandler {
         } while (i < instructions.length);
     }
 
+    private String getMemberInjectMethodName(List<MethodInfo> memberInjectMethodList, MethodInsnNode node) {
+        for (MethodInfo m : memberInjectMethodList) {
+            if (m.getClazz().equals(node.owner) && m.getName().equals(node.name) && m.getDesc().equals(node.desc)) {
+                return m.getMockName();
+            }
+        }
+        return null;
+    }
+
     private String getNewOperatorInjectMethodName(Set<MethodInfo> newOperatorInjectMethods, MethodInsnNode node) {
         for (MethodInfo m : newOperatorInjectMethods) {
             if (m.getDesc().equals(getConstructorInjectDesc(node))) {
-                return m.getName();
+                return m.getMockName();
             }
         }
-        return "";
+        return null;
     }
 
     private String getConstructorInjectDesc(MethodInsnNode constructorNode) {
@@ -160,19 +154,6 @@ public class SourceClassHandler extends BaseClassHandler {
     }
 
     private AbstractInsnNode[] replaceMemberCallOps(ClassNode cn, MethodNode mn, AbstractInsnNode[] instructions,
-                                                    int start, int end) {
-        MethodInsnNode method = (MethodInsnNode)instructions[end];
-        String testClassName = ClassUtil.getTestClassName(cn.name);
-        mn.instructions.insertBefore(instructions[start], new FieldInsnNode(GETSTATIC, testClassName,
-            ConstPool.TESTABLE_INJECT_REF, ClassUtil.toByteCodeClassName(testClassName)));
-        mn.instructions.insertBefore(instructions[end], new MethodInsnNode(INVOKEVIRTUAL, testClassName,
-            method.name, method.desc, false));
-        mn.instructions.remove(instructions[start]);
-        mn.instructions.remove(instructions[end]);
-        return mn.instructions.toArray();
-    }
-
-    private AbstractInsnNode[] replaceCommonCallOps(ClassNode cn, MethodNode mn, AbstractInsnNode[] instructions,
                                                     String ownerClass, String substitutionMethod, int start, int end) {
         mn.maxStack++;
         MethodInsnNode method = (MethodInsnNode)instructions[end];

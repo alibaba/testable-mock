@@ -6,7 +6,7 @@
 - remove dependence on EnableTestable annotation in `testable-agent`
 - rename annotations to reflect the actual use
 
-- ## v0.1.0
+## v0.1.0
 - move generated agent jar to class folder
 - support mock method of any object
 

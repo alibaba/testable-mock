@@ -8,6 +8,11 @@ import com.alibaba.testable.core.util.TestableUtil;
 public class TestableTool {
 
     /**
+     * Name of the constructor method
+     */
+    public static final String CONSTRUCTOR = "<init>";
+
+    /**
      * Name of current test case method
      */
     public static String TEST_CASE;

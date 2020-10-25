@@ -13,33 +13,33 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @EnablePrivateAccess
 class DemoServiceTest {
 
-    @TestableMock
+    @TestableMock(targetMethod = CONSTRUCTOR)
     private BlackBox createBlackBox(String text) {
         return new BlackBox("mock_" + text);
     }
 
     @TestableMock
-    private String innerFunc(String text) {
+    private String innerFunc(DemoService self, String text) {
         return "mock_" + text;
     }
 
-    @TestableMock(targetClass = String.class)
+    @TestableMock
     private String trim(String self) {
         return "trim_string";
     }
 
-    @TestableMock(targetClass = String.class, targetMethod = "substring")
+    @TestableMock(targetMethod = "substring")
     private String sub(String self, int i, int j) {
         return "sub_string";
     }
 
-    @TestableMock(targetClass = String.class)
+    @TestableMock
     private boolean startsWith(String self, String s) {
         return false;
     }
 
     @TestableMock
-    private String callFromDifferentMethod() {
+    private String callFromDifferentMethod(DemoService self) {
         if (TEST_CASE.equals("should_able_to_get_test_case_name")) {
             return "mock_special";
         }

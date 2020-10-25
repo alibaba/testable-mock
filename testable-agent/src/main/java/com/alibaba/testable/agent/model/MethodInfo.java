@@ -6,27 +6,26 @@ package com.alibaba.testable.agent.model;
 public class MethodInfo {
 
     /**
-     * name of the class this method belongs to
+     * name of the class this method belongs to (in slash-separate format)
      */
     private final String clazz;
     /**
-     * name of the method
+     * name of the source method
      */
     private final String name;
     /**
-     * name of the substitution method
-     * Note: this field do NOT join the `equals()` or `hashCode()` calculation
+     * name of the mock method
      */
-    private final String substitutionMethod;
+    private final String mockName;
     /**
-     * parameter and return value of the method
+     * parameter and return value of the source method
      */
     private final String desc;
 
-    public MethodInfo(String clazz, String name, String substitutionMethod, String desc) {
+    public MethodInfo(String clazz, String name, String mockName, String desc) {
         this.clazz = clazz;
         this.name = name;
-        this.substitutionMethod = substitutionMethod;
+        this.mockName = mockName;
         this.desc = desc;
     }
 
@@ -38,8 +37,8 @@ public class MethodInfo {
         return name;
     }
 
-    public String getSubstitutionMethod() {
-        return substitutionMethod;
+    public String getMockName() {
+        return mockName;
     }
 
     public String getDesc() {
@@ -55,6 +54,7 @@ public class MethodInfo {
 
         if (!clazz.equals(that.clazz)) { return false; }
         if (!name.equals(that.name)) { return false; }
+        if (!mockName.equals(that.mockName)) { return false; }
         return desc.equals(that.desc);
     }
 
@@ -62,6 +62,7 @@ public class MethodInfo {
     public int hashCode() {
         int result = clazz.hashCode();
         result = 31 * result + name.hashCode();
+        result = 31 * result + mockName.hashCode();
         result = 31 * result + desc.hashCode();
         return result;
     }
