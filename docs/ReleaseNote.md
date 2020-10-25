@@ -1,12 +1,12 @@
 # Release Note
 
 ## v0.2.0
-- use `TestableTool` class to expose test context
-- add `testable-maven-plugin` module
+- use `TestableTool` class to expose test context and verify mock invoke
+- add `testable-maven-plugin` module to simplify javaagent configuration
 - remove dependence on EnableTestable annotation in `testable-agent`
 - rename annotations to reflect the actual use
 
-## v0.1.0
+- ## v0.1.0
 - move generated agent jar to class folder
 - support mock method of any object
 
