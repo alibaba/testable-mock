@@ -1,6 +1,6 @@
-package com.alibaba.testable.core.generator;
+package com.alibaba.testable.processor.generator;
 
-import com.alibaba.testable.core.model.TestableContext;
+import com.alibaba.testable.processor.model.TestableContext;
 import com.sun.tools.javac.tree.JCTree.*;
 
 /**

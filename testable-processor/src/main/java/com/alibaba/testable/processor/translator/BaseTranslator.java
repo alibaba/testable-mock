@@ -1,4 +1,4 @@
-package com.alibaba.testable.core.translator;
+package com.alibaba.testable.processor.translator;
 
 import com.sun.tools.javac.tree.JCTree.*;
 import com.sun.tools.javac.tree.TreeTranslator;

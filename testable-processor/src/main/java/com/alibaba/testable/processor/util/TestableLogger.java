@@ -1,4 +1,4 @@
-package com.alibaba.testable.core.util;
+package com.alibaba.testable.processor.util;
 
 import javax.annotation.processing.Messager;
 import javax.tools.Diagnostic;

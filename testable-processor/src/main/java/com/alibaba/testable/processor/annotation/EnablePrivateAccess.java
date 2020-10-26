@@ -1,4 +1,4 @@
-package com.alibaba.testable.core.annotation;
+package com.alibaba.testable.processor.annotation;
 
 import java.lang.annotation.*;
 

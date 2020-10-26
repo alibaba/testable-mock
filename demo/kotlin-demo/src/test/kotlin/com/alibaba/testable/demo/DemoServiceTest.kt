@@ -1,7 +1,7 @@
 package com.alibaba.testable.demo
 
 import com.alibaba.testable.core.accessor.PrivateAccessor
-import com.alibaba.testable.core.annotation.EnablePrivateAccess
+import com.alibaba.testable.processor.annotation.EnablePrivateAccess
 import com.alibaba.testable.core.annotation.TestableMock
 import com.alibaba.testable.core.tool.TestableTool.*
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -42,31 +42,31 @@ internal class DemoServiceTest {
     private val demoService = DemoService()
 
     @Test
-    fun should_able_to_test_private_method() {
+    fun should_able_to_mock_private_method() {
         assertEquals("hello - 1", PrivateAccessor.invoke(demoService, "privateFunc", "hello", 1))
     }
 
     @Test
-    fun should_able_to_test_private_field() {
+    fun should_able_to_mock_private_field() {
         PrivateAccessor.set(demoService, "count", 3)
         assertEquals("5", demoService.privateFieldAccessFunc())
         assertEquals(5, PrivateAccessor.get(demoService, "count"))
     }
 
     @Test
-    fun should_able_to_test_new_object() {
+    fun should_able_to_mock_new_object() {
         assertEquals("mock_something", demoService.newFunc())
         verify("createBlackBox").times(1)
     }
 
     @Test
-    fun should_able_to_test_member_method() {
+    fun should_able_to_mock_member_method() {
         assertEquals("{ \"res\": \"mock_hello\"}", demoService.outerFunc("hello"))
         verify("innerFunc").times(1)
     }
 
     @Test
-    fun should_able_to_test_common_method() {
+    fun should_able_to_mock_common_method() {
         assertEquals("trim_string__sub_string__false", demoService.commonFunc())
         verify("trim").times(1)
         verify("sub").times(1)

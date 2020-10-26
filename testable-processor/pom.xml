@@ -6,9 +6,9 @@
 
     <description>Unit test enhancement toolkit</description>
     <groupId>com.alibaba.testable</groupId>
-    <artifactId>testable-core</artifactId>
+    <artifactId>testable-processor</artifactId>
     <version>0.2.1-SNAPSHOT</version>
-    <name>testable-core</name>
+    <name>testable-processor</name>
 
     <properties>
         <java.version>1.6</java.version>
@@ -16,9 +16,22 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <plugin.compiler.version>3.8.1</plugin.compiler.version>
         <junit.version>5.6.2</junit.version>
+        <testable.version>0.2.1-SNAPSHOT</testable.version>
     </properties>
 
     <dependencies>
+        <dependency>
+            <groupId>com.alibaba.testable</groupId>
+            <artifactId>testable-core</artifactId>
+            <version>${testable.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>sun.jdk</groupId>
+            <artifactId>tools</artifactId>
+            <version>${java.version}</version>
+            <scope>system</scope>
+            <systemPath>${java.home}/../lib/tools.jar</systemPath>
+        </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
@@ -37,6 +50,7 @@
                     <source>${project.compiler.level}</source>
                     <target>${project.compiler.level}</target>
                     <encoding>${project.build.sourceEncoding}</encoding>
+                    <compilerArgument>-proc:none</compilerArgument>
                 </configuration>
             </plugin>
         </plugins>

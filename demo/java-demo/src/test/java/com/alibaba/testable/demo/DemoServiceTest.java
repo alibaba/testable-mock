@@ -1,7 +1,7 @@
 package com.alibaba.testable.demo;
 
 import com.alibaba.testable.core.accessor.PrivateAccessor;
-import com.alibaba.testable.core.annotation.EnablePrivateAccess;
+import com.alibaba.testable.processor.annotation.EnablePrivateAccess;
 import com.alibaba.testable.core.annotation.TestableMock;
 import org.junit.jupiter.api.Test;
 
@@ -39,6 +39,11 @@ class DemoServiceTest {
     }
 
     @TestableMock
+    private BlackBox secretBox() {
+        return new BlackBox("not_secret_box");
+    }
+
+    @TestableMock
     private String callFromDifferentMethod(DemoService self) {
         if (TEST_CASE.equals("should_able_to_get_test_case_name")) {
             return "mock_special";
@@ -52,13 +57,13 @@ class DemoServiceTest {
     private DemoService demoService = new DemoService();
 
     @Test
-    void should_able_to_test_private_method() throws Exception {
+    void should_able_to_mock_private_method() throws Exception {
         assertEquals("hello - 1", demoService.privateFunc("hello", 1));
         assertEquals("hello - 1", PrivateAccessor.invoke(demoService, "privateFunc", "hello", 1));
     }
 
     @Test
-    void should_able_to_test_private_field() throws Exception {
+    void should_able_to_mock_private_field() throws Exception {
         demoService.count = 2;
         assertEquals("4", demoService.privateFieldAccessFunc());
         PrivateAccessor.set(demoService, "count", 3);
@@ -67,19 +72,19 @@ class DemoServiceTest {
     }
 
     @Test
-    void should_able_to_test_new_object() throws Exception {
+    void should_able_to_mock_new_object() throws Exception {
         assertEquals("mock_something", demoService.newFunc());
         verify("createBlackBox").times(1);
     }
 
     @Test
-    void should_able_to_test_member_method() throws Exception {
+    void should_able_to_mock_member_method() throws Exception {
         assertEquals("{ \"res\": \"mock_hello\"}", demoService.outerFunc("hello"));
         verify("innerFunc").times(1);
     }
 
     @Test
-    void should_able_to_test_common_method() throws Exception {
+    void should_able_to_mock_common_method() throws Exception {
         assertEquals("trim_string__sub_string__false", demoService.commonFunc());
         verify("trim").times(1);
         verify("sub").times(1);

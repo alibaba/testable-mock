@@ -1,8 +1,8 @@
-package com.alibaba.testable.core.translator;
+package com.alibaba.testable.processor.translator;
 
-import com.alibaba.testable.core.constant.ConstPool;
-import com.alibaba.testable.core.generator.PrivateAccessStatementGenerator;
-import com.alibaba.testable.core.model.TestableContext;
+import com.alibaba.testable.processor.constant.ConstPool;
+import com.alibaba.testable.processor.generator.PrivateAccessStatementGenerator;
+import com.alibaba.testable.processor.model.TestableContext;
 import com.sun.tools.javac.tree.JCTree.*;
 import com.sun.tools.javac.util.ListBuffer;
 import com.sun.tools.javac.util.Name;

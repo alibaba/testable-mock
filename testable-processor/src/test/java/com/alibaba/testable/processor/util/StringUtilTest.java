@@ -1,4 +1,4 @@
-package com.alibaba.testable.core.util;
+package com.alibaba.testable.processor.util;
 
 import org.junit.jupiter.api.Test;
 

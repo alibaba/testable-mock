@@ -3,12 +3,12 @@
 
 ## 引入Testable
 
-首先在项目`pom.xml`文件中添加`testable-core`依赖：
+首先在项目`pom.xml`文件中添加`testable-processor`依赖：
 
 ```xml
 <dependency>
     <groupId>com.alibaba.testable</groupId>
-    <artifactId>testable-core</artifactId>
+    <artifactId>testable-processor</artifactId>
     <version>${testable.version}</version>
     <scope>provided</scope>
 </dependency>
@@ -51,7 +51,7 @@
 
 若不希望看到IDE的语法错误提醒，或是在基于JVM的非Java语言项目里（譬如Kotlin语言），也可以借助`PrivateAccessor`工具类来实现私有成员的访问。
 
-效果见示例项目文件`DemoServiceTest.java`中的`should_able_to_test_private_method()`和`should_able_to_test_private_field()`测试用例。
+效果见示例项目文件`DemoServiceTest.java`中的`should_able_to_mock_private_method()`和`should_able_to_mock_private_field()`测试用例。
 
 ### Mock被测类的任意方法调用
 
@@ -63,7 +63,7 @@
 
 **注意**：当遇到有两个需覆写的方法重名时，可将需覆写的方法名写到`@TestableMock`注解的`targetMethod`参数里，此时Mock方法自身就可以随意命名了。
 
-示例项目文件`DemoServiceTest.java`中的`should_able_to_test_common_method()`用例详细展示了这种用法。
+示例项目文件`DemoServiceTest.java`中的`should_able_to_mock_common_method()`用例详细展示了这种用法。
 
 **【2】覆写被测类自身的成员方法**
 
@@ -71,7 +71,7 @@
 
 操作方法与前一种情况相同，Mock方法的第一个参数类型需与被测类相同，即可实现对被测类自身（不论是公有或私有）成员方法的覆写。
 
-详见示例项目文件`DemoServiceTest.java`中的`should_able_to_test_member_method()`用例。
+详见示例项目文件`DemoServiceTest.java`中的`should_able_to_mock_member_method()`用例。
 
 **【3】覆写任意类的new操作**
 
@@ -79,7 +79,7 @@
 
 此时被测类中所有用`new`创建指定类的操作（并使用了与Mock方法参数一致的构造函数）将被替换为对该自定义方法的调用。
 
-详见示例项目文件`DemoServiceTest.java`中的`should_able_to_test_new_object()`用例。
+详见示例项目文件`DemoServiceTest.java`中的`should_able_to_mock_new_object()`用例。
 
 **【4】识别当前测试用例和调用来源**
 

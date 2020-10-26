@@ -12,4 +12,8 @@ public class BlackBox {
         return data;
     }
 
+    public static BlackBox secretBox() {
+        return new BlackBox("secret");
+    }
+
 }

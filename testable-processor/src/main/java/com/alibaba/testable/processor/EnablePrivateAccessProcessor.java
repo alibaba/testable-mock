@@ -1,10 +1,10 @@
-package com.alibaba.testable.core.processor;
+package com.alibaba.testable.processor;
 
-import com.alibaba.testable.core.annotation.EnablePrivateAccess;
-import com.alibaba.testable.core.constant.ConstPool;
-import com.alibaba.testable.core.model.TestableContext;
-import com.alibaba.testable.core.translator.EnablePrivateAccessTranslator;
-import com.alibaba.testable.core.util.TestableLogger;
+import com.alibaba.testable.processor.annotation.EnablePrivateAccess;
+import com.alibaba.testable.processor.constant.ConstPool;
+import com.alibaba.testable.processor.model.TestableContext;
+import com.alibaba.testable.processor.translator.EnablePrivateAccessTranslator;
+import com.alibaba.testable.processor.util.TestableLogger;
 import com.sun.tools.javac.api.JavacTrees;
 import com.sun.tools.javac.code.Symbol;
 import com.sun.tools.javac.processing.JavacProcessingEnvironment;
@@ -26,7 +26,7 @@ import java.util.Set;
 /**
  * @author flin
  */
-@SupportedAnnotationTypes("com.alibaba.testable.core.annotation.EnablePrivateAccess")
+@SupportedAnnotationTypes("com.alibaba.testable.processor.annotation.EnablePrivateAccess")
 public class EnablePrivateAccessProcessor extends AbstractProcessor {
 
     private TestableContext cx;

@@ -1,6 +1,6 @@
-package com.alibaba.testable.core.model;
+package com.alibaba.testable.processor.model;
 
-import com.alibaba.testable.core.util.TestableLogger;
+import com.alibaba.testable.processor.util.TestableLogger;
 import com.sun.tools.javac.api.JavacTrees;
 import com.sun.tools.javac.tree.TreeMaker;
 import com.sun.tools.javac.util.Names;

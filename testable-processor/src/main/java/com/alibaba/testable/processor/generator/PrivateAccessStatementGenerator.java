@@ -1,7 +1,7 @@
-package com.alibaba.testable.core.generator;
+package com.alibaba.testable.processor.generator;
 
-import com.alibaba.testable.core.model.TestableContext;
-import com.alibaba.testable.core.constant.ConstPool;
+import com.alibaba.testable.processor.model.TestableContext;
+import com.alibaba.testable.processor.constant.ConstPool;
 import com.sun.tools.javac.tree.JCTree.*;
 import com.sun.tools.javac.util.List;
 import com.sun.tools.javac.util.ListBuffer;

@@ -1,5 +1,7 @@
 package com.alibaba.testable.core.annotation;
 
+import com.alibaba.testable.core.model.MockType;
+
 import java.lang.annotation.*;
 
 /**
@@ -11,6 +13,11 @@ import java.lang.annotation.*;
 @Target(ElementType.METHOD)
 @Documented
 public @interface TestableMock {
+
+    /**
+     * type of mock method
+     */
+    MockType value() default MockType.MEMBER_METHOD;
 
     /**
      * mock specified method instead of method with same name

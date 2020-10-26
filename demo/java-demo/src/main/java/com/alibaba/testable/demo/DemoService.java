@@ -47,6 +47,13 @@ public class DemoService {
         return "anything".trim() + "__" + "anything".substring(1, 2) + "__" + "abc".startsWith("ab");
     }
 
+    /**
+     * Target 6 - method with static method invoke
+     */
+    public BlackBox getBox() {
+        return BlackBox.secretBox();
+    }
+
     public String callerOne() {
         return callFromDifferentMethod();
     }

@@ -36,7 +36,7 @@ public class TypeUtil {
     /**
      * type equals
      */
-    public static boolean typeEquals(Class<?>[] classesLeft, Class<?>[] classesRight) {
+    private static boolean typeEquals(Class<?>[] classesLeft, Class<?>[] classesRight) {
         if (classesLeft.length != classesRight.length) {
             return false;
         }

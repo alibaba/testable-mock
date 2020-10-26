@@ -14,6 +14,7 @@
     <project.compiler.level>1.6</project.compiler.level>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <asm.lib.version>8.0.1</asm.lib.version>
+    <junit.version>5.6.2</junit.version>
     <testable.version>0.2.1-SNAPSHOT</testable.version>
     <plugin.compiler.version>3.8.1</plugin.compiler.version>
     <plugin.jar.version>3.2.0</plugin.jar.version>
@@ -29,7 +30,7 @@
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-api</artifactId>
-      <version>5.6.2</version>
+      <version>${junit.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>

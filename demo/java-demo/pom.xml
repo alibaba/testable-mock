@@ -27,7 +27,7 @@
 
 		<dependency>
 			<groupId>com.alibaba.testable</groupId>
-			<artifactId>testable-core</artifactId>
+			<artifactId>testable-processor</artifactId>
 			<version>${testable.version}</version>
 			<scope>provided</scope>
 		</dependency>

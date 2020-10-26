@@ -19,4 +19,16 @@ class BlackBox(private val data: String) {
         return data.startsWith(prefix)
     }
 
+    companion object {
+        fun secretBox(): BlackBox {
+            return BlackBox("secret")
+        }
+    }
+
+}
+
+object ColorBox {
+    fun createBox(color: String): BlackBox {
+        return BlackBox("${color}_Box")
+    }
 }

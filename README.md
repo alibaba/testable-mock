@@ -8,7 +8,8 @@
 ## 目录结构
 
 ```bash
-|-- testable-core         ➜ 核心组件，提供测试辅助功能、注解和工具类
+|-- testable-core         ➜ 核心组件，提供注解和工具类
+|-- testable-processor    ➜ 编译期代码预处理组件，提供测试辅助功能
 |-- testable-agent        ➜ JavaAgent组件，提供Mock测试相关功能
 |-- testable-maven-plugin ➜ Maven插件组件，用于简化JavaAgent注入
 |-- demo
