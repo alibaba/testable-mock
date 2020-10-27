@@ -55,7 +55,7 @@
 
 ### Mock被测类的任意方法调用
 
-**【1】覆写任意类的方法调用**
+**1. <u>覆写任意类的方法调用</u>**
 
 在测试类里定义一个有`@TestableMock`注解的普通方法，使它与需覆写的方法名称、参数、返回值类型完全一致，然后在其参数列表首位再增加一个类型为该方法原本所属对象类型的参数。
 
@@ -65,7 +65,7 @@
 
 示例项目文件`DemoServiceTest.java`中的`should_able_to_mock_common_method()`用例详细展示了这种用法。
 
-**【2】覆写被测类自身的成员方法**
+**2. <u>覆写被测类自身的成员方法</u>**
 
 有时候，在对某些方法进行测试时，希望将被测类自身的另外一些成员方法Mock掉。
 
@@ -73,7 +73,13 @@
 
 详见示例项目文件`DemoServiceTest.java`中的`should_able_to_mock_member_method()`用例。
 
-**【3】覆写任意类的new操作**
+**3. <u>覆写任意类的静态方法</u>**
+
+对于静态方法的Mock与普通方法相同。但需要注意的是，对于静态方法，传入Mock方法的第一个参数实际值始终是`null`。
+
+详见示例项目文件`DemoServiceTest.java`中的`should_able_to_mock_static_method()`用例。
+
+**4. <u>覆写任意类的new操作</u>**
 
 在测试类里定义一个有`@TestableMock`注解的普通方法，将注解的`targetMethod`参数写为"<init>"，然后使该方法与要被创建类型的构造函数参数、返回值类型完全一致，方法名称随意。
 
@@ -81,7 +87,7 @@
 
 详见示例项目文件`DemoServiceTest.java`中的`should_able_to_mock_new_object()`用例。
 
-**【4】识别当前测试用例和调用来源**
+**5. <u>识别当前测试用例和调用来源</u>**
 
 在Mock方法中可以通过`TestableTool.TEST_CASE`和`TestableTool.SOURCE_METHOD`来识别**当前运行的测试用例名称**和**进入该Mock方法前的被测类方法名称**，从而区分处理不同的调用场景。
 

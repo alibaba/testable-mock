@@ -1,5 +1,10 @@
 # Release Note
 
+## v0.2.1
+- support mock static method
+- support mock kotlin companion object method
+- support mock invoke by interface / base class object
+
 ## v0.2.0
 - use `TestableTool` class to expose test context and verify mock invoke
 - add `testable-maven-plugin` module to simplify javaagent configuration
