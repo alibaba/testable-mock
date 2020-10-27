@@ -40,5 +40,17 @@ class ClassUtilTest {
         assertEquals("Ljava/lang/String;", ClassUtil.toByteCodeClassName("java.lang.String"));
     }
 
+    @Test
+    void should_able_to_fit_companion_class_name() {
+        assertEquals("com/intellij/rt/debugger/agent/CaptureAgent$ParamKeyProvider",
+            ClassUtil.fitCompanionClassName("com/intellij/rt/debugger/agent/CaptureAgent$ParamKeyProvider"));
+        assertEquals("com/alibaba/testable/demo/BlackBox",
+            ClassUtil.fitCompanionClassName("com/alibaba/testable/demo/BlackBox"));
+        assertEquals("com/alibaba/testable/demo/BlackBox$Companion",
+            ClassUtil.fitCompanionClassName("com/alibaba/testable/demo/BlackBox$Companion$Companion"));
+        assertEquals("com/alibaba/testable/demo/BlackBox",
+            ClassUtil.fitCompanionClassName("com/alibaba/testable/demo/BlackBox$Companion"));
+    }
+
 }
 

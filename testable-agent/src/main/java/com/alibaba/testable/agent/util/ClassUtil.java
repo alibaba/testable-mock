@@ -73,6 +73,22 @@ public class ClassUtil {
     }
 
     /**
+     * fit kotlin companion class name to original name
+     * @param name a class name (which could be a companion class)
+     */
+    public static boolean isCompanionClassName(String name) {
+        return name.endsWith("$Companion");
+    }
+
+    /**
+     * fit kotlin companion class name to original name
+     * @param name a class name (which could be a companion class)
+     */
+    public static String fitCompanionClassName(String name) {
+        return name.replaceAll("\\$Companion$", "");
+    }
+
+    /**
      * get test class name from source class name
      * @param sourceClassName source class name
      */

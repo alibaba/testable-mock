@@ -84,7 +84,8 @@ public class SourceClassHandler extends BaseClassHandler {
 
     private String getMemberInjectMethodName(List<MethodInfo> memberInjectMethodList, MethodInsnNode node) {
         for (MethodInfo m : memberInjectMethodList) {
-            if (m.getClazz().equals(node.owner) && m.getName().equals(node.name) && m.getDesc().equals(node.desc)) {
+            String nodeOwner = ClassUtil.fitCompanionClassName(node.owner);
+            if (m.getClazz().equals(nodeOwner) && m.getName().equals(node.name) && m.getDesc().equals(node.desc)) {
                 return m.getMockName();
             }
         }
@@ -166,14 +167,22 @@ public class SourceClassHandler extends BaseClassHandler {
         String testClassName = ClassUtil.getTestClassName(cn.name);
         mn.instructions.insertBefore(instructions[start], new FieldInsnNode(GETSTATIC, testClassName,
             ConstPool.TESTABLE_INJECT_REF, ClassUtil.toByteCodeClassName(testClassName)));
-        if (Opcodes.INVOKESTATIC == opcode) {
-            // append a null value if it was a static invoke
+        if (Opcodes.INVOKESTATIC == opcode || isCompanionMethod(ownerClass, opcode)) {
+            // append a null value if it was a static invoke or in kotlin companion class
             mn.instructions.insertBefore(instructions[start], new InsnNode(ACONST_NULL));
+            if (ClassUtil.isCompanionClassName(ownerClass)) {
+                // for kotlin companion class, remove the byte code of reference to "companion" static field
+                mn.instructions.remove(instructions[end - 1]);
+            }
         }
         mn.instructions.insertBefore(instructions[end], new MethodInsnNode(INVOKEVIRTUAL, testClassName,
-            substitutionMethod, addFirstParameter(method.desc, ownerClass), false));
+            substitutionMethod, addFirstParameter(method.desc, ClassUtil.fitCompanionClassName(ownerClass)), false));
         mn.instructions.remove(instructions[end]);
         return mn.instructions.toArray();
+    }
+
+    private boolean isCompanionMethod(String ownerClass, int opcode) {
+        return Opcodes.INVOKEVIRTUAL == opcode && ClassUtil.isCompanionClassName(ownerClass);
     }
 
     private String addFirstParameter(String desc, String ownerClass) {
