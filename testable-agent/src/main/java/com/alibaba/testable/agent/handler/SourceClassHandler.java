@@ -19,6 +19,7 @@ public class SourceClassHandler extends BaseClassHandler {
 
     private final List<MethodInfo> injectMethods;
     private final Set<Integer> invokeOps = new HashSet<Integer>() {{
+        add(Opcodes.INVOKESTATIC);
         add(Opcodes.INVOKESPECIAL);
         add(Opcodes.INVOKEVIRTUAL);
     }};
@@ -60,7 +61,8 @@ public class SourceClassHandler extends BaseClassHandler {
                     // it's a member method and an inject method for it exist
                     int rangeStart = getMemberMethodStart(instructions, i);
                     if (rangeStart >= 0) {
-                        instructions = replaceMemberCallOps(cn, mn, instructions, node.owner, memberInjectMethodName, rangeStart, i);
+                        instructions = replaceMemberCallOps(cn, mn, memberInjectMethodName, instructions,
+                            node.owner, node.getOpcode(), rangeStart, i);
                         i = rangeStart;
                     }
                 } else if (ConstPool.CONSTRUCTOR.equals(node.name)) {
@@ -123,6 +125,9 @@ public class SourceClassHandler extends BaseClassHandler {
                 case Opcodes.INVOKESTATIC:
                     stackLevel += ClassUtil.getParameterTypes(((MethodInsnNode)instructions[i]).desc).size();
                     break;
+                case -1:
+                    // reach LineNumberNode or LabelNode
+                    return i + 1;
                 default:
                     stackLevel -= BytecodeUtil.stackEffect(instructions[i].getOpcode());
             }
@@ -153,13 +158,18 @@ public class SourceClassHandler extends BaseClassHandler {
             ClassUtil.toByteCodeClassName(classType);
     }
 
-    private AbstractInsnNode[] replaceMemberCallOps(ClassNode cn, MethodNode mn, AbstractInsnNode[] instructions,
-                                                    String ownerClass, String substitutionMethod, int start, int end) {
+    private AbstractInsnNode[] replaceMemberCallOps(ClassNode cn, MethodNode mn, String substitutionMethod,
+                                                    AbstractInsnNode[] instructions, String ownerClass,
+                                                    int opcode, int start, int end) {
         mn.maxStack++;
         MethodInsnNode method = (MethodInsnNode)instructions[end];
         String testClassName = ClassUtil.getTestClassName(cn.name);
         mn.instructions.insertBefore(instructions[start], new FieldInsnNode(GETSTATIC, testClassName,
             ConstPool.TESTABLE_INJECT_REF, ClassUtil.toByteCodeClassName(testClassName)));
+        if (Opcodes.INVOKESTATIC == opcode) {
+            // append a null value if it was a static invoke
+            mn.instructions.insertBefore(instructions[start], new InsnNode(ACONST_NULL));
+        }
         mn.instructions.insertBefore(instructions[end], new MethodInsnNode(INVOKEVIRTUAL, testClassName,
             substitutionMethod, addFirstParameter(method.desc, ownerClass), false));
         mn.instructions.remove(instructions[end]);

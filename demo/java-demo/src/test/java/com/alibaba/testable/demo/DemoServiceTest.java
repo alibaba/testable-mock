@@ -39,7 +39,7 @@ class DemoServiceTest {
     }
 
     @TestableMock
-    private BlackBox secretBox() {
+    private BlackBox secretBox(BlackBox _) {
         return new BlackBox("not_secret_box");
     }
 
@@ -89,6 +89,12 @@ class DemoServiceTest {
         verify("trim").times(1);
         verify("sub").times(1);
         verify("startsWith").times(1);
+    }
+
+    @Test
+    void should_able_to_mock_static_method() throws Exception {
+        assertEquals("not_secret_box", demoService.getBox().callMe());
+        verify("secretBox").times(1);
     }
 
     @Test

@@ -1,9 +1,9 @@
 package com.alibaba.testable.demo
 
 import com.alibaba.testable.core.accessor.PrivateAccessor
-import com.alibaba.testable.processor.annotation.EnablePrivateAccess
 import com.alibaba.testable.core.annotation.TestableMock
 import com.alibaba.testable.core.tool.TestableTool.*
+import com.alibaba.testable.processor.annotation.EnablePrivateAccess
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import java.util.concurrent.Executors
@@ -26,6 +26,16 @@ internal class DemoServiceTest {
 
     @TestableMock
     private fun startsWith(self: BlackBox, s: String) = false
+
+    @TestableMock
+    private fun secretBox(ignore: BlackBox): BlackBox {
+        return BlackBox("not_secret_box")
+    }
+
+    @TestableMock
+    private fun createBox(ignore: ColorBox, color: String, box: BlackBox): BlackBox {
+        return BlackBox("White_${box.callMe()}")
+    }
 
     @TestableMock
     private fun callFromDifferentMethod(self: DemoService): String {
@@ -71,6 +81,13 @@ internal class DemoServiceTest {
         verify("trim").times(1)
         verify("sub").times(1)
         verify("startsWith").times(1)
+    }
+
+    @Test
+    fun should_able_to_mock_static_method() {
+        assertEquals("White_not_secret_box", demoService.getBox().callMe())
+        verify("secretBox").times(1)
+        verify("createBox").times(1)
     }
 
     @Test

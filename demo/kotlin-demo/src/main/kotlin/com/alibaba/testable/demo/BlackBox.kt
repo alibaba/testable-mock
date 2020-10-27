@@ -28,7 +28,7 @@ class BlackBox(private val data: String) {
 }
 
 object ColorBox {
-    fun createBox(color: String): BlackBox {
-        return BlackBox("${color}_Box")
+    fun createBox(color: String, box: BlackBox): BlackBox {
+        return BlackBox("${color}_${box.callMe()}")
     }
 }

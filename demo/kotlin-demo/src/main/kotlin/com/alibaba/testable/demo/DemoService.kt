@@ -47,6 +47,13 @@ class DemoService {
         return box.trim() + "__" + box.substring(1, 2) + "__" + box.startsWith("any")
     }
 
+    /**
+     * Target 6 - method with static method invoke
+     */
+    fun getBox(): BlackBox {
+        return ColorBox.createBox("Red", BlackBox.secretBox())
+    }
+
     fun callerOne(): String {
         return callFromDifferentMethod()
     }
