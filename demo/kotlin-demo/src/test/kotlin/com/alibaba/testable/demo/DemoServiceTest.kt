@@ -34,7 +34,12 @@ internal class DemoServiceTest {
 
     @TestableMock
     private fun createBox(ignore: ColorBox, color: String, box: BlackBox): BlackBox {
-        return BlackBox("White_${box.callMe()}")
+        return BlackBox("White_${box.get()}")
+    }
+
+    @TestableMock
+    private fun put(self: Box, something: String) {
+        self.put("put_" + something + "_mocked")
     }
 
     @TestableMock
@@ -85,9 +90,16 @@ internal class DemoServiceTest {
 
     @Test
     fun should_able_to_mock_static_method() {
-        assertEquals("White_not_secret_box", demoService.getBox().callMe())
+        assertEquals("White_not_secret_box", demoService.getBox().get())
         verify("secretBox").times(1)
         verify("createBox").times(1)
+    }
+
+    @Test
+    fun should_able_to_mock_override_method() {
+        val box = demoService.putBox() as BlackBox
+        verify("put").times(1)
+        assertEquals("put_data_mocked", box.get())
     }
 
     @Test

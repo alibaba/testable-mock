@@ -1,9 +1,13 @@
 package com.alibaba.testable.demo
 
 
-class BlackBox(private val data: String) {
+class BlackBox(private var data: String) : Box {
 
-    fun callMe(): String {
+    override fun put(something: String) {
+        data = something
+    }
+
+    fun get(): String {
         return data
     }
 
@@ -29,6 +33,6 @@ class BlackBox(private val data: String) {
 
 object ColorBox {
     fun createBox(color: String, box: BlackBox): BlackBox {
-        return BlackBox("${color}_${box.callMe()}")
+        return BlackBox("${color}_${box.get()}")
     }
 }

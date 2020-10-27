@@ -1,14 +1,19 @@
 package com.alibaba.testable.demo;
 
-public class BlackBox {
+public class BlackBox implements Box {
 
     private String data;
+
+    @Override
+    public void put(String something) {
+        data = something;
+    }
 
     public BlackBox(String data) {
         this.data = data;
     }
 
-    public String callMe() {
+    public String get() {
         return data;
     }
 

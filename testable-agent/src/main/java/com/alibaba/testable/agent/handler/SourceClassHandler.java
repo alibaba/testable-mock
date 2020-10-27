@@ -19,9 +19,10 @@ public class SourceClassHandler extends BaseClassHandler {
 
     private final List<MethodInfo> injectMethods;
     private final Set<Integer> invokeOps = new HashSet<Integer>() {{
-        add(Opcodes.INVOKESTATIC);
-        add(Opcodes.INVOKESPECIAL);
         add(Opcodes.INVOKEVIRTUAL);
+        add(Opcodes.INVOKESPECIAL);
+        add(Opcodes.INVOKESTATIC);
+        add(Opcodes.INVOKEINTERFACE);
     }};
 
     public SourceClassHandler(List<MethodInfo> injectMethods) {
@@ -58,7 +59,7 @@ public class SourceClassHandler extends BaseClassHandler {
                 MethodInsnNode node = (MethodInsnNode)instructions[i];
                 String memberInjectMethodName = getMemberInjectMethodName(memberInjectMethodList, node);
                 if (memberInjectMethodName != null) {
-                    // it's a member method and an inject method for it exist
+                    // it's a member or static method and an inject method for it exist
                     int rangeStart = getMemberMethodStart(instructions, i);
                     if (rangeStart >= 0) {
                         instructions = replaceMemberCallOps(cn, mn, memberInjectMethodName, instructions,
@@ -119,11 +120,11 @@ public class SourceClassHandler extends BaseClassHandler {
         int stackLevel = ClassUtil.getParameterTypes(((MethodInsnNode)instructions[rangeEnd]).desc).size();
         for (int i = rangeEnd - 1; i >= 0; i--) {
             switch (instructions[i].getOpcode()) {
-                case Opcodes.INVOKEINTERFACE:
                 case Opcodes.INVOKEVIRTUAL:
                 case Opcodes.INVOKESPECIAL:
-                case Opcodes.INVOKEDYNAMIC:
                 case Opcodes.INVOKESTATIC:
+                case Opcodes.INVOKEINTERFACE:
+                case Opcodes.INVOKEDYNAMIC:
                     stackLevel += ClassUtil.getParameterTypes(((MethodInsnNode)instructions[i]).desc).size();
                     break;
                 case -1:

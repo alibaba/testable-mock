@@ -30,7 +30,7 @@ public class DemoService {
      */
     public String newFunc() {
         BlackBox component = new BlackBox("something");
-        return component.callMe();
+        return component.get();
     }
 
     /**
@@ -54,6 +54,18 @@ public class DemoService {
         return BlackBox.secretBox();
     }
 
+    /**
+     * Target 7 - method with override method invoke
+     */
+    public Box putBox() {
+        Box box = new BlackBox("");
+        box.put("data");
+        return box;
+    }
+
+    /**
+     * Target 8 - two methods invoke same private method
+     */
     public String callerOne() {
         return callFromDifferentMethod();
     }

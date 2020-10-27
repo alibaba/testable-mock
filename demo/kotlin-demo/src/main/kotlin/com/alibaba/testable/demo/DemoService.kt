@@ -29,7 +29,7 @@ class DemoService {
      * Target 3 - method with new operation
      */
     fun newFunc(): String {
-        return BlackBox("something").callMe()
+        return BlackBox("something").get()
     }
 
     /**
@@ -54,6 +54,18 @@ class DemoService {
         return ColorBox.createBox("Red", BlackBox.secretBox())
     }
 
+    /**
+     * Target 7 - method with override method invoke
+     */
+    fun putBox(): Box {
+        val box: Box = BlackBox("")
+        box.put("data")
+        return box
+    }
+
+    /**
+     * Target 8 - two methods invoke same private method
+     */
     fun callerOne(): String {
         return callFromDifferentMethod()
     }

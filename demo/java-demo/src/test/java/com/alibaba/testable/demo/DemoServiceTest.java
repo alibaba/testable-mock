@@ -44,6 +44,11 @@ class DemoServiceTest {
     }
 
     @TestableMock
+    private void put(Box self, String something) {
+        self.put("put_" + something + "_mocked");
+    }
+
+    @TestableMock
     private String callFromDifferentMethod(DemoService self) {
         if (TEST_CASE.equals("should_able_to_get_test_case_name")) {
             return "mock_special";
@@ -93,8 +98,15 @@ class DemoServiceTest {
 
     @Test
     void should_able_to_mock_static_method() throws Exception {
-        assertEquals("not_secret_box", demoService.getBox().callMe());
+        assertEquals("not_secret_box", demoService.getBox().get());
         verify("secretBox").times(1);
+    }
+
+    @Test
+    void should_able_to_mock_override_method() throws Exception {
+        BlackBox box = (BlackBox)demoService.putBox();
+        verify("put").times(1);
+        assertEquals("put_data_mocked", box.get());
     }
 
     @Test
