@@ -1,46 +1,32 @@
-package com.alibaba.testable.demo
+package com.alibaba.testable.demo.service
 
+import com.alibaba.testable.demo.model.BlackBox
+import com.alibaba.testable.demo.model.Box
+import com.alibaba.testable.demo.model.ColorBox
 import org.springframework.stereotype.Service
 import sun.net.www.http.HttpClient
 import java.net.URL
 
 
 @Service
-class DemoService {
-
-    private var count = 0
+class DemoMockService {
 
     /**
-     * Target 1 - private method
-     */
-    private fun privateFunc(s: String, i: Int): String {
-        return "$s - $i"
-    }
-
-    /**
-     * Target 2 - method with private field access
-     */
-    fun privateFieldAccessFunc(): String {
-        count += 2
-        return count.toString()
-    }
-
-    /**
-     * Target 3 - method with new operation
+     * method with new operation
      */
     fun newFunc(): String {
         return BlackBox("something").get()
     }
 
     /**
-     * Target 4 - method with member method invoke
+     * method with member method invoke
      */
     fun outerFunc(s: String): String {
         return "{ \"res\": \"" + innerFunc(s) + "\"}"
     }
 
     /**
-     * Target 5 - method with common method invoke
+     * method with common method invoke
      */
     fun commonFunc(): String {
         val box = BlackBox("anything")
@@ -48,14 +34,14 @@ class DemoService {
     }
 
     /**
-     * Target 6 - method with static method invoke
+     * method with static method invoke
      */
     fun getBox(): BlackBox {
         return ColorBox.createBox("Red", BlackBox.secretBox())
     }
 
     /**
-     * Target 7 - method with override method invoke
+     * method with override method invoke
      */
     fun putBox(): Box {
         val box: Box = BlackBox("")
@@ -64,7 +50,7 @@ class DemoService {
     }
 
     /**
-     * Target 8 - two methods invoke same private method
+     * two methods invoke same private method
      */
     fun callerOne(): String {
         return callFromDifferentMethod()

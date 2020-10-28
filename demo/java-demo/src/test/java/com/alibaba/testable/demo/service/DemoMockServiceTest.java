@@ -1,8 +1,8 @@
-package com.alibaba.testable.demo;
+package com.alibaba.testable.demo.service;
 
-import com.alibaba.testable.core.accessor.PrivateAccessor;
-import com.alibaba.testable.processor.annotation.EnablePrivateAccess;
 import com.alibaba.testable.core.annotation.TestableMock;
+import com.alibaba.testable.demo.model.BlackBox;
+import com.alibaba.testable.demo.model.Box;
 import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.Executors;
@@ -10,8 +10,7 @@ import java.util.concurrent.Executors;
 import static com.alibaba.testable.core.tool.TestableTool.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@EnablePrivateAccess
-class DemoServiceTest {
+class DemoMockServiceTest {
 
     @TestableMock(targetMethod = CONSTRUCTOR)
     private BlackBox createBlackBox(String text) {
@@ -19,7 +18,7 @@ class DemoServiceTest {
     }
 
     @TestableMock
-    private String innerFunc(DemoService self, String text) {
+    private String innerFunc(DemoMockService self, String text) {
         return "mock_" + text;
     }
 
@@ -39,7 +38,7 @@ class DemoServiceTest {
     }
 
     @TestableMock
-    private BlackBox secretBox(BlackBox _) {
+    private BlackBox secretBox(BlackBox ignore) {
         return new BlackBox("not_secret_box");
     }
 
@@ -49,7 +48,7 @@ class DemoServiceTest {
     }
 
     @TestableMock
-    private String callFromDifferentMethod(DemoService self) {
+    private String callFromDifferentMethod(DemoMockService self) {
         if (TEST_CASE.equals("should_able_to_get_test_case_name")) {
             return "mock_special";
         }
@@ -59,22 +58,7 @@ class DemoServiceTest {
         }
     }
 
-    private DemoService demoService = new DemoService();
-
-    @Test
-    void should_able_to_mock_private_method() throws Exception {
-        assertEquals("hello - 1", demoService.privateFunc("hello", 1));
-        assertEquals("hello - 1", PrivateAccessor.invoke(demoService, "privateFunc", "hello", 1));
-    }
-
-    @Test
-    void should_able_to_mock_private_field() throws Exception {
-        demoService.count = 2;
-        assertEquals("4", demoService.privateFieldAccessFunc());
-        PrivateAccessor.set(demoService, "count", 3);
-        assertEquals("5", demoService.privateFieldAccessFunc());
-        assertEquals(new Integer(5), PrivateAccessor.get(demoService, "count"));
-    }
+    private DemoMockService demoService = new DemoMockService();
 
     @Test
     void should_able_to_mock_new_object() throws Exception {

@@ -1,4 +1,4 @@
-package com.alibaba.testable.demo
+package com.alibaba.testable.demo.model
 
 
 class BlackBox(private var data: String) : Box {

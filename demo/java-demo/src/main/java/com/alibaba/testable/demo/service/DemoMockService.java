@@ -1,32 +1,17 @@
-package com.alibaba.testable.demo;
+package com.alibaba.testable.demo.service;
 
+import com.alibaba.testable.demo.model.BlackBox;
+import com.alibaba.testable.demo.model.Box;
 import org.springframework.stereotype.Service;
 import sun.net.www.http.HttpClient;
 
 import java.net.URL;
 
 @Service
-public class DemoService {
-
-    private int count;
+public class DemoMockService {
 
     /**
-     * Target 1 - private method
-     */
-    private String privateFunc(String s, int i) {
-        return s + " - " + i;
-    }
-
-    /**
-     * Target 2 - method with private field access
-     */
-    public String privateFieldAccessFunc() {
-        count += 2;
-        return String.valueOf(count);
-    }
-
-    /**
-     * Target 3 - method with new operation
+     * method with new operation
      */
     public String newFunc() {
         BlackBox component = new BlackBox("something");
@@ -34,28 +19,28 @@ public class DemoService {
     }
 
     /**
-     * Target 4 - method with member method invoke
+     * method with member method invoke
      */
     public String outerFunc(String s) throws Exception {
         return "{ \"res\": \"" + innerFunc(s) + "\"}";
     }
 
     /**
-     * Target 5 - method with common method invoke
+     * method with common method invoke
      */
     public String commonFunc() {
         return "anything".trim() + "__" + "anything".substring(1, 2) + "__" + "abc".startsWith("ab");
     }
 
     /**
-     * Target 6 - method with static method invoke
+     * method with static method invoke
      */
     public BlackBox getBox() {
         return BlackBox.secretBox();
     }
 
     /**
-     * Target 7 - method with override method invoke
+     * method with override method invoke
      */
     public Box putBox() {
         Box box = new BlackBox("");
@@ -64,7 +49,7 @@ public class DemoService {
     }
 
     /**
-     * Target 8 - two methods invoke same private method
+     * two methods invoke same private method
      */
     public String callerOne() {
         return callFromDifferentMethod();

@@ -1,22 +1,22 @@
-package com.alibaba.testable.demo
+package com.alibaba.testable.demo.service
 
-import com.alibaba.testable.core.accessor.PrivateAccessor
 import com.alibaba.testable.core.annotation.TestableMock
 import com.alibaba.testable.core.tool.TestableTool.*
-import com.alibaba.testable.processor.annotation.EnablePrivateAccess
+import com.alibaba.testable.demo.model.BlackBox
+import com.alibaba.testable.demo.model.Box
+import com.alibaba.testable.demo.model.ColorBox
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import java.util.concurrent.Executors
 
 
-@EnablePrivateAccess
-internal class DemoServiceTest {
+internal class DemoMockServiceTest {
 
     @TestableMock(targetMethod = CONSTRUCTOR)
     private fun createBlackBox(text: String) = BlackBox("mock_$text")
 
     @TestableMock
-    private fun innerFunc(self: DemoService, text: String) = "mock_$text"
+    private fun innerFunc(self: DemoMockService, text: String) = "mock_$text"
 
     @TestableMock
     private fun trim(self: BlackBox) = "trim_string"
@@ -43,7 +43,7 @@ internal class DemoServiceTest {
     }
 
     @TestableMock
-    private fun callFromDifferentMethod(self: DemoService): String {
+    private fun callFromDifferentMethod(self: DemoMockService): String {
         return if (TEST_CASE == "should_able_to_get_test_case_name") {
             "mock_special"
         } else {
@@ -54,19 +54,7 @@ internal class DemoServiceTest {
         }
     }
 
-    private val demoService = DemoService()
-
-    @Test
-    fun should_able_to_mock_private_method() {
-        assertEquals("hello - 1", PrivateAccessor.invoke(demoService, "privateFunc", "hello", 1))
-    }
-
-    @Test
-    fun should_able_to_mock_private_field() {
-        PrivateAccessor.set(demoService, "count", 3)
-        assertEquals("5", demoService.privateFieldAccessFunc())
-        assertEquals(5, PrivateAccessor.get(demoService, "count"))
-    }
+    private val demoService = DemoMockService()
 
     @Test
     fun should_able_to_mock_new_object() {
