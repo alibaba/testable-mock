@@ -1,5 +1,6 @@
 package com.alibaba.testable.core.tool;
 
+import com.alibaba.testable.core.util.InvokeRecordUtil;
 import com.alibaba.testable.core.util.TestableUtil;
 
 /**
@@ -27,9 +28,9 @@ public class TestableTool {
      * @param mockMethodName name of a mock method
      */
     public static InvokeCounter verify(String mockMethodName) {
-        String testClass = Thread.currentThread().getStackTrace()[TestableUtil.INDEX_OF_TEST_CLASS].getClassName();
+        String testClass = Thread.currentThread().getStackTrace()[InvokeRecordUtil.INDEX_OF_TEST_CLASS].getClassName();
         String testCaseName = TestableUtil.currentTestCaseName(testClass);
-        return new InvokeCounter(TestableUtil.getInvokeCount(mockMethodName, testCaseName));
+        return new InvokeCounter(InvokeRecordUtil.getInvokeCount(mockMethodName, testCaseName));
     }
 
 }

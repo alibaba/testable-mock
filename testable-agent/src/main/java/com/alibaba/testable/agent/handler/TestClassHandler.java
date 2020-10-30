@@ -16,6 +16,7 @@ public class TestClassHandler extends BaseClassHandler {
 
     private static final String CLASS_TESTABLE_TOOL = "com/alibaba/testable/core/tool/TestableTool";
     private static final String CLASS_TESTABLE_UTIL = "com/alibaba/testable/core/util/TestableUtil";
+    private static final String CLASS_INVOKE_RECORD_UTIL = "com/alibaba/testable/core/util/InvokeRecordUtil";
     private static final String FIELD_TEST_CASE = "TEST_CASE";
     private static final String FIELD_SOURCE_METHOD = "SOURCE_METHOD";
     private static final String METHOD_CURRENT_TEST_CASE_NAME = "currentTestCaseName";
@@ -95,7 +96,7 @@ public class TestClassHandler extends BaseClassHandler {
     }
 
     private void injectInvokeCounter(MethodNode mn) {
-        MethodInsnNode node = new MethodInsnNode(INVOKESTATIC, CLASS_TESTABLE_UTIL, METHOD_COUNT_MOCK_INVOKE,
+        MethodInsnNode node = new MethodInsnNode(INVOKESTATIC, CLASS_INVOKE_RECORD_UTIL, METHOD_COUNT_MOCK_INVOKE,
             SIGNATURE_INVOKE_COUNTER_METHOD, false);
         mn.instructions.insertBefore(mn.instructions.get(0), node);
     }
