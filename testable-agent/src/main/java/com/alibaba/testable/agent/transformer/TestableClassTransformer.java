@@ -64,6 +64,7 @@ public class TestableClassTransformer implements ClassFileTransformer {
     }
 
     private boolean isSystemClass(ClassLoader loader, String className) {
+        // className can be null for Java 8 lambdas
         return !(loader instanceof URLClassLoader) || null == className || className.startsWith("jdk/");
     }
 
