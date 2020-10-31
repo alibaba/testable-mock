@@ -1,6 +1,5 @@
 package com.alibaba.testable.core.accessor;
 
-import com.alibaba.testable.core.util.InvokeRecordUtil;
 import com.alibaba.testable.core.util.TypeUtil;
 
 import java.lang.reflect.Field;

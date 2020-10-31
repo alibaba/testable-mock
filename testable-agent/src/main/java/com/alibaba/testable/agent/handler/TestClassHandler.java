@@ -52,6 +52,7 @@ public class TestClassHandler extends BaseClassHandler {
     private void handleAnnotation(ClassNode cn, MethodNode mn) {
         List<String> visibleAnnotationNames = new ArrayList<String>();
         if (mn.visibleAnnotations == null) {
+            // let's assume test case should has a annotation, e.g. @Test or whatever
             return;
         }
         for (AnnotationNode n : mn.visibleAnnotations) {
@@ -100,7 +101,7 @@ public class TestClassHandler extends BaseClassHandler {
     private void injectInvokeRecorder(MethodNode mn) {
         InsnList il = new InsnList();
         List<Byte> types = ClassUtil.getParameterTypes(mn.desc);
-        int size = mn.parameters.size();
+        int size = types.size();
         int parameterOffset = 1;
         il.add(getIntInsn(size));
         il.add(new TypeInsnNode(ANEWARRAY, ClassUtil.CLASS_OBJECT));
