@@ -130,7 +130,8 @@ public class TestClassHandler extends BaseClassHandler {
 
     private boolean isMockForConstructor(MethodNode mn) {
         for (AnnotationNode an : mn.visibleAnnotations) {
-            String method = AnnotationUtil.getAnnotationParameter(an, ConstPool.FIELD_TARGET_METHOD, null);
+            String method = AnnotationUtil.getAnnotationParameter
+                (an, ConstPool.FIELD_TARGET_METHOD, null, String.class);
             if (ConstPool.CONSTRUCTOR.equals(method)) {
                 return true;
             }

@@ -90,7 +90,8 @@ public class TestableClassTransformer implements ClassFileTransformer {
         for (AnnotationNode an : mn.visibleAnnotations) {
             if (toDotSeparateFullClassName(an.desc).equals(ConstPool.TESTABLE_MOCK)) {
                 String targetClass = ClassUtil.toSlashSeparateFullClassName(methodDescPair.left);
-                String targetMethod = AnnotationUtil.getAnnotationParameter(an, ConstPool.FIELD_TARGET_METHOD, mn.name);
+                String targetMethod = AnnotationUtil.getAnnotationParameter(
+                    an, ConstPool.FIELD_TARGET_METHOD, mn.name, String.class);
                 if (targetMethod.equals(ConstPool.CONSTRUCTOR)) {
                     String sourceClassName = ClassUtil.getSourceClassName(cn.name);
                     methodInfos.add(new MethodInfo(sourceClassName, targetMethod, mn.name, mn.desc));

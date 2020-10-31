@@ -12,9 +12,9 @@ class AnnotationUtilTest {
     void should_get_annotation_parameter() {
         AnnotationNode an = new AnnotationNode("");
         an.values = listOf((Object)"testKey", "testValue", "demoKey", "demoValue");
-        assertEquals("testValue", AnnotationUtil.getAnnotationParameter(an, "testKey", "none"));
-        assertEquals("demoValue", AnnotationUtil.getAnnotationParameter(an, "demoKey", "none"));
-        assertEquals("none", AnnotationUtil.getAnnotationParameter(an, "testValue", "none"));
+        assertEquals("testValue", AnnotationUtil.getAnnotationParameter(an, "testKey", "none", String.class));
+        assertEquals("demoValue", AnnotationUtil.getAnnotationParameter(an, "demoKey", "none", String.class));
+        assertEquals("none", AnnotationUtil.getAnnotationParameter(an, "testValue", "none", String.class));
     }
 
 }
