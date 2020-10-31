@@ -4,12 +4,12 @@
   <groupId>com.alibaba.testable</groupId>
   <artifactId>testable-maven-plugin</artifactId>
   <packaging>maven-plugin</packaging>
-  <version>0.2.1-SNAPSHOT</version>
+  <version>0.2.2-SNAPSHOT</version>
   <name>testable-maven-plugin</name>
   <url>http://maven.apache.org</url>
 
   <properties>
-    <testable.version>0.2.1-SNAPSHOT</testable.version>
+    <testable.version>0.2.2-SNAPSHOT</testable.version>
     <java.version>1.6</java.version>
     <project.compiler.level>1.6</project.compiler.level>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

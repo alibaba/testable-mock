@@ -34,7 +34,7 @@
 </plugin>
 ```
 
-> PS：其中`${testable.version}`需替换为具体版本号，当前最新版本为`0.2.1-SNAPSHOT`
+> PS：其中`${testable.version}`需替换为具体版本号，当前最新版本为`0.2.2-SNAPSHOT`
 
 ## 使用Testable
 
