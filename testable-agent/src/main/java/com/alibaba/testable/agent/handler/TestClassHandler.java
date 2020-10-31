@@ -1,6 +1,7 @@
 package com.alibaba.testable.agent.handler;
 
 import com.alibaba.testable.agent.constant.ConstPool;
+import com.alibaba.testable.agent.tool.ImmutablePair;
 import com.alibaba.testable.agent.util.ClassUtil;
 import org.objectweb.asm.tree.*;
 
@@ -21,7 +22,7 @@ public class TestClassHandler extends BaseClassHandler {
     private static final String FIELD_SOURCE_METHOD = "SOURCE_METHOD";
     private static final String METHOD_CURRENT_TEST_CASE_NAME = "currentTestCaseName";
     private static final String METHOD_CURRENT_SOURCE_METHOD_NAME = "currentSourceMethodName";
-    private static final String METHOD_COUNT_MOCK_INVOKE = "countMockInvoke";
+    private static final String METHOD_RECORD_MOCK_INVOKE = "recordMockInvoke";
     private static final String SIGNATURE_TESTABLE_UTIL_METHOD = "(Ljava/lang/Object;)Ljava/lang/String;";
     private static final String SIGNATURE_INVOKE_COUNTER_METHOD = "()V";
     private static final Map<String, String> FIELD_TO_METHOD_MAPPING = new HashMap<String, String>() {{
@@ -59,7 +60,7 @@ public class TestClassHandler extends BaseClassHandler {
             mn.access &= ~ACC_PRIVATE;
             mn.access &= ~ACC_PROTECTED;
             mn.access |= ACC_PUBLIC;
-            injectInvokeCounter(mn);
+            injectInvokeRecorder(mn);
         } else if (couldBeTestMethod(mn)) {
             injectTestableRef(cn, mn);
         }
@@ -95,10 +96,66 @@ public class TestClassHandler extends BaseClassHandler {
         return mn.instructions.toArray();
     }
 
-    private void injectInvokeCounter(MethodNode mn) {
-        MethodInsnNode node = new MethodInsnNode(INVOKESTATIC, CLASS_INVOKE_RECORD_UTIL, METHOD_COUNT_MOCK_INVOKE,
-            SIGNATURE_INVOKE_COUNTER_METHOD, false);
-        mn.instructions.insertBefore(mn.instructions.get(0), node);
+    private void injectInvokeRecorder(MethodNode mn) {
+        InsnList il = new InsnList();
+        List<Byte> types = ClassUtil.getParameterTypes(mn.desc);
+        int size = mn.parameters.size();
+        int parameterOffset = 1;
+        il.add(getIntInsn(size));
+        il.add(new TypeInsnNode(ANEWARRAY, ClassUtil.CLASS_OBJECT));
+        for (int i = 0; i < size; i++) {
+            il.add(new InsnNode(DUP));
+            il.add(getIntInsn(i));
+            ImmutablePair<Integer, Integer> code = getLoadParameterByteCode(types.get(i));
+            il.add(new VarInsnNode(code.left, parameterOffset));
+            parameterOffset += code.right;
+            MethodInsnNode typeConvertMethodNode = ClassUtil.getPrimaryTypeConvertMethod(types.get(i));
+            if (typeConvertMethodNode != null) {
+                il.add(typeConvertMethodNode);
+            }
+            il.add(new InsnNode(AASTORE));
+        }
+        il.add(new MethodInsnNode(INVOKESTATIC, CLASS_INVOKE_RECORD_UTIL, METHOD_RECORD_MOCK_INVOKE,
+            SIGNATURE_INVOKE_COUNTER_METHOD, false));
+        mn.instructions.insertBefore(mn.instructions.get(0), il);
+    }
+
+    private static ImmutablePair<Integer, Integer> getLoadParameterByteCode(Byte type) {
+        switch (type) {
+            case ClassUtil.TYPE_BYTE:
+            case ClassUtil.TYPE_CHAR:
+            case ClassUtil.TYPE_SHORT:
+            case ClassUtil.TYPE_INT:
+            case ClassUtil.TYPE_BOOL:
+                return ImmutablePair.of(ILOAD, 1);
+            case ClassUtil.TYPE_DOUBLE:
+                return ImmutablePair.of(DLOAD, 2);
+            case ClassUtil.TYPE_FLOAT:
+                return ImmutablePair.of(FLOAD, 1);
+            case ClassUtil.TYPE_LONG:
+                return ImmutablePair.of(LLOAD, 2);
+            default:
+                return ImmutablePair.of(ALOAD, 1);
+        }
+    }
+
+    private AbstractInsnNode getIntInsn(int num) {
+        switch (num) {
+            case 0:
+                return new InsnNode(ICONST_0);
+            case 1:
+                return new InsnNode(ICONST_1);
+            case 2:
+                return new InsnNode(ICONST_2);
+            case 3:
+                return new InsnNode(ICONST_3);
+            case 4:
+                return new InsnNode(ICONST_4);
+            case 5:
+                return new InsnNode(ICONST_5);
+            default:
+                return new IntInsnNode(BIPUSH, num);
+        }
     }
 
     private void injectTestableRef(ClassNode cn, MethodNode mn) {

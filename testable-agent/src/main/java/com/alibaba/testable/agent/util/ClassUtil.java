@@ -5,41 +5,55 @@ import com.alibaba.testable.agent.tool.ComparableWeakRef;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.tree.AnnotationNode;
 import org.objectweb.asm.tree.ClassNode;
+import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
 
 import java.util.*;
+
+import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 
 /**
  * @author flin
  */
 public class ClassUtil {
 
-    private static final char TYPE_BYTE = 'B';
-    private static final char TYPE_CHAR = 'C';
-    private static final char TYPE_DOUBLE = 'D';
-    private static final char TYPE_FLOAT = 'F';
-    private static final char TYPE_INT = 'I';
-    private static final char TYPE_LONG = 'J';
-    private static final char TYPE_CLASS = 'L';
-    private static final char TYPE_SHORT = 'S';
-    private static final char TYPE_BOOL = 'Z';
-    private static final char PARAM_END = ')';
-    private static final char CLASS_END = ';';
-    private static final char TYPE_ARRAY = '[';
+    public static final byte TYPE_BYTE = 'B';
+    public static final byte TYPE_CHAR = 'C';
+    public static final byte TYPE_DOUBLE = 'D';
+    public static final byte TYPE_FLOAT = 'F';
+    public static final byte TYPE_INT = 'I';
+    public static final byte TYPE_LONG = 'J';
+    public static final byte TYPE_CLASS = 'L';
+    public static final byte TYPE_SHORT = 'S';
+    public static final byte TYPE_BOOL = 'Z';
+    private static final byte PARAM_END = ')';
+    private static final byte CLASS_END = ';';
+    private static final byte TYPE_ARRAY = '[';
 
-    private static final Map<Character, String> TYPE_MAPPING = new HashMap<Character, String>();
+    public static final String CLASS_OBJECT = "java/lang/Object";
+    private static final String CLASS_BYTE = "java/lang/Byte";
+    private static final String CLASS_CHARACTER = "java/lang/Character";
+    private static final String CLASS_DOUBLE = "java/lang/Double";
+    private static final String CLASS_FLOAT = "java/lang/Float";
+    private static final String CLASS_INTEGER = "java/lang/Integer";
+    private static final String CLASS_LONG = "java/lang/Long";
+    private static final String CLASS_SHORT = "java/lang/Short";
+    private static final String CLASS_BOOLEAN = "java/lang/Boolean";
+    private static final String METHOD_VALUE_OF = "valueOf";
+
+    private static final Map<Byte, String> TYPE_MAPPING = new HashMap<Byte, String>();
     private static final Map<ComparableWeakRef<String>, Boolean> loadedClass =
         new WeakHashMap<ComparableWeakRef<String>, Boolean>();
 
     static {
-        TYPE_MAPPING.put(TYPE_BYTE, "java/lang/Byte");
-        TYPE_MAPPING.put(TYPE_CHAR, "java/lang/Character");
-        TYPE_MAPPING.put(TYPE_DOUBLE, "java/lang/Double");
-        TYPE_MAPPING.put(TYPE_FLOAT, "java/lang/Float");
-        TYPE_MAPPING.put(TYPE_INT, "java/lang/Integer");
-        TYPE_MAPPING.put(TYPE_LONG, "java/lang/Long");
-        TYPE_MAPPING.put(TYPE_SHORT, "java/lang/Short");
-        TYPE_MAPPING.put(TYPE_BOOL, "java/lang/Boolean");
+        TYPE_MAPPING.put(TYPE_BYTE, CLASS_BYTE);
+        TYPE_MAPPING.put(TYPE_CHAR, CLASS_CHARACTER);
+        TYPE_MAPPING.put(TYPE_DOUBLE, CLASS_DOUBLE);
+        TYPE_MAPPING.put(TYPE_FLOAT, CLASS_FLOAT);
+        TYPE_MAPPING.put(TYPE_INT, CLASS_INTEGER);
+        TYPE_MAPPING.put(TYPE_LONG, CLASS_LONG);
+        TYPE_MAPPING.put(TYPE_SHORT, CLASS_SHORT);
+        TYPE_MAPPING.put(TYPE_BOOL, CLASS_BOOLEAN);
     }
 
     /**
@@ -139,11 +153,25 @@ public class ClassUtil {
             return desc.substring(returnTypeEdge + 1);
         } else if (typeChar == TYPE_CLASS) {
             return desc.substring(returnTypeEdge + 2, desc.length() - 1);
-        } else if (TYPE_MAPPING.containsKey(typeChar)) {
-            return TYPE_MAPPING.get(typeChar);
+        } else if (TYPE_MAPPING.containsKey((byte)typeChar)) {
+            return TYPE_MAPPING.get((byte)typeChar);
         } else {
             return "";
         }
+    }
+
+    /**
+     * Get method node to convert primary type to object type
+     * @param type primary type to convert
+     */
+    public static MethodInsnNode getPrimaryTypeConvertMethod(Byte type) {
+        String objectType = TYPE_MAPPING.get(type);
+        return (objectType == null) ? null :
+            new MethodInsnNode(INVOKESTATIC, objectType, METHOD_VALUE_OF, toDescriptor(type, objectType), false);
+    }
+
+    private static String toDescriptor(Byte type, String objectType) {
+        return "(" + (char)type.byteValue() + ")L" + objectType + ";";
     }
 
     /**
@@ -164,7 +192,7 @@ public class ClassUtil {
      * convert dot separated name to byte code class name
      */
     public static String toByteCodeClassName(String className) {
-        return TYPE_CLASS + toSlashSeparatedName(className) + CLASS_END;
+        return (char)TYPE_CLASS + toSlashSeparatedName(className) + (char)CLASS_END;
     }
 
     /**
@@ -185,5 +213,4 @@ public class ClassUtil {
         return b == TYPE_BYTE || b == TYPE_CHAR || b == TYPE_DOUBLE || b == TYPE_FLOAT
             || b == TYPE_INT || b == TYPE_LONG || b == TYPE_SHORT || b == TYPE_BOOL;
     }
-
 }

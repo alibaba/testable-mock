@@ -17,7 +17,7 @@ public class InvokeRecordUtil {
     public static final int INDEX_OF_TEST_CLASS = 2;
 
     /**
-     * Record mock method invoke event
+     * Record mock method invoke count
      */
     public static void countMockInvoke() {
         StackTraceElement mockMethodTraceElement = Thread.currentThread().getStackTrace()[INDEX_OF_TEST_CLASS];
@@ -29,13 +29,20 @@ public class InvokeRecordUtil {
         INVOKE_RECORDS.put(key, count + 1);
     }
 
+    /**
+     * Record mock method invoke event
+     */
+    public static void recordMockInvoke(Object[] args) {
+        countMockInvoke();
+    }
+
+    /**
+     * Get mock method invoke count
+     */
     public static int getInvokeCount(String mockMethodName, String testCaseName) {
         String key = testCaseName + JOINER + mockMethodName;
         Integer count = INVOKE_RECORDS.get(key);
-        if (count == null) {
-            count = 0;
-        }
-        return count;
+        return (count == null) ? 0 : count;
     }
 
 }
