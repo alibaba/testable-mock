@@ -59,13 +59,13 @@ internal class DemoMockServiceTest {
     @Test
     fun should_able_to_mock_new_object() {
         assertEquals("mock_something", demoService.newFunc())
-        verify("createBlackBox").times(1)
+        verify("createBlackBox").with("something")
     }
 
     @Test
     fun should_able_to_mock_member_method() {
         assertEquals("{ \"res\": \"mock_hello\"}", demoService.outerFunc("hello"))
-        verify("innerFunc").times(1)
+        verify("innerFunc").with("hello")
     }
 
     @Test

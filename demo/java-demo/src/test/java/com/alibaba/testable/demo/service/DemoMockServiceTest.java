@@ -63,13 +63,13 @@ class DemoMockServiceTest {
     @Test
     void should_able_to_mock_new_object() throws Exception {
         assertEquals("mock_something", demoService.newFunc());
-        verify("createBlackBox").times(1);
+        verify("createBlackBox").with("something");
     }
 
     @Test
     void should_able_to_mock_member_method() throws Exception {
         assertEquals("{ \"res\": \"mock_hello\"}", demoService.outerFunc("hello"));
-        verify("innerFunc").times(1);
+        verify("innerFunc").with("hello");
     }
 
     @Test

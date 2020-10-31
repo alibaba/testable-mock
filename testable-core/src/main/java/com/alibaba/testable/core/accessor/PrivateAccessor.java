@@ -1,5 +1,6 @@
 package com.alibaba.testable.core.accessor;
 
+import com.alibaba.testable.core.util.InvokeRecordUtil;
 import com.alibaba.testable.core.util.TypeUtil;
 
 import java.lang.reflect.Field;
@@ -46,4 +47,18 @@ public class PrivateAccessor {
         return null;
     }
 
+    public static <T> T invokeStatic(Class<?> clazz, String method, Object... args) {
+        try {
+            Class<?>[] cls = TypeUtil.getClassesFromObjects(args);
+            Method declaredMethod = TypeUtil.getMethodByNameAndParameterTypes(clazz.getDeclaredMethods(), method, cls);
+            if (declaredMethod != null) {
+                declaredMethod.setAccessible(true);
+                return (T)declaredMethod.invoke(null, args);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+        return null;
+    }
 }

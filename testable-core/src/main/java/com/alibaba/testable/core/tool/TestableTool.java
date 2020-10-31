@@ -27,10 +27,10 @@ public class TestableTool {
      * Get counter to check whether specified mock method invoked
      * @param mockMethodName name of a mock method
      */
-    public static InvokeCounter verify(String mockMethodName) {
+    public static InvokeVerifier verify(String mockMethodName) {
         String testClass = Thread.currentThread().getStackTrace()[InvokeRecordUtil.INDEX_OF_TEST_CLASS].getClassName();
         String testCaseName = TestableUtil.currentTestCaseName(testClass);
-        return new InvokeCounter(InvokeRecordUtil.getInvokeCount(mockMethodName, testCaseName));
+        return new InvokeVerifier(InvokeRecordUtil.getInvokeRecord(mockMethodName, testCaseName));
     }
 
 }

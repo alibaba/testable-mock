@@ -2,6 +2,7 @@ package com.alibaba.testable.agent.handler;
 
 import com.alibaba.testable.agent.constant.ConstPool;
 import com.alibaba.testable.agent.tool.ImmutablePair;
+import com.alibaba.testable.agent.util.AnnotationUtil;
 import com.alibaba.testable.agent.util.ClassUtil;
 import org.objectweb.asm.tree.*;
 
@@ -24,7 +25,7 @@ public class TestClassHandler extends BaseClassHandler {
     private static final String METHOD_CURRENT_SOURCE_METHOD_NAME = "currentSourceMethodName";
     private static final String METHOD_RECORD_MOCK_INVOKE = "recordMockInvoke";
     private static final String SIGNATURE_TESTABLE_UTIL_METHOD = "(Ljava/lang/Object;)Ljava/lang/String;";
-    private static final String SIGNATURE_INVOKE_COUNTER_METHOD = "()V";
+    private static final String SIGNATURE_INVOKE_RECORDER_METHOD = "([Ljava/lang/Object;Z)V";
     private static final Map<String, String> FIELD_TO_METHOD_MAPPING = new HashMap<String, String>() {{
         put(FIELD_TEST_CASE, METHOD_CURRENT_TEST_CASE_NAME);
         put(FIELD_SOURCE_METHOD, METHOD_CURRENT_SOURCE_METHOD_NAME);
@@ -104,6 +105,7 @@ public class TestClassHandler extends BaseClassHandler {
         il.add(getIntInsn(size));
         il.add(new TypeInsnNode(ANEWARRAY, ClassUtil.CLASS_OBJECT));
         for (int i = 0; i < size; i++) {
+            mn.maxStack += 2;
             il.add(new InsnNode(DUP));
             il.add(getIntInsn(i));
             ImmutablePair<Integer, Integer> code = getLoadParameterByteCode(types.get(i));
@@ -115,9 +117,24 @@ public class TestClassHandler extends BaseClassHandler {
             }
             il.add(new InsnNode(AASTORE));
         }
+        if (isMockForConstructor(mn)) {
+            il.add(new InsnNode(ICONST_1));
+        } else {
+            il.add(new InsnNode(ICONST_0));
+        }
         il.add(new MethodInsnNode(INVOKESTATIC, CLASS_INVOKE_RECORD_UTIL, METHOD_RECORD_MOCK_INVOKE,
-            SIGNATURE_INVOKE_COUNTER_METHOD, false));
+            SIGNATURE_INVOKE_RECORDER_METHOD, false));
         mn.instructions.insertBefore(mn.instructions.get(0), il);
+    }
+
+    private boolean isMockForConstructor(MethodNode mn) {
+        for (AnnotationNode an : mn.visibleAnnotations) {
+            String method = AnnotationUtil.getAnnotationParameter(an, ConstPool.FIELD_TARGET_METHOD, null);
+            if (ConstPool.CONSTRUCTOR.equals(method)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private static ImmutablePair<Integer, Integer> getLoadParameterByteCode(Byte type) {

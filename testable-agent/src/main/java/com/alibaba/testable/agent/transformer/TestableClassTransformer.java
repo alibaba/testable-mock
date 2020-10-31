@@ -6,6 +6,7 @@ import com.alibaba.testable.agent.handler.TestClassHandler;
 import com.alibaba.testable.agent.tool.ImmutablePair;
 import com.alibaba.testable.agent.model.MethodInfo;
 import com.alibaba.testable.agent.tool.ComparableWeakRef;
+import com.alibaba.testable.agent.util.AnnotationUtil;
 import com.alibaba.testable.agent.util.ClassUtil;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.tree.AnnotationNode;
@@ -28,7 +29,6 @@ import static com.alibaba.testable.agent.util.ClassUtil.toDotSeparateFullClassNa
 public class TestableClassTransformer implements ClassFileTransformer {
 
     private final Set<ComparableWeakRef<String>> loadedClassNames = ComparableWeakRef.getWeekHashSet();
-    private static final String TARGET_METHOD = "targetMethod";
 
     @Override
     public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined,
@@ -90,7 +90,7 @@ public class TestableClassTransformer implements ClassFileTransformer {
         for (AnnotationNode an : mn.visibleAnnotations) {
             if (toDotSeparateFullClassName(an.desc).equals(ConstPool.TESTABLE_MOCK)) {
                 String targetClass = ClassUtil.toSlashSeparateFullClassName(methodDescPair.left);
-                String targetMethod = getAnnotationParameter(an, TARGET_METHOD, mn.name);
+                String targetMethod = AnnotationUtil.getAnnotationParameter(an, ConstPool.FIELD_TARGET_METHOD, mn.name);
                 if (targetMethod.equals(ConstPool.CONSTRUCTOR)) {
                     String sourceClassName = ClassUtil.getSourceClassName(cn.name);
                     methodInfos.add(new MethodInfo(sourceClassName, targetMethod, mn.name, mn.desc));
@@ -110,20 +110,6 @@ public class TestableClassTransformer implements ClassFileTransformer {
         // assume first parameter is a class
         int pos = desc.indexOf(";");
         return pos < 0 ? null : ImmutablePair.of(desc.substring(1, pos + 1), "(" + desc.substring(pos + 1));
-    }
-
-    /**
-     * Read value of annotation parameter
-     */
-    private <T> T getAnnotationParameter(AnnotationNode an, String key, T defaultValue) {
-        if (an.values != null) {
-            for (int i = 0; i < an.values.size(); i += 2) {
-                if (an.values.get(i).equals(key)) {
-                    return (T)(an.values.get(i + 1));
-                }
-            }
-        }
-        return defaultValue;
     }
 
 }
