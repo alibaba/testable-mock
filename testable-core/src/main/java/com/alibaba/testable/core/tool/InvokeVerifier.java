@@ -1,7 +1,9 @@
 package com.alibaba.testable.core.tool;
 
 import com.alibaba.testable.core.error.VerifyFailedError;
+import com.alibaba.testable.core.model.Verification;
 
+import java.security.InvalidParameterException;
 import java.util.List;
 
 /**
@@ -10,6 +12,7 @@ import java.util.List;
 public class InvokeVerifier {
 
     private final List<Object[]> records;
+    private Verification lastVerification = null;
 
     public InvokeVerifier(List<Object[]> records) {
         this.records = records;
@@ -55,6 +58,10 @@ public class InvokeVerifier {
         return withInOrder(new Object[]{arg1, arg2, arg3, arg4, arg5});
     }
 
+    /**
+     * Expect mock method invoked with specified parameters
+     * @param args parameters to compare
+     */
     public InvokeVerifier with(Object[] args) {
         boolean found = false;
         for (int i = 0; i < records.size(); i++) {
@@ -69,18 +76,50 @@ public class InvokeVerifier {
         if (!found) {
             throw new VerifyFailedError("has not invoke with " + desc(args));
         }
+        lastVerification = new Verification(args, false);
         return this;
     }
 
+    /**
+     * Expect next mock method call was invoked with specified parameters
+     * @param args parameters to compare
+     */
     public InvokeVerifier withInOrder(Object[] args) {
         withInternal(args, 0);
+        lastVerification = new Verification(args, true);
         return this;
     }
 
+    /**
+     * Expect mock method have been invoked specified times
+     * @param expectedCount times to compare
+     */
     public InvokeVerifier withTimes(int expectedCount) {
         if (expectedCount != records.size()) {
             throw new VerifyFailedError("times: " + records.size(), "times: " + expectedCount);
         }
+        lastVerification = null;
+        return this;
+    }
+
+    /**
+     * Expect several consecutive invocations with the same parameters
+     * @param count number of invocations
+     */
+    public InvokeVerifier times(int count) {
+        if (count < 2) {
+            throw new InvalidParameterException("should only use times() method with count equal or larger than 2.");
+        } else if (lastVerification == null) {
+            throw new InvalidParameterException("should only use times() after with() or withInOrder() method.");
+        }
+        for (int i = 0; i < count - 1; i++) {
+            if (lastVerification.inOrder) {
+                withInOrder(lastVerification.parameters);
+            } else {
+                with(lastVerification.parameters);
+            }
+        }
+        lastVerification = null;
         return this;
     }
 
