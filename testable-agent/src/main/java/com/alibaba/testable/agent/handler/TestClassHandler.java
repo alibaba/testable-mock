@@ -106,7 +106,7 @@ public class TestClassHandler extends BaseClassHandler {
         il.add(getIntInsn(size));
         il.add(new TypeInsnNode(ANEWARRAY, ClassUtil.CLASS_OBJECT));
         for (int i = 0; i < size; i++) {
-            mn.maxStack += 2;
+            mn.maxStack += 3;
             il.add(new InsnNode(DUP));
             il.add(getIntInsn(i));
             ImmutablePair<Integer, Integer> code = getLoadParameterByteCode(types.get(i));
