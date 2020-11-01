@@ -16,35 +16,79 @@ public class InvokeVerifier {
     }
 
     public InvokeVerifier with(Object arg1) {
-        with(new Object[]{arg1});
-        return this;
+        return with(new Object[]{arg1});
     }
 
     public InvokeVerifier with(Object arg1, Object arg2) {
-        with(new Object[]{arg1, arg2});
-        return this;
+        return with(new Object[]{arg1, arg2});
     }
 
     public InvokeVerifier with(Object arg1, Object arg2, Object arg3) {
-        with(new Object[]{arg1, arg2, arg3});
-        return this;
+        return with(new Object[]{arg1, arg2, arg3});
     }
 
     public InvokeVerifier with(Object arg1, Object arg2, Object arg3, Object arg4) {
-        with(new Object[]{arg1, arg2, arg3, arg4});
-        return this;
+        return with(new Object[]{arg1, arg2, arg3, arg4});
     }
 
     public InvokeVerifier with(Object arg1, Object arg2, Object arg3, Object arg4, Object arg5) {
-        with(new Object[]{arg1, arg2, arg3, arg4, arg5});
-        return this;
+        return with(new Object[]{arg1, arg2, arg3, arg4, arg5});
+    }
+
+    public InvokeVerifier withInOrder(Object arg1) {
+        return withInOrder(new Object[]{arg1});
+    }
+
+    public InvokeVerifier withInOrder(Object arg1, Object arg2) {
+        return withInOrder(new Object[]{arg1, arg2});
+    }
+
+    public InvokeVerifier withInOrder(Object arg1, Object arg2, Object arg3) {
+        return withInOrder(new Object[]{arg1, arg2, arg3});
+    }
+
+    public InvokeVerifier withInOrder(Object arg1, Object arg2, Object arg3, Object arg4) {
+        return withInOrder(new Object[]{arg1, arg2, arg3, arg4});
+    }
+
+    public InvokeVerifier withInOrder(Object arg1, Object arg2, Object arg3, Object arg4, Object arg5) {
+        return withInOrder(new Object[]{arg1, arg2, arg3, arg4, arg5});
     }
 
     public InvokeVerifier with(Object[] args) {
+        boolean found = false;
+        for (int i = 0; i < records.size(); i++) {
+            try {
+                withInternal(args, i);
+                found = true;
+                break;
+            } catch (AssertionError e) {
+                // continue
+            }
+        }
+        if (!found) {
+            throw new VerifyFailedError("has not invoke with " + desc(args));
+        }
+        return this;
+    }
+
+    public InvokeVerifier withInOrder(Object[] args) {
+        withInternal(args, 0);
+        return this;
+    }
+
+    public InvokeVerifier withTimes(int expectedCount) {
+        if (expectedCount != records.size()) {
+            throw new VerifyFailedError("times: " + records.size(), "times: " + expectedCount);
+        }
+        return this;
+    }
+
+    private void withInternal(Object[] args, int order) {
         if (records.isEmpty()) {
             throw new VerifyFailedError("has not more invoke");
         }
-        Object[] record = records.get(0);
+        Object[] record = records.get(order);
         if (record.length != args.length) {
             throw new VerifyFailedError(desc(args), desc(record));
         }
@@ -57,8 +101,7 @@ public class InvokeVerifier {
                 throw new VerifyFailedError("parameter " + (i + 1) + " mismatched", desc(args), desc(record));
             }
         }
-        records.remove(0);
-        return this;
+        records.remove(order);
     }
 
     private String desc(Object[] args) {
@@ -70,13 +113,6 @@ public class InvokeVerifier {
             sb.append(args[i]);
         }
         return sb.toString();
-    }
-
-    public InvokeVerifier times(int expectedCount) {
-        if (expectedCount != records.size()) {
-            throw new VerifyFailedError("times: " + records.size(), "times: " + expectedCount);
-        }
-        return this;
     }
 
 }

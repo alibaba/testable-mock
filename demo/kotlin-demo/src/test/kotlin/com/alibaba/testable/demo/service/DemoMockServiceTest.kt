@@ -71,22 +71,22 @@ internal class DemoMockServiceTest {
     @Test
     fun should_able_to_mock_common_method() {
         assertEquals("trim_string__sub_string__false", demoService.commonFunc())
-        verify("trim").times(1)
-        verify("sub").times(1)
-        verify("startsWith").times(1)
+        verify("trim").withTimes(1)
+        verify("sub").withTimes(1)
+        verify("startsWith").withTimes(1)
     }
 
     @Test
     fun should_able_to_mock_static_method() {
         assertEquals("White_not_secret_box", demoService.getBox().get())
-        verify("secretBox").times(1)
-        verify("createBox").times(1)
+        verify("secretBox").withTimes(1)
+        verify("createBox").withTimes(1)
     }
 
     @Test
     fun should_able_to_mock_override_method() {
         val box = demoService.putBox() as BlackBox
-        verify("put").times(1)
+        verify("put").withTimes(1)
         assertEquals("put_data_mocked", box.get())
     }
 
@@ -98,7 +98,7 @@ internal class DemoMockServiceTest {
         assertEquals("mock_one_mock_others", Executors.newSingleThreadExecutor().submit<String> {
             demoService.callerOne() + "_" + demoService.callerTwo()
         }.get())
-        verify("callFromDifferentMethod").times(4)
+        verify("callFromDifferentMethod").withTimes(4)
     }
 
     @Test
@@ -109,6 +109,6 @@ internal class DemoMockServiceTest {
         assertEquals("mock_special", Executors.newSingleThreadExecutor().submit<String> {
             demoService.callerOne()
         }.get())
-        verify("callFromDifferentMethod").times(2)
+        verify("callFromDifferentMethod").withTimes(2)
     }
 }

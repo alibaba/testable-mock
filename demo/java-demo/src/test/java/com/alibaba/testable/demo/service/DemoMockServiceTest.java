@@ -75,21 +75,21 @@ class DemoMockServiceTest {
     @Test
     void should_able_to_mock_common_method() throws Exception {
         assertEquals("trim_string__sub_string__false", demoService.commonFunc());
-        verify("trim").times(1);
-        verify("sub").times(1);
-        verify("startsWith").times(1);
+        verify("trim").withTimes(1);
+        verify("sub").withTimes(1);
+        verify("startsWith").withTimes(1);
     }
 
     @Test
     void should_able_to_mock_static_method() throws Exception {
         assertEquals("not_secret_box", demoService.getBox().get());
-        verify("secretBox").times(1);
+        verify("secretBox").withTimes(1);
     }
 
     @Test
     void should_able_to_mock_override_method() throws Exception {
         BlackBox box = (BlackBox)demoService.putBox();
-        verify("put").times(1);
+        verify("put").withTimes(1);
         assertEquals("put_data_mocked", box.get());
     }
 
@@ -100,7 +100,7 @@ class DemoMockServiceTest {
         // asynchronous
         assertEquals("mock_one_mock_others",
             Executors.newSingleThreadExecutor().submit(() -> demoService.callerOne() + "_" + demoService.callerTwo()).get());
-        verify("callFromDifferentMethod").times(4);
+        verify("callFromDifferentMethod").withTimes(4);
     }
 
     @Test
@@ -109,7 +109,7 @@ class DemoMockServiceTest {
         assertEquals("mock_special", demoService.callerOne());
         // asynchronous
         assertEquals("mock_special", Executors.newSingleThreadExecutor().submit(() -> demoService.callerOne()).get());
-        verify("callFromDifferentMethod").times(2);
+        verify("callFromDifferentMethod").withTimes(2);
     }
 
 }
