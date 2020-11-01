@@ -41,6 +41,8 @@ public class ClassUtil {
     private static final String CLASS_BOOLEAN = "java/lang/Boolean";
     private static final String METHOD_VALUE_OF = "valueOf";
 
+    private final static String JOINER = "::";
+
     private static final Map<Byte, String> TYPE_MAPPING = new HashMap<Byte, String>();
     private static final Map<ComparableWeakRef<String>, Boolean> loadedClass =
         new WeakHashMap<ComparableWeakRef<String>, Boolean>();
@@ -62,7 +64,8 @@ public class ClassUtil {
      * @param annotationName annotation to look for
      */
     public static boolean anyMethodHasAnnotation(String className, String annotationName) {
-        Boolean found = loadedClass.get(new ComparableWeakRef<String>(className));
+        String cacheKey = className + JOINER + annotationName;
+        Boolean found = loadedClass.get(new ComparableWeakRef<String>(cacheKey));
         if (found != null) {
             return found;
         }
@@ -73,7 +76,7 @@ public class ClassUtil {
                 if (mn.visibleAnnotations != null) {
                     for (AnnotationNode an : mn.visibleAnnotations) {
                         if (toDotSeparateFullClassName(an.desc).equals(annotationName)) {
-                            loadedClass.put(new ComparableWeakRef<String>(className), true);
+                            loadedClass.put(new ComparableWeakRef<String>(cacheKey), true);
                             return true;
                         }
                     }
@@ -82,7 +85,7 @@ public class ClassUtil {
         } catch (Exception e) {
             // ignore
         }
-        loadedClass.put(new ComparableWeakRef<String>(className), false);
+        loadedClass.put(new ComparableWeakRef<String>(cacheKey), false);
         return false;
     }
 

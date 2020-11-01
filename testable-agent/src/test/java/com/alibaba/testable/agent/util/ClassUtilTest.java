@@ -12,9 +12,9 @@ class ClassUtilTest {
 
     @Test
     void should_able_to_get_annotation() {
-        assertEquals(false, ClassUtil.anyMethodHasAnnotation("class.not.exist", ""));
-        assertEquals(false, ClassUtil.anyMethodHasAnnotation("org.junit.jupiter.api.Assertions", "annotation.not.exist"));
-        assertEquals(true, ClassUtil.anyMethodHasAnnotation("org.junit.jupiter.api.Assertions", "org.apiguardian.api.API"));
+        assertFalse(ClassUtil.anyMethodHasAnnotation("class.not.exist", ""));
+        assertFalse(ClassUtil.anyMethodHasAnnotation("com.alibaba.testable.agent.util.ClassUtilTest", "annotation.not.exist"));
+        assertTrue(ClassUtil.anyMethodHasAnnotation("com.alibaba.testable.agent.util.ClassUtilTest", "org.junit.jupiter.api.Test"));
     }
 
     @Test

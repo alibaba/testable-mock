@@ -15,6 +15,7 @@
         <project.compiler.level>1.6</project.compiler.level>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <plugin.compiler.version>3.8.1</plugin.compiler.version>
+        <plugin.surefire.version>3.0.0-M5</plugin.surefire.version>
         <junit.version>5.6.2</junit.version>
     </properties>
 
@@ -38,6 +39,11 @@
                     <target>${project.compiler.level}</target>
                     <encoding>${project.build.sourceEncoding}</encoding>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>${plugin.surefire.version}</version>
             </plugin>
         </plugins>
     </build>
