@@ -13,7 +13,7 @@
 
 解决方法有两种：
 
-**方法一**：在单元测试配置的"虚拟机参数（VM Option）"属性值末尾添加JavaAgent启动参数：`-javaagent:${HOME}/.m2/repository/com/alibaba/testable/testable-agent/0.2.1/testable-agent-0.2.1.jar`
+**方法一**：在单元测试配置的"虚拟机参数（VM Option）"属性值末尾添加JavaAgent启动参数：`-javaagent:${HOME}/.m2/repository/com/alibaba/testable/testable-agent/0.2.2/testable-agent-0.2.2.jar`
 
 > PS：请将路径中的版本号替换成实际使用的版本号
 
@@ -28,7 +28,7 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
-                <argLine>-javaagent:${settings.localRepository}/com/alibaba/testable/testable-agent/0.2.1/testable-agent-0.2.1.jar</argLine>
+                <argLine>-javaagent:${settings.localRepository}/com/alibaba/testable/testable-agent/0.2.2/testable-agent-0.2.2.jar</argLine>
         </configuration>
 </plugin>
 ```
@@ -40,12 +40,7 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
-                <argLine>@{argLine} -javaagent:${settings.localRepository}/com/alibaba/testable/testable-agent/0.2.1/testable-agent-0.2.1.jar</argLine>
+                <argLine>@{argLine} -javaagent:${settings.localRepository}/com/alibaba/testable/testable-agent/0.2.2/testable-agent-0.2.2.jar</argLine>
         </configuration>
 </plugin>
 ```
-
-**3. Testable的`verify`方法只能验证调用次数，不能验证调用参数**
-
-功能开发中，预计在`0.2.2`版本提供，敬请关注代码更新。
-

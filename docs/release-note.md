@@ -1,5 +1,9 @@
 # Release Note
 
+## v0.2.2
+- support mock method parameters check
+- fix a compatibility issue with jvm 9+
+
 ## v0.2.1
 - support mock static method
 - support mock kotlin companion object method
