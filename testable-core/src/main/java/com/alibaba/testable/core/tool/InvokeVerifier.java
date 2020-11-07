@@ -91,6 +91,24 @@ public class InvokeVerifier {
     }
 
     /**
+     * Expect mock method had never invoked with specified parameters
+     * @param args parameters to compare
+     */
+    public InvokeVerifier without(Object[] args) {
+        for (Object[] r : records) {
+            if (r.length == args.length) {
+                for (int i = 0; i < r.length; i++) {
+                    if (!r[i].equals(args[i])) {
+                        break;
+                    }
+                }
+                throw new VerifyFailedError("was invoked with " + desc(args));
+            }
+        }
+        return this;
+    }
+
+    /**
      * Expect mock method have been invoked specified times
      * @param expectedCount times to compare
      */
