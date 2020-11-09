@@ -142,3 +142,10 @@ private BlackBox createBlackBox(String text) {
 在Mock方法中可以通过`TestableTool.TEST_CASE`和`TestableTool.SOURCE_METHOD`来识别**当前运行的测试用例名称**和**进入该Mock方法前的被测类方法名称**，从而区分处理不同的调用场景。
 
 完整代码示例见`java-demo`和`kotlin-demo`示例项目中的`should_able_to_get_source_method_name()`和`should_able_to_get_test_case_name()`测试用例。
+
+**6. <u>验证Mock方法被调用的顺序和参数</u>**
+
+在测试用例中可用通过`TestableTool.verify()`方法，配合`with()`、`withInOrder()`、`without()`、`withTimes()`等方法实现对Mock调用情况的验证。
+
+详见`java-demo`和`kotlin-demo`示例项目中的相关测试用例。
+
