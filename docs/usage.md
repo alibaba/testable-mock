@@ -47,13 +47,13 @@
 - 调用被测类的私有方法
 - 读取被测类的私有成员
 - 修改被测类的私有成员
-- 修改被测类的常量成员（使用final或static final修饰的成员）
+- 修改被测类的常量成员（使用final修饰的成员）
 
 访问和修改私有、常量成员时，IDE可能会提示语法有误，但编译器将能够正常运行测试。
 
 若不希望看到IDE的语法错误提醒，或是在基于JVM的非Java语言项目里（譬如Kotlin语言），也可以借助`PrivateAccessor`工具类来实现私有成员的访问。
 
-效果见`java-demo`和`kotlin-demo`示例项目中的`should_able_to_mock_private_method()`和`should_able_to_mock_private_field()`测试用例。
+效果见`java-demo`和`kotlin-demo`示例项目中`DemoPrivateAccessService`类的测试用例。
 
 ### Mock被测类的任意方法调用
 

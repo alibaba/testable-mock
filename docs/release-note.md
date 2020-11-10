@@ -1,5 +1,9 @@
 # Release Note
 
+## upcoming version
+- add `without()` to verify mock method not invoked with specified parameters
+- add `@MockWith` annotation to support share mock method between test classes
+
 ## v0.2.2
 - support mock method parameters check
 - fix a compatibility issue with jvm 9+
