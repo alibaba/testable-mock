@@ -5,7 +5,7 @@
 
 使用`@EnablePrivateAccessor`注解后访问私有方法或成员变量，虽然能正常通过编译，但在IDE上依然会提示语法错误。
 这个问题与使用`Lombok`工具库后使用生成的`getter`和`setter`会被IDE报语法错误一样，需要通过IDE插件来解决。
-当前`Testable`尚未提供相关插件。也可以改用`PrivateAccessor`工具类来访问私有成员，来避免IDE的异常信息。
+当前`TestableMock`尚未提供相关插件。也可以改用`PrivateAccessor`工具类来访问私有成员，来避免IDE的异常信息。
 
 **2. 通过IDE运行单个测试用例时，Mock功能失效**
 

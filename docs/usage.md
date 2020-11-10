@@ -1,7 +1,7 @@
 使用说明
 ---
 
-## 引入Testable
+## 引入TestableMock
 
 首先在项目`pom.xml`文件中添加`testable-processor`依赖：
 
@@ -36,9 +36,9 @@
 
 > PS：其中`${testable.version}`需替换为具体版本号，当前最新版本为`0.2.2-SNAPSHOT`
 
-## 使用Testable
+## 使用TestableMock
 
-`Testable`目前能为测试类提供两项增强能力：__直接访问被测类的私有成员__ 和 __极速Mock被测方法中的调用__
+`TestableMock`目前能为测试类提供两项增强能力：__直接访问被测类的私有成员__ 和 __极速Mock被测方法中的调用__
 
 ### 访问私有成员字段和方法
 

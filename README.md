@@ -1,4 +1,4 @@
-# Testable
+# TestableMock
 
 基于代码和字节码增强的Java单元测试辅助工具，包含以下功能：
 
@@ -22,7 +22,7 @@
 
 主项目使用JDK 1.6+和Maven 3+版本构建，其中`demo`子项目需要JDK 1.8+版本。
 
-由于`Testable`的测试也用到了`Testable`本身，本地首次构建时候需要使用`install`而不能只做`package`：
+由于`TestableMock`的测试也用到了`TestableMock`本身，本地首次构建时候需要使用`install`而不能只做`package`：
 
 ```bash
 mvn clean install
