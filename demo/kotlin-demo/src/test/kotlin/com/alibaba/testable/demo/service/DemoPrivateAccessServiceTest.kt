@@ -20,4 +20,11 @@ internal class DemoPrivateAccessServiceTest {
         assertEquals("5", demoService.privateFieldAccessFunc())
         assertEquals(5, PrivateAccessor.get(demoService, "count"))
     }
+
+    @Test
+    fun should_able_to_update_final_field() {
+        PrivateAccessor.set(demoService, "pi", 4.13)
+        assertEquals(4.13, demoService.pi)
+    }
+
 }

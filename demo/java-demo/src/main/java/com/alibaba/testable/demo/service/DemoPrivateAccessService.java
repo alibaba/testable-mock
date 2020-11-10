@@ -7,6 +7,8 @@ public class DemoPrivateAccessService {
 
     private int count;
 
+    public final Double pi = 3.14;
+
     /**
      * private method
      */

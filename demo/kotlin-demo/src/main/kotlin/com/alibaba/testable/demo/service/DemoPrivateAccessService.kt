@@ -8,6 +8,8 @@ class DemoPrivateAccessService {
 
     private var count = 0
 
+    final val pi = 3.14
+
     /**
      * private method
      */

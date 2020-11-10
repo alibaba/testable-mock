@@ -28,4 +28,10 @@ class DemoPrivateAccessServiceTest {
         assertEquals(new Integer(5), PrivateAccessor.get(demoService, "count"));
     }
 
+    @Test
+    void should_able_to_update_final_field() throws Exception {
+        demoService.pi = 4.13;
+        assertEquals(4.13, demoService.pi);
+    }
+
 }
