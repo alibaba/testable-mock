@@ -15,6 +15,13 @@ public class PrivateAccessStatementGenerator extends BaseGenerator {
         super(cx);
     }
 
+    public JCExpression fetchGetterStatement(JCFieldAccess access) {
+        JCFieldAccess getter = cx.treeMaker.Select(nameToExpression(ConstPool.TESTABLE_PRIVATE_ACCESSOR),
+            cx.names.fromString("get"));
+        return cx.treeMaker.Apply(List.<JCExpression>nil(), getter, List.of(access.selected,
+            cx.treeMaker.Literal(access.name.toString())));
+    }
+
     public JCExpression fetchSetterStatement(JCAssign assign) {
         JCFieldAccess setter = cx.treeMaker.Select(nameToExpression(ConstPool.TESTABLE_PRIVATE_ACCESSOR),
             cx.names.fromString("set"));

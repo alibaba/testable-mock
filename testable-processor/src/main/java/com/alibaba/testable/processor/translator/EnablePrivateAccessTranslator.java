@@ -18,10 +18,23 @@ import java.lang.reflect.Modifier;
  */
 public class EnablePrivateAccessTranslator extends BaseTranslator {
 
+    /**
+     * Name of source class
+     */
     private final String sourceClassName;
+    /**
+     * Fields of source class instance in the test class
+     */
     private final ListBuffer<Name> sourceClassIns = new ListBuffer<Name>();
+    /**
+     * Record private and final fields
+     */
     private final ListBuffer<String> privateOrFinalFields = new ListBuffer<String>();
+    /**
+     * Record private methods
+     */
     private final ListBuffer<String> privateMethods = new ListBuffer<String>();
+
     private final PrivateAccessStatementGenerator privateAccessStatementGenerator;
 
     public EnablePrivateAccessTranslator(String pkgName, String testClassName, TestableContext cx) {
@@ -61,20 +74,24 @@ public class EnablePrivateAccessTranslator extends BaseTranslator {
      */
     @Override
     public void visitExec(JCExpressionStatement jcExpressionStatement) {
+        // visitExec could be an assign statement to a private field
         if (jcExpressionStatement.expr.getClass().equals(JCAssign.class) &&
             isPrivateField((JCAssign)jcExpressionStatement.expr)) {
             jcExpressionStatement.expr = privateAccessStatementGenerator.fetchSetterStatement(
                 (JCAssign)jcExpressionStatement.expr);
         }
+        // visitExec could be an invoke
         jcExpressionStatement.expr = checkAndExchange(jcExpressionStatement.expr);
         super.visitExec(jcExpressionStatement);
     }
 
     /**
      * For private invoke invocation break point
+     * call(d.privateMethod(args)) -> call(PrivateAccessor.invoke(d, "privateMethod", args))
      */
     @Override
     public void visitApply(JCMethodInvocation tree) {
+        // parameter of invocation could be an invoke or field access
         tree.args = checkAndExchange(tree.args);
         super.visitApply(tree);
     }
@@ -97,6 +114,12 @@ public class EnablePrivateAccessTranslator extends BaseTranslator {
 
     @Override
     protected JCExpression checkAndExchange(JCExpression expr) {
+        // check is accessing a private field of source class
+        if (expr.getClass().equals(JCFieldAccess.class) &&
+            isPrivateField((JCFieldAccess)expr)) {
+            expr = privateAccessStatementGenerator.fetchGetterStatement((JCFieldAccess)expr);
+        }
+        // check is invoking a private method of source class
         if (expr.getClass().equals(JCMethodInvocation.class) &&
             isPrivateMethod((JCMethodInvocation)expr)) {
             expr = privateAccessStatementGenerator.fetchInvokeStatement((JCMethodInvocation)expr);
@@ -104,11 +127,17 @@ public class EnablePrivateAccessTranslator extends BaseTranslator {
         return expr;
     }
 
-    private boolean isPrivateField(JCAssign expr) {
-        return expr.lhs.getClass().equals(JCFieldAccess.class) &&
-            ((JCFieldAccess)(expr).lhs).selected.getClass().equals(JCIdent.class) &&
-            sourceClassIns.contains(((JCIdent)((JCFieldAccess)(expr).lhs).selected).name) &&
-            privateOrFinalFields.contains(((JCFieldAccess)(expr).lhs).name.toString());
+    private boolean isPrivateField(JCFieldAccess access) {
+        return access.selected.getClass().equals(JCIdent.class) &&
+            sourceClassIns.contains(((JCIdent)access.selected).name) &&
+            privateOrFinalFields.contains(access.name.toString());
+    }
+
+    private boolean isPrivateField(JCAssign assign) {
+        return assign.lhs.getClass().equals(JCFieldAccess.class) &&
+            ((JCFieldAccess)(assign).lhs).selected.getClass().equals(JCIdent.class) &&
+            sourceClassIns.contains(((JCIdent)((JCFieldAccess)(assign).lhs).selected).name) &&
+            privateOrFinalFields.contains(((JCFieldAccess)(assign).lhs).name.toString());
     }
 
     private boolean isPrivateMethod(JCMethodInvocation expr) {
