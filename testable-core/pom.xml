@@ -3,20 +3,43 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
-    <description>Unit test enhancement toolkit</description>
     <groupId>com.alibaba.testable</groupId>
     <artifactId>testable-core</artifactId>
     <version>0.2.2-SNAPSHOT</version>
+    <packaging>jar</packaging>
     <name>testable-core</name>
+    <description>Unit test enhancement toolkit</description>
+    <url>https://github.com/alibaba/testable-mock</url>
+    <licenses>
+        <license>
+            <name>MIT License</name>
+            <url>https://github.com/alibaba/testable-mock/blob/master/LICENSE</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+    <developers>
+        <developer>
+            <name>金戟</name>
+            <email>jinji.lf@alibaba-inc.com</email>
+        </developer>
+    </developers>
+    <scm>
+        <connection>scm:git:git@github.com:alibaba/testable-mock.git</connection>
+        <url>git@github.com:alibaba/testable-mock.git</url>
+        <tag>HEAD</tag>
+    </scm>
 
     <properties>
         <java.version>1.6</java.version>
         <project.compiler.level>1.6</project.compiler.level>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <junit.version>5.6.2</junit.version>
         <plugin.compiler.version>3.8.1</plugin.compiler.version>
         <plugin.surefire.version>3.0.0-M5</plugin.surefire.version>
-        <junit.version>5.6.2</junit.version>
+        <plugin.source.version>3.2.0</plugin.source.version>
+        <plugin.javadoc.version>3.2.0</plugin.javadoc.version>
+        <plugin.gpg.version>1.6.0</plugin.gpg.version>
+        <plugin.staging.version>1.6.8</plugin.staging.version>
     </properties>
 
     <dependencies>
@@ -44,6 +67,57 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>${plugin.surefire.version}</version>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>${plugin.source.version}</version>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <goals>
+                            <goal>jar-no-fork</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>${plugin.javadoc.version}</version>
+                <executions>
+                    <execution>
+                        <id>attach-javadocs</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-gpg-plugin</artifactId>
+                <version>${plugin.gpg.version}</version>
+                <executions>
+                    <execution>
+                        <id>sign-artifacts</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>sign</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.sonatype.plugins</groupId>
+                <artifactId>nexus-staging-maven-plugin</artifactId>
+                <version>${plugin.staging.version}</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <serverId>ossrh</serverId>
+                    <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+                    <autoReleaseAfterClose>true</autoReleaseAfterClose>
+                </configuration>
             </plugin>
         </plugins>
     </build>
