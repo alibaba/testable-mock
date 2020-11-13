@@ -38,6 +38,26 @@ public class InvokeVerifier {
         return with(new Object[]{arg1, arg2, arg3, arg4, arg5});
     }
 
+    public InvokeVerifier without(Object arg1) {
+        return without(new Object[]{arg1});
+    }
+
+    public InvokeVerifier without(Object arg1, Object arg2) {
+        return without(new Object[]{arg1, arg2});
+    }
+
+    public InvokeVerifier without(Object arg1, Object arg2, Object arg3) {
+        return without(new Object[]{arg1, arg2, arg3});
+    }
+
+    public InvokeVerifier without(Object arg1, Object arg2, Object arg3, Object arg4) {
+        return without(new Object[]{arg1, arg2, arg3, arg4});
+    }
+
+    public InvokeVerifier without(Object arg1, Object arg2, Object arg3, Object arg4, Object arg5) {
+        return without(new Object[]{arg1, arg2, arg3, arg4, arg5});
+    }
+
     public InvokeVerifier withInOrder(Object arg1) {
         return withInOrder(new Object[]{arg1});
     }
