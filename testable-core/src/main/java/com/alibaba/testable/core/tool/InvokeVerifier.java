@@ -118,11 +118,14 @@ public class InvokeVerifier {
         for (Object[] r : records) {
             if (r.length == args.length) {
                 for (int i = 0; i < r.length; i++) {
-                    if (!r[i].equals(args[i])) {
+                    if (!matches(r[i], args[i])) {
                         break;
                     }
+                    if (i == r.length - 1) {
+                        // all arguments are equal
+                        throw new VerifyFailedError("was invoked with " + desc(args));
+                    }
                 }
-                throw new VerifyFailedError("was invoked with " + desc(args));
             }
         }
         return this;
@@ -145,10 +148,14 @@ public class InvokeVerifier {
      * @param count number of invocations
      */
     public InvokeVerifier times(int count) {
+        if (lastVerification == null) {
+            // when used independently, equals to `withTimes()`
+            System.out.println("Warning: using \"times()\" check without \"with()\" or \"withInOrder()\" method " +
+                    "is not recommended, please use \"withTimes()\" instead.");
+            return withTimes(count);
+        }
         if (count < 2) {
             throw new InvalidParameterException("should only use times() method with count equal or larger than 2.");
-        } else if (lastVerification == null) {
-            throw new InvalidParameterException("should only use times() after with() or withInOrder() method.");
         }
         for (int i = 0; i < count - 1; i++) {
             if (lastVerification.inOrder) {
@@ -174,11 +181,17 @@ public class InvokeVerifier {
                 throw new VerifyFailedError("parameter " + (i + 1) + " type mismatch",
                     ": " + args[i].getClass(), ": " + record[i].getClass());
             }
-            if (!args[i].equals(record[i])) {
+            if (!matches(args[i], record[i])) {
                 throw new VerifyFailedError("parameter " + (i + 1) + " mismatched", desc(args), desc(record));
             }
         }
         records.remove(order);
+    }
+
+    private boolean matches(Object realValue, Object expectValue) {
+        return expectValue instanceof InvokeMatcher ?
+                ((InvokeMatcher) expectValue).matchFunction.check(realValue) :
+                expectValue.equals(realValue);
     }
 
     private String desc(Object[] args) {
