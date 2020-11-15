@@ -1,8 +1,10 @@
 # Release Note
 
 ## upcoming version
-- add `without()` to verify mock method not invoked with specified parameters
+- add `without()` checker to verify mock method never invoked with specified parameters
+- support fuzz matcher when verifying mock invocation
 - add `@MockWith` annotation to support share mock method between test classes
+- add method to print detail log of mocking process for debugging
 
 ## v0.2.2
 - support mock method parameters check
