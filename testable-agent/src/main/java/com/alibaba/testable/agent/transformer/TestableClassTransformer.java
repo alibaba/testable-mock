@@ -8,6 +8,7 @@ import com.alibaba.testable.agent.model.MethodInfo;
 import com.alibaba.testable.agent.tool.ComparableWeakRef;
 import com.alibaba.testable.agent.util.AnnotationUtil;
 import com.alibaba.testable.agent.util.ClassUtil;
+import com.alibaba.testable.agent.util.LogUtil;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.tree.AnnotationNode;
 import org.objectweb.asm.tree.ClassNode;
@@ -40,11 +41,13 @@ public class TestableClassTransformer implements ClassFileTransformer {
         try {
             if (shouldTransformAsSourceClass(className)) {
                 // it's a source class with testable enabled
+                LogUtil.debug("Handling source class %s", className);
                 loadedClassNames.add(new ComparableWeakRef<String>(className));
                 List<MethodInfo> injectMethods = getTestableMockMethods(ClassUtil.getTestClassName(className));
                 return new SourceClassHandler(injectMethods).getBytes(classFileBuffer);
             } else if (shouldTransformAsTestClass(className)) {
                 // it's a test class with testable enabled
+                LogUtil.debug("Handling test class %s", className);
                 loadedClassNames.add(new ComparableWeakRef<String>(className));
                 return new TestClassHandler().getBytes(classFileBuffer);
             }

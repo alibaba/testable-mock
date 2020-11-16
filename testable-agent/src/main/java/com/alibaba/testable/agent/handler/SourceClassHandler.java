@@ -4,6 +4,7 @@ import com.alibaba.testable.agent.constant.ConstPool;
 import com.alibaba.testable.agent.model.MethodInfo;
 import com.alibaba.testable.agent.util.BytecodeUtil;
 import com.alibaba.testable.agent.util.ClassUtil;
+import com.alibaba.testable.agent.util.LogUtil;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.*;
 
@@ -142,6 +143,7 @@ public class SourceClassHandler extends BaseClassHandler {
 
     private AbstractInsnNode[] replaceNewOps(ClassNode cn, MethodNode mn, String newOperatorInjectMethodName,
                                              AbstractInsnNode[] instructions, int start, int end) {
+        LogUtil.debug("  Using %s mock new operation in %s", newOperatorInjectMethodName, mn.name);
         String classType = ((TypeInsnNode)instructions[start]).desc;
         String constructorDesc = ((MethodInsnNode)instructions[end]).desc;
         String testClassName = ClassUtil.getTestClassName(cn.name);
@@ -163,6 +165,7 @@ public class SourceClassHandler extends BaseClassHandler {
     private AbstractInsnNode[] replaceMemberCallOps(ClassNode cn, MethodNode mn, String substitutionMethod,
                                                     AbstractInsnNode[] instructions, String ownerClass,
                                                     int opcode, int start, int end) {
+        LogUtil.debug("  Using %s mock method in %s", substitutionMethod, mn.name);
         mn.maxStack++;
         MethodInsnNode method = (MethodInsnNode)instructions[end];
         String testClassName = ClassUtil.getTestClassName(cn.name);
