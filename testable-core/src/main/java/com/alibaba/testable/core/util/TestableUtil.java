@@ -50,6 +50,15 @@ public class TestableUtil {
         return "";
     }
 
+    /**
+     * Get file name and line number of where current method was called
+     */
+    public static String getPreviousStackLocation() {
+        // 0 - Thread.getStackTrace(), 1 - this method, 2 - code call this method, 3 - code call the caller method
+        StackTraceElement stack = getMainThread().getStackTrace()[3];
+        return stack.getFileName() + ":" + stack.getLineNumber();
+    }
+
     private static String findLastMethodFromSourceClass(String sourceClassName, StackTraceElement[] stack) {
         for (StackTraceElement element : stack) {
             if (element.getClassName().equals(sourceClassName)) {

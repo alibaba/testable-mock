@@ -2,6 +2,7 @@ package com.alibaba.testable.core.tool;
 
 import com.alibaba.testable.core.error.VerifyFailedError;
 import com.alibaba.testable.core.model.Verification;
+import com.alibaba.testable.core.util.TestableUtil;
 
 import java.security.InvalidParameterException;
 import java.util.List;
@@ -137,7 +138,7 @@ public class InvokeVerifier {
      */
     public InvokeVerifier withTimes(int expectedCount) {
         if (expectedCount != records.size()) {
-            throw new VerifyFailedError("times: " + records.size(), "times: " + expectedCount);
+            throw new VerifyFailedError("times: " + expectedCount, "times: " + records.size());
         }
         lastVerification = null;
         return this;
@@ -150,8 +151,8 @@ public class InvokeVerifier {
     public InvokeVerifier times(int count) {
         if (lastVerification == null) {
             // when used independently, equals to `withTimes()`
-            System.out.println("Warning: using \"times()\" check without \"with()\" or \"withInOrder()\" method " +
-                    "is not recommended, please use \"withTimes()\" instead.");
+            System.out.println("Warning: [" + TestableUtil.getPreviousStackLocation() + "] using \"times()\" method "
+                + "without \"with()\" or \"withInOrder()\" is not recommended, please use \"withTimes()\" instead.");
             return withTimes(count);
         }
         if (count < 2) {
