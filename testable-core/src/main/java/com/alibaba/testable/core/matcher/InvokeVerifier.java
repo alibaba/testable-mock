@@ -119,7 +119,7 @@ public class InvokeVerifier {
         for (Object[] r : records) {
             if (r.length == args.length) {
                 for (int i = 0; i < r.length; i++) {
-                    if (!matches(r[i], args[i])) {
+                    if (!matches(args[i], r[i])) {
                         break;
                     }
                     if (i == r.length - 1) {
@@ -178,7 +178,7 @@ public class InvokeVerifier {
             throw new VerifyFailedError(desc(args), desc(record));
         }
         for (int i = 0; i < args.length; i++) {
-            if (!args[i].getClass().equals(record[i].getClass())) {
+            if (!(args[i] instanceof InvokeMatcher || args[i].getClass().equals(record[i].getClass()))) {
                 throw new VerifyFailedError("parameter " + (i + 1) + " type mismatch",
                     ": " + args[i].getClass(), ": " + record[i].getClass());
             }
@@ -189,7 +189,7 @@ public class InvokeVerifier {
         records.remove(order);
     }
 
-    private boolean matches(Object realValue, Object expectValue) {
+    private boolean matches(Object expectValue, Object realValue) {
         return expectValue instanceof InvokeMatcher ?
                 ((InvokeMatcher) expectValue).matchFunction.check(realValue) :
                 expectValue.equals(realValue);
