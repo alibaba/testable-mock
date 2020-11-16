@@ -97,7 +97,7 @@ public class InvokeMatcher {
     }
 
     public static InvokeMatcher anyListOf(final Class<?> clazz) {
-        return anyClassWithTemplateOf(List.class, clazz);
+        return anyClassWithCollectionOf(List.class, clazz);
     }
 
     public static InvokeMatcher anySet() {
@@ -105,7 +105,7 @@ public class InvokeMatcher {
     }
 
     public static InvokeMatcher anySetOf(final Class<?> clazz) {
-        return anyClassWithTemplateOf(Set.class, clazz);
+        return anyClassWithCollectionOf(Set.class, clazz);
     }
 
     public static InvokeMatcher anyMap() {
@@ -113,16 +113,7 @@ public class InvokeMatcher {
     }
 
     public static InvokeMatcher anyMapOf(final Class<?> keyClass, final Class<?> valueClass) {
-        return any(new MatchFunction() {
-            @Override
-            public boolean check(Object value) {
-                return value != null &&
-                    Map.class.isAssignableFrom(value.getClass()) &&
-                    value.getClass().getTypeParameters().length == 2 &&
-                    keyClass.isAssignableFrom(value.getClass().getTypeParameters()[0].getGenericDeclaration()) &&
-                    valueClass.isAssignableFrom(value.getClass().getTypeParameters()[1].getGenericDeclaration());
-            }
-        });
+        return anyClassWithMapOf(keyClass, valueClass);
     }
 
     public static InvokeMatcher anyCollection() {
@@ -130,7 +121,7 @@ public class InvokeMatcher {
     }
 
     public static InvokeMatcher anyCollectionOf(final Class<?> clazz) {
-        return anyClassWithTemplateOf(Collection.class, clazz);
+        return anyClassWithCollectionOf(Collection.class, clazz);
     }
 
     public static InvokeMatcher anyIterable() {
@@ -138,7 +129,7 @@ public class InvokeMatcher {
     }
 
     public static InvokeMatcher anyIterableOf(final Class<?> clazz) {
-        return anyClassWithTemplateOf(Iterable.class, clazz);
+        return anyClassWithCollectionOf(Iterable.class, clazz);
     }
 
     public static InvokeMatcher any(final Class<?> clazz) {
@@ -248,15 +239,53 @@ public class InvokeMatcher {
         });
     }
 
-    private static InvokeMatcher anyClassWithTemplateOf(final Class<?> collectionClass, final Class<?> clazz) {
+    private static InvokeMatcher anyClassWithCollectionOf(final Class<?> collectionClass, final Class<?> clazz) {
         return any(new MatchFunction() {
             @Override
             public boolean check(Object value) {
                 return value != null &&
                     collectionClass.isAssignableFrom(value.getClass()) &&
-                    value.getClass().getTypeParameters().length == 1 &&
-                    clazz.isAssignableFrom(value.getClass().getTypeParameters()[0].getGenericDeclaration());
+                    allElementsHasType((Collection<?>)value, clazz);
             }
         });
     }
+
+    private static InvokeMatcher anyClassWithMapOf(final Class<?> keyClass, final Class<?> valueClass) {
+        return any(new MatchFunction() {
+            @Override
+            public boolean check(Object value) {
+                return value != null &&
+                    Map.class.isAssignableFrom(value.getClass()) &&
+                    allElementsHasType((Map<?, ?>)value, keyClass, valueClass);
+            }
+        });
+    }
+
+    /**
+     * Because of type erase, there's no way to directly fetch original type of collection template
+     * this could be a temporary solution
+     */
+    private static boolean allElementsHasType(Map<?, ?> items, Class<?> keyClass, Class<?> valueClass) {
+        for (Map.Entry<?, ?> e : items.entrySet()) {
+            if (!(keyClass.isAssignableFrom(e.getKey().getClass()) &&
+                valueClass.isAssignableFrom(e.getValue().getClass()))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Because of type erase, there's no way to directly fetch original type of collection template
+     * this could be a temporary solution
+     */
+    private static boolean allElementsHasType(Collection<?> values, Class<?> clazz) {
+        for (Object v : values.toArray()) {
+            if (!clazz.isAssignableFrom(v.getClass())) {
+                return false;
+            }
+        }
+        return true;
+    }
+
 }
