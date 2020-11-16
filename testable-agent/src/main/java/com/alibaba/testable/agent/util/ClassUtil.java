@@ -26,6 +26,7 @@ public class ClassUtil {
     public static final byte TYPE_CLASS = 'L';
     public static final byte TYPE_SHORT = 'S';
     public static final byte TYPE_BOOL = 'Z';
+    public static final byte TYPE_VOID = 'V';
     private static final byte PARAM_END = ')';
     private static final byte CLASS_END = ';';
     private static final byte TYPE_ARRAY = '[';
@@ -39,6 +40,7 @@ public class ClassUtil {
     private static final String CLASS_LONG = "java/lang/Long";
     private static final String CLASS_SHORT = "java/lang/Short";
     private static final String CLASS_BOOLEAN = "java/lang/Boolean";
+    private static final String EMPTY = "";
     private static final String METHOD_VALUE_OF = "valueOf";
 
     private final static String JOINER = "::";
@@ -56,6 +58,7 @@ public class ClassUtil {
         TYPE_MAPPING.put(TYPE_LONG, CLASS_LONG);
         TYPE_MAPPING.put(TYPE_SHORT, CLASS_SHORT);
         TYPE_MAPPING.put(TYPE_BOOL, CLASS_BOOLEAN);
+        TYPE_MAPPING.put(TYPE_VOID, EMPTY);
     }
 
     /**
@@ -159,7 +162,7 @@ public class ClassUtil {
         } else if (TYPE_MAPPING.containsKey((byte)typeChar)) {
             return TYPE_MAPPING.get((byte)typeChar);
         } else {
-            return "";
+            return EMPTY;
         }
     }
 

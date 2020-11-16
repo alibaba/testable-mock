@@ -122,21 +122,17 @@ public class SourceClassHandler extends BaseClassHandler {
         for (int i = rangeEnd - 1; i >= 0; i--) {
             switch (instructions[i].getOpcode()) {
                 case Opcodes.INVOKESPECIAL:
-                    stackLevel += ClassUtil.getParameterTypes(((MethodInsnNode)instructions[i]).desc).size();
+                case Opcodes.INVOKEVIRTUAL:
+                case Opcodes.INVOKEINTERFACE:
+                    stackLevel += stackEffectOfInvocation(instructions[i]) + 1;
                     if (((MethodInsnNode)instructions[i]).name.equals(ConstPool.CONSTRUCTOR)) {
-                        // constructor implicitly eat 2 more stack and return 1 value
+                        // constructor must be INVOKESPECIAL and implicitly pop 1 more stack
                         stackLevel++;
                     }
                     break;
                 case Opcodes.INVOKESTATIC:
                 case Opcodes.INVOKEDYNAMIC:
-                    // static and dynamic invoke implicitly return 1 value
-                    stackLevel += (ClassUtil.getParameterTypes(((MethodInsnNode)instructions[i]).desc).size() - 1);
-                    break;
-                case Opcodes.INVOKEVIRTUAL:
-                case Opcodes.INVOKEINTERFACE:
-                    // virtual and interface invoke implicitly eat 1 more stack and return 1 value, deuce
-                    stackLevel += ClassUtil.getParameterTypes(((MethodInsnNode)instructions[i]).desc).size();
+                    stackLevel += stackEffectOfInvocation(instructions[i]);
                     break;
                 case -1:
                     // reach LineNumberNode or LabelNode
@@ -149,6 +145,11 @@ public class SourceClassHandler extends BaseClassHandler {
             }
         }
         return -1;
+    }
+
+    private int stackEffectOfInvocation(AbstractInsnNode instruction) {
+        String desc = ((MethodInsnNode)instruction).desc;
+        return ClassUtil.getParameterTypes(desc).size() - (ClassUtil.getReturnType(desc).isEmpty() ? 0 : 1);
     }
 
     private AbstractInsnNode[] replaceNewOps(ClassNode cn, MethodNode mn, String newOperatorInjectMethodName,
