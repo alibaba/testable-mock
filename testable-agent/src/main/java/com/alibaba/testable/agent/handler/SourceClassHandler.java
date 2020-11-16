@@ -135,7 +135,7 @@ public class SourceClassHandler extends BaseClassHandler {
                     break;
                 case Opcodes.INVOKEVIRTUAL:
                 case Opcodes.INVOKEINTERFACE:
-                    // virtual and interface invoke implicitly eat 1 more stack and return 1 more value, deuce
+                    // virtual and interface invoke implicitly eat 1 more stack and return 1 value, deuce
                     stackLevel += ClassUtil.getParameterTypes(((MethodInsnNode)instructions[i]).desc).size();
                     break;
                 case -1:
