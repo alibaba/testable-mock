@@ -103,6 +103,7 @@ public class TestClassHandler extends BaseClassHandler {
         List<Byte> types = ClassUtil.getParameterTypes(mn.desc);
         int size = types.size();
         int parameterOffset = 1;
+        mn.maxStack += 1;
         il.add(getIntInsn(size));
         il.add(new TypeInsnNode(ANEWARRAY, ClassUtil.CLASS_OBJECT));
         for (int i = 0; i < size; i++) {
