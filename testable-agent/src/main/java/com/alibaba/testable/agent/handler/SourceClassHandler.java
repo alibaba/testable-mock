@@ -121,11 +121,21 @@ public class SourceClassHandler extends BaseClassHandler {
         int stackLevel = ClassUtil.getParameterTypes(((MethodInsnNode)instructions[rangeEnd]).desc).size();
         for (int i = rangeEnd - 1; i >= 0; i--) {
             switch (instructions[i].getOpcode()) {
-                case Opcodes.INVOKEVIRTUAL:
                 case Opcodes.INVOKESPECIAL:
+                    stackLevel += ClassUtil.getParameterTypes(((MethodInsnNode)instructions[i]).desc).size();
+                    if (((MethodInsnNode)instructions[i]).name.equals(ConstPool.CONSTRUCTOR)) {
+                        // constructor implicitly eat 2 more stack and return 1 value
+                        stackLevel++;
+                    }
+                    break;
                 case Opcodes.INVOKESTATIC:
-                case Opcodes.INVOKEINTERFACE:
                 case Opcodes.INVOKEDYNAMIC:
+                    // static and dynamic invoke implicitly return 1 value
+                    stackLevel += (ClassUtil.getParameterTypes(((MethodInsnNode)instructions[i]).desc).size() - 1);
+                    break;
+                case Opcodes.INVOKEVIRTUAL:
+                case Opcodes.INVOKEINTERFACE:
+                    // virtual and interface invoke implicitly eat 1 more stack and return 1 more value, deuce
                     stackLevel += ClassUtil.getParameterTypes(((MethodInsnNode)instructions[i]).desc).size();
                     break;
                 case -1:
@@ -179,6 +189,7 @@ public class SourceClassHandler extends BaseClassHandler {
                 mn.instructions.remove(instructions[end - 1]);
             }
         }
+        // method with @TestableMock will be modified as public access, so INVOKEVIRTUAL is used
         mn.instructions.insertBefore(instructions[end], new MethodInsnNode(INVOKEVIRTUAL, testClassName,
             substitutionMethod, addFirstParameter(method.desc, ClassUtil.fitCompanionClassName(ownerClass)), false));
         mn.instructions.remove(instructions[end]);
