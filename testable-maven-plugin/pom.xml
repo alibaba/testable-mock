@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.alibaba.testable</groupId>
     <artifactId>testable-maven-plugin</artifactId>
-    <version>0.3.0</version>
+    <version>0.3.1-SNAPSHOT</version>
     <packaging>maven-plugin</packaging>
     <name>testable-maven-plugin</name>
     <description>Unit test enhancement toolkit</description>
@@ -30,7 +30,7 @@
     </scm>
 
     <properties>
-        <testable.version>0.3.0</testable.version>
+        <testable.version>0.3.1-SNAPSHOT</testable.version>
         <java.version>1.6</java.version>
         <project.compiler.level>1.6</project.compiler.level>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
