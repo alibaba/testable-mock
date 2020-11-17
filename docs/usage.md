@@ -3,7 +3,7 @@
 
 ## 引入TestableMock
 
-首先在项目`pom.xml`文件中添加`testable-processor`依赖：
+在项目的`pom.xml`文件中添加`testable-processor`依赖：
 
 ```xml
 <dependency>
@@ -14,9 +14,7 @@
 </dependency>
 ```
 
-此时项目就获得了在单元测试中随意访问被测类私有字段和方法的能力（需配合注解使用，见下文详述）。
-
-若要开启极速Mock功能，还需在`pom.xml`里加上`testable-maven-plugin`插件。
+以及`testable-maven-plugin`插件：
 
 ```xml
 <plugin>
@@ -34,7 +32,9 @@
 </plugin>
 ```
 
-> PS：其中`${testable.version}`需替换为具体版本号，当前最新版本为`0.2.2-SNAPSHOT`
+> 其中`${testable.version}`需替换为具体版本号，当前最新版本为`0.2.2-SNAPSHOT`
+
+若仅需使用单元测试随意访问被测类私有字段和方法的能力，不使用Mock功能，则`testable-maven-plugin`插件可以省略。
 
 ## 使用TestableMock
 
