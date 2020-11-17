@@ -23,6 +23,7 @@ public class InvokeVerifier {
     /**
      * Get counter to check whether specified mock method invoked
      * @param mockMethodName name of a mock method
+     * @return the verifier object
      */
     public static InvokeVerifier verify(String mockMethodName) {
         String testClass = Thread.currentThread().getStackTrace()[InvokeRecordUtil.INDEX_OF_TEST_CLASS].getClassName();
@@ -33,6 +34,7 @@ public class InvokeVerifier {
     /**
      * Expect mock method invoked with specified parameters
      * @param args parameters to compare
+     * @return the verifier object
      */
     public InvokeVerifier with(Object... args) {
         boolean found = false;
@@ -55,6 +57,7 @@ public class InvokeVerifier {
     /**
      * Expect next mock method call was invoked with specified parameters
      * @param args parameters to compare
+     * @return the verifier object
      */
     public InvokeVerifier withInOrder(Object... args) {
         withInternal(args, 0);
@@ -65,6 +68,7 @@ public class InvokeVerifier {
     /**
      * Expect mock method had never invoked with specified parameters
      * @param args parameters to compare
+     * @return the verifier object
      */
     public InvokeVerifier without(Object... args) {
         for (Object[] r : records) {
@@ -86,6 +90,7 @@ public class InvokeVerifier {
     /**
      * Expect mock method have been invoked specified times
      * @param expectedCount times to compare
+     * @return the verifier object
      */
     public InvokeVerifier withTimes(int expectedCount) {
         if (expectedCount != records.size()) {
@@ -98,6 +103,7 @@ public class InvokeVerifier {
     /**
      * Expect several consecutive invocations with the same parameters
      * @param count number of invocations
+     * @return the verifier object
      */
     public InvokeVerifier times(int count) {
         if (lastVerification == null) {

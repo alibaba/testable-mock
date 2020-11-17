@@ -69,8 +69,8 @@ public class EnablePrivateAccessTranslator extends BaseTranslator {
     }
 
     /**
-     * d.privateField = val -> PrivateAccessor.set(d, "privateField", val)
-     * d.privateMethod(args) -> PrivateAccessor.invoke(d, "privateMethod", args)
+     * d.privateField = val → PrivateAccessor.set(d, "privateField", val)
+     * d.privateMethod(args) → PrivateAccessor.invoke(d, "privateMethod", args)
      */
     @Override
     public void visitExec(JCExpressionStatement jcExpressionStatement) {
@@ -87,7 +87,7 @@ public class EnablePrivateAccessTranslator extends BaseTranslator {
 
     /**
      * For private invoke invocation break point
-     * call(d.privateMethod(args)) -> call(PrivateAccessor.invoke(d, "privateMethod", args))
+     * call(d.privateMethod(args)) → call(PrivateAccessor.invoke(d, "privateMethod", args))
      */
     @Override
     public void visitApply(JCMethodInvocation tree) {

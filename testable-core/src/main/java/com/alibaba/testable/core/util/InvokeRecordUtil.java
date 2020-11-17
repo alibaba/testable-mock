@@ -11,18 +11,20 @@ import java.util.Map;
 public class InvokeRecordUtil {
 
     /**
-     * Mock method name -> List of invoke parameters
+     * Mock method name → List of invoke parameters
      */
     private static final Map<String, List<Object[]>> INVOKE_RECORDS = new HashMap<String, List<Object[]>>();
     private final static String JOINER = "::";
 
     /**
-     * [0]Thread -> [1]TestableUtil/TestableTool -> [2]TestClass
+     * [0]Thread → [1]TestableUtil/TestableTool → [2]TestClass
      */
     public static final int INDEX_OF_TEST_CLASS = 2;
 
     /**
      * Record mock method invoke event
+     * @param args invocation parameters
+     * @param isConstructor whether mocked method is constructor
      */
     public static void recordMockInvoke(Object[] args, boolean isConstructor) {
         StackTraceElement mockMethodTraceElement = Thread.currentThread().getStackTrace()[INDEX_OF_TEST_CLASS];
@@ -41,6 +43,9 @@ public class InvokeRecordUtil {
 
     /**
      * Get mock method invoke count
+     * @param mockMethodName mock method name
+     * @param testCaseName test case name
+     * @return parameters used when specified method invoked in specified test case
      */
     public static List<Object[]> getInvokeRecord(String mockMethodName, String testCaseName) {
         String key = testCaseName + JOINER + mockMethodName;

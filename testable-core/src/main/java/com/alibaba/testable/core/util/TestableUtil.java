@@ -52,6 +52,7 @@ public class TestableUtil {
 
     /**
      * Get file name and line number of where current method was called
+     * @return in "filename:linenumber" format
      */
     public static String getPreviousStackLocation() {
         // 0 - Thread.getStackTrace(), 1 - this method, 2 - code call this method, 3 - code call the caller method

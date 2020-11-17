@@ -16,7 +16,7 @@
 
 	<properties>
 		<java.version>1.8</java.version>
-		<testable.version>0.2.2-SNAPSHOT</testable.version>
+		<testable.version>0.3.0</testable.version>
 	</properties>
 
 	<dependencies>

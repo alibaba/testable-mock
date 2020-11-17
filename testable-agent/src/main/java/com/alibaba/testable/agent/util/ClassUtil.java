@@ -65,6 +65,7 @@ public class ClassUtil {
      * Check whether any method in specified class has specified annotation
      * @param className class that need to explore
      * @param annotationName annotation to look for
+     * @return found annotation or not
      */
     public static boolean anyMethodHasAnnotation(String className, String annotationName) {
         String cacheKey = className + JOINER + annotationName;
@@ -95,6 +96,7 @@ public class ClassUtil {
     /**
      * fit kotlin companion class name to original name
      * @param name a class name (which could be a companion class)
+     * @return is companion class or not
      */
     public static boolean isCompanionClassName(String name) {
         return name.endsWith("$Companion");
@@ -103,6 +105,7 @@ public class ClassUtil {
     /**
      * fit kotlin companion class name to original name
      * @param name a class name (which could be a companion class)
+     * @return original name
      */
     public static String fitCompanionClassName(String name) {
         return name.replaceAll("\\$Companion$", "");
@@ -111,6 +114,7 @@ public class ClassUtil {
     /**
      * get test class name from source class name
      * @param sourceClassName source class name
+     * @return test class name
      */
     public static String getTestClassName(String sourceClassName) {
         return sourceClassName + ConstPool.TEST_POSTFIX;
@@ -119,6 +123,7 @@ public class ClassUtil {
     /**
      * get source class name from test class name
      * @param testClassName test class name
+     * @return source class name
      */
     public static String getSourceClassName(String testClassName) {
         return testClassName.substring(0, testClassName.length() - ConstPool.TEST_POSTFIX.length());
@@ -126,6 +131,8 @@ public class ClassUtil {
 
     /**
      * parse method desc, fetch parameter types
+     * @param desc method description
+     * @return list of parameter types
      */
     public static List<Byte> getParameterTypes(String desc) {
         List<Byte> parameterTypes = new ArrayList<Byte>();
@@ -151,6 +158,8 @@ public class ClassUtil {
 
     /**
      * parse method desc, fetch return value types
+     * @param desc method description
+     * @return types of return value
      */
     public static String getReturnType(String desc) {
         int returnTypeEdge = desc.lastIndexOf(PARAM_END);
@@ -169,6 +178,7 @@ public class ClassUtil {
     /**
      * Get method node to convert primary type to object type
      * @param type primary type to convert
+     * @return converter method node
      */
     public static MethodInsnNode getPrimaryTypeConvertMethod(Byte type) {
         String objectType = TYPE_MAPPING.get(type);
@@ -176,12 +186,10 @@ public class ClassUtil {
             new MethodInsnNode(INVOKESTATIC, objectType, METHOD_VALUE_OF, toDescriptor(type, objectType), false);
     }
 
-    private static String toDescriptor(Byte type, String objectType) {
-        return "(" + (char)type.byteValue() + ")L" + objectType + ";";
-    }
-
     /**
      * convert slash separated name to dot separated name
+     * @param name original name
+     * @return converted name
      */
     public static String toDotSeparatedName(String name) {
         return name.replace(ConstPool.SLASH, ConstPool.DOT);
@@ -189,6 +197,8 @@ public class ClassUtil {
 
     /**
      * convert dot separated name to slash separated name
+     * @param name original name
+     * @return converted name
      */
     public static String toSlashSeparatedName(String name) {
         return name.replace(ConstPool.DOT, ConstPool.SLASH);
@@ -196,6 +206,8 @@ public class ClassUtil {
 
     /**
      * convert dot separated name to byte code class name
+     * @param className original name
+     * @return converted name
      */
     public static String toByteCodeClassName(String className) {
         return (char)TYPE_CLASS + toSlashSeparatedName(className) + (char)CLASS_END;
@@ -203,6 +215,8 @@ public class ClassUtil {
 
     /**
      * convert byte code class name to dot separated human readable name
+     * @param className original name
+     * @return converted name
      */
     public static String toDotSeparateFullClassName(String className) {
         return toDotSeparatedName(className).substring(1, className.length() - 1);
@@ -210,9 +224,15 @@ public class ClassUtil {
 
     /**
      * convert byte code class name to slash separated human readable name
+     * @param className original name
+     * @return converted name
      */
     public static String toSlashSeparateFullClassName(String className) {
         return toSlashSeparatedName(className).substring(1, className.length() - 1);
+    }
+
+    private static String toDescriptor(Byte type, String objectType) {
+        return "(" + (char)type.byteValue() + ")L" + objectType + ";";
     }
 
     private static boolean isPrimaryType(byte b) {

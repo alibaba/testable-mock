@@ -9,6 +9,8 @@ public class TypeUtil {
 
     /**
      * get classes of parameter objects
+     * @param parameterObjects objects
+     * @return class of those objects
      */
     public static Class<?>[] getClassesFromObjects(Object[] parameterObjects) {
         Class<?>[] cs = new Class[parameterObjects.length];
@@ -20,13 +22,16 @@ public class TypeUtil {
 
     /**
      * get method by name and parameter matching
+     * @param availableMethods available methods
+     * @param methodName method to look for
+     * @param parameterTypes class to look for
+     * @return method which match the name and class
      */
     public static Method getMethodByNameAndParameterTypes(Method[] availableMethods,
                                                           String methodName,
                                                           Class<?>[] parameterTypes) {
         for (Method m : availableMethods) {
-            if (m.getName().equals(methodName) &&
-                typeEquals(m.getParameterTypes(), parameterTypes)) {
+            if (m.getName().equals(methodName) && typeEquals(m.getParameterTypes(), parameterTypes)) {
                 return m;
             }
         }
@@ -35,6 +40,9 @@ public class TypeUtil {
 
     /**
      * type equals
+     * @param classesLeft class to be compared
+     * @param classesRight class to compare
+     * @return whether all class equals
      */
     private static boolean typeEquals(Class<?>[] classesLeft, Class<?>[] classesRight) {
         if (classesLeft.length != classesRight.length) {
@@ -53,6 +61,7 @@ public class TypeUtil {
      * fuzzy equal
      * @param factTypes fact types (can be primary type)
      * @param userTypes user types
+     * @return whether all class equals
      */
     private static boolean fuzzyEqual(Class<?> factTypes, Class<?> userTypes) {
         return (factTypes.equals(int.class) && userTypes.equals(Integer.class)) ||

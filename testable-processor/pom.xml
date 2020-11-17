@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.alibaba.testable</groupId>
     <artifactId>testable-processor</artifactId>
-    <version>0.2.2-SNAPSHOT</version>
+    <version>0.3.0</version>
     <packaging>jar</packaging>
     <name>testable-processor</name>
     <description>Unit test enhancement toolkit</description>
@@ -34,12 +34,12 @@
         <project.compiler.level>1.6</project.compiler.level>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <junit.version>5.6.2</junit.version>
-        <testable.version>0.2.2-SNAPSHOT</testable.version>
+        <testable.version>0.3.0</testable.version>
         <plugin.compiler.version>3.8.1</plugin.compiler.version>
         <plugin.surefire.version>3.0.0-M5</plugin.surefire.version>
         <plugin.source.version>3.2.0</plugin.source.version>
         <plugin.javadoc.version>3.2.0</plugin.javadoc.version>
-        <plugin.gpg.version>1.6.0</plugin.gpg.version>
+        <plugin.gpg.version>1.6</plugin.gpg.version>
         <plugin.staging.version>1.6.8</plugin.staging.version>
     </properties>
 
@@ -146,7 +146,7 @@
                         <version>${plugin.staging.version}</version>
                         <extensions>true</extensions>
                         <configuration>
-                            <serverId>ossrh</serverId>
+                            <serverId>oss</serverId>
                             <nexusUrl>https://oss.sonatype.org/</nexusUrl>
                             <autoReleaseAfterClose>true</autoReleaseAfterClose>
                         </configuration>

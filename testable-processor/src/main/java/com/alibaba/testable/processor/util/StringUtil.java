@@ -11,6 +11,7 @@ public class StringUtil {
      * Join strings
      * @param list strings to join
      * @param conjunction connection character
+     * @return joined string
      */
     static public String join(List<String> list, String conjunction)
     {

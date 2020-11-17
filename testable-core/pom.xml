@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.alibaba.testable</groupId>
     <artifactId>testable-core</artifactId>
-    <version>0.2.2-SNAPSHOT</version>
+    <version>0.3.0</version>
     <packaging>jar</packaging>
     <name>testable-core</name>
     <description>Unit test enhancement toolkit</description>
@@ -38,7 +38,7 @@
         <plugin.surefire.version>3.0.0-M5</plugin.surefire.version>
         <plugin.source.version>3.2.0</plugin.source.version>
         <plugin.javadoc.version>3.2.0</plugin.javadoc.version>
-        <plugin.gpg.version>1.6.0</plugin.gpg.version>
+        <plugin.gpg.version>1.6</plugin.gpg.version>
         <plugin.staging.version>1.6.8</plugin.staging.version>
     </properties>
 
@@ -122,7 +122,7 @@
                         <version>${plugin.staging.version}</version>
                         <extensions>true</extensions>
                         <configuration>
-                            <serverId>ossrh</serverId>
+                            <serverId>oss</serverId>
                             <nexusUrl>https://oss.sonatype.org/</nexusUrl>
                             <autoReleaseAfterClose>true</autoReleaseAfterClose>
                         </configuration>
