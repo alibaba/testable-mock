@@ -79,6 +79,7 @@ public class TestableClassTransformer implements ClassFileTransformer {
             for (MethodNode mn : cn.methods) {
                 checkMethodAnnotation(cn, methodInfos, mn);
             }
+            LogUtil.debug("  Found %d mock methods", methodInfos.size());
             return methodInfos;
         } catch (Exception e) {
             return new ArrayList<MethodInfo>();

@@ -52,6 +52,8 @@ public class SourceClassHandler extends BaseClassHandler {
 
     private void transformMethod(ClassNode cn, MethodNode mn, Set<MethodInfo> memberInjectMethods,
                                  Set<MethodInfo> newOperatorInjectMethods) {
+        LogUtil.debug("  Received %d member mock methods, %d constructor mock methods",
+            memberInjectMethods.size(), newOperatorInjectMethods.size());
         AbstractInsnNode[] instructions = mn.instructions.toArray();
         List<MethodInfo> memberInjectMethodList = new ArrayList<MethodInfo>(memberInjectMethods);
         int i = 0;
