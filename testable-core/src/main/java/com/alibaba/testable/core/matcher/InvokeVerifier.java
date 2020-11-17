@@ -19,71 +19,11 @@ public class InvokeVerifier {
         this.records = records;
     }
 
-    public InvokeVerifier with(Object arg1) {
-        return with(new Object[]{arg1});
-    }
-
-    public InvokeVerifier with(Object arg1, Object arg2) {
-        return with(new Object[]{arg1, arg2});
-    }
-
-    public InvokeVerifier with(Object arg1, Object arg2, Object arg3) {
-        return with(new Object[]{arg1, arg2, arg3});
-    }
-
-    public InvokeVerifier with(Object arg1, Object arg2, Object arg3, Object arg4) {
-        return with(new Object[]{arg1, arg2, arg3, arg4});
-    }
-
-    public InvokeVerifier with(Object arg1, Object arg2, Object arg3, Object arg4, Object arg5) {
-        return with(new Object[]{arg1, arg2, arg3, arg4, arg5});
-    }
-
-    public InvokeVerifier without(Object arg1) {
-        return without(new Object[]{arg1});
-    }
-
-    public InvokeVerifier without(Object arg1, Object arg2) {
-        return without(new Object[]{arg1, arg2});
-    }
-
-    public InvokeVerifier without(Object arg1, Object arg2, Object arg3) {
-        return without(new Object[]{arg1, arg2, arg3});
-    }
-
-    public InvokeVerifier without(Object arg1, Object arg2, Object arg3, Object arg4) {
-        return without(new Object[]{arg1, arg2, arg3, arg4});
-    }
-
-    public InvokeVerifier without(Object arg1, Object arg2, Object arg3, Object arg4, Object arg5) {
-        return without(new Object[]{arg1, arg2, arg3, arg4, arg5});
-    }
-
-    public InvokeVerifier withInOrder(Object arg1) {
-        return withInOrder(new Object[]{arg1});
-    }
-
-    public InvokeVerifier withInOrder(Object arg1, Object arg2) {
-        return withInOrder(new Object[]{arg1, arg2});
-    }
-
-    public InvokeVerifier withInOrder(Object arg1, Object arg2, Object arg3) {
-        return withInOrder(new Object[]{arg1, arg2, arg3});
-    }
-
-    public InvokeVerifier withInOrder(Object arg1, Object arg2, Object arg3, Object arg4) {
-        return withInOrder(new Object[]{arg1, arg2, arg3, arg4});
-    }
-
-    public InvokeVerifier withInOrder(Object arg1, Object arg2, Object arg3, Object arg4, Object arg5) {
-        return withInOrder(new Object[]{arg1, arg2, arg3, arg4, arg5});
-    }
-
     /**
      * Expect mock method invoked with specified parameters
      * @param args parameters to compare
      */
-    public InvokeVerifier with(Object[] args) {
+    public InvokeVerifier with(Object... args) {
         boolean found = false;
         for (int i = 0; i < records.size(); i++) {
             try {
@@ -105,7 +45,7 @@ public class InvokeVerifier {
      * Expect next mock method call was invoked with specified parameters
      * @param args parameters to compare
      */
-    public InvokeVerifier withInOrder(Object[] args) {
+    public InvokeVerifier withInOrder(Object... args) {
         withInternal(args, 0);
         lastVerification = new Verification(args, true);
         return this;
@@ -115,7 +55,7 @@ public class InvokeVerifier {
      * Expect mock method had never invoked with specified parameters
      * @param args parameters to compare
      */
-    public InvokeVerifier without(Object[] args) {
+    public InvokeVerifier without(Object... args) {
         for (Object[] r : records) {
             if (r.length == args.length) {
                 for (int i = 0; i < r.length; i++) {
