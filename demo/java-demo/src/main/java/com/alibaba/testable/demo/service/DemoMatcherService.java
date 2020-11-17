@@ -46,9 +46,9 @@ public class DemoMatcherService {
         List<Float> floatList = new ArrayList<>();
         floatList.add(1.0F);
         floatList.add(2.0F);
+        Long[] longArray = new Long[]{1L, 2L};
         methodToBeMocked(1, 2);
         methodToBeMocked(1L, 2.0);
-        Long[] longArray = new Long[]{1L, 2L};
         methodToBeMocked(new ArrayList<Integer>(){{ add(1); }}, new HashSet<Float>(){{ add(1.0F); }});
         methodToBeMocked(1.0, new HashMap<Integer, Float>(2){{ put(1, 1.0F); }});
         methodToBeMocked(floatList, floatList);
