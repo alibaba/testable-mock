@@ -1,8 +1,8 @@
 package com.alibaba.testable.demo.util
 
-import org.junit.jupiter.api.Test
 import com.alibaba.testable.core.annotation.TestableMock
-import com.alibaba.testable.core.tool.TestableTool.verify
+import com.alibaba.testable.core.matcher.InvokeVerifier.verify
+import org.junit.jupiter.api.Test
 import java.io.File
 
 class PathUtilTest {

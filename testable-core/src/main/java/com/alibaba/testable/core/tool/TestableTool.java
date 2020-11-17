@@ -1,9 +1,5 @@
 package com.alibaba.testable.core.tool;
 
-import com.alibaba.testable.core.matcher.InvokeVerifier;
-import com.alibaba.testable.core.util.InvokeRecordUtil;
-import com.alibaba.testable.core.util.TestableUtil;
-
 /**
  * @author flin
  */
@@ -23,15 +19,5 @@ public class TestableTool {
      * Name of the last visited method in source class
      */
     public static String SOURCE_METHOD;
-
-    /**
-     * Get counter to check whether specified mock method invoked
-     * @param mockMethodName name of a mock method
-     */
-    public static InvokeVerifier verify(String mockMethodName) {
-        String testClass = Thread.currentThread().getStackTrace()[InvokeRecordUtil.INDEX_OF_TEST_CLASS].getClassName();
-        String testCaseName = TestableUtil.currentTestCaseName(testClass);
-        return new InvokeVerifier(InvokeRecordUtil.getInvokeRecord(mockMethodName, testCaseName));
-    }
 
 }

@@ -2,6 +2,7 @@ package com.alibaba.testable.core.matcher;
 
 import com.alibaba.testable.core.error.VerifyFailedError;
 import com.alibaba.testable.core.model.Verification;
+import com.alibaba.testable.core.util.InvokeRecordUtil;
 import com.alibaba.testable.core.util.TestableUtil;
 
 import java.security.InvalidParameterException;
@@ -15,8 +16,18 @@ public class InvokeVerifier {
     private final List<Object[]> records;
     private Verification lastVerification = null;
 
-    public InvokeVerifier(List<Object[]> records) {
+    private InvokeVerifier(List<Object[]> records) {
         this.records = records;
+    }
+
+    /**
+     * Get counter to check whether specified mock method invoked
+     * @param mockMethodName name of a mock method
+     */
+    public static InvokeVerifier verify(String mockMethodName) {
+        String testClass = Thread.currentThread().getStackTrace()[InvokeRecordUtil.INDEX_OF_TEST_CLASS].getClassName();
+        String testCaseName = TestableUtil.currentTestCaseName(testClass);
+        return new InvokeVerifier(InvokeRecordUtil.getInvokeRecord(mockMethodName, testCaseName));
     }
 
     /**

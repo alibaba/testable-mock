@@ -1,6 +1,7 @@
 package com.alibaba.testable.demo.service
 
 import com.alibaba.testable.core.annotation.TestableMock
+import com.alibaba.testable.core.matcher.InvokeVerifier.verify
 import com.alibaba.testable.core.tool.TestableTool.*
 import com.alibaba.testable.demo.model.BlackBox
 import com.alibaba.testable.demo.model.Box
@@ -8,7 +9,6 @@ import com.alibaba.testable.demo.model.ColorBox
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import java.util.concurrent.Executors
-
 
 internal class DemoMockServiceTest {
 

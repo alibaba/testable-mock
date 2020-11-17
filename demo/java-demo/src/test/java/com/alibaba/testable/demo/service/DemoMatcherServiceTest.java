@@ -5,8 +5,7 @@ import com.alibaba.testable.demo.model.BlackBox;
 import org.junit.jupiter.api.Test;
 
 import static com.alibaba.testable.core.matcher.InvokeMatcher.*;
-import static com.alibaba.testable.core.tool.TestableTool.*;
-
+import static com.alibaba.testable.core.matcher.InvokeVerifier.verify;
 
 class DemoMatcherServiceTest {
 

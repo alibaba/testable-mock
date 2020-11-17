@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.Executors;
 
+import static com.alibaba.testable.core.matcher.InvokeVerifier.verify;
 import static com.alibaba.testable.core.tool.TestableTool.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
