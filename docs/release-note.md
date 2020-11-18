@@ -1,10 +1,12 @@
 # Release Note
 
 ## upcoming version
+- support share mock method between test classes
+- support detail log of mocking process for diagnosis
+
+## v0.3.0
 - add `without()` checker to verify mock method never invoked with specified parameters
 - support fuzz matcher when verifying mock invocation
-- add `@MockWith` annotation to support share mock method between test classes
-- add method to print detail log of mocking process for debugging
 
 ## v0.2.2
 - support mock method parameters check
