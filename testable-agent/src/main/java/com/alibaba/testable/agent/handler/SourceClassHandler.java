@@ -52,8 +52,7 @@ public class SourceClassHandler extends BaseClassHandler {
 
     private void transformMethod(ClassNode cn, MethodNode mn, Set<MethodInfo> memberInjectMethods,
                                  Set<MethodInfo> newOperatorInjectMethods) {
-        LogUtil.debug("  Received %d member mock methods, %d constructor mock methods",
-            memberInjectMethods.size(), newOperatorInjectMethods.size());
+        LogUtil.debug("  Handling method %s", mn.name);
         AbstractInsnNode[] instructions = mn.instructions.toArray();
         List<MethodInfo> memberInjectMethodList = new ArrayList<MethodInfo>(memberInjectMethods);
         int i = 0;
@@ -156,7 +155,8 @@ public class SourceClassHandler extends BaseClassHandler {
 
     private AbstractInsnNode[] replaceNewOps(ClassNode cn, MethodNode mn, String newOperatorInjectMethodName,
                                              AbstractInsnNode[] instructions, int start, int end) {
-        LogUtil.debug("  Using %s mock new operation in %s", newOperatorInjectMethodName, mn.name);
+        LogUtil.debug("    Line %d, mock method %s used", getLineNum(instructions, start),
+            newOperatorInjectMethodName);
         String classType = ((TypeInsnNode)instructions[start]).desc;
         String constructorDesc = ((MethodInsnNode)instructions[end]).desc;
         String testClassName = ClassUtil.getTestClassName(cn.name);
@@ -170,6 +170,15 @@ public class SourceClassHandler extends BaseClassHandler {
         return mn.instructions.toArray();
     }
 
+    private int getLineNum(AbstractInsnNode[] instructions, int start) {
+        for (int i = start - 1; i >= 0; i--) {
+            if (instructions[i] instanceof LineNumberNode) {
+                return ((LineNumberNode)instructions[i]).line;
+            }
+        }
+        return 0;
+    }
+
     private String getConstructorInjectDesc(String constructorDesc, String classType) {
         return constructorDesc.substring(0, constructorDesc.length() - 1) +
             ClassUtil.toByteCodeClassName(classType);
@@ -178,7 +187,7 @@ public class SourceClassHandler extends BaseClassHandler {
     private AbstractInsnNode[] replaceMemberCallOps(ClassNode cn, MethodNode mn, String substitutionMethod,
                                                     AbstractInsnNode[] instructions, String ownerClass,
                                                     int opcode, int start, int end) {
-        LogUtil.debug("  Using %s mock method in %s", substitutionMethod, mn.name);
+        LogUtil.debug("    Line %d, mock method %s used", getLineNum(instructions, start), substitutionMethod);
         mn.maxStack++;
         MethodInsnNode method = (MethodInsnNode)instructions[end];
         String testClassName = ClassUtil.getTestClassName(cn.name);

@@ -14,6 +14,7 @@ public @interface TestableMock {
 
     /**
      * mock specified method instead of method with same name
+     * @return target method name
      */
     String targetMethod() default "";
 

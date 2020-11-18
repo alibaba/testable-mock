@@ -43,11 +43,7 @@ public class ClassUtil {
     private static final String EMPTY = "";
     private static final String METHOD_VALUE_OF = "valueOf";
 
-    private final static String JOINER = "::";
-
     private static final Map<Byte, String> TYPE_MAPPING = new HashMap<Byte, String>();
-    private static final Map<ComparableWeakRef<String>, Boolean> loadedClass =
-        new WeakHashMap<ComparableWeakRef<String>, Boolean>();
 
     static {
         TYPE_MAPPING.put(TYPE_BYTE, CLASS_BYTE);
@@ -59,38 +55,6 @@ public class ClassUtil {
         TYPE_MAPPING.put(TYPE_SHORT, CLASS_SHORT);
         TYPE_MAPPING.put(TYPE_BOOL, CLASS_BOOLEAN);
         TYPE_MAPPING.put(TYPE_VOID, EMPTY);
-    }
-
-    /**
-     * Check whether any method in specified class has specified annotation
-     * @param className class that need to explore
-     * @param annotationName annotation to look for
-     * @return found annotation or not
-     */
-    public static boolean anyMethodHasAnnotation(String className, String annotationName) {
-        String cacheKey = className + JOINER + annotationName;
-        Boolean found = loadedClass.get(new ComparableWeakRef<String>(cacheKey));
-        if (found != null) {
-            return found;
-        }
-        try {
-            ClassNode cn = new ClassNode();
-            new ClassReader(className).accept(cn, 0);
-            for (MethodNode mn : cn.methods) {
-                if (mn.visibleAnnotations != null) {
-                    for (AnnotationNode an : mn.visibleAnnotations) {
-                        if (toDotSeparateFullClassName(an.desc).equals(annotationName)) {
-                            loadedClass.put(new ComparableWeakRef<String>(cacheKey), true);
-                            return true;
-                        }
-                    }
-                }
-            }
-        } catch (Exception e) {
-            // ignore
-        }
-        loadedClass.put(new ComparableWeakRef<String>(cacheKey), false);
-        return false;
     }
 
     /**

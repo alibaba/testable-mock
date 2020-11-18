@@ -25,7 +25,7 @@ public class PreMain {
         }
         for (String a : args.split(AND)) {
             if (a.equals(DEBUG)) {
-                LogUtil.enableDebugLog();
+                LogUtil.globalDebugEnable = true;
             }
         }
     }

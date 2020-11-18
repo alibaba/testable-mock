@@ -17,9 +17,18 @@ public class AnnotationUtil {
      * @return value of parameter
      */
     public static <T> T getAnnotationParameter(AnnotationNode an, String key, T defaultValue, Class<T> clazz) {
-        if (an.values != null) {
+        if (an != null && an.values != null) {
             for (int i = 0; i < an.values.size(); i += 2) {
                 if (an.values.get(i).equals(key)) {
+                    if (clazz.isEnum()) {
+                        // Enum type are stored as String[] in annotation parameter
+                        String[] values = (String[])an.values.get(i + 1);
+                        if (values == null || values.length != 2) {
+                            return defaultValue;
+                        }
+                        Class<? extends Enum> enumClazz = (Class<? extends Enum>)clazz;
+                        return (T)Enum.valueOf(enumClazz, values[1]);
+                    }
                     return clazz.cast(an.values.get(i + 1));
                 }
             }
