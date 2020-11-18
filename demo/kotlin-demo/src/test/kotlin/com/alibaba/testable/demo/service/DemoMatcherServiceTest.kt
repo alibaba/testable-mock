@@ -1,9 +1,11 @@
 package com.alibaba.testable.demo.service
 
 import com.alibaba.testable.core.annotation.TestableMock
+import com.alibaba.testable.core.error.VerifyFailedError
 import com.alibaba.testable.core.matcher.InvokeMatcher
 import com.alibaba.testable.core.matcher.InvokeVerifier
 import com.alibaba.testable.demo.model.BlackBox
+import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 
 
@@ -59,5 +61,22 @@ internal class DemoMatcherServiceTest {
         InvokeVerifier.verify("methodWithArguments").withInOrder(InvokeMatcher.any(BlackBox::class.java), InvokeMatcher.any(BlackBox::class.java))
         InvokeVerifier.verify("methodWithArguments").withInOrder(InvokeMatcher.nullable(BlackBox::class.java), InvokeMatcher.nullable(BlackBox::class.java))
         InvokeVerifier.verify("methodWithArguments").withInOrder(InvokeMatcher.isNull(), InvokeMatcher.notNull())
+    }
+
+    @Test
+    fun should_match_with_times() {
+        demo.callMethodWithNumberArguments()
+        InvokeVerifier.verify("methodWithArguments").with(InvokeMatcher.anyNumber(), InvokeMatcher.any()).times(3)
+
+        demo.callMethodWithNumberArguments()
+        var gotError = false
+        try {
+            InvokeVerifier.verify("methodWithArguments").with(InvokeMatcher.anyNumber(), InvokeMatcher.any()).times(4)
+        } catch (e: VerifyFailedError) {
+            gotError = true
+        }
+        if (!gotError) {
+            Assertions.fail<Any>()
+        }
     }
 }
