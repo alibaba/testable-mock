@@ -1,7 +1,13 @@
 package com.alibaba.testable.demo.model;
 
-public interface Box {
+abstract public class Box {
 
-    void put(String something);
+    protected String data;
+
+    abstract public void put(String something);
+
+    public String get() {
+        return data;
+    }
 
 }

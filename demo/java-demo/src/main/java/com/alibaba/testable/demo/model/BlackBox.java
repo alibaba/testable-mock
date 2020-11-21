@@ -1,24 +1,23 @@
 package com.alibaba.testable.demo.model;
 
-public class BlackBox implements Box {
+public class BlackBox extends Box implements Color {
 
-    private String data;
+    public BlackBox(String data) {
+        this.data = data;
+    }
+
+    public static BlackBox secretBox() {
+        return new BlackBox("secret");
+    }
 
     @Override
     public void put(String something) {
         data = something;
     }
 
-    public BlackBox(String data) {
-        this.data = data;
-    }
-
-    public String get() {
-        return data;
-    }
-
-    public static BlackBox secretBox() {
-        return new BlackBox("secret");
+    @Override
+    public String getColor() {
+        return "black";
     }
 
 }

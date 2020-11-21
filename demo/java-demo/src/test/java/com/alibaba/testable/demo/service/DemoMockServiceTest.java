@@ -2,7 +2,6 @@ package com.alibaba.testable.demo.service;
 
 import com.alibaba.testable.core.annotation.TestableMock;
 import com.alibaba.testable.demo.model.BlackBox;
-import com.alibaba.testable.demo.model.Box;
 import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.Executors;
@@ -44,11 +43,6 @@ class DemoMockServiceTest {
     }
 
     @TestableMock
-    private void put(Box self, String something) {
-        self.put("put_" + something + "_mocked");
-    }
-
-    @TestableMock
     private String callFromDifferentMethod(DemoMockService self) {
         if (TEST_CASE.equals("should_able_to_get_test_case_name")) {
             return "mock_special";
@@ -85,13 +79,6 @@ class DemoMockServiceTest {
     void should_able_to_mock_static_method() throws Exception {
         assertEquals("not_secret_box", demoService.getBox().get());
         verify("secretBox").withTimes(1);
-    }
-
-    @Test
-    void should_able_to_mock_override_method() throws Exception {
-        BlackBox box = (BlackBox)demoService.putBox();
-        verify("put").withTimes(1);
-        assertEquals("put_data_mocked", box.get());
     }
 
     @Test

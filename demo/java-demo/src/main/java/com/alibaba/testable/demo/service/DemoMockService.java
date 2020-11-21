@@ -40,15 +40,6 @@ public class DemoMockService {
     }
 
     /**
-     * method with override method invoke
-     */
-    public Box putBox() {
-        Box box = new BlackBox("");
-        box.put("data");
-        return box;
-    }
-
-    /**
      * two methods invoke same private method
      */
     public String callerOne() {

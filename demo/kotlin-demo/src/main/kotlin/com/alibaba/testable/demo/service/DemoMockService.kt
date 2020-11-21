@@ -14,7 +14,7 @@ class DemoMockService {
     /**
      * method with new operation
      */
-    fun newFunc(): String {
+    fun newFunc(): String? {
         return BlackBox("something").get()
     }
 
@@ -38,15 +38,6 @@ class DemoMockService {
      */
     fun getBox(): BlackBox {
         return ColorBox.createBox("Red", BlackBox.secretBox())
-    }
-
-    /**
-     * method with override method invoke
-     */
-    fun putBox(): Box {
-        val box: Box = BlackBox("")
-        box.put("data")
-        return box
     }
 
     /**

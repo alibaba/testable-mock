@@ -1,26 +1,29 @@
 package com.alibaba.testable.demo.model
 
 
-class BlackBox(private var data: String) : Box {
+class BlackBox(var input: String) : Box(), Color {
+
+    init {
+        this.content = input
+    }
 
     override fun put(something: String) {
-        data = something
+        content = something
     }
 
-    fun get(): String {
-        return data
+    override val color: String
+        get() = "black"
+
+    fun trim(): String? {
+        return content?.trim()
     }
 
-    fun trim(): String {
-        return data.trim()
-    }
-
-    fun substring(from: Int, to: Int): String {
-        return data.substring(from, to)
+    fun substring(from: Int, to: Int): String? {
+        return content?.substring(from, to)
     }
 
     fun startsWith(prefix: String): Boolean {
-        return data.startsWith(prefix)
+        return content?.startsWith(prefix) == true
     }
 
     companion object {

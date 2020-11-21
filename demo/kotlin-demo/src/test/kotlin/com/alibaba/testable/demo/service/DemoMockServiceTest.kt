@@ -4,7 +4,6 @@ import com.alibaba.testable.core.annotation.TestableMock
 import com.alibaba.testable.core.matcher.InvokeVerifier.verify
 import com.alibaba.testable.core.tool.TestableTool.*
 import com.alibaba.testable.demo.model.BlackBox
-import com.alibaba.testable.demo.model.Box
 import com.alibaba.testable.demo.model.ColorBox
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
@@ -35,11 +34,6 @@ internal class DemoMockServiceTest {
     @TestableMock
     private fun createBox(ignore: ColorBox, color: String, box: BlackBox): BlackBox {
         return BlackBox("White_${box.get()}")
-    }
-
-    @TestableMock
-    private fun put(self: Box, something: String) {
-        self.put("put_" + something + "_mocked")
     }
 
     @TestableMock
@@ -81,13 +75,6 @@ internal class DemoMockServiceTest {
         assertEquals("White_not_secret_box", demoService.getBox().get())
         verify("secretBox").withTimes(1)
         verify("createBox").withTimes(1)
-    }
-
-    @Test
-    fun should_able_to_mock_override_method() {
-        val box = demoService.putBox() as BlackBox
-        verify("put").withTimes(1)
-        assertEquals("put_data_mocked", box.get())
     }
 
     @Test
