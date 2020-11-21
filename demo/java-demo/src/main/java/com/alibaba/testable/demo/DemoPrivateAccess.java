@@ -1,9 +1,9 @@
-package com.alibaba.testable.demo.service;
+package com.alibaba.testable.demo;
 
-import org.springframework.stereotype.Service;
-
-@Service
-public class DemoPrivateAccessService {
+/**
+ * @author flin
+ */
+public class DemoPrivateAccess {
 
     private int count;
 

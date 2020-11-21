@@ -1,4 +1,4 @@
-package com.alibaba.testable.demo.service
+package com.alibaba.testable.demo
 
 import com.alibaba.testable.core.annotation.TestableMock
 import com.alibaba.testable.core.error.VerifyFailedError
@@ -9,33 +9,33 @@ import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 
 
-internal class DemoMatcherServiceTest {
+internal class DemoMatcherTest {
 
     @TestableMock(targetMethod = "methodToBeMocked")
-    private fun methodWithoutArgument(self: DemoMatcherService) {
+    private fun methodWithoutArgument(self: DemoMatcher) {
     }
 
     @TestableMock(targetMethod = "methodToBeMocked")
-    private fun methodWithArguments(self: DemoMatcherService, a1: Any, a2: Any) {
+    private fun methodWithArguments(self: DemoMatcher, a1: Any, a2: Any) {
     }
 
     @TestableMock(targetMethod = "methodToBeMocked")
-    private fun methodWithArrayArgument(self: DemoMatcherService, a: Array<Any>) {
+    private fun methodWithArrayArgument(self: DemoMatcher, a: Array<Any>) {
     }
 
-    private val demo = DemoMatcherService()
+    private val demoMatcher = DemoMatcher()
 
     @Test
     fun should_match_no_argument() {
-        demo.callMethodWithoutArgument()
+        demoMatcher.callMethodWithoutArgument()
         InvokeVerifier.verify("methodWithoutArgument").withTimes(1)
-        demo.callMethodWithoutArgument()
+        demoMatcher.callMethodWithoutArgument()
         InvokeVerifier.verify("methodWithoutArgument").withTimes(2)
     }
 
     @Test
     fun should_match_number_arguments() {
-        demo.callMethodWithNumberArguments()
+        demoMatcher.callMethodWithNumberArguments()
         InvokeVerifier.verify("methodWithArguments").without(InvokeMatcher.anyString(), 2)
         InvokeVerifier.verify("methodWithArguments").withInOrder(InvokeMatcher.anyInt(), 2)
         InvokeVerifier.verify("methodWithArguments").withInOrder(InvokeMatcher.anyLong(), InvokeMatcher.anyNumber())
@@ -49,7 +49,7 @@ internal class DemoMatcherServiceTest {
 
     @Test
     fun should_match_string_arguments() {
-        demo.callMethodWithStringArgument()
+        demoMatcher.callMethodWithStringArgument()
         InvokeVerifier.verify("methodWithArguments").with(InvokeMatcher.startsWith("he"), InvokeMatcher.endsWith("ld"))
         InvokeVerifier.verify("methodWithArguments").with(InvokeMatcher.contains("stab"), InvokeMatcher.matches("m.[cd]k"))
         InvokeVerifier.verify("methodWithArrayArgument").with(InvokeMatcher.anyArrayOf(String::class.java))
@@ -57,7 +57,7 @@ internal class DemoMatcherServiceTest {
 
     @Test
     fun should_match_object_arguments() {
-        demo.callMethodWithObjectArgument()
+        demoMatcher.callMethodWithObjectArgument()
         InvokeVerifier.verify("methodWithArguments").withInOrder(InvokeMatcher.any(BlackBox::class.java), InvokeMatcher.any(BlackBox::class.java))
         InvokeVerifier.verify("methodWithArguments").withInOrder(InvokeMatcher.nullable(BlackBox::class.java), InvokeMatcher.nullable(BlackBox::class.java))
         InvokeVerifier.verify("methodWithArguments").withInOrder(InvokeMatcher.isNull(), InvokeMatcher.notNull())
@@ -65,10 +65,10 @@ internal class DemoMatcherServiceTest {
 
     @Test
     fun should_match_with_times() {
-        demo.callMethodWithNumberArguments()
+        demoMatcher.callMethodWithNumberArguments()
         InvokeVerifier.verify("methodWithArguments").with(InvokeMatcher.anyNumber(), InvokeMatcher.any()).times(3)
 
-        demo.callMethodWithNumberArguments()
+        demoMatcher.callMethodWithNumberArguments()
         var gotError = false
         try {
             InvokeVerifier.verify("methodWithArguments").with(InvokeMatcher.anyNumber(), InvokeMatcher.any()).times(4)

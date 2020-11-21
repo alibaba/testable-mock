@@ -1,15 +1,11 @@
-package com.alibaba.testable.demo.service
+package com.alibaba.testable.demo
 
 import com.alibaba.testable.demo.model.BlackBox
-import com.alibaba.testable.demo.model.Box
 import com.alibaba.testable.demo.model.ColorBox
-import org.springframework.stereotype.Service
 import sun.net.www.http.HttpClient
 import java.net.URL
 
-
-@Service
-class DemoMockService {
+class DemoMock {
 
     /**
      * method with new operation

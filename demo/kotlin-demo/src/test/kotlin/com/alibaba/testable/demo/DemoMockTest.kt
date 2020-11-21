@@ -1,4 +1,4 @@
-package com.alibaba.testable.demo.service
+package com.alibaba.testable.demo
 
 import com.alibaba.testable.core.annotation.TestableMock
 import com.alibaba.testable.core.matcher.InvokeVerifier.verify
@@ -9,13 +9,13 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import java.util.concurrent.Executors
 
-internal class DemoMockServiceTest {
+internal class DemoMockTest {
 
     @TestableMock(targetMethod = CONSTRUCTOR)
     private fun createBlackBox(text: String) = BlackBox("mock_$text")
 
     @TestableMock
-    private fun innerFunc(self: DemoMockService, text: String) = "mock_$text"
+    private fun innerFunc(self: DemoMock, text: String) = "mock_$text"
 
     @TestableMock
     private fun trim(self: BlackBox) = "trim_string"
@@ -37,7 +37,7 @@ internal class DemoMockServiceTest {
     }
 
     @TestableMock
-    private fun callFromDifferentMethod(self: DemoMockService): String {
+    private fun callFromDifferentMethod(self: DemoMock): String {
         return if (TEST_CASE == "should_able_to_get_test_case_name") {
             "mock_special"
         } else {
@@ -48,23 +48,23 @@ internal class DemoMockServiceTest {
         }
     }
 
-    private val demoService = DemoMockService()
+    private val demoMock = DemoMock()
 
     @Test
     fun should_able_to_mock_new_object() {
-        assertEquals("mock_something", demoService.newFunc())
+        assertEquals("mock_something", demoMock.newFunc())
         verify("createBlackBox").with("something")
     }
 
     @Test
     fun should_able_to_mock_member_method() {
-        assertEquals("{ \"res\": \"mock_hello\"}", demoService.outerFunc("hello"))
+        assertEquals("{ \"res\": \"mock_hello\"}", demoMock.outerFunc("hello"))
         verify("innerFunc").with("hello")
     }
 
     @Test
     fun should_able_to_mock_common_method() {
-        assertEquals("trim_string__sub_string__false", demoService.commonFunc())
+        assertEquals("trim_string__sub_string__false", demoMock.commonFunc())
         verify("trim").withTimes(1)
         verify("sub").withTimes(1)
         verify("startsWith").withTimes(1)
@@ -72,7 +72,7 @@ internal class DemoMockServiceTest {
 
     @Test
     fun should_able_to_mock_static_method() {
-        assertEquals("White_not_secret_box", demoService.getBox().get())
+        assertEquals("White_not_secret_box", demoMock.getBox().get())
         verify("secretBox").withTimes(1)
         verify("createBox").withTimes(1)
     }
@@ -80,10 +80,10 @@ internal class DemoMockServiceTest {
     @Test
     fun should_able_to_get_source_method_name() {
         // synchronous
-        assertEquals("mock_one_mock_others", demoService.callerOne() + "_" + demoService.callerTwo())
+        assertEquals("mock_one_mock_others", demoMock.callerOne() + "_" + demoMock.callerTwo())
         // asynchronous
         assertEquals("mock_one_mock_others", Executors.newSingleThreadExecutor().submit<String> {
-            demoService.callerOne() + "_" + demoService.callerTwo()
+            demoMock.callerOne() + "_" + demoMock.callerTwo()
         }.get())
         verify("callFromDifferentMethod").withTimes(4)
     }
@@ -91,10 +91,10 @@ internal class DemoMockServiceTest {
     @Test
     fun should_able_to_get_test_case_name() {
         // synchronous
-        assertEquals("mock_special", demoService.callerOne())
+        assertEquals("mock_special", demoMock.callerOne())
         // asynchronous
         assertEquals("mock_special", Executors.newSingleThreadExecutor().submit<String> {
-            demoService.callerOne()
+            demoMock.callerOne()
         }.get())
         verify("callFromDifferentMethod").withTimes(2)
     }

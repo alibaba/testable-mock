@@ -53,7 +53,7 @@
 
 若不希望看到IDE的语法错误提醒，或是在基于JVM的非Java语言项目里（譬如Kotlin语言），也可以借助`PrivateAccessor`工具类来实现私有成员的访问。
 
-效果见`java-demo`和`kotlin-demo`示例项目中`DemoPrivateAccessService`类的测试用例。
+效果见`java-demo`和`kotlin-demo`示例项目中`DemoPrivateAccessTest`测试类的用例。
 
 ### Mock被测类的任意方法调用
 
@@ -89,10 +89,10 @@ private String substring(String self, int i, int j) {
 例如，被测类中有一个签名为`String innerFunc(String)`的私有方法，我们希望在测试的时候将它替换掉，则只需在测试类定义如下方法：
 
 ```java
-// 被测类型是`DemoMockService`
-// 因此在定义Mock方法时，在目标方法参数首位加一个类型为`DemoMockService`的参数（名字随意）
+// 被测类型是`DemoMock`
+// 因此在定义Mock方法时，在目标方法参数首位加一个类型为`DemoMock`的参数（名字随意）
 @TestableMock
-private String innerFunc(DemoMockService self, String text) {
+private String innerFunc(DemoMock self, String text) {
     return "mock_" + text;
 }
 ```

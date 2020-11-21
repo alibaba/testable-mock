@@ -17,7 +17,7 @@ public test_case() {
 
 除了这种简单校验以外，TestableMock当前已经支持了多种**校验器**，以及能够模糊匹配参数特征的**匹配器**。
 
-在示例项目`java-demo`和`kotlin-demo`中的`DemoMatcherServiceTest`测试类详细展示了这些校验器和匹配器的用法。
+在示例项目`java-demo`和`kotlin-demo`中的`DemoMatcherTest`测试类详细展示了这些校验器和匹配器的用法。
 
 ## 基本校验器
 

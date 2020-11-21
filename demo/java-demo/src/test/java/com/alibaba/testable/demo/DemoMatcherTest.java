@@ -1,4 +1,4 @@
-package com.alibaba.testable.demo.service;
+package com.alibaba.testable.demo;
 
 import com.alibaba.testable.core.annotation.TestableMock;
 import com.alibaba.testable.core.error.VerifyFailedError;
@@ -9,30 +9,30 @@ import static com.alibaba.testable.core.matcher.InvokeMatcher.*;
 import static com.alibaba.testable.core.matcher.InvokeVerifier.verify;
 import static org.junit.jupiter.api.Assertions.fail;
 
-class DemoMatcherServiceTest {
+class DemoMatcherTest {
 
-    private DemoMatcherService demo = new DemoMatcherService();
-
-    @TestableMock(targetMethod = "methodToBeMocked")
-    private void methodWithoutArgument(DemoMatcherService self) {}
+    private DemoMatcher demoMatcher = new DemoMatcher();
 
     @TestableMock(targetMethod = "methodToBeMocked")
-    private void methodWithArguments(DemoMatcherService self, Object a1, Object a2) {}
+    private void methodWithoutArgument(DemoMatcher self) {}
 
     @TestableMock(targetMethod = "methodToBeMocked")
-    private void methodWithArrayArgument(DemoMatcherService self, Object[] a) {}
+    private void methodWithArguments(DemoMatcher self, Object a1, Object a2) {}
+
+    @TestableMock(targetMethod = "methodToBeMocked")
+    private void methodWithArrayArgument(DemoMatcher self, Object[] a) {}
 
     @Test
     void should_match_no_argument() {
-        demo.callMethodWithoutArgument();
+        demoMatcher.callMethodWithoutArgument();
         verify("methodWithoutArgument").withTimes(1);
-        demo.callMethodWithoutArgument();
+        demoMatcher.callMethodWithoutArgument();
         verify("methodWithoutArgument").withTimes(2);
     }
 
     @Test
     void should_match_number_arguments() {
-        demo.callMethodWithNumberArguments();
+        demoMatcher.callMethodWithNumberArguments();
         verify("methodWithArguments").without(anyString(), 2);
         verify("methodWithArguments").withInOrder(anyInt(), 2);
         verify("methodWithArguments").withInOrder(anyLong(), anyNumber());
@@ -45,7 +45,7 @@ class DemoMatcherServiceTest {
 
     @Test
     void should_match_string_arguments() {
-        demo.callMethodWithStringArgument();
+        demoMatcher.callMethodWithStringArgument();
         verify("methodWithArguments").with(startsWith("he"), endsWith("ld"));
         verify("methodWithArguments").with(contains("stab"), matches("m.[cd]k"));
         verify("methodWithArrayArgument").with(anyArrayOf(String.class));
@@ -53,7 +53,7 @@ class DemoMatcherServiceTest {
 
     @Test
     void should_match_object_arguments() {
-        demo.callMethodWithObjectArgument();
+        demoMatcher.callMethodWithObjectArgument();
         verify("methodWithArguments").withInOrder(any(BlackBox.class), any(BlackBox.class));
         verify("methodWithArguments").withInOrder(nullable(BlackBox.class), nullable(BlackBox.class));
         verify("methodWithArguments").withInOrder(isNull(), notNull());
@@ -61,10 +61,10 @@ class DemoMatcherServiceTest {
 
     @Test
     void should_match_with_times() {
-        demo.callMethodWithNumberArguments();
+        demoMatcher.callMethodWithNumberArguments();
         verify("methodWithArguments").with(anyNumber(), any()).times(3);
 
-        demo.callMethodWithNumberArguments();
+        demoMatcher.callMethodWithNumberArguments();
         boolean gotError = false;
         try {
             verify("methodWithArguments").with(anyNumber(), any()).times(4);

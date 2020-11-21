@@ -1,60 +1,41 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<modelVersion>4.0.0</modelVersion>
-	<parent>
-		<groupId>org.springframework.boot</groupId>
-		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>2.3.4.RELEASE</version>
-		<relativePath/> <!-- lookup parent from repository -->
-	</parent>
-	<groupId>com.alibaba.testable</groupId>
-	<artifactId>java-demo</artifactId>
-	<version>1.0.0-SNAPSHOT</version>
-	<name>java-demo</name>
-	<description>Demo project for Spring Boot</description>
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>com.alibaba.testable</groupId>
+    <artifactId>java-demo</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+    <name>java-demo</name>
+    <description>Demo project for TestableMock</description>
 
-	<properties>
-		<java.version>1.8</java.version>
-		<testable.version>0.3.1-SNAPSHOT</testable.version>
-	</properties>
+    <properties>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+        <testable.version>0.3.1-SNAPSHOT</testable.version>
+    </properties>
 
-	<dependencies>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-web</artifactId>
-		</dependency>
+    <dependencies>
+        <dependency>
+            <groupId>com.alibaba.testable</groupId>
+            <artifactId>testable-processor</artifactId>
+            <version>${testable.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <version>5.6.2</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
 
-		<dependency>
-			<groupId>com.alibaba.testable</groupId>
-			<artifactId>testable-processor</artifactId>
-			<version>${testable.version}</version>
-			<scope>provided</scope>
-		</dependency>
-
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-test</artifactId>
-			<scope>test</scope>
-			<exclusions>
-				<exclusion>
-					<groupId>org.junit.vintage</groupId>
-					<artifactId>junit-vintage-engine</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.ow2.asm</groupId>
-					<artifactId>asm</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-	</dependencies>
-
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.springframework.boot</groupId>
-				<artifactId>spring-boot-maven-plugin</artifactId>
-			</plugin>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.0.0-M5</version>
+            </plugin>
 <!--			<plugin>-->
 <!--				<groupId>org.apache.maven.plugins</groupId>-->
 <!--				<artifactId>maven-surefire-plugin</artifactId>-->
@@ -62,44 +43,44 @@
 <!--					<argLine>@{argLine} -javaagent:${settings.localRepository}/com/alibaba/testable/testable-agent/${testable.version}/testable-agent-${testable.version}.jar</argLine>-->
 <!--				</configuration>-->
 <!--			</plugin>-->
-			<plugin>
-				<groupId>com.alibaba.testable</groupId>
-				<artifactId>testable-maven-plugin</artifactId>
-				<version>${testable.version}</version>
-				<executions>
-					<execution>
-						<id>prepare</id>
-						<goals>
-							<goal>prepare</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
-				<groupId>org.jacoco</groupId>
-				<artifactId>jacoco-maven-plugin</artifactId>
-				<version>0.8.6</version>
-				<executions>
-					<execution>
-						<id>prepare-agent</id>
-						<goals>
-							<goal>prepare-agent</goal>
-						</goals>
-					</execution>
-					<execution>
-						<id>report</id>
-						<phase>prepare-package</phase>
-						<goals>
-							<goal>report</goal>
-						</goals>
-						<configuration>
-							<dataFile>target/jacoco.exec</dataFile>
-							<outputDirectory>target/jacoco-ut</outputDirectory>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-		</plugins>
-	</build>
+            <plugin>
+                <groupId>com.alibaba.testable</groupId>
+                <artifactId>testable-maven-plugin</artifactId>
+                <version>${testable.version}</version>
+                <executions>
+                    <execution>
+                        <id>prepare</id>
+                        <goals>
+                            <goal>prepare</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>0.8.6</version>
+                <executions>
+                    <execution>
+                        <id>prepare-agent</id>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>report</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                        <configuration>
+                            <dataFile>target/jacoco.exec</dataFile>
+                            <outputDirectory>target/jacoco-ut</outputDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>

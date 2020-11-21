@@ -1,10 +1,6 @@
-package com.alibaba.testable.demo.service
+package com.alibaba.testable.demo
 
-import org.springframework.stereotype.Service
-
-
-@Service
-class DemoPrivateAccessService {
+class DemoPrivateAccess {
 
     private var count = 0
 

@@ -13,7 +13,7 @@
 
 因此，不论被调用方法来自父类还是子类，也不论子类是否覆写该方法，Mock方法的首个参数类型都应该使用变量自身的接口或父类类型。
 
-参见Java和Kotlin示例中`DemoInheritServiceTest`测试类的用例。
+参见Java和Kotlin示例中`DemoInheritTest`测试类的用例。
 
 #### 3. `TestableMock`能否用于Android项目的测试？
 

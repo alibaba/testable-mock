@@ -1,14 +1,12 @@
-package com.alibaba.testable.demo.service
+package com.alibaba.testable.demo
 
 import com.alibaba.testable.demo.model.BlackBox
-import org.springframework.stereotype.Service
 import java.util.*
 
 /**
  * @author flin
  */
-@Service
-class DemoMatcherService {
+class DemoMatcher {
     /**
      * Method to be mocked
      */

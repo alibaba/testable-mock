@@ -27,7 +27,7 @@ class SourceClassHandlerTest {
             new InsnNode(ICONST_1),
             new InsnNode(ICONST_2),
             new MethodInsnNode(INVOKEVIRTUAL, "java/lang/String", "substring", "(II)Ljava/lang/String;", false),
-            new MethodInsnNode(INVOKESPECIAL, "com/alibaba/testable/demo/DemoServiceTest", "blackBox", "(Ljava/lang/String;)Lcom/alibaba/testable/demo/BlackBox;", false),
+            new MethodInsnNode(INVOKESPECIAL, "com/alibaba/testable/demo/DemoTest", "blackBox", "(Ljava/lang/String;)Lcom/alibaba/testable/demo/BlackBox;", false),
             new MethodInsnNode(INVOKEVIRTUAL, "com/alibaba/testable/demo/BlackBox", "callMe", "()Ljava/lang/String;", false),
             new MethodInsnNode(INVOKEVIRTUAL, "java/lang/String", "startsWith", "(Ljava/lang/String;)Z", false)
         };

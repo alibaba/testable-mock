@@ -1,12 +1,10 @@
-package com.alibaba.testable.demo.service
+package com.alibaba.testable.demo
 
 import com.alibaba.testable.demo.model.BlackBox
 import com.alibaba.testable.demo.model.Box
 import com.alibaba.testable.demo.model.Color
-import org.springframework.stereotype.Service
 
-@Service
-class DemoInheritService {
+class DemoInherit {
 
     /**
      * call method overridden by sub class via parent class variable
