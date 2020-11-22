@@ -1,9 +1,10 @@
 # TestableMock
 
-基于代码和字节码增强的Java单元测试辅助工具，包含以下功能：
+换种思路写Mock，让单元测试更简单。
 
-- 使单元测试能直接调用和访问被测类的私有成员，解决私有方法无法测试的问题
-- 使被测类的任意方法调用快速替换为Mock，实现"指哪换哪"，解决传统Mock工具使用繁琐的问题
+无需初始化，不挑测试框架，甭管要换的方法是被测类的私有方法、静态方法还是其他任何类的成员方法，也甭管要换的对象是怎么创建的。写好Mock方法，加个@TestableMock注解，一切统统搞定。
+
+文档：https://alibaba.github.io/testable-mock/
 
 ## 目录结构
 
@@ -25,3 +26,12 @@
 ```bash
 mvn clean install
 ```
+
+## 本地生成文档
+
+```bash
+docsify serve docs
+```
+
+> Testable文档使用`docsify`工具生成，构建前请安装[nodejs](https://nodejs.org/en/download/)运行时，并使用`npm install -g docsify`命令安装文档生成工具。
+

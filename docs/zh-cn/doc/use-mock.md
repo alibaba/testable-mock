@@ -1,63 +1,7 @@
-使用说明
+快速Mock被测类的任意方法调用
 ---
 
-## 引入TestableMock
-
-在项目的`pom.xml`文件中添加`testable-processor`依赖：
-
-```xml
-<dependency>
-    <groupId>com.alibaba.testable</groupId>
-    <artifactId>testable-processor</artifactId>
-    <version>${testable.version}</version>
-    <scope>provided</scope>
-</dependency>
-```
-
-以及`testable-maven-plugin`插件：
-
-```xml
-<plugin>
-    <groupId>com.alibaba.testable</groupId>
-    <artifactId>testable-maven-plugin</artifactId>
-    <version>${testable.version}</version>
-    <executions>
-        <execution>
-            <id>prepare</id>
-            <goals>
-                <goal>prepare</goal>
-            </goals>
-        </execution>
-    </executions>
-</plugin>
-```
-
-> 其中`${testable.version}`需替换为具体版本号，当前最新版本为`0.3.1-SNAPSHOT`
-
-若仅需使用单元测试随意访问被测类私有字段和方法的能力，不使用Mock功能，则`testable-maven-plugin`插件可以省略。
-
-## 使用TestableMock
-
-`TestableMock`目前能为测试类提供两项增强能力：__直接访问被测类的私有成员__ 和 __极速Mock被测方法中的调用__
-
-### 访问私有成员字段和方法
-
-只需为测试类添加`@EnablePrivateAccess`注解，即可在测试用例中获得以下增强能力：
-
-- 调用被测类的私有方法
-- 读取被测类的私有成员
-- 修改被测类的私有成员
-- 修改被测类的常量成员（使用final修饰的成员）
-
-访问和修改私有、常量成员时，IDE可能会提示语法有误，但编译器将能够正常运行测试。
-
-若不希望看到IDE的语法错误提醒，或是在基于JVM的非Java语言项目里（譬如Kotlin语言），也可以借助`PrivateAccessor`工具类来实现私有成员的访问。
-
-效果见`java-demo`和`kotlin-demo`示例项目中`DemoPrivateAccessTest`测试类的用例。
-
-### Mock被测类的任意方法调用
-
-**1. <u>覆写任意类的方法调用</u>**
+#### 1. 覆写任意类的方法调用
 
 在测试类里定义一个有`@TestableMock`注解的普通方法，使它与需覆写的方法名称、参数、返回值类型完全一致，然后在其参数列表首位再增加一个类型为该方法原本所属对象类型的参数。
 
@@ -80,7 +24,7 @@ private String substring(String self, int i, int j) {
 
 完整代码示例见`java-demo`和`kotlin-demo`示例项目中的`should_able_to_mock_common_method()`测试用例。(由于Kotlin对String类型进行了魔改，故Kotlin示例中将被测方法在`BlackBox`类里加了一层封装)
 
-**2. <u>覆写被测类自身的成员方法</u>**
+#### 2. 覆写被测类自身的成员方法
 
 有时候，在对某些方法进行测试时，希望将被测类自身的另外一些成员方法Mock掉。
 
@@ -99,7 +43,7 @@ private String innerFunc(DemoMock self, String text) {
 
 完整代码示例见`java-demo`和`kotlin-demo`示例项目中的`should_able_to_mock_member_method()`测试用例。
 
-**3. <u>覆写任意类的静态方法</u>**
+#### 3. 覆写任意类的静态方法
 
 对于静态方法的Mock与普通方法相同。但需要注意的是，对于静态方法，传入Mock方法的第一个参数实际值始终是`null`。
 
@@ -117,7 +61,7 @@ private BlackBox secretBox(BlackBox ignore) {
 
 完整代码示例见`java-demo`和`kotlin-demo`示例项目中的`should_able_to_mock_static_method()`测试用例。
 
-**4. <u>覆写任意类的new操作</u>**
+#### 4. 覆写任意类的new操作
 
 在测试类里定义一个有`@TestableMock`注解的普通方法，将注解的`targetMethod`参数写为"<init>"，然后使该方法与要被创建类型的构造函数参数、返回值类型完全一致，方法名称随意。
 
@@ -137,15 +81,14 @@ private BlackBox createBlackBox(String text) {
 
 完整代码示例见`java-demo`和`kotlin-demo`示例项目中的`should_able_to_mock_new_object()`测试用例。
 
-**5. <u>识别当前测试用例和调用来源</u>**
+#### 5. 识别当前测试用例和调用来源
 
 在Mock方法中可以通过`TestableTool.TEST_CASE`和`TestableTool.SOURCE_METHOD`来识别**当前运行的测试用例名称**和**进入该Mock方法前的被测类方法名称**，从而区分处理不同的调用场景。
 
 完整代码示例见`java-demo`和`kotlin-demo`示例项目中的`should_able_to_get_source_method_name()`和`should_able_to_get_test_case_name()`测试用例。
 
-**6. <u>验证Mock方法被调用的顺序和参数</u>**
+#### 6. 验证Mock方法被调用的顺序和参数
 
 在测试用例中可用通过`TestableTool.verify()`方法，配合`with()`、`withInOrder()`、`without()`、`withTimes()`等方法实现对Mock调用情况的验证。
 
-详见`java-demo`和`kotlin-demo`示例项目中的相关测试用例。
-
+详见[校验Mock调用](zh-cn/doc/matcher.md)文档。

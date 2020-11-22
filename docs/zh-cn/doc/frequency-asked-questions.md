@@ -19,4 +19,4 @@
 
 结合[Roboelectric](https://github.com/robolectric/robolectric)测试框架可使用。
 
-Android系统的`Dalvik`和`ART`虚拟机采用了与标准JVM不同的字节码体系，会影响`TestableMock`的正常工作。`Roboelectric`框架能在普通JVM虚拟机上运行Android单元测试，其速度比通过Android虚拟机运行单元测试快非常多，当下绝大多数Android App的单元测试都使用了`Roboelectric`框架。
+Android系统的`Dalvik`和`ART`虚拟机采用了与标准JVM不同的字节码体系，会影响`TestableMock`的正常工作。`Roboelectric`框架能在普通JVM虚拟机上运行Android单元测试，其速度比通过Android虚拟机运行单元测试快非常多，绝大多数Android App的单元测试都在使用`Roboelectric`框架。
