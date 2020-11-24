@@ -2,6 +2,8 @@
 
 ## upcoming version
 - support share mock method between test classes
+
+## 0.3.1
 - support detail log of mocking process for diagnosis
 
 ## v0.3.0

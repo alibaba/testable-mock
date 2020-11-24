@@ -8,38 +8,50 @@
 
 ## 在Maven项目中使用
 
-在`pom.xml`文件中添加`testable-processor`依赖：
+在项目`pom.xml`文件中，增加`testable-processor`依赖和`maven-surefire-plugin`配置，具体方法如下。
+
+建议先添加一个标识TestableMock版本的`property`，便于统一管理：
 
 ```xml
-<dependency>
-    <groupId>com.alibaba.testable</groupId>
-    <artifactId>testable-processor</artifactId>
-    <version>${testable.version}</version>
-    <scope>provided</scope>
-</dependency>
+<properties>
+    <testable.version>0.3.1</testable.version>
+</properties>
 ```
 
-以及`testable-maven-plugin`插件：
+在`dependencies`列表添加`testable-processor`依赖：
 
 ```xml
-<plugin>
-    <groupId>com.alibaba.testable</groupId>
-    <artifactId>testable-maven-plugin</artifactId>
-    <version>${testable.version}</version>
-    <executions>
-        <execution>
-            <id>prepare</id>
-            <goals>
-                <goal>prepare</goal>
-            </goals>
-        </execution>
-    </executions>
-</plugin>
+<dependencies>
+    <dependency>
+        <groupId>com.alibaba.testable</groupId>
+        <artifactId>testable-processor</artifactId>
+        <version>${testable.version}</version>
+        <scope>provided</scope>
+    </dependency>
+</dependencies>
 ```
 
-> 其中`${testable.version}`需替换为具体版本号，当前最新版本为`0.3.0`
+最后在`build`区域的`plugins`列表里添加`maven-surefire-plugin`插件（如果已有此插件则只需添加`<argLine>`部分配置）：
 
-若仅需使用单元测试随意访问被测类私有字段和方法的能力，不使用Mock功能，则`testable-maven-plugin`插件可以省略。
+```xml
+<build>
+    <plugins>
+        <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <configuration>
+                <argLine>-javaagent:${settings.localRepository}/com/alibaba/testable/testable-agent/${testable.version}/testable-agent-${testable.version}.jar</argLine>
+            </configuration>
+        </plugin>
+    </plugins>
+</build>
+```
+
+若项目同时还使用了`Jacoco`的`on-the-fly`模式（默认模式）统计单元测试覆盖率，则需在`<argLine>`配置中添加一个`@{argLine}`参数，添加后的配置如下：
+
+```xml
+<argLine>@{argLine} -javaagent:${settings.localRepository}/com/alibaba/testable/testable-agent/${testable.version}/testable-agent-${testable.version}.jar</argLine>
+```
 
 ## 在Gradle项目中使用
 
@@ -47,7 +59,7 @@
 
 ```groovy
 dependencies {
-    testCompile('com.alibaba.testable:testable-processor:0.3.0')
+    testCompile('com.alibaba.testable:testable-processor:0.3.1')
 }
 ```
 

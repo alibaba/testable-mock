@@ -7,4 +7,6 @@ TestableMock简介
 
 然而当下主流的Mock框架在实现Mock功能时，需要开发者操心的事情实在太多：Mock框架如何初始化、与所用的单元测试框架是否兼容、要被Mock的方法是不是私有的、是不是静态的、被Mock对象是new出来的还是注入的、怎样把被测对象送回被测类里...这些非关键的额外工作极大分散了使用Mock工具应有的乐趣。
 
-为此，我们开发了`TestableMock`，**一款特立独行的轻量Mock工具**。
+于是，我们开发了`TestableMock`，**一款特立独行的轻量Mock工具**。
+
+![mock](https://testable-code.oss-cn-beijing.aliyuncs.com/mock.jpg)
