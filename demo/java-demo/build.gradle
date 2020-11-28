@@ -1,0 +1,23 @@
+plugins {
+    id 'java'
+}
+
+group = 'com.alibaba.testable'
+version = '1.0.0-SNAPSHOT'
+sourceCompatibility = '8'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testImplementation('org.junit.jupiter:junit-jupiter:5.6.2')
+    testImplementation('com.alibaba.testable:testable-processor:0.3.2-SNAPSHOT')
+    testAnnotationProcessor('com.alibaba.testable:testable-processor:0.3.2-SNAPSHOT')
+    testRuntimeOnly('com.alibaba.testable:testable-agent:0.3.2-SNAPSHOT')
+}
+
+test {
+    jvmArgs "-javaagent:${classpath.find { it.name.contains("testable-agent") }.absolutePath}"
+    useJUnitPlatform()
+}

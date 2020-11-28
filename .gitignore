@@ -3,6 +3,7 @@ target/
 
 # gradle ignore
 build/
+out/
 .gradle/
 
 # eclipse ignore

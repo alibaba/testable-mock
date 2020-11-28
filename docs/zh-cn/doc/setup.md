@@ -80,4 +80,4 @@ test {
 }
 ```
 
-> 该配置尚未在Gradle项目上经过实际验证，可行性待确认。
+> 注意：由于Gradle的构建与测试运行机制与Maven稍有差异，当前在Gradle项目里，`@PrivateAccessor`注解和`TestableTool.TEST_CASE`功能存在已知BUG，其余功能均可正常使用
