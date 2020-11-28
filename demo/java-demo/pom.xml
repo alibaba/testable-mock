@@ -11,7 +11,7 @@
     <properties>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
-        <testable.version>0.3.1</testable.version>
+        <testable.version>0.3.2-SNAPSHOT</testable.version>
     </properties>
 
     <dependencies>
