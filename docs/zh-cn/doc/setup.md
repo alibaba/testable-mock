@@ -19,13 +19,19 @@
 </properties>
 ```
 
-在`dependencies`列表添加`testable-processor`依赖：
+在`dependencies`列表添加TestableMock依赖：
 
 ```xml
 <dependencies>
     <dependency>
         <groupId>com.alibaba.testable</groupId>
         <artifactId>testable-processor</artifactId>
+        <version>${testable.version}</version>
+        <scope>provided</scope>
+    </dependency>
+    <dependency>
+        <groupId>com.alibaba.testable</groupId>
+        <artifactId>testable-agent</artifactId>
         <version>${testable.version}</version>
         <scope>provided</scope>
     </dependency>
@@ -56,11 +62,13 @@
 
 ## 在Gradle项目中使用
 
-在`build.gradle`文件中添加`testable-processor`依赖：
+在`build.gradle`文件中添加TestableMock依赖：
 
 ```groovy
 dependencies {
-    testCompile('com.alibaba.testable:testable-processor:0.3.1')
+    testImplementation('com.alibaba.testable:testable-processor:0.3.1')
+    testAnnotationProcessor('com.alibaba.testable:testable-processor:0.3.1')
+    testRuntimeOnly('com.alibaba.testable:testable-agent:0.3.1')
 }
 ```
 

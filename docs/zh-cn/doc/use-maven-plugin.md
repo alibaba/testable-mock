@@ -19,7 +19,7 @@
 </plugin>
 ```
 
-> 当使用`testable-maven-plugin`插件时，应该移除`maven-surefire-plugin`插件上的TestableMock相关配置
+> 当使用`testable-maven-plugin`插件时，应该移除`maven-surefire-plugin`插件上的TestableMock相关配置，同时可以从项目的`pom.xml`文件中移除对`com.alibaba.testable:testable-agent`包的显示依赖
 
 `testable-maven-plugin`插件能够与Jacoco插件直接同时使用，无需额外适配，因此能使`pom.xml`文件编写起来更简单且美观。
 
