@@ -1,13 +1,17 @@
 快速Mock被测类的任意方法调用
 ---
 
+相比以往Mock工具以类为粒度的Mock方式，TestableMock允许用户直接定义需要Mock的单个方法，并遵循约定优于配置的原则，按照规则自动在测试运行时替换被测方法中的指定方法调用。
+
+具体的Mock方法定义约定如下：
+
 #### 1. 覆写任意类的方法调用
 
 在测试类里定义一个有`@TestableMock`注解的普通方法，使它与需覆写的方法名称、参数、返回值类型完全一致，然后在其参数列表首位再增加一个类型为该方法原本所属对象类型的参数。
 
 此时被测类中所有对该需覆写方法的调用，将在单元测试运行时，将自动被替换为对上述自定义Mock方法的调用。
 
-**注意**：也可以将需覆写的方法名写到`@TestableMock`注解的`targetMethod`参数里，这样Mock方法自身就可以随意命名了（当遇到重名的待覆写方法时特别有用）。
+**注意**：当遇到待覆写方法有重名时，可以将需覆写的方法名写到`@TestableMock`注解的`targetMethod`参数里，这样Mock方法自身就可以随意命名了。
 
 例如，被测类中有一处`"anything".substring(1, 2)`调用，我们希望在运行测试的时候将它换成一个固定字符串，则只需在测试类定义如下方法：
 
@@ -18,6 +22,17 @@
 // 此参数可用于获得当时的实际调用者的值和上下文
 @TestableMock
 private String substring(String self, int i, int j) {
+    return "sub_string";
+}
+```
+
+下面这个例子展示了`targetMethod`参数的用法，其效果与上述示例相同：
+
+```java
+// 使用`targetMethod`指定需Mock的方法名
+// 此方法本身现在可以随意命名，但方法参数依然需要遵循相同的匹配规则
+@TestableMock(targetMethod = "substring")
+private String use_any_mock_method_name(String self, int i, int j) {
     return "sub_string";
 }
 ```

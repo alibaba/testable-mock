@@ -15,7 +15,13 @@
 
 参见Java和Kotlin示例中`DemoInheritTest`测试类的用例。
 
-#### 3. `TestableMock`能否用于Android项目的测试？
+#### 3. 在Kotlin项目对`String`类中的方法进行Mock不生效？
+
+Kotlin语言中的`String`类型实际上是`kotlin.String`，而非`java.lang.String`。但在构建生成自字节码的时候又会被替换为Java的`java.lang.String`类，因此无论将Mock目标写为`kotlin.String`或`java.lang.String`均无法正常匹配到原始的被调用方法。
+
+实际场景中需要对`String`类中的方法进行Mock的场景很少，`TestableMock`暂未对这种情况做特别处理。
+
+#### 4. `TestableMock`能否用于Android项目的测试？
 
 结合[Roboelectric](https://github.com/robolectric/robolectric)测试框架可使用。
 
