@@ -2,8 +2,8 @@ package com.alibaba.testable.demo
 
 import com.alibaba.testable.demo.model.BlackBox
 import com.alibaba.testable.demo.model.ColorBox
-import sun.net.www.http.HttpClient
-import java.net.URL
+import java.nio.file.Files
+import java.nio.file.Paths
 
 class DemoMock {
 
@@ -47,7 +47,9 @@ class DemoMock {
         return callFromDifferentMethod()
     }
 
-    private fun innerFunc(s: String) = HttpClient.New(URL("http:/xxx/$s")).urlFile
+    private fun innerFunc(s: String): String {
+        return Files.readAllLines(Paths.get("/a-not-exist-file")).joinToString()
+    }
 
     private fun callFromDifferentMethod() = "realOne"
 }

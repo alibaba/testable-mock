@@ -1,9 +1,10 @@
 package com.alibaba.testable.demo;
 
 import com.alibaba.testable.demo.model.BlackBox;
-import sun.net.www.http.HttpClient;
 
-import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.stream.Collectors;
 
 public class DemoMock {
 
@@ -48,7 +49,7 @@ public class DemoMock {
     }
 
     private String innerFunc(String s) throws Exception {
-        return HttpClient.New(new URL("http:/xxx/" + s)).getURLFile();
+        return Files.readAllLines(Paths.get("/a-not-exist-file")).stream().collect(Collectors.joining());
     }
 
     private String callFromDifferentMethod() {
