@@ -41,13 +41,11 @@ public class TestableUtil {
      * @return method name
      */
     public static String currentTestCaseName(String testClassName) {
-        StackTraceElement[] stack = getMainThread().getStackTrace();
-        for (int i = stack.length - 1; i >= 0; i--) {
-            if (stack[i].getClassName().equals(testClassName)) {
-                return stack[i].getMethodName();
-            }
+        String testCaseName = findFirstMethodFromTestClass(testClassName, getMainThread().getStackTrace());
+        if (testCaseName.isEmpty()) {
+            return findFirstMethodFromTestClass(testClassName, Thread.currentThread().getStackTrace());
         }
-        return "";
+        return testCaseName;
     }
 
     /**
@@ -64,6 +62,15 @@ public class TestableUtil {
         for (StackTraceElement element : stack) {
             if (element.getClassName().equals(sourceClassName)) {
                 return element.getMethodName();
+            }
+        }
+        return "";
+    }
+
+    private static String findFirstMethodFromTestClass(String testClassName, StackTraceElement[] stack) {
+        for (int i = stack.length - 1; i >= 0; i--) {
+            if (stack[i].getClassName().equals(testClassName)) {
+                return stack[i].getMethodName();
             }
         }
         return "";
