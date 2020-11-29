@@ -108,7 +108,7 @@ public class InvokeVerifier {
     public InvokeVerifier times(int count) {
         if (lastVerification == null) {
             // when used independently, equals to `withTimes()`
-            System.out.println("Warning: [" + TestableUtil.getPreviousStackLocation() + "] using \"times()\" method "
+            System.out.println("Warning: [" + TestableUtil.previousStackLocation() + "] using \"times()\" method "
                 + "without \"with()\" or \"withInOrder()\" is not recommended, please use \"withTimes()\" instead.");
             return withTimes(count);
         }
