@@ -16,7 +16,7 @@ public class PrivateAccessor {
             declaredField.setAccessible(true);
             return (T)declaredField.get(ref);
         } catch (Exception e) {
-            e.printStackTrace();
+            System.err.println("Failed to get private field \"" + field + "\": " + e.toString());
             return null;
         }
     }
@@ -27,7 +27,7 @@ public class PrivateAccessor {
             declaredField.setAccessible(true);
             declaredField.set(ref, value);
         } catch (Exception e) {
-            e.printStackTrace();
+            System.err.println("Failed to set private field \"" + field + "\": " + e.toString());
         }
     }
 
@@ -40,10 +40,31 @@ public class PrivateAccessor {
                 return (T)declaredMethod.invoke(ref, args);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            System.err.println("Failed to invoke private method \"" + method + "\": " + e.toString());
             return null;
         }
         return null;
+    }
+
+    public static <T> T getStatic(Class<?> clazz, String field) {
+        try {
+            Field declaredField = clazz.getDeclaredField(field);
+            declaredField.setAccessible(true);
+            return (T)declaredField.get(null);
+        } catch (Exception e) {
+            System.err.println("Failed to get private static field \"" + field + "\": " + e.toString());
+            return null;
+        }
+    }
+
+    public static <T> void setStatic(Class<?> clazz, String field, T value) {
+        try {
+            Field declaredField = clazz.getDeclaredField(field);
+            declaredField.setAccessible(true);
+            declaredField.set(null, value);
+        } catch (Exception e) {
+            System.err.println("Failed to set private static field \"" + field + "\": " + e.toString());
+        }
     }
 
     public static <T> T invokeStatic(Class<?> clazz, String method, Object... args) {
@@ -55,7 +76,7 @@ public class PrivateAccessor {
                 return (T)declaredMethod.invoke(null, args);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            System.err.println("Failed to invoke private static method \"" + method + "\": " + e.toString());
             return null;
         }
         return null;

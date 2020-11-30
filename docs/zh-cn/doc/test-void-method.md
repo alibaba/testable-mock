@@ -39,6 +39,7 @@ class Demo {
 若要测试此方法，可以利用TestableMock直接读取私有成员变量的值，对结果进行校验：
 
 ```java
+@EnablePrivateAccess  // 启用TestableMock的私有成员访问功能
 class DemoTest {
     private Demo demo = new Demo();
 

@@ -5,23 +5,47 @@ package com.alibaba.testable.demo;
  */
 public class DemoPrivateAccess {
 
+    /**
+     * a private static field
+     */
+    private static int staticCount;
+    /**
+     * a private member field
+     */
     private int count;
-
+    /**
+     * a constant field
+     */
     public final Double pi = 3.14;
 
     /**
-     * private method
+     * method accessing private static field
      */
-    private String privateFunc(String s, int i) {
-        return s + " - " + i;
+    public static String privateStaticFieldAccessFunc() {
+        staticCount += 3;
+        return String.valueOf(staticCount);
     }
 
     /**
-     * method with private field access
+     * method accessing private member field
      */
     public String privateFieldAccessFunc() {
         count += 2;
         return String.valueOf(count);
+    }
+
+    /**
+     * private static method
+     */
+    private static String privateStaticFunc(String s, int i) {
+        return s + " + " + i;
+    }
+
+    /**
+     * private member method
+     */
+    private String privateFunc(String s, int i) {
+        return s + " - " + i;
     }
 
 }
