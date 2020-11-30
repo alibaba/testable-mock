@@ -10,6 +10,8 @@ import com.sun.tools.javac.util.Name;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.net.URL;
+import java.net.URLClassLoader;
 
 /**
  * Travel AST
@@ -41,7 +43,19 @@ public class EnablePrivateAccessTranslator extends BaseTranslator {
         this.sourceClassName = testClassName.substring(0, testClassName.length() - ConstPool.TEST_POSTFIX.length());
         this.privateAccessStatementGenerator = new PrivateAccessStatementGenerator(cx);
         try {
-            Class<?> cls = Class.forName(pkgName + "." + sourceClassName);
+            Class<?> cls = null;
+            String sourceClassFullName = pkgName + "." + sourceClassName;
+            try {
+                cls = Class.forName(sourceClassFullName);
+            } catch (ClassNotFoundException e) {
+                // fit for gradle build
+                String path = "file:" + System.getProperty("user.dir") + "/build/classes/java/main/";
+                cls = new URLClassLoader(new URL[]{new URL(path)}).loadClass(sourceClassFullName);
+            }
+            if (cls == null) {
+                System.err.println("Failed to load source class: " + sourceClassFullName);
+                return;
+            }
             Field[] fields = cls.getDeclaredFields();
             for (Field f : fields) {
                 if (Modifier.isFinal(f.getModifiers()) || Modifier.isPrivate(f.getModifiers())) {
