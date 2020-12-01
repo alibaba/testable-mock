@@ -1,7 +1,8 @@
 # Release Note
 
-## upcoming version
-- support share mock method between test classes
+## 0.3.2
+- support grable project for both private member access and quick mock
+- support access private static field and methods via PrivateAccessor
 
 ## 0.3.1
 - support detail log of mocking process for diagnosis

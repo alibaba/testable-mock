@@ -15,7 +15,7 @@
 
 ```xml
 <properties>
-    <testable.version>0.3.1</testable.version>
+    <testable.version>0.3.2</testable.version>
 </properties>
 ```
 
