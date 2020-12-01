@@ -60,15 +60,17 @@
 <argLine>@{argLine} -javaagent:${settings.localRepository}/com/alibaba/testable/testable-agent/${testable.version}/testable-agent-${testable.version}.jar</argLine>
 ```
 
+参见项目`java-demo`的[pom.xml](https://github.com/alibaba/testable-mock/blob/master/demo/java-demo/pom.xml)和`kotlin-demo`的[pom.xml](https://github.com/alibaba/testable-mock/blob/master/demo/kotlin-demo/pom.xml)文件。
+
 ## 在Gradle项目中使用
 
 在`build.gradle`文件中添加TestableMock依赖：
 
 ```groovy
 dependencies {
-    testImplementation('com.alibaba.testable:testable-processor:0.3.1')
-    testAnnotationProcessor('com.alibaba.testable:testable-processor:0.3.1')
-    testRuntimeOnly('com.alibaba.testable:testable-agent:0.3.1')
+    testImplementation('com.alibaba.testable:testable-processor:0.3.2')
+    testAnnotationProcessor('com.alibaba.testable:testable-processor:0.3.2')
+    testRuntimeOnly('com.alibaba.testable:testable-agent:0.3.2')
 }
 ```
 
@@ -80,4 +82,4 @@ test {
 }
 ```
 
-> 注意：由于Gradle的构建与测试运行机制与Maven稍有差异，当前在Gradle项目里，`@PrivateAccessor`注解和`TestableTool.TEST_CASE`功能存在已知BUG，其余功能均可正常使用
+参见项目`java-demo`的[build.gradle](https://github.com/alibaba/testable-mock/blob/master/demo/java-demo/build.gradle)和`kotlin-demo`的[build.gradle.kts](https://github.com/alibaba/testable-mock/blob/master/demo/kotlin-demo/build.gradle.kts)文件。
