@@ -10,6 +10,8 @@ import java.lang.reflect.Method;
  */
 public class PrivateAccessor {
 
+    private static final String KOTLIN_COMPANION_FIELD = "Companion";
+
     public static <T> T get(Object ref, String field) {
         try {
             Field declaredField = ref.getClass().getDeclaredField(field);
@@ -74,6 +76,15 @@ public class PrivateAccessor {
             if (declaredMethod != null) {
                 declaredMethod.setAccessible(true);
                 return (T)declaredMethod.invoke(null, args);
+            }
+            // fit kotlin companion object, will throw 'NoSuchFieldException' otherwise
+            Field companionClassField = clazz.getDeclaredField(KOTLIN_COMPANION_FIELD);
+            declaredMethod = TypeUtil.getMethodByNameAndParameterTypes(
+                companionClassField.getType().getDeclaredMethods(), method, cls);
+            Object companionInstance = getStatic(clazz, KOTLIN_COMPANION_FIELD);
+            if (declaredMethod != null && companionInstance != null) {
+                declaredMethod.setAccessible(true);
+                return (T)declaredMethod.invoke(companionInstance, args);
             }
         } catch (Exception e) {
             System.err.println("Failed to invoke private static method \"" + method + "\": " + e.toString());

@@ -17,8 +17,19 @@ internal class DemoPrivateAccessTest {
     @Test
     fun should_able_to_access_private_field() {
         PrivateAccessor.set(demoPrivateAccess, "count", 3)
-        assertEquals("5", demoPrivateAccess.privateFieldAccessFunc())
-        assertEquals(5, PrivateAccessor.get(demoPrivateAccess, "count"))
+        assertEquals(3, PrivateAccessor.get(demoPrivateAccess, "count"))
+    }
+
+    @Test
+    fun should_able_to_access_private_static_method() {
+        assertEquals("hello + 1", PrivateAccessor.invokeStatic(DemoPrivateAccess::class.java, "privateStaticFunc", "hello", 1))
+        assertEquals("hello * 1", PrivateAccessor.invokeStatic(DemoPrivateAccess::class.java, "privateJvmStaticFunc", "hello", 1))
+    }
+
+    @Test
+    fun should_able_to_access_private_static_field() {
+        PrivateAccessor.setStatic(DemoPrivateAccess::class.java, "staticCount", 3)
+        assertEquals(3, PrivateAccessor.getStatic(DemoPrivateAccess::class.java, "staticCount"))
     }
 
     @Test

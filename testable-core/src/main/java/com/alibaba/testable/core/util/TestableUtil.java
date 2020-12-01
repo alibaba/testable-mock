@@ -67,7 +67,6 @@ public class TestableUtil {
                 }
             }
         }
-        System.err.println("testCaseName: " + testCaseName);
         return testCaseName;
     }
 

@@ -2,23 +2,43 @@ package com.alibaba.testable.demo
 
 class DemoPrivateAccess {
 
+    /**
+     * a private member field
+     */
     private var count = 0
 
-    final val pi = 3.14
+    /**
+     * a constant field
+     */
+    val pi = 3.14
 
     /**
-     * private method
+     * private member method
      */
     private fun privateFunc(s: String, i: Int): String {
         return "$s - $i"
     }
 
-    /**
-     * method with private field access
-     */
-    fun privateFieldAccessFunc(): String {
-        count += 2
-        return count.toString()
+    companion object {
+
+        /**
+         * a private static field
+         */
+        private var staticCount = 0
+
+        /**
+         * private static method
+         */
+        private fun privateStaticFunc(s: String, i: Int): String {
+            return "$s + $i"
+        }
+
+        /**
+         * private jvm static method
+         */
+        @JvmStatic private fun privateJvmStaticFunc(s: String, i: Int): String {
+            return "$s * $i"
+        }
     }
 
 }
