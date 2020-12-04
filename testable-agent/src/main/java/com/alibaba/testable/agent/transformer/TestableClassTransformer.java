@@ -9,7 +9,7 @@ import com.alibaba.testable.agent.model.MethodInfo;
 import com.alibaba.testable.agent.tool.ComparableWeakRef;
 import com.alibaba.testable.agent.util.AnnotationUtil;
 import com.alibaba.testable.agent.util.ClassUtil;
-import com.alibaba.testable.agent.util.LogUtil;
+import com.alibaba.testable.core.util.LogUtil;
 import com.alibaba.testable.core.model.MockDiagnose;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.tree.AnnotationNode;
@@ -43,15 +43,15 @@ public class TestableClassTransformer implements ClassFileTransformer {
         try {
             if (shouldTransformAsSourceClass(className)) {
                 // it's a source class with testable enabled
-                LogUtil.debug("Handling source class %s", className);
+                LogUtil.diagnose("Handling source class %s", className);
                 List<MethodInfo> injectMethods = getTestableMockMethods(ClassUtil.getTestClassName(className));
                 return new SourceClassHandler(injectMethods).getBytes(classFileBuffer);
             } else if (shouldTransformAsTestClass(className)) {
                 // it's a test class with testable enabled
-                LogUtil.debug("Handling test class %s", className);
+                LogUtil.diagnose("Handling test class %s", className);
                 return new TestClassHandler().getBytes(classFileBuffer);
             }
-            resetMockContext();
+            LogUtil.resetLogLevel();
         } catch (IOException e) {
             return null;
         }
@@ -79,7 +79,7 @@ public class TestableClassTransformer implements ClassFileTransformer {
             for (MethodNode mn : cn.methods) {
                 checkMethodAnnotation(cn, methodInfos, mn);
             }
-            LogUtil.debug("  Found %d mock methods", methodInfos.size());
+            LogUtil.diagnose("  Found %d mock methods", methodInfos.size());
             return methodInfos;
         } catch (Exception e) {
             return new ArrayList<MethodInfo>();
@@ -149,16 +149,10 @@ public class TestableClassTransformer implements ClassFileTransformer {
     }
 
     private void setupMockContext(AnnotationNode an) {
-        MockDiagnose mockDebug = AnnotationUtil.getAnnotationParameter(an, FIELD_DIAGNOSE, null, MockDiagnose.class);
-        if (MockDiagnose.ENABLE.equals(mockDebug)) {
-            LogUtil.enableDebugLog();
-        } else if (MockDiagnose.DISABLE.equals(mockDebug)) {
-            LogUtil.disableDebugLog();
+        MockDiagnose diagnose = AnnotationUtil.getAnnotationParameter(an, FIELD_DIAGNOSE, null, MockDiagnose.class);
+        if (diagnose != null) {
+            LogUtil.enableDiagnose(diagnose == MockDiagnose.ENABLE);
         }
-    }
-
-    private void resetMockContext() {
-        LogUtil.resetDebugLog();
     }
 
     /**

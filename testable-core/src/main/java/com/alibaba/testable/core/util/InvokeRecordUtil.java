@@ -35,8 +35,10 @@ public class InvokeRecordUtil {
         List<Object[]> records = getInvokeRecord(mockMethodName, testCaseName);
         if (isConstructor) {
             records.add(args);
+            LogUtil.verbose("Mock constructor invoked \"%s\"", key);
         } else {
             records.add(slice(args, 1));
+            LogUtil.verbose("Mock method invoked \"%s\"", key);
         }
         INVOKE_RECORDS.put(key, records);
     }

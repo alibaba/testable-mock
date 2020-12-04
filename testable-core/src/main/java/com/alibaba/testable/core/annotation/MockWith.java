@@ -18,6 +18,6 @@ public @interface MockWith {
      * switch of mock diagnose information of current test class
      * @return enable or disable
      */
-    MockDiagnose diagnose() default MockDiagnose.WARN_ONLY;
+    MockDiagnose diagnose() default MockDiagnose.DISABLE;
 
 }

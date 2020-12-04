@@ -12,12 +12,7 @@ public enum MockDiagnose {
     DISABLE,
 
     /**
-     * Only show warning message
-     */
-    WARN_ONLY,
-
-    /**
-     * Print detail diagnose logs
+     * Print diagnose logs
      */
     ENABLE
 
