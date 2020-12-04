@@ -8,28 +8,26 @@ public class LogUtil {
     private static final int LEVEL_ERROR = 0;
     private static final int LEVEL_WARN = 1;
     private static final int LEVEL_DIAGNOSE = 2;
-    private static final ThreadLocal<Integer> LEVEL = new ThreadLocal<Integer>();
+    private static int level;
 
     public static boolean globalDebugEnable = false;
 
     public static void debug(String msg, Object... args) {
-        if (LEVEL.get() >= LEVEL_DIAGNOSE) {
+        if (level >= LEVEL_DIAGNOSE) {
             System.out.println(String.format("[DIAGNOSE] " + msg, args));
         }
     }
 
     public static void enableDebugLog() {
-        LEVEL.remove();
-        LEVEL.set(LEVEL_DIAGNOSE);
+        level = LEVEL_DIAGNOSE;
     }
 
     public static void disableDebugLog() {
-        LEVEL.remove();
-        LEVEL.set(LEVEL_ERROR);
+        level = LEVEL_ERROR;
     }
 
     public static void resetDebugLog() {
-        LEVEL.set(globalDebugEnable ? LEVEL_DIAGNOSE : LEVEL_WARN);
+        level = globalDebugEnable ? LEVEL_DIAGNOSE : LEVEL_WARN;
     }
 
 }
