@@ -31,27 +31,36 @@ public class InvokeRecordUtil {
         String mockMethodName = mockMethodTraceElement.getMethodName();
         String testClass = mockMethodTraceElement.getClassName();
         String testCaseName = TestableUtil.currentTestCaseName(testClass);
-        String key = testCaseName + JOINER + mockMethodName;
-        List<Object[]> records = getInvokeRecord(mockMethodName, testCaseName);
+        String identify = getInvokeIdentify(mockMethodName, testClass, testCaseName);
+        List<Object[]> records = getInvokeRecord(identify);
         if (isConstructor) {
             records.add(args);
-            LogUtil.verbose("Mock constructor invoked \"%s\"", key);
+            LogUtil.verbose("Mock constructor invoked \"%s\"", identify);
         } else {
             records.add(slice(args, 1));
-            LogUtil.verbose("Mock method invoked \"%s\"", key);
+            LogUtil.verbose("Mock method invoked \"%s\"", identify);
         }
-        INVOKE_RECORDS.put(key, records);
+        INVOKE_RECORDS.put(identify, records);
+    }
+
+    /**
+     * Get identify key for mock invocation record
+     * @param mockMethodName mock method name
+     * @param testClass test class name
+     * @param testCaseName test case name
+     * @return identify key
+     */
+    public static String getInvokeIdentify(String mockMethodName, String testClass, String testCaseName) {
+        return testClass + JOINER + testCaseName + JOINER + mockMethodName;
     }
 
     /**
      * Get mock method invoke count
-     * @param mockMethodName mock method name
-     * @param testCaseName test case name
+     * @param identify key of invocation record
      * @return parameters used when specified method invoked in specified test case
      */
-    public static List<Object[]> getInvokeRecord(String mockMethodName, String testCaseName) {
-        String key = testCaseName + JOINER + mockMethodName;
-        List<Object[]> records = INVOKE_RECORDS.get(key);
+    public static List<Object[]> getInvokeRecord(String identify) {
+        List<Object[]> records = INVOKE_RECORDS.get(identify);
         return (records == null) ? new LinkedList<Object[]>() : records;
     }
 

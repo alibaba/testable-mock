@@ -28,7 +28,8 @@ public class InvokeVerifier {
     public static InvokeVerifier verify(String mockMethodName) {
         String testClass = Thread.currentThread().getStackTrace()[InvokeRecordUtil.INDEX_OF_TEST_CLASS].getClassName();
         String testCaseName = TestableUtil.currentTestCaseName(testClass);
-        return new InvokeVerifier(InvokeRecordUtil.getInvokeRecord(mockMethodName, testCaseName));
+        String recordIdentify = InvokeRecordUtil.getInvokeIdentify(mockMethodName, testClass, testCaseName);
+        return new InvokeVerifier(InvokeRecordUtil.getInvokeRecord(recordIdentify));
     }
 
     /**
