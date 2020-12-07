@@ -40,22 +40,24 @@ public class TestableClassTransformer implements ClassFileTransformer {
             // Ignore system class and reloaded class
             return null;
         }
+        byte[] bytes = null;
         try {
             if (shouldTransformAsSourceClass(className)) {
                 // it's a source class with testable enabled
                 LogUtil.diagnose("Handling source class %s", className);
                 List<MethodInfo> injectMethods = getTestableMockMethods(ClassUtil.getTestClassName(className));
-                return new SourceClassHandler(injectMethods).getBytes(classFileBuffer);
+                bytes = new SourceClassHandler(injectMethods).getBytes(classFileBuffer);
+                resetMockContext();
             } else if (shouldTransformAsTestClass(className)) {
                 // it's a test class with testable enabled
                 LogUtil.diagnose("Handling test class %s", className);
-                return new TestClassHandler().getBytes(classFileBuffer);
+                bytes = new TestClassHandler().getBytes(classFileBuffer);
+                resetMockContext();
             }
-            LogUtil.resetLogLevel();
         } catch (IOException e) {
-            return null;
+            LogUtil.warn("Failed to transform class " + className);
         }
-        return null;
+        return bytes;
     }
 
     private boolean shouldTransformAsSourceClass(String className) {
@@ -153,6 +155,10 @@ public class TestableClassTransformer implements ClassFileTransformer {
         if (diagnose != null) {
             LogUtil.enableDiagnose(diagnose == MockDiagnose.ENABLE);
         }
+    }
+
+    private void resetMockContext() {
+        LogUtil.resetLogLevel();
     }
 
     /**
