@@ -9,6 +9,7 @@
 ## 目录结构
 
 ```bash
+|-- testable-parent       ➜ 提供各子模块的公共父pom文件
 |-- testable-all          ➜ 依赖聚合，便于一次性引用所有子模块功能
 |-- testable-processor    ➜ 编译期代码预处理模块，提供测试辅助功能
 |-- testable-agent        ➜ JavaAgent模块，提供Mock测试相关功能

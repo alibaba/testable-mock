@@ -4,7 +4,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>com.alibaba.testable</groupId>
-  <artifactId>testable-parent</artifactId>
+  <artifactId>testable-aggregate</artifactId>
   <version>1.0.0-SNAPSHOT</version>
   <packaging>pom</packaging>
 

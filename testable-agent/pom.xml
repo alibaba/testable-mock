@@ -3,47 +3,19 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>com.alibaba.testable</groupId>
+    <parent>
+        <groupId>com.alibaba.testable</groupId>
+        <artifactId>testable-parent</artifactId>
+        <version>0.3.3-SNAPSHOT</version>
+        <relativePath>../testable-parent</relativePath>
+    </parent>
     <artifactId>testable-agent</artifactId>
-    <version>0.3.3-SNAPSHOT</version>
     <packaging>jar</packaging>
     <name>testable-agent</name>
-    <description>Unit test enhancement toolkit</description>
-    <url>https://github.com/alibaba/testable-mock</url>
-    <licenses>
-        <license>
-            <name>MIT License</name>
-            <url>https://github.com/alibaba/testable-mock/blob/master/LICENSE</url>
-            <distribution>repo</distribution>
-        </license>
-    </licenses>
-    <developers>
-        <developer>
-            <name>金戟</name>
-            <email>jinji.lf@alibaba-inc.com</email>
-        </developer>
-    </developers>
-    <scm>
-        <connection>scm:git:git@github.com:alibaba/testable-mock.git</connection>
-        <url>git@github.com:alibaba/testable-mock.git</url>
-        <tag>HEAD</tag>
-    </scm>
 
     <properties>
-        <java.version>1.6</java.version>
-        <project.compiler.level>1.6</project.compiler.level>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <asm.lib.version>8.0.1</asm.lib.version>
         <junit.version>5.6.2</junit.version>
-        <testable.version>0.3.3-SNAPSHOT</testable.version>
-        <plugin.compiler.version>3.8.1</plugin.compiler.version>
-        <plugin.surefire.version>3.0.0-M5</plugin.surefire.version>
-        <plugin.jar.version>3.2.0</plugin.jar.version>
-        <plugin.shade.version>3.2.4</plugin.shade.version>
-        <plugin.source.version>3.2.0</plugin.source.version>
-        <plugin.javadoc.version>3.2.0</plugin.javadoc.version>
-        <plugin.gpg.version>1.6</plugin.gpg.version>
-        <plugin.staging.version>1.6.8</plugin.staging.version>
     </properties>
 
     <dependencies>
