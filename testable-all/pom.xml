@@ -4,10 +4,10 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.alibaba.testable</groupId>
-    <artifactId>testable-processor</artifactId>
+    <artifactId>testable-all</artifactId>
     <version>0.3.3-SNAPSHOT</version>
     <packaging>jar</packaging>
-    <name>testable-processor</name>
+    <name>testable-all</name>
     <description>Unit test enhancement toolkit</description>
     <url>https://github.com/alibaba/testable-mock</url>
     <licenses>
@@ -30,66 +30,28 @@
     </scm>
 
     <properties>
-        <java.version>1.6</java.version>
-        <project.compiler.level>1.6</project.compiler.level>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <junit.version>5.6.2</junit.version>
-        <plugin.compiler.version>3.8.1</plugin.compiler.version>
-        <plugin.surefire.version>3.0.0-M5</plugin.surefire.version>
-        <plugin.source.version>3.2.0</plugin.source.version>
-        <plugin.javadoc.version>3.2.0</plugin.javadoc.version>
-        <plugin.gpg.version>1.6</plugin.gpg.version>
-        <plugin.staging.version>1.6.8</plugin.staging.version>
+        <testable.version>0.3.3-SNAPSHOT</testable.version>
     </properties>
 
     <dependencies>
         <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-api</artifactId>
-            <version>${junit.version}</version>
-            <scope>test</scope>
+            <groupId>com.alibaba.testable</groupId>
+            <artifactId>testable-processor</artifactId>
+            <version>${testable.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.alibaba.testable</groupId>
+            <artifactId>testable-core</artifactId>
+            <version>${testable.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.alibaba.testable</groupId>
+            <artifactId>testable-agent</artifactId>
+            <version>${testable.version}</version>
         </dependency>
     </dependencies>
 
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>${plugin.compiler.version}</version>
-                <configuration>
-                    <source>${project.compiler.level}</source>
-                    <target>${project.compiler.level}</target>
-                    <encoding>${project.build.sourceEncoding}</encoding>
-                    <compilerArgument>-proc:none</compilerArgument>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <version>${plugin.surefire.version}</version>
-            </plugin>
-        </plugins>
-    </build>
-
     <profiles>
-        <profile>
-            <id>tools-jar</id>
-            <activation>
-                <file>
-                    <exists>${java.home}/../lib/tools.jar</exists>
-                </file>
-            </activation>
-            <dependencies>
-                <dependency>
-                    <groupId>sun.jdk</groupId>
-                    <artifactId>tools</artifactId>
-                    <version>${java.version}</version>
-                    <scope>system</scope>
-                    <systemPath>${java.home}/../lib/tools.jar</systemPath>
-                </dependency>
-            </dependencies>
-        </profile>
         <profile>
             <id>release</id>
             <build>

@@ -9,10 +9,11 @@
 ## 目录结构
 
 ```bash
-|-- testable-core         ➜ 核心组件，提供注解和工具类
-|-- testable-processor    ➜ 编译期代码预处理组件，提供测试辅助功能
-|-- testable-agent        ➜ JavaAgent组件，提供Mock测试相关功能
-|-- testable-maven-plugin ➜ Maven插件组件，用于简化JavaAgent注入
+|-- testable-all          ➜ 依赖聚合，便于一次性引用所有子模块功能
+|-- testable-processor    ➜ 编译期代码预处理模块，提供测试辅助功能
+|-- testable-agent        ➜ JavaAgent模块，提供Mock测试相关功能
+|-- testable-core         ➜ 基础功能模块，提供Mock相关注解和工具类
+|-- testable-maven-plugin ➜ Maven插件模块，用于简化JavaAgent注入
 |-- demo
 |   |-- java-demo         ➜ Java语言的示例代码
 |   `-- kotlin-demo       ➜ Kotlin语言的示例代码

@@ -9,9 +9,11 @@
   <packaging>pom</packaging>
 
   <modules>
-    <module>testable-core</module>
+    <module>testable-parent</module>
     <module>testable-processor</module>
+    <module>testable-core</module>
     <module>testable-agent</module>
+    <module>testable-all</module>
     <module>testable-maven-plugin</module>
     <module>demo</module>
   </modules>
