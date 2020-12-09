@@ -17,6 +17,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  */
 class DemoMockTest {
 
+    private DemoMock demoMock = new DemoMock();
+
     @TestableMock(targetMethod = CONSTRUCTOR)
     private BlackBox createBlackBox(String text) {
         return new BlackBox("mock_" + text);
@@ -58,7 +60,6 @@ class DemoMockTest {
         }
     }
 
-    private DemoMock demoMock = new DemoMock();
 
     @Test
     void should_able_to_mock_new_object() {

@@ -8,6 +8,10 @@ import com.alibaba.testable.demo.model.Color
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 
+/**
+ * 演示父类变量引用子类对象时的Mock场景
+ * Demonstrate scenario of mocking method from sub-type object referred by parent-type variable
+ */
 internal class DemoInheritTest {
 
     @TestableMock(targetMethod = "put")

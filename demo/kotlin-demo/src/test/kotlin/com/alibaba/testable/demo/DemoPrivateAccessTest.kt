@@ -4,7 +4,10 @@ import com.alibaba.testable.core.accessor.PrivateAccessor
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 
-
+/**
+ * 演示私有成员访问功能
+ * Demonstrate private member access functionality
+ */
 internal class DemoPrivateAccessTest {
 
     private val demoPrivateAccess = DemoPrivateAccess()

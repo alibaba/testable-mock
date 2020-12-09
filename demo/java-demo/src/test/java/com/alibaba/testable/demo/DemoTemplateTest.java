@@ -16,6 +16,9 @@ class DemoTemplateTest {
 
     private DemoTemplate demoTemplate = new DemoTemplate();
 
+    /* 第一种写法：使用泛型定义 */
+    /* First solution: use generics type */
+
     @TestableMock
     private <T> List<T> getList(DemoTemplate self, T value) {
         return new ArrayList<T>() {{ add((T)(value.toString() + "_mock_list")); }};
@@ -27,9 +30,9 @@ class DemoTemplateTest {
     }
 
     @TestableMock(targetMethod = TestableTool.CONSTRUCTOR)
-    public HashSet newHashSet() {
-        HashSet<Object> set = new HashSet<>();
-        set.add("insert_mock");
+    private <T> HashSet<T> newHashSet() {
+        HashSet<T> set = new HashSet<>();
+        set.add((T)"insert_mock");
         return set;
     }
 
@@ -38,6 +41,33 @@ class DemoTemplateTest {
         s.add(e.toString() + "_mocked");
         return true;
     }
+
+    /* 第二种写法：使用Object类型 */
+    /* Second solution: use object type */
+
+    //@TestableMock
+    //private List<Object> getList(DemoTemplate self, Object value) {
+    //    return new ArrayList<Object>() {{ add(value.toString() + "_mock_list"); }};
+    //}
+    //
+    //@TestableMock
+    //private Map<Object, Object> getMap(DemoTemplate self, Object key, Object value) {
+    //    return new HashMap<Object, Object>() {{ put(key, value.toString() + "_mock_map"); }};
+    //}
+    //
+    //@TestableMock(targetMethod = TestableTool.CONSTRUCTOR)
+    //private HashSet newHashSet() {
+    //    HashSet<Object> set = new HashSet<>();
+    //    set.add("insert_mock");
+    //    return set;
+    //}
+    //
+    //@TestableMock
+    //private boolean add(Set s, Object e) {
+    //    s.add(e.toString() + "_mocked");
+    //    return true;
+    //}
+
 
     @Test
     void should_able_to_mock_single_template_method() {

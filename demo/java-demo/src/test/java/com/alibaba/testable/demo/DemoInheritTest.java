@@ -15,6 +15,8 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 class DemoInheritTest {
 
+    private DemoInherit demoInherit = new DemoInherit();
+
     @TestableMock(targetMethod = "put")
     private void put_into_box(Box self, String something) {
         self.put("put_" + something + "_into_box");
@@ -45,7 +47,6 @@ class DemoInheritTest {
         return "color_from_blackbox";
     }
 
-    private DemoInherit demoInherit = new DemoInherit();
 
     @Test
     void should_able_to_mock_call_sub_object_method_by_parent_object() {

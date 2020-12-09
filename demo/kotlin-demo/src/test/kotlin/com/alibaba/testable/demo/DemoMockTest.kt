@@ -9,6 +9,10 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import java.util.concurrent.Executors
 
+/**
+ * 演示基本的Mock功能
+ * Demonstrate basic mock functionality
+ */
 internal class DemoMockTest {
 
     @TestableMock(targetMethod = CONSTRUCTOR)

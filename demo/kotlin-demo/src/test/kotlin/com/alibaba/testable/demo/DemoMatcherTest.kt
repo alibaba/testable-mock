@@ -8,7 +8,10 @@ import com.alibaba.testable.demo.model.BlackBox
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 
-
+/**
+ * 演示Mock方法调用校验器
+ * Demonstrate mock method invocation verifier
+ */
 internal class DemoMatcherTest {
 
     @TestableMock(targetMethod = "methodToBeMocked")
