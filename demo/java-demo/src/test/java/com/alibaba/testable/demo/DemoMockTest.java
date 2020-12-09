@@ -4,12 +4,17 @@ import com.alibaba.testable.core.annotation.TestableMock;
 import com.alibaba.testable.demo.model.BlackBox;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
 import java.util.concurrent.Executors;
 
 import static com.alibaba.testable.core.matcher.InvokeVerifier.verify;
 import static com.alibaba.testable.core.tool.TestableTool.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+/**
+ * 演示基本的Mock功能
+ * Demonstrate basic mock functionality
+ */
 class DemoMockTest {
 
     @TestableMock(targetMethod = CONSTRUCTOR)
@@ -56,7 +61,7 @@ class DemoMockTest {
     private DemoMock demoMock = new DemoMock();
 
     @Test
-    void should_able_to_mock_new_object() throws Exception {
+    void should_able_to_mock_new_object() {
         assertEquals("mock_something", demoMock.newFunc());
         verify("createBlackBox").with("something");
     }
@@ -68,7 +73,7 @@ class DemoMockTest {
     }
 
     @Test
-    void should_able_to_mock_common_method() throws Exception {
+    void should_able_to_mock_common_method() {
         assertEquals("trim_string__sub_string__false", demoMock.commonFunc());
         verify("trim").withTimes(1);
         verify("sub").withTimes(1);
@@ -76,7 +81,7 @@ class DemoMockTest {
     }
 
     @Test
-    void should_able_to_mock_static_method() throws Exception {
+    void should_able_to_mock_static_method() {
         assertEquals("not_secret_box", demoMock.getBox().get());
         verify("secretBox").withTimes(1);
     }

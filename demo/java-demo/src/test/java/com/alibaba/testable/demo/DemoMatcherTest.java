@@ -9,6 +9,10 @@ import static com.alibaba.testable.core.matcher.InvokeMatcher.*;
 import static com.alibaba.testable.core.matcher.InvokeVerifier.verify;
 import static org.junit.jupiter.api.Assertions.fail;
 
+/**
+ * 演示Mock方法调用校验器
+ * Demonstrate mock method invocation verifier
+ */
 class DemoMatcherTest {
 
     private DemoMatcher demoMatcher = new DemoMatcher();
