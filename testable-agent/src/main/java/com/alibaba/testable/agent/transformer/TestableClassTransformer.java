@@ -19,7 +19,6 @@ import org.objectweb.asm.tree.MethodNode;
 
 import java.io.IOException;
 import java.lang.instrument.ClassFileTransformer;
-import java.net.URLClassLoader;
 import java.security.ProtectionDomain;
 import java.util.*;
 
@@ -34,13 +33,22 @@ public class TestableClassTransformer implements ClassFileTransformer {
     private final Map<ComparableWeakRef<String>, CachedMockParameter> loadedClass =
         new WeakHashMap<ComparableWeakRef<String>, CachedMockParameter>();
 
+    /**
+     * Just avoid spend time to scan those surely non-user classes
+     * Should keep this list as tiny as possible
+     */
+    private final String[] SYSTEM_PREFIXES = new String[] { "jdk/", "java/", "javax/", "com/sun/",
+        "org/apache/maven/", "com/alibaba/testable/", "junit/", "org/junit/", "org/testng/" };
+
     @Override
     public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined,
                             ProtectionDomain protectionDomain, byte[] classFileBuffer) {
-        if (isSystemClass(loader, className) || loadedClass.containsKey(new ComparableWeakRef<String>(className))) {
+        if (isSystemClass(className) || loadedClass.containsKey(new ComparableWeakRef<String>(className))) {
             // Ignore system class and reloaded class
+            LogUtil.verbose("Ignore class: " + (className == null ? "<lambda>" : className));
             return null;
         }
+        LogUtil.verbose("Handle class: " + className);
         byte[] bytes = null;
         try {
             if (shouldTransformAsSourceClass(className)) {
@@ -69,9 +77,17 @@ public class TestableClassTransformer implements ClassFileTransformer {
         return className.endsWith(ConstPool.TEST_POSTFIX) && hasMockAnnotation(className);
     }
 
-    private boolean isSystemClass(ClassLoader loader, String className) {
+    private boolean isSystemClass(String className) {
         // className can be null for Java 8 lambdas
-        return !(loader instanceof URLClassLoader) || null == className || className.startsWith("jdk/");
+        if (null == className) {
+            return true;
+        }
+        for (String prefix : SYSTEM_PREFIXES) {
+            if (className.startsWith(prefix)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private List<MethodInfo> getTestableMockMethods(String className) {
