@@ -8,9 +8,7 @@ import com.alibaba.testable.core.tool.TestableConst;
 import org.objectweb.asm.tree.*;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author flin
@@ -24,13 +22,12 @@ public class TestClassHandler extends BaseClassHandler {
     private static final String FIELD_SOURCE_METHOD = "SOURCE_METHOD";
     private static final String METHOD_CURRENT_TEST_CASE_NAME = "currentTestCaseName";
     private static final String METHOD_CURRENT_SOURCE_METHOD_NAME = "currentSourceMethodName";
+    private static final String METHOD_MARK_TEST_CASE_BEGIN = "markTestCaseBegin";
     private static final String METHOD_RECORD_MOCK_INVOKE = "recordMockInvoke";
-    private static final String SIGNATURE_TESTABLE_UTIL_METHOD = "(Ljava/lang/Object;)Ljava/lang/String;";
+    private static final String SIGNATURE_CURRENT_TEST_CASE_NAME = "(Ljava/lang/Object;)Ljava/lang/String;";
+    private static final String SIGNATURE_CURRENT_SOURCE_METHOD_NAME = "()Ljava/lang/String;";
+    private static final String SIGNATURE_VOID_METHOD_WITHOUT_PARAMETER = "()V";
     private static final String SIGNATURE_INVOKE_RECORDER_METHOD = "([Ljava/lang/Object;Z)V";
-    private static final Map<String, String> FIELD_TO_METHOD_MAPPING = new HashMap<String, String>() {{
-        put(FIELD_TEST_CASE, METHOD_CURRENT_TEST_CASE_NAME);
-        put(FIELD_SOURCE_METHOD, METHOD_CURRENT_SOURCE_METHOD_NAME);
-    }};
 
     /**
      * Handle bytecode of test class
@@ -91,11 +88,18 @@ public class TestClassHandler extends BaseClassHandler {
     private AbstractInsnNode[] replaceTestableUtilField(MethodNode mn, AbstractInsnNode[] instructions,
                                                         String fieldName, int pos) {
         InsnList il = new InsnList();
-        il.add(new VarInsnNode(ALOAD, 0));
-        il.add(new MethodInsnNode(INVOKESTATIC, CLASS_TESTABLE_UTIL, FIELD_TO_METHOD_MAPPING.get(fieldName),
-            SIGNATURE_TESTABLE_UTIL_METHOD, false));
-        mn.instructions.insert(instructions[pos], il);
-        mn.instructions.remove(instructions[pos]);
+        if (FIELD_TEST_CASE.equals(fieldName)) {
+            il.add(new VarInsnNode(ALOAD, 0));
+            il.add(new MethodInsnNode(INVOKESTATIC, CLASS_TESTABLE_UTIL, METHOD_CURRENT_TEST_CASE_NAME,
+                SIGNATURE_CURRENT_TEST_CASE_NAME, false));
+        } else if (FIELD_SOURCE_METHOD.equals(fieldName)) {
+            il.add(new MethodInsnNode(INVOKESTATIC, CLASS_TESTABLE_UTIL, METHOD_CURRENT_SOURCE_METHOD_NAME,
+                SIGNATURE_CURRENT_SOURCE_METHOD_NAME, false));
+        }
+        if (il.size() > 0) {
+            mn.instructions.insert(instructions[pos], il);
+            mn.instructions.remove(instructions[pos]);
+        }
         return mn.instructions.toArray();
     }
 
@@ -181,18 +185,24 @@ public class TestClassHandler extends BaseClassHandler {
 
     private void injectTestableRef(ClassNode cn, MethodNode mn) {
         InsnList il = new InsnList();
+        // Initialize "_testableInternalRef"
         il.add(new VarInsnNode(ALOAD, 0));
         il.add(new FieldInsnNode(PUTSTATIC, cn.name, ConstPool.TESTABLE_INJECT_REF,
             ClassUtil.toByteCodeClassName(cn.name)));
-        mn.instructions.insertBefore(mn.instructions.get(0), il);
+        // Invoke "markTestCaseBegin"
+        il.add(new MethodInsnNode(INVOKESTATIC, CLASS_TESTABLE_UTIL, METHOD_MARK_TEST_CASE_BEGIN,
+            SIGNATURE_VOID_METHOD_WITHOUT_PARAMETER, false));
+        mn.instructions.insertBefore(mn.instructions.getFirst(), il);
     }
 
     /**
      * Different unit test framework may have different @Test annotation
      * but they should always NOT private, protected or static
+     * and has neither parameter nor return value
      */
     private boolean couldBeTestMethod(MethodNode mn) {
-        return (mn.access & (ACC_PRIVATE | ACC_PROTECTED | ACC_STATIC)) == 0 ;
+        return (mn.access & (ACC_PRIVATE | ACC_PROTECTED | ACC_STATIC)) == 0 &&
+            mn.desc.equals(SIGNATURE_VOID_METHOD_WITHOUT_PARAMETER);
     }
 
 }

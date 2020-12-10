@@ -35,10 +35,10 @@ public class InvokeRecordUtil {
         List<Object[]> records = getInvokeRecord(identify);
         if (isConstructor) {
             records.add(args);
-            LogUtil.verbose("Mock constructor invoked \"%s\"", identify);
+            LogUtil.verbose("  Mock constructor invoked \"%s\"", identify);
         } else {
             records.add(slice(args, 1));
-            LogUtil.verbose("Mock method invoked \"%s\"", identify);
+            LogUtil.verbose("  Mock method invoked \"%s\"", identify);
         }
         INVOKE_RECORDS.put(identify, records);
     }

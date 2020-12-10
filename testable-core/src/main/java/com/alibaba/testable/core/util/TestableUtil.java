@@ -16,16 +16,19 @@ public class TestableUtil {
      */
     private static final int INDEX_OF_CALLER_METHOD = 3;
     /**
+     * [0]Thread.getStackTrace() → [1]markTestCaseBegin() → [2]TestCaseMethod
+     */
+    private static final int INDEX_OF_TEST_CASE_METHOD = 2;
+    /**
      * Just a special number to identify test worker thread
      */
     private static final int TEST_WORKER_THREAD_PRIORITY = 55555;
 
     /**
      * Get the last visit method in source file
-     * @param testClassRef usually `this` variable of the test class
      * @return method name
      */
-    public static String currentSourceMethodName(Object testClassRef) {
+    public static String currentSourceMethodName() {
         return Thread.currentThread().getStackTrace()[INDEX_OF_SOURCE_METHOD].getMethodName();
     }
 
@@ -77,6 +80,14 @@ public class TestableUtil {
     public static String previousStackLocation() {
         StackTraceElement stack = Thread.currentThread().getStackTrace()[INDEX_OF_CALLER_METHOD];
         return stack.getFileName() + ":" + stack.getLineNumber();
+    }
+
+    /**
+     * Do prepare when probable test case start
+     */
+    public static void markTestCaseBegin() {
+        String testCaseName = Thread.currentThread().getStackTrace()[INDEX_OF_TEST_CASE_METHOD].getMethodName();
+        LogUtil.verbose("Start testcase: " + testCaseName);
     }
 
     private static Thread findTestWorkerThread(Set<Thread> threads) {
