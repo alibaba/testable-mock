@@ -1,7 +1,7 @@
 package com.alibaba.testable.demo;
 
 import com.alibaba.testable.core.annotation.TestableMock;
-import com.alibaba.testable.core.tool.TestableTool;
+import com.alibaba.testable.core.tool.TestableConst;
 import org.junit.jupiter.api.Test;
 
 import java.util.*;
@@ -29,7 +29,7 @@ class DemoTemplateTest {
         return new HashMap<K, V>() {{ put(key, (V)(value.toString() + "_mock_map")); }};
     }
 
-    @TestableMock(targetMethod = TestableTool.CONSTRUCTOR)
+    @TestableMock(targetMethod = TestableConst.CONSTRUCTOR)
     private <T> HashSet<T> newHashSet() {
         HashSet<T> set = new HashSet<>();
         set.add((T)"insert_mock");
@@ -55,7 +55,7 @@ class DemoTemplateTest {
     //    return new HashMap<Object, Object>() {{ put(key, value.toString() + "_mock_map"); }};
     //}
     //
-    //@TestableMock(targetMethod = TestableTool.CONSTRUCTOR)
+    //@TestableMock(targetMethod = TestableConst.CONSTRUCTOR)
     //private HashSet newHashSet() {
     //    HashSet<Object> set = new HashSet<>();
     //    set.add("insert_mock");

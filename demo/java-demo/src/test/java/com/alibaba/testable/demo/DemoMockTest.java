@@ -1,10 +1,10 @@
 package com.alibaba.testable.demo;
 
 import com.alibaba.testable.core.annotation.TestableMock;
+import com.alibaba.testable.core.tool.TestableConst;
 import com.alibaba.testable.demo.model.BlackBox;
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
 import java.util.concurrent.Executors;
 
 import static com.alibaba.testable.core.matcher.InvokeVerifier.verify;
@@ -19,7 +19,7 @@ class DemoMockTest {
 
     private DemoMock demoMock = new DemoMock();
 
-    @TestableMock(targetMethod = CONSTRUCTOR)
+    @TestableMock(targetMethod = TestableConst.CONSTRUCTOR)
     private BlackBox createBlackBox(String text) {
         return new BlackBox("mock_" + text);
     }

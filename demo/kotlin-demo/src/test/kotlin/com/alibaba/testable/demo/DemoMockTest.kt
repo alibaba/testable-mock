@@ -2,6 +2,7 @@ package com.alibaba.testable.demo
 
 import com.alibaba.testable.core.annotation.TestableMock
 import com.alibaba.testable.core.matcher.InvokeVerifier.verify
+import com.alibaba.testable.core.tool.TestableConst
 import com.alibaba.testable.core.tool.TestableTool.*
 import com.alibaba.testable.demo.model.BlackBox
 import com.alibaba.testable.demo.model.ColorBox
@@ -15,7 +16,7 @@ import java.util.concurrent.Executors
  */
 internal class DemoMockTest {
 
-    @TestableMock(targetMethod = CONSTRUCTOR)
+    @TestableMock(targetMethod = TestableConst.CONSTRUCTOR)
     private fun createBlackBox(text: String) = BlackBox("mock_$text")
 
     @TestableMock

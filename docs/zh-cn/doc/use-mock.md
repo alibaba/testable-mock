@@ -87,8 +87,8 @@ private BlackBox secretBox(BlackBox ignore) {
 ```java
 // 要覆写的构造函数签名为`BlackBox(String)`
 // 无需在Mock方法参数列表增加额外参数，由于使用了`targetMethod`参数，Mock方法的名称随意起
-// 此处的`CONSTRUCTOR`为`TestableTool`辅助类提供的常量，值为"<init>"
-@TestableMock(targetMethod = CONSTRUCTOR)
+// 此处的`TestableConst.CONSTRUCTOR`为`TestableMock`提供的辅助常量，值为"<init>"
+@TestableMock(targetMethod = TestableConst.CONSTRUCTOR)
 private BlackBox createBlackBox(String text) {
     return new BlackBox("mock_" + text);
 }

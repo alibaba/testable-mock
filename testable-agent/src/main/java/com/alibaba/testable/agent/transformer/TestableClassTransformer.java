@@ -9,6 +9,7 @@ import com.alibaba.testable.agent.model.MethodInfo;
 import com.alibaba.testable.agent.tool.ComparableWeakRef;
 import com.alibaba.testable.agent.util.AnnotationUtil;
 import com.alibaba.testable.agent.util.ClassUtil;
+import com.alibaba.testable.core.tool.TestableConst;
 import com.alibaba.testable.core.util.LogUtil;
 import com.alibaba.testable.core.model.MockDiagnose;
 import org.objectweb.asm.ClassReader;
@@ -98,7 +99,7 @@ public class TestableClassTransformer implements ClassFileTransformer {
                 String targetClass = ClassUtil.toSlashSeparateFullClassName(methodDescPair.left);
                 String targetMethod = AnnotationUtil.getAnnotationParameter(
                     an, ConstPool.FIELD_TARGET_METHOD, mn.name, String.class);
-                if (targetMethod.equals(ConstPool.CONSTRUCTOR)) {
+                if (targetMethod.equals(TestableConst.CONSTRUCTOR)) {
                     String sourceClassName = ClassUtil.getSourceClassName(cn.name);
                     methodInfos.add(new MethodInfo(sourceClassName, targetMethod, mn.name, mn.desc));
                 } else {

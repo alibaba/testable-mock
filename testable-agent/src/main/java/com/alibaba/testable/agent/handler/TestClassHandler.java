@@ -4,6 +4,7 @@ import com.alibaba.testable.agent.constant.ConstPool;
 import com.alibaba.testable.agent.tool.ImmutablePair;
 import com.alibaba.testable.agent.util.AnnotationUtil;
 import com.alibaba.testable.agent.util.ClassUtil;
+import com.alibaba.testable.core.tool.TestableConst;
 import org.objectweb.asm.tree.*;
 
 import java.util.ArrayList;
@@ -133,7 +134,7 @@ public class TestClassHandler extends BaseClassHandler {
         for (AnnotationNode an : mn.visibleAnnotations) {
             String method = AnnotationUtil.getAnnotationParameter
                 (an, ConstPool.FIELD_TARGET_METHOD, null, String.class);
-            if (ConstPool.CONSTRUCTOR.equals(method)) {
+            if (TestableConst.CONSTRUCTOR.equals(method)) {
                 return true;
             }
         }

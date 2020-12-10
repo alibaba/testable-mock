@@ -3,7 +3,7 @@ package com.alibaba.testable.demo
 import com.alibaba.testable.core.annotation.MockWith
 import com.alibaba.testable.core.annotation.TestableMock
 import com.alibaba.testable.core.model.MockDiagnose
-import com.alibaba.testable.core.tool.TestableTool
+import com.alibaba.testable.core.tool.TestableConst
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import java.util.*
@@ -27,7 +27,7 @@ internal class DemoTemplateTest {
         return mutableMapOf(key to (value.toString() + "_mock_map") as V)
     }
 
-    @TestableMock(targetMethod = TestableTool.CONSTRUCTOR)
+    @TestableMock(targetMethod = TestableConst.CONSTRUCTOR)
     private fun newHashSet(): HashSet<*> {
         val set = HashSet<Any>()
         set.add("insert_mock")

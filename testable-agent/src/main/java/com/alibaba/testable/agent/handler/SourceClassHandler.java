@@ -4,6 +4,7 @@ import com.alibaba.testable.agent.constant.ConstPool;
 import com.alibaba.testable.agent.model.MethodInfo;
 import com.alibaba.testable.agent.util.BytecodeUtil;
 import com.alibaba.testable.agent.util.ClassUtil;
+import com.alibaba.testable.core.tool.TestableConst;
 import com.alibaba.testable.core.util.LogUtil;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.*;
@@ -39,7 +40,7 @@ public class SourceClassHandler extends BaseClassHandler {
         Set<MethodInfo> memberInjectMethods = new HashSet<MethodInfo>();
         Set<MethodInfo> newOperatorInjectMethods = new HashSet<MethodInfo>();
         for (MethodInfo mi : injectMethods) {
-            if (mi.getName().equals(ConstPool.CONSTRUCTOR)) {
+            if (mi.getName().equals(TestableConst.CONSTRUCTOR)) {
                 newOperatorInjectMethods.add(mi);
             } else {
                 memberInjectMethods.add(mi);
@@ -68,7 +69,7 @@ public class SourceClassHandler extends BaseClassHandler {
                             node.owner, node.getOpcode(), rangeStart, i);
                         i = rangeStart;
                     }
-                } else if (ConstPool.CONSTRUCTOR.equals(node.name)) {
+                } else if (TestableConst.CONSTRUCTOR.equals(node.name)) {
                     // it's a new operation
                     String newOperatorInjectMethodName = getNewOperatorInjectMethodName(newOperatorInjectMethods, node);
                     if (newOperatorInjectMethodName != null) {
@@ -126,7 +127,7 @@ public class SourceClassHandler extends BaseClassHandler {
                 case Opcodes.INVOKEVIRTUAL:
                 case Opcodes.INVOKEINTERFACE:
                     stackLevel += stackEffectOfInvocation(instructions[i]) + 1;
-                    if (((MethodInsnNode)instructions[i]).name.equals(ConstPool.CONSTRUCTOR)) {
+                    if (((MethodInsnNode)instructions[i]).name.equals(TestableConst.CONSTRUCTOR)) {
                         // constructor must be INVOKESPECIAL and implicitly pop 1 more stack
                         stackLevel++;
                     }
