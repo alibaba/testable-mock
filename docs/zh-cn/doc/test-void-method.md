@@ -69,7 +69,8 @@ class Demo {
 }
 ```
 
-若要测试此方法，可以利用TestableMock快速Mock掉`System.out.println`调用，然后用`InvokeVerifier.verify()`方法校验传入的打印内容：
+若要测试此方法，可以利用TestableMock快速Mock掉`System.out.println`方法。在Mock方法体里可以继续执行原调用（相当于并不影响本来方法功能，仅用于做调用记录），也可以直接留空（相当于去除了原方法的副作用）。
+在执行完被测的void类型方法以后，用`InvokeVerifier.verify()`校验传入的打印内容是否符合预期：
 
 ```java
 class DemoTest {
@@ -77,7 +78,10 @@ class DemoTest {
 
     // 拦截`System.out.println`调用
     @TestableMock
-    public void println(PrintStream ps, String msg) {}
+    public void println(PrintStream ps, String msg) {
+        // 执行原调用
+        ps.println(msg);
+    }
 
     @Test
     public void testRecordAction() {
