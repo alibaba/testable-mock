@@ -10,7 +10,7 @@
         <relativePath>../testable-parent</relativePath>
     </parent>
     <artifactId>testable-all</artifactId>
-    <packaging>pom</packaging>
+    <packaging>jar</packaging>
     <name>testable-all</name>
 
     <dependencies>

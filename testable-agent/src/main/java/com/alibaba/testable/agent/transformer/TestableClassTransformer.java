@@ -35,9 +35,10 @@ public class TestableClassTransformer implements ClassFileTransformer {
 
     /**
      * Just avoid spend time to scan those surely non-user classes
-     * Should keep this list as tiny as possible
+     * Should keep these lists as tiny as possible
      */
-    private final String[] SYSTEM_PREFIXES = new String[] { "jdk/", "java/", "javax/", "com/sun/",
+    private final String[] WHITELIST_PREFIXES = new String[] { "com/alibaba/testable/demo/" };
+    private final String[] BLACKLIST_PREFIXES = new String[] { "jdk/", "java/", "javax/", "com/sun/",
         "org/apache/maven/", "com/alibaba/testable/", "junit/", "org/junit/", "org/testng/" };
 
     @Override
@@ -82,7 +83,12 @@ public class TestableClassTransformer implements ClassFileTransformer {
         if (null == className) {
             return true;
         }
-        for (String prefix : SYSTEM_PREFIXES) {
+        for (String prefix : WHITELIST_PREFIXES) {
+            if (className.startsWith(prefix)) {
+                return false;
+            }
+        }
+        for (String prefix : BLACKLIST_PREFIXES) {
             if (className.startsWith(prefix)) {
                 return true;
             }
