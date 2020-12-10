@@ -37,6 +37,7 @@ public class LogUtil {
 
     public static void setDefaultLevel(int level) {
         defaultLogLevel = level;
+        resetLogLevel();
     }
 
     public static void resetLogLevel() {
