@@ -41,6 +41,7 @@
         <plugin.javadoc.version>3.2.0</plugin.javadoc.version>
         <plugin.gpg.version>1.6</plugin.gpg.version>
         <plugin.staging.version>1.6.8</plugin.staging.version>
+        <plugin.maven.version>3.6.0</plugin.maven.version>
         <testable.version>0.3.3-SNAPSHOT</testable.version>
     </properties>
 

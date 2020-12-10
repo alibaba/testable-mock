@@ -48,18 +48,26 @@ public class TestableMojo extends AbstractMojo
      */
     private static final String ECLIPSE_TEST_PLUGIN = "eclipse-test-plugin";
 
+    @Override
     public void execute() throws MojoExecutionException
     {
         final String testArgsPropertyKey = getEffectivePropertyKey();
         final Properties projectProperties = project.getProperties();
+        if (projectProperties == null) {
+            getLog().error("failed to fetch project properties");
+            return;
+        }
         final String oldArgs = projectProperties.getProperty(testArgsPropertyKey);
-        final String newArgs = (oldArgs == null) ? getAgentJarArgs().trim() : oldArgs + getAgentJarArgs();
+        final String newArgs = (oldArgs == null) ? getAgentJarArgs().trim() : (oldArgs + getAgentJarArgs());
         getLog().info(testArgsPropertyKey + " set to " + newArgs);
         projectProperties.setProperty(testArgsPropertyKey, newArgs);
     }
 
     private String getAgentJarArgs() {
         final Artifact testableAgentArtifact = pluginArtifactMap.get(AGENT_ARTIFACT_NAME);
+        if (testableAgentArtifact == null) {
+            getLog().error("failed to find testable agent jar");
+        }
         return " -javaagent:" + testableAgentArtifact.getFile().getAbsolutePath();
     }
 
