@@ -58,6 +58,7 @@ public class TestClassHandler extends BaseClassHandler {
             visibleAnnotationNames.add(n.desc);
         }
         if (visibleAnnotationNames.contains(ClassUtil.toByteCodeClassName(ConstPool.MOCK_METHOD)) ||
+            visibleAnnotationNames.contains(ClassUtil.toByteCodeClassName(ConstPool.TESTABLE_MOCK)) ||
             visibleAnnotationNames.contains(ClassUtil.toByteCodeClassName(ConstPool.MOCK_CONSTRUCTOR))) {
             mn.access &= ~ACC_PRIVATE;
             mn.access &= ~ACC_PROTECTED;

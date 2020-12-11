@@ -119,7 +119,8 @@ public class TestableClassTransformer implements ClassFileTransformer {
             String fullClassName = toDotSeparateFullClassName(an.desc);
             if (fullClassName.equals(ConstPool.MOCK_CONSTRUCTOR)) {
                 addMockConstructor(cn, methodInfos, mn);
-            } else if (fullClassName.equals(ConstPool.MOCK_METHOD)) {
+            } else if (fullClassName.equals(ConstPool.MOCK_METHOD) ||
+                       fullClassName.equals(ConstPool.TESTABLE_MOCK)) {
                 String targetMethod = AnnotationUtil.getAnnotationParameter(
                     an, ConstPool.FIELD_TARGET_METHOD, mn.name, String.class);
                 if (targetMethod.equals(ConstPool.CONSTRUCTOR)) {
@@ -171,6 +172,7 @@ public class TestableClassTransformer implements ClassFileTransformer {
                     for (AnnotationNode an : mn.visibleAnnotations) {
                         String fullClassName = toDotSeparateFullClassName(an.desc);
                         if (fullClassName.equals(ConstPool.MOCK_METHOD) ||
+                            fullClassName.equals(ConstPool.TESTABLE_MOCK) ||
                             fullClassName.equals(ConstPool.MOCK_CONSTRUCTOR)) {
                             loadedClass.put(new ComparableWeakRef<String>(className), CachedMockParameter.exist());
                             return true;
