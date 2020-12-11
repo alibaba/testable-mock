@@ -1,5 +1,11 @@
 # Release Note
 
+## 0.4.0
+- fix a jvm 9+ compatibility issue cause by default classloader change
+- fix a conflict issue when testcase name duplicated between different class
+- refactor code structure, module `testable-all` added
+- separate constant definition from `TestableTool` to `TestableConst`
+
 ## 0.3.2
 - support grable project for both private member access and quick mock
 - support access private static field and methods via PrivateAccessor
