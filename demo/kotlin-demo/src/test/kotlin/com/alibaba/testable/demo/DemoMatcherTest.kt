@@ -1,6 +1,6 @@
 package com.alibaba.testable.demo
 
-import com.alibaba.testable.core.annotation.TestableMock
+import com.alibaba.testable.core.annotation.MockMethod
 import com.alibaba.testable.core.error.VerifyFailedError
 import com.alibaba.testable.core.matcher.InvokeMatcher
 import com.alibaba.testable.core.matcher.InvokeVerifier
@@ -14,19 +14,20 @@ import org.junit.jupiter.api.Test
  */
 internal class DemoMatcherTest {
 
-    @TestableMock(targetMethod = "methodToBeMocked")
+    private val demoMatcher = DemoMatcher()
+
+    @MockMethod(targetMethod = "methodToBeMocked")
     private fun methodWithoutArgument(self: DemoMatcher) {
     }
 
-    @TestableMock(targetMethod = "methodToBeMocked")
+    @MockMethod(targetMethod = "methodToBeMocked")
     private fun methodWithArguments(self: DemoMatcher, a1: Any, a2: Any) {
     }
 
-    @TestableMock(targetMethod = "methodToBeMocked")
+    @MockMethod(targetMethod = "methodToBeMocked")
     private fun methodWithArrayArgument(self: DemoMatcher, a: Array<Any>) {
     }
 
-    private val demoMatcher = DemoMatcher()
 
     @Test
     fun should_match_no_argument() {

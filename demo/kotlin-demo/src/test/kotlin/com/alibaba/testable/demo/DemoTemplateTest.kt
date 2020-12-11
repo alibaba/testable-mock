@@ -1,9 +1,9 @@
 package com.alibaba.testable.demo
 
+import com.alibaba.testable.core.annotation.MockConstructor
+import com.alibaba.testable.core.annotation.MockMethod
 import com.alibaba.testable.core.annotation.MockWith
-import com.alibaba.testable.core.annotation.TestableMock
 import com.alibaba.testable.core.model.MockDiagnose
-import com.alibaba.testable.core.tool.TestableConst
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import java.util.*
@@ -17,28 +17,29 @@ internal class DemoTemplateTest {
 
     private val demoTemplate = DemoTemplate()
 
-    @TestableMock
+    @MockMethod
     private fun <T> getList(self: DemoTemplate, value: T): List<T> {
         return mutableListOf((value.toString() + "_mock_list") as T)
     }
 
-    @TestableMock
+    @MockMethod
     private fun <K, V> getMap(self: DemoTemplate, key: K, value: V): Map<K, V> {
         return mutableMapOf(key to (value.toString() + "_mock_map") as V)
     }
 
-    @TestableMock(targetMethod = TestableConst.CONSTRUCTOR)
+    @MockConstructor
     private fun newHashSet(): HashSet<*> {
         val set = HashSet<Any>()
         set.add("insert_mock")
         return set
     }
 
-    @TestableMock
+    @MockMethod
     private fun <E> add(s: MutableSet<E>, e: E): Boolean {
         s.add((e.toString() + "_mocked") as E)
         return true
     }
+
 
     @Test
     fun should_able_to_mock_single_template_method() {

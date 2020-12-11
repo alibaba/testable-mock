@@ -1,9 +1,10 @@
 package com.alibaba.testable.demo
 
-import com.alibaba.testable.core.annotation.TestableMock
+import com.alibaba.testable.core.annotation.MockConstructor
+import com.alibaba.testable.core.annotation.MockMethod
 import com.alibaba.testable.core.matcher.InvokeVerifier.verify
-import com.alibaba.testable.core.tool.TestableConst
-import com.alibaba.testable.core.tool.TestableTool.*
+import com.alibaba.testable.core.tool.TestableTool.SOURCE_METHOD
+import com.alibaba.testable.core.tool.TestableTool.TEST_CASE
 import com.alibaba.testable.demo.model.BlackBox
 import com.alibaba.testable.demo.model.ColorBox
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -16,32 +17,34 @@ import java.util.concurrent.Executors
  */
 internal class DemoMockTest {
 
-    @TestableMock(targetMethod = TestableConst.CONSTRUCTOR)
+    private val demoMock = DemoMock()
+
+    @MockConstructor
     private fun createBlackBox(text: String) = BlackBox("mock_$text")
 
-    @TestableMock
+    @MockMethod
     private fun innerFunc(self: DemoMock, text: String) = "mock_$text"
 
-    @TestableMock
+    @MockMethod
     private fun trim(self: BlackBox) = "trim_string"
 
-    @TestableMock(targetMethod = "substring")
+    @MockMethod(targetMethod = "substring")
     private fun sub(self: BlackBox, i: Int, j: Int) = "sub_string"
 
-    @TestableMock
+    @MockMethod
     private fun startsWith(self: BlackBox, s: String) = false
 
-    @TestableMock
+    @MockMethod
     private fun secretBox(ignore: BlackBox): BlackBox {
         return BlackBox("not_secret_box")
     }
 
-    @TestableMock
+    @MockMethod
     private fun createBox(ignore: ColorBox, color: String, box: BlackBox): BlackBox {
         return BlackBox("White_${box.get()}")
     }
 
-    @TestableMock
+    @MockMethod
     private fun callFromDifferentMethod(self: DemoMock): String {
         return if (TEST_CASE == "should_able_to_get_test_case_name") {
             "mock_special"
@@ -53,7 +56,6 @@ internal class DemoMockTest {
         }
     }
 
-    private val demoMock = DemoMock()
 
     @Test
     fun should_able_to_mock_new_object() {

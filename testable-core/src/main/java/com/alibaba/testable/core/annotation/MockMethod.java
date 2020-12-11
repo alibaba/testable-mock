@@ -3,14 +3,14 @@ package com.alibaba.testable.core.annotation;
 import java.lang.annotation.*;
 
 /**
- * Use marked method to replace the ones in source class
+ * Mark method as mock method
  *
  * @author flin
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
 @Documented
-public @interface TestableMock {
+public @interface MockMethod {
 
     /**
      * mock specified method instead of method with same name

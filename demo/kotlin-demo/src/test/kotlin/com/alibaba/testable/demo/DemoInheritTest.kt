@@ -1,6 +1,6 @@
 package com.alibaba.testable.demo
 
-import com.alibaba.testable.core.annotation.TestableMock
+import com.alibaba.testable.core.annotation.MockMethod
 import com.alibaba.testable.core.matcher.InvokeVerifier
 import com.alibaba.testable.demo.model.BlackBox
 import com.alibaba.testable.demo.model.Box
@@ -14,37 +14,38 @@ import org.junit.jupiter.api.Test
  */
 internal class DemoInheritTest {
 
-    @TestableMock(targetMethod = "put")
+    private val demoInherit = DemoInherit()
+
+    @MockMethod(targetMethod = "put")
     private fun put_into_box(self: Box, something: String) {
         self.put("put_" + something + "_into_box")
     }
 
-    @TestableMock(targetMethod = "put")
+    @MockMethod(targetMethod = "put")
     private fun put_into_blackbox(self: BlackBox, something: String) {
         self.put("put_" + something + "_into_blackbox")
     }
 
-    @TestableMock(targetMethod = "get")
+    @MockMethod(targetMethod = "get")
     private fun get_from_box(self: Box): String {
         return "get_from_box"
     }
 
-    @TestableMock(targetMethod = "get")
+    @MockMethod(targetMethod = "get")
     private fun get_from_blackbox(self: BlackBox): String {
         return "get_from_blackbox"
     }
 
-    @TestableMock(targetMethod = "getColor")
+    @MockMethod(targetMethod = "getColor")
     private fun get_color_from_color(self: Color): String {
         return "color_from_color"
     }
 
-    @TestableMock(targetMethod = "getColor")
+    @MockMethod(targetMethod = "getColor")
     private fun get_color_from_blackbox(self: BlackBox): String {
         return "color_from_blackbox"
     }
 
-    private val demoInherit = DemoInherit()
 
     @Test
     fun should_able_to_mock_call_sub_object_method_by_parent_object() {

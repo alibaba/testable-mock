@@ -4,11 +4,12 @@ import com.alibaba.testable.agent.constant.ConstPool;
 import com.alibaba.testable.agent.tool.ImmutablePair;
 import com.alibaba.testable.agent.util.AnnotationUtil;
 import com.alibaba.testable.agent.util.ClassUtil;
-import com.alibaba.testable.core.tool.TestableConst;
 import org.objectweb.asm.tree.*;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.alibaba.testable.agent.util.ClassUtil.toDotSeparateFullClassName;
 
 /**
  * @author flin
@@ -56,7 +57,8 @@ public class TestClassHandler extends BaseClassHandler {
         for (AnnotationNode n : mn.visibleAnnotations) {
             visibleAnnotationNames.add(n.desc);
         }
-        if (visibleAnnotationNames.contains(ClassUtil.toByteCodeClassName(ConstPool.TESTABLE_MOCK))) {
+        if (visibleAnnotationNames.contains(ClassUtil.toByteCodeClassName(ConstPool.MOCK_METHOD)) ||
+            visibleAnnotationNames.contains(ClassUtil.toByteCodeClassName(ConstPool.MOCK_CONSTRUCTOR))) {
             mn.access &= ~ACC_PRIVATE;
             mn.access &= ~ACC_PROTECTED;
             mn.access |= ACC_PUBLIC;
@@ -136,9 +138,12 @@ public class TestClassHandler extends BaseClassHandler {
 
     private boolean isMockForConstructor(MethodNode mn) {
         for (AnnotationNode an : mn.visibleAnnotations) {
+            if (toDotSeparateFullClassName(an.desc).equals(ConstPool.MOCK_CONSTRUCTOR)) {
+                return true;
+            }
             String method = AnnotationUtil.getAnnotationParameter
                 (an, ConstPool.FIELD_TARGET_METHOD, null, String.class);
-            if (TestableConst.CONSTRUCTOR.equals(method)) {
+            if (ConstPool.CONSTRUCTOR.equals(method)) {
                 return true;
             }
         }

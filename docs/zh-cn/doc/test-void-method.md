@@ -77,7 +77,7 @@ class DemoTest {
     private Demo demo = new Demo();
 
     // 拦截`System.out.println`调用
-    @TestableMock
+    @MockMethod
     public void println(PrintStream ps, String msg) {
         // 执行原调用
         ps.println(msg);

@@ -1,14 +1,15 @@
 package com.alibaba.testable.demo;
 
-import com.alibaba.testable.core.annotation.TestableMock;
-import com.alibaba.testable.core.tool.TestableConst;
+import com.alibaba.testable.core.annotation.MockConstructor;
+import com.alibaba.testable.core.annotation.MockMethod;
 import com.alibaba.testable.demo.model.BlackBox;
 import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.Executors;
 
 import static com.alibaba.testable.core.matcher.InvokeVerifier.verify;
-import static com.alibaba.testable.core.tool.TestableTool.*;
+import static com.alibaba.testable.core.tool.TestableTool.SOURCE_METHOD;
+import static com.alibaba.testable.core.tool.TestableTool.TEST_CASE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
@@ -19,37 +20,37 @@ class DemoMockTest {
 
     private DemoMock demoMock = new DemoMock();
 
-    @TestableMock(targetMethod = TestableConst.CONSTRUCTOR)
+    @MockConstructor
     private BlackBox createBlackBox(String text) {
         return new BlackBox("mock_" + text);
     }
 
-    @TestableMock
+    @MockMethod
     private String innerFunc(DemoMock self, String text) {
         return "mock_" + text;
     }
 
-    @TestableMock
+    @MockMethod
     private String trim(String self) {
         return "trim_string";
     }
 
-    @TestableMock(targetMethod = "substring")
+    @MockMethod(targetMethod = "substring")
     private String sub(String self, int i, int j) {
         return "sub_string";
     }
 
-    @TestableMock
+    @MockMethod
     private boolean startsWith(String self, String s) {
         return false;
     }
 
-    @TestableMock
+    @MockMethod
     private BlackBox secretBox(BlackBox ignore) {
         return new BlackBox("not_secret_box");
     }
 
-    @TestableMock
+    @MockMethod
     private String callFromDifferentMethod(DemoMock self) {
         if (TEST_CASE.equals("should_able_to_get_test_case_name")) {
             return "mock_special";

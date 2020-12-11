@@ -1,6 +1,6 @@
 package com.alibaba.testable.demo;
 
-import com.alibaba.testable.core.annotation.TestableMock;
+import com.alibaba.testable.core.annotation.MockMethod;
 import com.alibaba.testable.core.error.VerifyFailedError;
 import com.alibaba.testable.demo.model.BlackBox;
 import org.junit.jupiter.api.Test;
@@ -17,14 +17,15 @@ class DemoMatcherTest {
 
     private DemoMatcher demoMatcher = new DemoMatcher();
 
-    @TestableMock(targetMethod = "methodToBeMocked")
+    @MockMethod(targetMethod = "methodToBeMocked")
     private void methodWithoutArgument(DemoMatcher self) {}
 
-    @TestableMock(targetMethod = "methodToBeMocked")
+    @MockMethod(targetMethod = "methodToBeMocked")
     private void methodWithArguments(DemoMatcher self, Object a1, Object a2) {}
 
-    @TestableMock(targetMethod = "methodToBeMocked")
+    @MockMethod(targetMethod = "methodToBeMocked")
     private void methodWithArrayArgument(DemoMatcher self, Object[] a) {}
+
 
     @Test
     void should_match_no_argument() {

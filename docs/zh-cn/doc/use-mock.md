@@ -7,11 +7,11 @@
 
 #### 1. 覆写任意类的方法调用
 
-在测试类里定义一个有`@TestableMock`注解的普通方法，使它与需覆写的方法名称、参数、返回值类型完全一致，然后在其参数列表首位再增加一个类型为该方法原本所属对象类型的参数。
+在测试类里定义一个有`@MockMethod`注解的普通方法，使它与需覆写的方法名称、参数、返回值类型完全一致，然后在其参数列表首位再增加一个类型为该方法原本所属对象类型的参数。
 
 此时被测类中所有对该需覆写方法的调用，将在单元测试运行时，将自动被替换为对上述自定义Mock方法的调用。
 
-**注意**：当遇到待覆写方法有重名时，可以将需覆写的方法名写到`@TestableMock`注解的`targetMethod`参数里，这样Mock方法自身就可以随意命名了。
+**注意**：当遇到待覆写方法有重名时，可以将需覆写的方法名写到`@MockMethod`注解的`targetMethod`参数里，这样Mock方法自身就可以随意命名了。
 
 例如，被测类中有一处`"anything".substring(1, 2)`调用，我们希望在运行测试的时候将它换成一个固定字符串，则只需在测试类定义如下方法：
 
@@ -20,7 +20,7 @@
 // 调用此方法的对象`"anything"`类型为`String`
 // 则Mock方法签名在其参数列表首位增加一个类型为`String`的参数（名字随意）
 // 此参数可用于获得当时的实际调用者的值和上下文
-@TestableMock
+@MockMethod
 private String substring(String self, int i, int j) {
     return "sub_string";
 }
@@ -31,7 +31,7 @@ private String substring(String self, int i, int j) {
 ```java
 // 使用`targetMethod`指定需Mock的方法名
 // 此方法本身现在可以随意命名，但方法参数依然需要遵循相同的匹配规则
-@TestableMock(targetMethod = "substring")
+@MockMethod(targetMethod = "substring")
 private String use_any_mock_method_name(String self, int i, int j) {
     return "sub_string";
 }
@@ -50,7 +50,7 @@ private String use_any_mock_method_name(String self, int i, int j) {
 ```java
 // 被测类型是`DemoMock`
 // 因此在定义Mock方法时，在目标方法参数首位加一个类型为`DemoMock`的参数（名字随意）
-@TestableMock
+@MockMethod
 private String innerFunc(DemoMock self, String text) {
     return "mock_" + text;
 }
@@ -68,7 +68,7 @@ private String innerFunc(DemoMock self, String text) {
 // 目标静态方法定义在`BlackBox`类型中
 // 在定义Mock方法时，在目标方法参数首位加一个类型为`BlackBox`的参数（名字随意）
 // 此参数仅用于标识目标类型，实际传入值将始终为`null`
-@TestableMock
+@MockMethod
 private BlackBox secretBox(BlackBox ignore) {
     return new BlackBox("not_secret_box");
 }
@@ -78,7 +78,7 @@ private BlackBox secretBox(BlackBox ignore) {
 
 #### 4. 覆写任意类的new操作
 
-在测试类里定义一个有`@TestableMock`注解的普通方法，将注解的`targetMethod`参数写为"<init>"，然后使该方法与要被创建类型的构造函数参数、返回值类型完全一致，方法名称随意。
+在测试类里定义一个有`@MockContructor`注解的普通方法，使该方法返回值类型为要被创建的对象类型，且与要Mock的构造函数参数完全一致，方法名称随意。
 
 此时被测类中所有用`new`创建指定类的操作（并使用了与Mock方法参数一致的构造函数）将被替换为对该自定义方法的调用。
 
@@ -86,13 +86,14 @@ private BlackBox secretBox(BlackBox ignore) {
 
 ```java
 // 要覆写的构造函数签名为`BlackBox(String)`
-// 无需在Mock方法参数列表增加额外参数，由于使用了`targetMethod`参数，Mock方法的名称随意起
-// 此处的`TestableConst.CONSTRUCTOR`为`TestableMock`提供的辅助常量，值为"<init>"
-@TestableMock(targetMethod = TestableConst.CONSTRUCTOR)
+// 无需在Mock方法参数列表增加额外参数，Mock方法的名称随意起
+@MockContructor
 private BlackBox createBlackBox(String text) {
     return new BlackBox("mock_" + text);
 }
 ```
+
+> 也可以使用`@MockMethod`注解，并将`targetMethod`参数写为"<init>"，其余同上，效果与`@MockContructor`注解相同
 
 完整代码示例见`java-demo`和`kotlin-demo`示例项目中的`should_able_to_mock_new_object()`测试用例。
 

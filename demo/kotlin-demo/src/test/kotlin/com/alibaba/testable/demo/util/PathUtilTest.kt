@@ -1,13 +1,13 @@
 package com.alibaba.testable.demo.util
 
-import com.alibaba.testable.core.annotation.TestableMock
+import com.alibaba.testable.core.annotation.MockMethod
 import com.alibaba.testable.core.matcher.InvokeVerifier.verify
 import org.junit.jupiter.api.Test
 import java.io.File
 
 class PathUtilTest {
 
-    @TestableMock
+    @MockMethod
     fun exists(f: File): Boolean {
         return when (f.absolutePath) {
             "/a/b" -> true
@@ -16,7 +16,7 @@ class PathUtilTest {
         }
     }
 
-    @TestableMock
+    @MockMethod
     fun isDirectory(f: File): Boolean {
         return when (f.absolutePath) {
             "/a/b/c" -> true
@@ -24,12 +24,12 @@ class PathUtilTest {
         }
     }
 
-    @TestableMock
+    @MockMethod
     fun delete(f: File): Boolean {
         return true
     }
 
-    @TestableMock
+    @MockMethod
     fun listFiles(f: File): Array<File>? {
         return when (f.absolutePath) {
             "/a/b" -> arrayOf(File("/a/b/c"), File("/a/b/d"))

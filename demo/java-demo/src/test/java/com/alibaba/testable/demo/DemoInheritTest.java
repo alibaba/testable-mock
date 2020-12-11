@@ -1,13 +1,13 @@
 package com.alibaba.testable.demo;
 
-import com.alibaba.testable.core.annotation.TestableMock;
+import com.alibaba.testable.core.annotation.MockMethod;
 import com.alibaba.testable.demo.model.BlackBox;
 import com.alibaba.testable.demo.model.Box;
 import com.alibaba.testable.demo.model.Color;
 import org.junit.jupiter.api.Test;
 
 import static com.alibaba.testable.core.matcher.InvokeVerifier.verify;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * 演示父类变量引用子类对象时的Mock场景
@@ -17,32 +17,32 @@ class DemoInheritTest {
 
     private DemoInherit demoInherit = new DemoInherit();
 
-    @TestableMock(targetMethod = "put")
+    @MockMethod(targetMethod = "put")
     private void put_into_box(Box self, String something) {
         self.put("put_" + something + "_into_box");
     }
 
-    @TestableMock(targetMethod = "put")
+    @MockMethod(targetMethod = "put")
     private void put_into_blackbox(BlackBox self, String something) {
         self.put("put_" + something + "_into_blackbox");
     }
 
-    @TestableMock(targetMethod = "get")
+    @MockMethod(targetMethod = "get")
     private String get_from_box(Box self) {
         return "get_from_box";
     }
 
-    @TestableMock(targetMethod = "get")
+    @MockMethod(targetMethod = "get")
     private String get_from_blackbox(BlackBox self) {
         return "get_from_blackbox";
     }
 
-    @TestableMock(targetMethod = "getColor")
+    @MockMethod(targetMethod = "getColor")
     private String get_color_from_color(Color self) {
         return "color_from_color";
     }
 
-    @TestableMock(targetMethod = "getColor")
+    @MockMethod(targetMethod = "getColor")
     private String get_color_from_blackbox(BlackBox self) {
         return "color_from_blackbox";
     }

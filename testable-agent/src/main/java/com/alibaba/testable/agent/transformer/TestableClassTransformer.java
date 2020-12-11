@@ -9,7 +9,6 @@ import com.alibaba.testable.agent.model.MethodInfo;
 import com.alibaba.testable.agent.tool.ComparableWeakRef;
 import com.alibaba.testable.agent.util.AnnotationUtil;
 import com.alibaba.testable.agent.util.ClassUtil;
-import com.alibaba.testable.core.tool.TestableConst;
 import com.alibaba.testable.core.util.LogUtil;
 import com.alibaba.testable.core.model.MockDiagnose;
 import org.objectweb.asm.ClassReader;
@@ -117,19 +116,31 @@ public class TestableClassTransformer implements ClassFileTransformer {
             return;
         }
         for (AnnotationNode an : mn.visibleAnnotations) {
-            if (toDotSeparateFullClassName(an.desc).equals(ConstPool.TESTABLE_MOCK)) {
-                String targetClass = ClassUtil.toSlashSeparateFullClassName(methodDescPair.left);
+            String fullClassName = toDotSeparateFullClassName(an.desc);
+            if (fullClassName.equals(ConstPool.MOCK_CONSTRUCTOR)) {
+                addMockConstructor(cn, methodInfos, mn);
+            } else if (fullClassName.equals(ConstPool.MOCK_METHOD)) {
                 String targetMethod = AnnotationUtil.getAnnotationParameter(
                     an, ConstPool.FIELD_TARGET_METHOD, mn.name, String.class);
-                if (targetMethod.equals(TestableConst.CONSTRUCTOR)) {
-                    String sourceClassName = ClassUtil.getSourceClassName(cn.name);
-                    methodInfos.add(new MethodInfo(sourceClassName, targetMethod, mn.name, mn.desc));
+                if (targetMethod.equals(ConstPool.CONSTRUCTOR)) {
+                    addMockConstructor(cn, methodInfos, mn);
                 } else {
-                    methodInfos.add(new MethodInfo(targetClass, targetMethod, mn.name, methodDescPair.right));
+                    addMockMethod(methodInfos, mn, methodDescPair, targetMethod);
                 }
                 break;
             }
         }
+    }
+
+    private void addMockMethod(List<MethodInfo> methodInfos, MethodNode mn,
+                               ImmutablePair<String, String> methodDescPair, String targetMethod) {
+        String targetClass = ClassUtil.toSlashSeparateFullClassName(methodDescPair.left);
+        methodInfos.add(new MethodInfo(targetClass, targetMethod, mn.name, methodDescPair.right));
+    }
+
+    private void addMockConstructor(ClassNode cn, List<MethodInfo> methodInfos, MethodNode mn) {
+        String sourceClassName = ClassUtil.getSourceClassName(cn.name);
+        methodInfos.add(new MethodInfo(sourceClassName, ConstPool.CONSTRUCTOR, mn.name, mn.desc));
     }
 
     /**
@@ -158,7 +169,9 @@ public class TestableClassTransformer implements ClassFileTransformer {
             for (MethodNode mn : cn.methods) {
                 if (mn.visibleAnnotations != null) {
                     for (AnnotationNode an : mn.visibleAnnotations) {
-                        if (toDotSeparateFullClassName(an.desc).equals(ConstPool.TESTABLE_MOCK)) {
+                        String fullClassName = toDotSeparateFullClassName(an.desc);
+                        if (fullClassName.equals(ConstPool.MOCK_METHOD) ||
+                            fullClassName.equals(ConstPool.MOCK_CONSTRUCTOR)) {
                             loadedClass.put(new ComparableWeakRef<String>(className), CachedMockParameter.exist());
                             return true;
                         }

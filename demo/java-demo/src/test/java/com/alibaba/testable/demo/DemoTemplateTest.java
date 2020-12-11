@@ -1,7 +1,7 @@
 package com.alibaba.testable.demo;
 
-import com.alibaba.testable.core.annotation.TestableMock;
-import com.alibaba.testable.core.tool.TestableConst;
+import com.alibaba.testable.core.annotation.MockConstructor;
+import com.alibaba.testable.core.annotation.MockMethod;
 import org.junit.jupiter.api.Test;
 
 import java.util.*;
@@ -19,24 +19,24 @@ class DemoTemplateTest {
     /* 第一种写法：使用泛型定义 */
     /* First solution: use generics type */
 
-    @TestableMock
+    @MockMethod
     private <T> List<T> getList(DemoTemplate self, T value) {
         return new ArrayList<T>() {{ add((T)(value.toString() + "_mock_list")); }};
     }
 
-    @TestableMock
+    @MockMethod
     private <K, V> Map<K, V> getMap(DemoTemplate self, K key, V value) {
         return new HashMap<K, V>() {{ put(key, (V)(value.toString() + "_mock_map")); }};
     }
 
-    @TestableMock(targetMethod = TestableConst.CONSTRUCTOR)
+    @MockConstructor
     private <T> HashSet<T> newHashSet() {
         HashSet<T> set = new HashSet<>();
         set.add((T)"insert_mock");
         return set;
     }
 
-    @TestableMock
+    @MockMethod
     private <E> boolean add(Set s, E e) {
         s.add(e.toString() + "_mocked");
         return true;
@@ -45,24 +45,24 @@ class DemoTemplateTest {
     /* 第二种写法：使用Object类型 */
     /* Second solution: use object type */
 
-    //@TestableMock
+    //@MockMethod
     //private List<Object> getList(DemoTemplate self, Object value) {
     //    return new ArrayList<Object>() {{ add(value.toString() + "_mock_list"); }};
     //}
     //
-    //@TestableMock
+    //@MockMethod
     //private Map<Object, Object> getMap(DemoTemplate self, Object key, Object value) {
     //    return new HashMap<Object, Object>() {{ put(key, value.toString() + "_mock_map"); }};
     //}
     //
-    //@TestableMock(targetMethod = TestableConst.CONSTRUCTOR)
+    //@MockConstructor
     //private HashSet newHashSet() {
     //    HashSet<Object> set = new HashSet<>();
     //    set.add("insert_mock");
     //    return set;
     //}
     //
-    //@TestableMock
+    //@MockMethod
     //private boolean add(Set s, Object e) {
     //    s.add(e.toString() + "_mocked");
     //    return true;
