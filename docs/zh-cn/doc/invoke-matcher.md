@@ -13,7 +13,7 @@ public test_case() {
 }
 ```
 
-这个用例会检查在执行被测方法`methodToTest()`时，名称是`mockMethod`的Mock方法应当被调用过，且调用时收到的参数值为123和"abc"（假设被Mock的`mockMethod`方法有两个参数）。
+这个用例会检查在执行被测方法`methodToTest()`时，名称是`mockMethod`的Mock方法是否有被调用过，且调用时收到的参数值是否为`123`和`"abc"`（假设被Mock的`mockMethod`方法有两个参数）。
 
 除了这种简单校验以外，TestableMock当前已经支持了多种**校验器**，以及能够模糊匹配参数特征的**匹配器**。
 

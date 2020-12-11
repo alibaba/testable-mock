@@ -1,7 +1,7 @@
 快速Mock被测类的任意方法调用
 ---
 
-相比以往Mock工具以类为粒度的Mock方式，TestableMock允许用户直接定义需要Mock的单个方法，并遵循约定优于配置的原则，按照规则自动在测试运行时替换被测方法中的指定方法调用。
+相比以往Mock工具以类为粒度的Mock方式，`TestableMock`允许用户直接定义需要Mock的单个方法，并遵循约定优于配置的原则，按照规则自动在测试运行时替换被测方法中的指定方法调用。
 
 具体的Mock方法定义约定如下：
 
@@ -60,7 +60,7 @@ private String innerFunc(DemoMock self, String text) {
 
 #### 3. 覆写任意类的静态方法
 
-对于静态方法的Mock与普通方法相同。但需要注意的是，对于静态方法，传入Mock方法的第一个参数实际值始终是`null`。
+对于静态方法的Mock与普通方法相同。但需要注意的是，静态方法的Mock方法被调用时，传入的第一个参数实际值始终是`null`。
 
 例如，在被测类中调用了`BlackBox`类型中的静态方法`secretBox()`，改方法签名为`BlackBox secretBox()`，则Mock方法如下：
 
@@ -78,7 +78,7 @@ private BlackBox secretBox(BlackBox ignore) {
 
 #### 4. 覆写任意类的new操作
 
-在测试类里定义一个有`@MockContructor`注解的普通方法，使该方法返回值类型为要被创建的对象类型，且与要Mock的构造函数参数完全一致，方法名称随意。
+在测试类里定义一个有`@MockContructor`注解的普通方法，使该方法返回值类型为要被创建的对象类型，且方法参数与要Mock的构造函数参数完全一致，方法名称随意。
 
 此时被测类中所有用`new`创建指定类的操作（并使用了与Mock方法参数一致的构造函数）将被替换为对该自定义方法的调用。
 
@@ -93,7 +93,7 @@ private BlackBox createBlackBox(String text) {
 }
 ```
 
-> 也可以使用`@MockMethod`注解，并将`targetMethod`参数写为"<init>"，其余同上，效果与`@MockContructor`注解相同
+> 也可以依然使用`@MockMethod`注解，并配置`targetMethod`参数值为"`<init>`"，其余同上。效果与使用`@MockContructor`注解相同
 
 完整代码示例见`java-demo`和`kotlin-demo`示例项目中的`should_able_to_mock_new_object()`测试用例。
 

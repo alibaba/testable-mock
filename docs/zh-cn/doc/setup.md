@@ -9,13 +9,13 @@
 
 ## 在Maven项目中使用
 
-在项目`pom.xml`文件中，增加`testable-processor`依赖和`maven-surefire-plugin`配置，具体方法如下。
+在项目`pom.xml`文件中，增加`testable-all`依赖和`maven-surefire-plugin`配置，具体方法如下。
 
 建议先添加一个标识TestableMock版本的`property`，便于统一管理：
 
 ```xml
 <properties>
-    <testable.version>0.4.0</testable.version>
+    <testable.version>0.4.1</testable.version>
 </properties>
 ```
 
@@ -25,20 +25,14 @@
 <dependencies>
     <dependency>
         <groupId>com.alibaba.testable</groupId>
-        <artifactId>testable-processor</artifactId>
-        <version>${testable.version}</version>
-        <scope>provided</scope>
-    </dependency>
-    <dependency>
-        <groupId>com.alibaba.testable</groupId>
-        <artifactId>testable-agent</artifactId>
+        <artifactId>testable-all</artifactId>
         <version>${testable.version}</version>
         <scope>provided</scope>
     </dependency>
 </dependencies>
 ```
 
-最后在`build`区域的`plugins`列表里添加`maven-surefire-plugin`插件（如果已有此插件则只需添加`<argLine>`部分配置）：
+最后在`build`区域的`plugins`列表里添加`maven-surefire-plugin`插件（如果已包含此插件则只需添加`<argLine>`部分配置）：
 
 ```xml
 <build>
@@ -68,8 +62,8 @@
 
 ```groovy
 dependencies {
-    testImplementation('com.alibaba.testable:testable-all:0.4.0')
-    testAnnotationProcessor('com.alibaba.testable:testable-processor:0.4.0')
+    testImplementation('com.alibaba.testable:testable-all:0.4.1')
+    testAnnotationProcessor('com.alibaba.testable:testable-processor:0.4.1')
 }
 ```
 

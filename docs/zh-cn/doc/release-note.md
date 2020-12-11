@@ -1,5 +1,8 @@
 # Release Note
 
+## 0.4.1
+- deprecate @TestableMock annotation, use @MockMethod and @MockConstructor instead
+
 ## 0.4.0
 - fix a jvm 9+ compatibility issue cause by default classloader change
 - fix a conflict issue when testcase name duplicated between different class

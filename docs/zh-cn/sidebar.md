@@ -10,5 +10,6 @@
   - [自助问题排查](zh-cn/doc/troubleshooting.md)
   - [Testable Maven插件](zh-cn/doc/use-maven-plugin.md)
 
-- 其他文档
+- 技术参考
+  - [业界工具对比](zh-cn/doc/comparation.md)
   - [Release Note](zh-cn/doc/release-note.md)

@@ -1,7 +1,7 @@
 自助问题排查
 ---
 
-相比Mockito等由开发者手工放置Mock类的做法，TestableMock使用方法名和参数类型匹配自动寻找需Mock的调用。这种机制在带来方便的同时也有可能发生预料之外的Mock替换。
+相比`Mockito`等由开发者手工放置Mock类的做法，`TestableMock`使用方法名和参数类型匹配自动寻找需Mock的调用。这种机制在带来方便的同时也有可能发生预料之外的Mock替换。
 
 若要排查Mock相关的问题，只需在测试类上添加`@MockWith`注解，并配置参数`diagnose`值为`MockDiagnose.ENABLE`，在运行测试时就会打印出详细的Mock方法替换过程。
 
