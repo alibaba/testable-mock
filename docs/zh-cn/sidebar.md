@@ -11,5 +11,5 @@
   - [Testable Maven插件](zh-cn/doc/use-maven-plugin.md)
 
 - 技术参考
-  - [业界工具对比](zh-cn/doc/comparation.md)
+  - [主流Mock工具对比](zh-cn/doc/comparation.md)
   - [Release Note](zh-cn/doc/release-note.md)

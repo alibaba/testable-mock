@@ -93,7 +93,7 @@ private BlackBox createBlackBox(String text) {
 }
 ```
 
-> 也可以依然使用`@MockMethod`注解，并配置`targetMethod`参数值为"`<init>`"，其余同上。效果与使用`@MockContructor`注解相同
+> 也可以依然使用`@MockMethod`注解，并配置`targetMethod`参数值为`"<init>"`，其余同上。效果与使用`@MockContructor`注解相同
 
 完整代码示例见`java-demo`和`kotlin-demo`示例项目中的`should_able_to_mock_new_object()`测试用例。
 
