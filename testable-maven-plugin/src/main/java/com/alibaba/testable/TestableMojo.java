@@ -66,7 +66,7 @@ public class TestableMojo extends AbstractMojo
             return;
         }
         String extraArgs = "";
-        if (!logLevel.isEmpty()) {
+        if (logLevel != null && !logLevel.isEmpty()) {
             extraArgs += logLevel;
         }
         final String oldArgs = projectProperties.getProperty(testArgsPropertyKey);
