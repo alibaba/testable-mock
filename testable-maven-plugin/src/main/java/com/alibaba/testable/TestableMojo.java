@@ -24,13 +24,21 @@ public class TestableMojo extends AbstractMojo
     /**
      * Maven project.
      */
-    @Parameter(property = "project", readonly = true)
+    @Parameter(property = "project", required = true, readonly = true)
     private MavenProject project;
+
     /**
      * Map of plugin artifacts.
      */
     @Parameter(property = "plugin.artifactMap", required = true, readonly = true)
     private Map<String, Artifact> pluginArtifactMap;
+
+    /**
+     * JavaAgent log level (mute/debug/verbose)
+     */
+    @Parameter
+    private String logLevel;
+
     /**
      * Name of the Testable Agent artifact.
      */
@@ -57,9 +65,16 @@ public class TestableMojo extends AbstractMojo
             getLog().error("failed to fetch project properties");
             return;
         }
+        String extraArgs = "";
+        if (!logLevel.isEmpty()) {
+            extraArgs += logLevel;
+        }
         final String oldArgs = projectProperties.getProperty(testArgsPropertyKey);
-        final String newArgs = (oldArgs == null) ? getAgentJarArgs().trim() : (oldArgs + getAgentJarArgs());
+        String newArgs = (oldArgs == null) ? getAgentJarArgs().trim() : (oldArgs + getAgentJarArgs());
         getLog().info(testArgsPropertyKey + " set to " + newArgs);
+        if (!extraArgs.isEmpty()) {
+            newArgs += ("=" + extraArgs);
+        }
         projectProperties.setProperty(testArgsPropertyKey, newArgs);
     }
 

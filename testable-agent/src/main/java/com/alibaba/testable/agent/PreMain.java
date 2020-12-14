@@ -2,7 +2,6 @@ package com.alibaba.testable.agent;
 
 import com.alibaba.testable.agent.transformer.TestableClassTransformer;
 import com.alibaba.testable.core.util.LogUtil;
-import com.alibaba.testable.core.model.MockDiagnose;
 
 import java.lang.instrument.Instrumentation;
 
@@ -15,6 +14,8 @@ public class PreMain {
     private static final String AND = "&";
     private static final String DEBUG = "debug";
     private static final String VERBOSE = "verbose";
+    private static final String LOG_LEVEL = "logLevel";
+    private static final String EQUAL = "=";
 
     public static void premain(String agentArgs, Instrumentation inst) {
         parseArgs(agentArgs);
@@ -26,12 +27,28 @@ public class PreMain {
             return;
         }
         for (String a : args.split(AND)) {
-            if (a.equals(DEBUG)) {
-                LogUtil.setDefaultLevel(LogUtil.LEVEL_DIAGNOSE);
-            } else if (a.equals(VERBOSE)) {
-                LogUtil.setDefaultLevel(LogUtil.LEVEL_VERBOSE);
+            int i = a.indexOf(EQUAL);
+            if (i > 0) {
+                String k = a.substring(0, i);
+                String v = a.substring(i + 1);
+                if (k.equals(LOG_LEVEL)) {
+                    setLogLevel(v);
+                }
+            } else {
+                setLogLevel(a);
             }
         }
+    }
+
+    private static boolean setLogLevel(String level) {
+        if (level.equals(DEBUG)) {
+            LogUtil.setDefaultLevel(LogUtil.LogLevel.LEVEL_DIAGNOSE);
+            return true;
+        } else if (level.equals(VERBOSE)) {
+            LogUtil.setDefaultLevel(LogUtil.LogLevel.LEVEL_VERBOSE);
+            return true;
+        }
+        return false;
     }
 
 }

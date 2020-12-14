@@ -5,43 +5,62 @@ package com.alibaba.testable.core.util;
  */
 public class LogUtil {
 
-    public static final int LEVEL_ERROR = 0;
-    public static final int LEVEL_WARN = 1;
-    public static final int LEVEL_DIAGNOSE = 2;
-    public static final int LEVEL_VERBOSE = 3;
+    public enum LogLevel {
+        /**
+         * Mute
+         */
+        LEVEL_MUTE(0),
+        /**
+         * Warn only
+         */
+        LEVEL_WARN(1),
+        /**
+         * Show diagnose messages
+         */
+        LEVEL_DIAGNOSE(2),
+        /**
+         * Show detail progress logs
+         */
+        LEVEL_VERBOSE(3);
 
-    private static int defaultLogLevel = LEVEL_WARN;
-    private static int level;
+        int level;
+        LogLevel(int l) {
+            level = l;
+        }
+    }
+
+    private static LogLevel defaultLogLevel = LogLevel.LEVEL_WARN;
+    private static LogLevel currentLogLevel;
 
     public static void verbose(String msg, Object... args) {
-        if (level >= LEVEL_VERBOSE) {
+        if (currentLogLevel.level >= LogLevel.LEVEL_VERBOSE.level) {
             System.out.println(String.format("[VERBOSE] " + msg, args));
         }
     }
 
     public static void diagnose(String msg, Object... args) {
-        if (level >= LEVEL_DIAGNOSE) {
+        if (currentLogLevel.level >= LogLevel.LEVEL_DIAGNOSE.level) {
             System.out.println(String.format("[DIAGNOSE] " + msg, args));
         }
     }
 
     public static void warn(String msg, Object... args) {
-        if (level >= LEVEL_WARN) {
+        if (currentLogLevel.level >= LogLevel.LEVEL_WARN.level) {
             System.out.println(String.format("[WARN] " + msg, args));
         }
     }
 
     public static void enableDiagnose(boolean enable) {
-        level = enable ? LEVEL_DIAGNOSE : LEVEL_ERROR;
+        currentLogLevel = enable ? LogLevel.LEVEL_DIAGNOSE : LogLevel.LEVEL_MUTE;
     }
 
-    public static void setDefaultLevel(int level) {
+    public static void setDefaultLevel(LogLevel level) {
         defaultLogLevel = level;
         resetLogLevel();
     }
 
     public static void resetLogLevel() {
-        level = defaultLogLevel;
+        currentLogLevel = defaultLogLevel;
     }
 
 }
