@@ -4,9 +4,11 @@ import com.alibaba.testable.agent.constant.ConstPool;
 import com.alibaba.testable.agent.tool.ImmutablePair;
 import com.alibaba.testable.agent.util.AnnotationUtil;
 import com.alibaba.testable.agent.util.ClassUtil;
+import com.alibaba.testable.core.util.LogUtil;
 import org.objectweb.asm.tree.*;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import static com.alibaba.testable.agent.util.ClassUtil.toDotSeparateFullClassName;
@@ -36,11 +38,19 @@ public class TestClassHandler extends BaseClassHandler {
      */
     @Override
     protected void transform(ClassNode cn) {
-        for (MethodNode m : cn.methods) {
-            transformMethod(cn, m);
+        Iterator<FieldNode> iterator = cn.fields.iterator();
+        if (iterator.hasNext()) {
+            if (ConstPool.TESTABLE_INJECT_REF.equals(iterator.next().name)) {
+                // avoid duplicate injection
+                LogUtil.verbose("Duplicate injection found, ignore " + cn.name);
+                return;
+            }
         }
         cn.fields.add(new FieldNode(ACC_PUBLIC | ACC_STATIC, ConstPool.TESTABLE_INJECT_REF,
             ClassUtil.toByteCodeClassName(cn.name), null, null));
+        for (MethodNode m : cn.methods) {
+            transformMethod(cn, m);
+        }
     }
 
     private void transformMethod(ClassNode cn, MethodNode mn) {

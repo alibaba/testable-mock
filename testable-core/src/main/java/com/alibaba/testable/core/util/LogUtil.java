@@ -30,7 +30,7 @@ public class LogUtil {
     }
 
     private static LogLevel defaultLogLevel = LogLevel.LEVEL_WARN;
-    private static LogLevel currentLogLevel;
+    private static LogLevel currentLogLevel = LogLevel.LEVEL_WARN;
 
     public static void verbose(String msg, Object... args) {
         if (currentLogLevel.level >= LogLevel.LEVEL_VERBOSE.level) {

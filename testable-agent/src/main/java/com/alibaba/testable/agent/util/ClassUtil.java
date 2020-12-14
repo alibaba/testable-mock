@@ -1,14 +1,12 @@
 package com.alibaba.testable.agent.util;
 
 import com.alibaba.testable.agent.constant.ConstPool;
-import com.alibaba.testable.agent.tool.ComparableWeakRef;
-import org.objectweb.asm.ClassReader;
-import org.objectweb.asm.tree.AnnotationNode;
-import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.MethodInsnNode;
-import org.objectweb.asm.tree.MethodNode;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 
