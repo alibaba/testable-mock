@@ -3,10 +3,8 @@ package com.alibaba.testable.agent.transformer;
 import com.alibaba.testable.agent.constant.ConstPool;
 import com.alibaba.testable.agent.handler.SourceClassHandler;
 import com.alibaba.testable.agent.handler.TestClassHandler;
-import com.alibaba.testable.agent.model.CachedMockParameter;
 import com.alibaba.testable.agent.tool.ImmutablePair;
 import com.alibaba.testable.agent.model.MethodInfo;
-import com.alibaba.testable.agent.tool.ComparableWeakRef;
 import com.alibaba.testable.agent.util.AnnotationUtil;
 import com.alibaba.testable.agent.util.ClassUtil;
 import com.alibaba.testable.core.util.LogUtil;
@@ -29,8 +27,6 @@ import static com.alibaba.testable.agent.util.ClassUtil.toDotSeparateFullClassNa
 public class TestableClassTransformer implements ClassFileTransformer {
 
     private static final String FIELD_DIAGNOSE = "diagnose";
-    private final Map<ComparableWeakRef<String>, CachedMockParameter> loadedClass =
-        new WeakHashMap<ComparableWeakRef<String>, CachedMockParameter>();
 
     /**
      * Just avoid spend time to scan those surely non-user classes
@@ -43,7 +39,7 @@ public class TestableClassTransformer implements ClassFileTransformer {
     @Override
     public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined,
                             ProtectionDomain protectionDomain, byte[] classFileBuffer) {
-        if (isSystemClass(className) || loadedClass.containsKey(new ComparableWeakRef<String>(className))) {
+        if (isSystemClass(className)) {
             // Ignore system class and reloaded class
             LogUtil.verbose("Ignore class: " + (className == null ? "<lambda>" : className));
             return null;
@@ -150,11 +146,6 @@ public class TestableClassTransformer implements ClassFileTransformer {
      * @return found annotation or not
      */
     private boolean hasMockAnnotation(String className) {
-        CachedMockParameter cache = loadedClass.get(new ComparableWeakRef<String>(className));
-        if (cache != null) {
-            setupMockContext(cache.getMockWith());
-            return cache.isClassExist();
-        }
         try {
             ClassNode cn = new ClassNode();
             new ClassReader(className).accept(cn, 0);
@@ -162,7 +153,6 @@ public class TestableClassTransformer implements ClassFileTransformer {
                 for (AnnotationNode an : cn.visibleAnnotations) {
                     if (toDotSeparateFullClassName(an.desc).equals(ConstPool.MOCK_WITH)) {
                         setupMockContext(an);
-                        loadedClass.put(new ComparableWeakRef<String>(className), CachedMockParameter.exist(an));
                         return true;
                     }
                 }
@@ -174,7 +164,6 @@ public class TestableClassTransformer implements ClassFileTransformer {
                         if (fullClassName.equals(ConstPool.MOCK_METHOD) ||
                             fullClassName.equals(ConstPool.TESTABLE_MOCK) ||
                             fullClassName.equals(ConstPool.MOCK_CONSTRUCTOR)) {
-                            loadedClass.put(new ComparableWeakRef<String>(className), CachedMockParameter.exist());
                             return true;
                         }
                     }
@@ -184,7 +173,6 @@ public class TestableClassTransformer implements ClassFileTransformer {
             // Usually class not found, return without record
             return false;
         }
-        loadedClass.put(new ComparableWeakRef<String>(className), CachedMockParameter.notExist());
         return false;
     }
 
