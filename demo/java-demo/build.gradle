@@ -12,8 +12,8 @@ repositories {
 
 dependencies {
     testImplementation('org.junit.jupiter:junit-jupiter:5.6.2')
-    testImplementation('com.alibaba.testable:testable-all:0.4.1')
-    testAnnotationProcessor('com.alibaba.testable:testable-processor:0.4.1')
+    testImplementation('com.alibaba.testable:testable-all:0.4.2-SNAPSHOT')
+    testAnnotationProcessor('com.alibaba.testable:testable-processor:0.4.2-SNAPSHOT')
 }
 
 test {
