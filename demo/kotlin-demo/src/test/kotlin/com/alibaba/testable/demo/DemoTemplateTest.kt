@@ -2,8 +2,6 @@ package com.alibaba.testable.demo
 
 import com.alibaba.testable.core.annotation.MockConstructor
 import com.alibaba.testable.core.annotation.MockMethod
-import com.alibaba.testable.core.annotation.MockWith
-import com.alibaba.testable.core.model.MockDiagnose
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import java.util.*
@@ -12,7 +10,6 @@ import java.util.*
  * 演示模板方法可以被Mock
  * Demonstrate template method can be mocked
  */
-@MockWith(diagnose = MockDiagnose.ENABLE)
 internal class DemoTemplateTest {
 
     private val demoTemplate = DemoTemplate()

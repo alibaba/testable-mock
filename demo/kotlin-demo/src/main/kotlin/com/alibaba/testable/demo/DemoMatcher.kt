@@ -41,8 +41,24 @@ class DemoMatcher {
         val longArray = arrayOf(1L, 2L)
         methodToBeMocked(1, 2)
         methodToBeMocked(1L, 2.0)
+
+        // below two invocations are equivalent
         methodToBeMocked(listOf(1), setOf(1.0f))
+        // multiple lines method invocation
+        methodToBeMocked(object : ArrayList<Int?>() {
+            init {
+                add(1)
+            }
+        }, object : HashSet<Float?>() {
+            init {
+                add(1.0f)
+            }
+        })
+
+        // below two invocations are equivalent
         methodToBeMocked(1.0, mapOf(1 to 1.0f))
+        methodToBeMocked(1.0, object : HashMap<Int?, Float?>(2) { init { put(1, 1.0f) } })
+
         methodToBeMocked(floatList, floatList)
         methodToBeMocked(longArray)
         methodToBeMocked(arrayOf(1.0, 2.0))

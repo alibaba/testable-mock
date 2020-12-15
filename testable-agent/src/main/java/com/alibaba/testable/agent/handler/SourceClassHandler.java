@@ -67,6 +67,8 @@ public class SourceClassHandler extends BaseClassHandler {
                         instructions = replaceMemberCallOps(cn, mn, memberInjectMethodName, instructions,
                             node.owner, node.getOpcode(), rangeStart, i);
                         i = rangeStart;
+                    } else {
+                        LogUtil.warn("Potential missed mocking at %s:%s", mn.name, getLineNum(instructions, i));
                     }
                 } else if (ConstPool.CONSTRUCTOR.equals(node.name)) {
                     // it's a new operation
@@ -119,33 +121,46 @@ public class SourceClassHandler extends BaseClassHandler {
     }
 
     private int getMemberMethodStart(AbstractInsnNode[] instructions, int rangeEnd) {
-        int stackLevel = ClassUtil.getParameterTypes(((MethodInsnNode)instructions[rangeEnd]).desc).size();
+        int stackLevel = getInitialStackLevel((MethodInsnNode)instructions[rangeEnd]);
         for (int i = rangeEnd - 1; i >= 0; i--) {
-            switch (instructions[i].getOpcode()) {
-                case Opcodes.INVOKESPECIAL:
-                case Opcodes.INVOKEVIRTUAL:
-                case Opcodes.INVOKEINTERFACE:
-                    stackLevel += stackEffectOfInvocation(instructions[i]) + 1;
-                    if (((MethodInsnNode)instructions[i]).name.equals(ConstPool.CONSTRUCTOR)) {
-                        // constructor must be INVOKESPECIAL and implicitly pop 1 more stack
-                        stackLevel++;
-                    }
-                    break;
-                case Opcodes.INVOKESTATIC:
-                case Opcodes.INVOKEDYNAMIC:
-                    stackLevel += stackEffectOfInvocation(instructions[i]);
-                    break;
-                case -1:
-                    // reach LineNumberNode or LabelNode
-                    return i + 1;
-                default:
-                    stackLevel -= BytecodeUtil.stackEffect(instructions[i].getOpcode());
-            }
+            stackLevel += getStackLevelChange(instructions[i]);
             if (stackLevel < 0) {
                 return i;
             }
         }
         return -1;
+    }
+
+    private int getInitialStackLevel(MethodInsnNode instruction) {
+        int stackLevel = ClassUtil.getParameterTypes((instruction).desc).size();
+        switch (instruction.getOpcode()) {
+            case Opcodes.INVOKESPECIAL:
+            case Opcodes.INVOKEVIRTUAL:
+            case Opcodes.INVOKEINTERFACE:
+                return stackLevel;
+            case Opcodes.INVOKESTATIC:
+            case Opcodes.INVOKEDYNAMIC:
+                return stackLevel - 1;
+            default:
+                return 0;
+        }
+    }
+
+    private int getStackLevelChange(AbstractInsnNode instruction) {
+        switch (instruction.getOpcode()) {
+            case Opcodes.INVOKESPECIAL:
+            case Opcodes.INVOKEVIRTUAL:
+            case Opcodes.INVOKEINTERFACE:
+                return stackEffectOfInvocation(instruction) + 1;
+            case Opcodes.INVOKESTATIC:
+            case Opcodes.INVOKEDYNAMIC:
+                return stackEffectOfInvocation(instruction);
+            case -1:
+                // either LabelNode or LineNumberNode
+                return 0;
+            default:
+                return -BytecodeUtil.stackEffect(instruction.getOpcode());
+        }
     }
 
     private int stackEffectOfInvocation(AbstractInsnNode instruction) {

@@ -44,8 +44,8 @@ internal class DemoMatcherTest {
         InvokeVerifier.verify("methodWithArguments").withInOrder(InvokeMatcher.anyInt(), 2)
         InvokeVerifier.verify("methodWithArguments").withInOrder(InvokeMatcher.anyLong(), InvokeMatcher.anyNumber())
         // Note: Must use `::class.javaObjectType` for primary types check in Kotlin
-        InvokeVerifier.verify("methodWithArguments").with(1.0, InvokeMatcher.anyMapOf(Int::class.javaObjectType, Float::class.javaObjectType))
-        InvokeVerifier.verify("methodWithArguments").with(InvokeMatcher.anyList(), InvokeMatcher.anySetOf(Float::class.javaObjectType))
+        InvokeVerifier.verify("methodWithArguments").with(1.0, InvokeMatcher.anyMapOf(Int::class.javaObjectType, Float::class.javaObjectType)).times(2)
+        InvokeVerifier.verify("methodWithArguments").with(InvokeMatcher.anyList(), InvokeMatcher.anySetOf(Float::class.javaObjectType)).times(2)
         InvokeVerifier.verify("methodWithArguments").with(InvokeMatcher.anyList(), InvokeMatcher.anyListOf(Float::class.javaObjectType))
         InvokeVerifier.verify("methodWithArrayArgument").with(InvokeMatcher.anyArrayOf(Long::class.javaObjectType))
         InvokeVerifier.verify("methodWithArrayArgument").with(InvokeMatcher.anyArray())
@@ -70,12 +70,12 @@ internal class DemoMatcherTest {
     @Test
     fun should_match_with_times() {
         demoMatcher.callMethodWithNumberArguments()
-        InvokeVerifier.verify("methodWithArguments").with(InvokeMatcher.anyNumber(), InvokeMatcher.any()).times(3)
+        InvokeVerifier.verify("methodWithArguments").with(InvokeMatcher.anyNumber(), InvokeMatcher.any()).times(4)
 
         demoMatcher.callMethodWithNumberArguments()
         var gotError = false
         try {
-            InvokeVerifier.verify("methodWithArguments").with(InvokeMatcher.anyNumber(), InvokeMatcher.any()).times(4)
+            InvokeVerifier.verify("methodWithArguments").with(InvokeMatcher.anyNumber(), InvokeMatcher.any()).times(5)
         } catch (e: VerifyFailedError) {
             gotError = true
         }
