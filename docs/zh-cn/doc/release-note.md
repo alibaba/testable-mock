@@ -1,5 +1,10 @@
 # Release Note
 
+## 0.4.2
+- support change javaagent global log level via maven plugin
+- fix an issue of duplicate test class injection
+- fix an issue cause multiple method invocation mock fail
+
 ## 0.4.1
 - deprecate @TestableMock annotation, use @MockMethod and @MockConstructor instead
 
