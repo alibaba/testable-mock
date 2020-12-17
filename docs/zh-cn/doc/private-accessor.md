@@ -25,10 +25,10 @@
 这个类提供了6个静态方法：
 
 - `PrivateAccessor.get(被测对象, "私有字段名")` ➜ 读取被测类的私有成员
-- `PrivateAccessor.set(被测对象, "私有字段名", 新的值)` ➜ 修改被测类的私有成员
+- `PrivateAccessor.set(被测对象, "私有字段名", 新的值)` ➜ 修改被测类的私有成员（或常量成员）
 - `PrivateAccessor.invoke(被测对象, "私有方法名", 调用参数..)` ➜ 调用被测类的私有方法
 - `PrivateAccessor.getStatic(被测类型, "私有字段名")` ➜ 读取被测类的**静态**私有成员
-- `PrivateAccessor.setStatic(被测类型, "私有字段名", 新的值)` ➜ 修改被测类的**静态**私有成员
+- `PrivateAccessor.setStatic(被测类型, "私有字段名", 新的值)` ➜ 修改被测类的**静态**私有成员（或**静态**常量成员）
 - `PrivateAccessor.invokeStatic(被测类型, "私有方法名", 调用参数..)` ➜ 调用被测类的**静态**私有方法
 
 详见`java-demo`和`kotlin-demo`示例项目`DemoPrivateAccessTest`测试类中的用例。

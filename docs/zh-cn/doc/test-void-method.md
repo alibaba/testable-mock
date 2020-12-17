@@ -89,7 +89,7 @@ class DemoTest {
         Action action = new Action("click", ":download");
         demo.recordAction();
         // 验证Mock方法`println`被调用，且传入参数符合预期
-        verify("println").matches("\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2} \\[click\\] :download");
+        verify("println").with(matches("\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2} \\[click\\] :download"));
     }
 }
 ```
