@@ -12,6 +12,7 @@ import java.lang.instrument.Instrumentation;
 public class PreMain {
 
     private static final String AND = "&";
+    private static final String MUTE = "mute";
     private static final String DEBUG = "debug";
     private static final String VERBOSE = "verbose";
     private static final String LOG_LEVEL = "logLevel";
@@ -41,7 +42,10 @@ public class PreMain {
     }
 
     private static boolean setLogLevel(String level) {
-        if (level.equals(DEBUG)) {
+        if (level.equals(MUTE)) {
+            LogUtil.setDefaultLevel(LogUtil.LogLevel.LEVEL_MUTE);
+            return true;
+        } else if (level.equals(DEBUG)) {
             LogUtil.setDefaultLevel(LogUtil.LogLevel.LEVEL_DIAGNOSE);
             return true;
         } else if (level.equals(VERBOSE)) {
