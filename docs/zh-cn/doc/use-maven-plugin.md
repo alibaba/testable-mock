@@ -27,10 +27,16 @@
 
 这是由于IDE运行单个测试用例时通常都只会运行`maven-surefire-plugin`插件，跳过了`testable-maven-plugin`插件执行，导致Mock功能所需的JavaAgent没有随测试注入。
 
-该问题可以通过额外配置IDE的测试参数绕过。以IntelliJ为例，在单元测试配置的"虚拟机参数（VM Option）"属性值末尾添加JavaAgent启动参数：`-javaagent:${HOME}/.m2/repository/com/alibaba/testable/testable-agent/x.y.z/testable-agent-x.y.z.jar`
+该问题可以通过额外配置IDE的测试参数绕过。以IntelliJ为例，打开运行菜单的"编辑配置..."选型，如图中位置①
+
+![modify-run-configuration](https://testable-code.oss-cn-beijing.aliyuncs.com/modify-run-configuration.png)
+
+在"虚拟机参数"属性值末尾添加JavaAgent启动参数：`-javaagent:${HOME}/.m2/repository/com/alibaba/testable/testable-agent/x.y.z/testable-agent-x.y.z.jar`，如图中位置②
 
 > PS：请将路径中的`x.y.z`替换成实际使用的版本号
 
-![idea-vm-option](https://testable-code.oss-cn-beijing.aliyuncs.com/idea-vm-option.png)
+![add-testable-javaagent](https://testable-code.oss-cn-beijing.aliyuncs.com/add-testable-javaagent.png)
 
-此插件的原理实际上是间接修改`maven-surefire-plugin`的配置，因此除了相对美观以外，并无特别之处。目前而言，直接在`pom.xml`文件中修改`maven-surefire-plugin`插件配置依然是更实用的方案。
+最后点击运行单元测试，如图中位置③
+
+总体来说，使用`testable-maven-plugin`带来的额外复杂性依然高于其对配置的简化作用。目前而言，直接在`pom.xml`文件中修改`maven-surefire-plugin`插件配置还是相对推荐的实用方案。

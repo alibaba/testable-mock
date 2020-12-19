@@ -35,7 +35,13 @@ Kotlin语言中的`String`类型实际上是`kotlin.String`，而非`java.lang.S
 
 实际场景中需要对`String`类中的方法进行Mock的场景很少，`TestableMock`暂未对这种情况做特别处理。
 
-#### 6. `TestableMock`能否用于Android项目的测试？
+#### 6. 在IntelliJ IDE中运行单个测试用例时，用了`@EnablePrivateAccess`注解还是报私有成员访问错误？
+
+IntelliJ的默认编译方法跳过了`JSR-269`规范的注解处理器，在IntelliJ系统配置的"Build Tools > Maven > Runner"中开启"Delegate IDE build/run actions to maven"选项即可：
+
+![delegate-ide-build-to-maven](https://testable-code.oss-cn-beijing.aliyuncs.com/delegate-ide-build-to-maven.png)
+
+#### 7. `TestableMock`能否用于Android项目的测试？
 
 结合[Roboelectric](https://github.com/robolectric/robolectric)测试框架可使用。
 
