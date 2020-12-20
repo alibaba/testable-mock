@@ -37,4 +37,32 @@ public class PrivateAccessStatementGenerator extends BaseGenerator {
         params.addAll(expr.args);
         return cx.treeMaker.Apply(List.<JCExpression>nil(), invoker, params.toList());
     }
+
+    public JCExpression fetchStaticGetterStatement(JCFieldAccess access) {
+        JCFieldAccess getter = cx.treeMaker.Select(nameToExpression(ConstPool.TESTABLE_PRIVATE_ACCESSOR),
+            cx.names.fromString("getStatic"));
+        JCExpression classField = cx.treeMaker.Select(access.selected, cx.names.fromString("class"));
+        return cx.treeMaker.Apply(List.<JCExpression>nil(), getter, List.of(classField,
+            cx.treeMaker.Literal(access.name.toString())));
+    }
+
+    public JCExpression fetchStaticSetterStatement(JCAssign assign) {
+        JCFieldAccess setter = cx.treeMaker.Select(nameToExpression(ConstPool.TESTABLE_PRIVATE_ACCESSOR),
+            cx.names.fromString("setStatic"));
+        JCExpression selected = ((JCFieldAccess)assign.lhs).selected;
+        JCExpression classField = cx.treeMaker.Select(selected, cx.names.fromString("class"));
+        return cx.treeMaker.Apply(List.<JCExpression>nil(), setter, List.of(classField,
+            cx.treeMaker.Literal(((JCFieldAccess)assign.lhs).name.toString()), assign.rhs));
+    }
+
+    public JCExpression fetchStaticInvokeStatement(JCMethodInvocation expr) {
+        JCFieldAccess invoker = cx.treeMaker.Select(nameToExpression(ConstPool.TESTABLE_PRIVATE_ACCESSOR),
+            cx.names.fromString("invokeStatic"));
+        JCExpression selected = ((JCFieldAccess)expr.meth).selected;
+        JCExpression classField = cx.treeMaker.Select(selected, cx.names.fromString("class"));
+        ListBuffer<JCExpression> params = ListBuffer.of(classField);
+        params.add(cx.treeMaker.Literal(((JCFieldAccess)expr.meth).name.toString()));
+        params.addAll(expr.args);
+        return cx.treeMaker.Apply(List.<JCExpression>nil(), invoker, params.toList());
+    }
 }

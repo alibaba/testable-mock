@@ -2,6 +2,7 @@ package com.alibaba.testable.processor.translator;
 
 import com.alibaba.testable.processor.constant.ConstPool;
 import com.alibaba.testable.processor.generator.PrivateAccessStatementGenerator;
+import com.alibaba.testable.processor.model.MemberType;
 import com.alibaba.testable.processor.model.TestableContext;
 import com.sun.tools.javac.tree.JCTree.*;
 import com.sun.tools.javac.util.ListBuffer;
@@ -23,7 +24,7 @@ public class EnablePrivateAccessTranslator extends BaseTranslator {
     /**
      * Name of source class
      */
-    private final String sourceClassName;
+    private final Name sourceClassName;
     /**
      * Fields of source class instance in the test class
      */
@@ -40,11 +41,12 @@ public class EnablePrivateAccessTranslator extends BaseTranslator {
     private final PrivateAccessStatementGenerator privateAccessStatementGenerator;
 
     public EnablePrivateAccessTranslator(String pkgName, String testClassName, TestableContext cx) {
-        this.sourceClassName = testClassName.substring(0, testClassName.length() - ConstPool.TEST_POSTFIX.length());
+        String sourceClass = testClassName.substring(0, testClassName.length() - ConstPool.TEST_POSTFIX.length());
         this.privateAccessStatementGenerator = new PrivateAccessStatementGenerator(cx);
+        this.sourceClassName = cx.names.fromString(sourceClass);
         try {
             Class<?> cls = null;
-            String sourceClassFullName = pkgName + "." + sourceClassName;
+            String sourceClassFullName = pkgName + "." + sourceClass;
             try {
                 cls = Class.forName(sourceClassFullName);
             } catch (ClassNotFoundException e) {
@@ -77,7 +79,7 @@ public class EnablePrivateAccessTranslator extends BaseTranslator {
     public void visitVarDef(JCVariableDecl jcVariableDecl) {
         super.visitVarDef(jcVariableDecl);
         if (jcVariableDecl.vartype.getClass().equals(JCIdent.class) &&
-            ((JCIdent)jcVariableDecl.vartype).name.toString().equals(sourceClassName)) {
+            ((JCIdent)jcVariableDecl.vartype).name.equals(sourceClassName)) {
             sourceClassIns.add(jcVariableDecl.name);
         }
     }
@@ -89,10 +91,15 @@ public class EnablePrivateAccessTranslator extends BaseTranslator {
     @Override
     public void visitExec(JCExpressionStatement jcExpressionStatement) {
         // visitExec could be an assign statement to a private field
-        if (jcExpressionStatement.expr.getClass().equals(JCAssign.class) &&
-            isPrivateField((JCAssign)jcExpressionStatement.expr)) {
-            jcExpressionStatement.expr = privateAccessStatementGenerator.fetchSetterStatement(
-                (JCAssign)jcExpressionStatement.expr);
+        if (jcExpressionStatement.expr.getClass().equals(JCAssign.class)) {
+            MemberType memberType = checkSetterType((JCAssign)jcExpressionStatement.expr);
+            if (memberType.equals(MemberType.PRIVATE_OR_FINAL)) {
+                jcExpressionStatement.expr = privateAccessStatementGenerator.fetchSetterStatement(
+                    (JCAssign)jcExpressionStatement.expr);
+            } else if (memberType.equals(MemberType.STATIC_PRIVATE)) {
+                jcExpressionStatement.expr = privateAccessStatementGenerator.fetchStaticSetterStatement(
+                    (JCAssign)jcExpressionStatement.expr);
+            }
         }
         // visitExec could be an invoke
         jcExpressionStatement.expr = checkAndExchange(jcExpressionStatement.expr);
@@ -129,36 +136,59 @@ public class EnablePrivateAccessTranslator extends BaseTranslator {
     @Override
     protected JCExpression checkAndExchange(JCExpression expr) {
         // check is accessing a private field of source class
-        if (expr.getClass().equals(JCFieldAccess.class) &&
-            isPrivateField((JCFieldAccess)expr)) {
-            expr = privateAccessStatementGenerator.fetchGetterStatement((JCFieldAccess)expr);
+        if (expr.getClass().equals(JCFieldAccess.class)) {
+            MemberType memberType = checkGetterType((JCFieldAccess)expr);
+            if (memberType.equals(MemberType.PRIVATE_OR_FINAL)) {
+                expr = privateAccessStatementGenerator.fetchGetterStatement((JCFieldAccess)expr);
+            } else if (memberType.equals(MemberType.STATIC_PRIVATE)) {
+                expr = privateAccessStatementGenerator.fetchStaticGetterStatement((JCFieldAccess)expr);
+            }
         }
         // check is invoking a private method of source class
-        if (expr.getClass().equals(JCMethodInvocation.class) &&
-            isPrivateMethod((JCMethodInvocation)expr)) {
-            expr = privateAccessStatementGenerator.fetchInvokeStatement((JCMethodInvocation)expr);
+        if (expr.getClass().equals(JCMethodInvocation.class)) {
+            MemberType memberType = checkInvokeType((JCMethodInvocation)expr);
+            if (memberType.equals(MemberType.PRIVATE_OR_FINAL)) {
+                expr = privateAccessStatementGenerator.fetchInvokeStatement((JCMethodInvocation)expr);
+            } else if (memberType.equals(MemberType.STATIC_PRIVATE)) {
+                expr = privateAccessStatementGenerator.fetchStaticInvokeStatement((JCMethodInvocation)expr);
+            }
         }
         return expr;
     }
 
-    private boolean isPrivateField(JCFieldAccess access) {
-        return access.selected.getClass().equals(JCIdent.class) &&
-            sourceClassIns.contains(((JCIdent)access.selected).name) &&
-            privateOrFinalFields.contains(access.name.toString());
+    private MemberType checkGetterType(JCFieldAccess access) {
+        if (access.selected.getClass().equals(JCIdent.class) &&
+            privateOrFinalFields.contains(access.name.toString())) {
+            return checkSourceClassOrIns(((JCIdent)access.selected).name);
+        }
+        return MemberType.NONE_PRIVATE;
     }
 
-    private boolean isPrivateField(JCAssign assign) {
-        return assign.lhs.getClass().equals(JCFieldAccess.class) &&
+    private MemberType checkSetterType(JCAssign assign) {
+        if (assign.lhs.getClass().equals(JCFieldAccess.class) &&
             ((JCFieldAccess)(assign).lhs).selected.getClass().equals(JCIdent.class) &&
-            sourceClassIns.contains(((JCIdent)((JCFieldAccess)(assign).lhs).selected).name) &&
-            privateOrFinalFields.contains(((JCFieldAccess)(assign).lhs).name.toString());
+            privateOrFinalFields.contains(((JCFieldAccess)(assign).lhs).name.toString())) {
+            return checkSourceClassOrIns(((JCIdent)((JCFieldAccess)(assign).lhs).selected).name);
+        }
+        return MemberType.NONE_PRIVATE;
     }
 
-    private boolean isPrivateMethod(JCMethodInvocation expr) {
-        return expr.meth.getClass().equals(JCFieldAccess.class) &&
+    private MemberType checkInvokeType(JCMethodInvocation expr) {
+        if (expr.meth.getClass().equals(JCFieldAccess.class) &&
             ((JCFieldAccess)(expr).meth).selected.getClass().equals(JCIdent.class) &&
-            sourceClassIns.contains(((JCIdent)((JCFieldAccess)(expr).meth).selected).name) &&
-            privateMethods.contains(((JCFieldAccess)(expr).meth).name.toString());
+            privateMethods.contains(((JCFieldAccess)(expr).meth).name.toString())) {
+            return checkSourceClassOrIns(((JCIdent)((JCFieldAccess)(expr).meth).selected).name);
+        }
+        return MemberType.NONE_PRIVATE;
+    }
+
+    private MemberType checkSourceClassOrIns(Name name) {
+        if (sourceClassName.equals(name)) {
+            return MemberType.STATIC_PRIVATE;
+        } else if (sourceClassIns.contains(name)) {
+            return MemberType.PRIVATE_OR_FINAL;
+        }
+        return MemberType.NONE_PRIVATE;
     }
 
 }
