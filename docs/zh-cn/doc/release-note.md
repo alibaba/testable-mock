@@ -1,5 +1,8 @@
 # Release Note
 
+## 0.4.3
+- support static private member access
+
 ## 0.4.2
 - support change javaagent global log level via maven plugin
 - fix an issue of duplicate test class injection
