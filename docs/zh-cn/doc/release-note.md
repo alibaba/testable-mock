@@ -1,7 +1,11 @@
 # Release Note
 
+## 0.4.4
+- 修复无法访问参数类型包含接口的私有方法的BUG (issue-15)
+- 修复Mock无参数的静态方法会出错的BUG (issue-16)
+
 ## 0.4.3
-- support static private member access
+- 完善了对私有静态成员的直接访问能力
 
 ## 0.4.2
 - support change javaagent global log level via maven plugin

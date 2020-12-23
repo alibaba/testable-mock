@@ -3,7 +3,7 @@ Private Accessor
 
 Nowadays, the debate about whether private methods should be unit tested is gradually disappearing, and the common practice of developers has given factual answers. Indirect testing of private methods through public methods is difficult in many cases. Developers are more willing to modify method visibility to make original private methods testable in test cases.
 
-In addition, before unit testing begin, it is often necessary to initialize specific member fields of the object under test, but sometimes it could be impossible to easily assign values to these private fields. So, is it possible let the code in the unit test case directly access the private methods and member fields of the class under test without breaking the encapsulation of the tested type? `TestableMock` provides two simple solutions.
+In addition, before unit testing begin, it is often necessary to initialize specific member fields of the object under test, but sometimes it could be impossible to easily assign values to these private fields. So, is it possible let the code in the unit test case directly access the private methods and member fields of the class under test without breaking the encapsulation of the type under test? `TestableMock` provides two simple solutions.
 
 ### Solution 1: Use `@EnablePrivateAccess` annotation
 

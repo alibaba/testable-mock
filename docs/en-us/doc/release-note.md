@@ -1,5 +1,9 @@
 # Release Note
 
+## 0.4.4
+- fix an issue of accessing private method with interface type parameter fail
+- fix an issue of mocking static method without parameter fail 
+
 ## 0.4.3
 - support static private member access
 
