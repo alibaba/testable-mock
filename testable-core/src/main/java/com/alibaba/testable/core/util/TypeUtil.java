@@ -49,8 +49,7 @@ public class TypeUtil {
             return false;
         }
         for (int i = 0; i < classesLeft.length; i++) {
-            if (!classesLeft[i].equals(classesRight[i]) &&
-                !fuzzyEqual(classesLeft[i], classesRight[i])) {
+            if (!classesLeft[i].isAssignableFrom(classesRight[i]) && !fuzzyEqual(classesLeft[i], classesRight[i])) {
                 return false;
             }
         }
