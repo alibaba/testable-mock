@@ -27,7 +27,7 @@
         <groupId>com.alibaba.testable</groupId>
         <artifactId>testable-all</artifactId>
         <version>${testable.version}</version>
-        <scope>provided</scope>
+        <scope>test</scope>
     </dependency>
 </dependencies>
 ```

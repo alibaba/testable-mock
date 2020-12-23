@@ -16,7 +16,7 @@
 
 这些"副作用"的本质归纳来说可分为两类：**修改外部变量**和**调用外部方法**。
 
-通过TestableMock的私有字段访问和Mock校验器可以很方便的实现对"副作用"的结果检查。
+通过`TestableMock`的私有字段访问和Mock校验器可以很方便的实现对"副作用"的结果检查。
 
 ### 1. 修改外部变量的void方法
 
@@ -36,7 +36,7 @@ class Demo {
 }
 ```
 
-若要测试此方法，可以利用TestableMock直接读取私有成员变量的值，对结果进行校验：
+若要测试此方法，可以利用`TestableMock`直接读取私有成员变量的值，对结果进行校验：
 
 ```java
 @EnablePrivateAccess  // 启用TestableMock的私有成员访问功能
@@ -69,7 +69,7 @@ class Demo {
 }
 ```
 
-若要测试此方法，可以利用TestableMock快速Mock掉`System.out.println`方法。在Mock方法体里可以继续执行原调用（相当于并不影响本来方法功能，仅用于做调用记录），也可以直接留空（相当于去除了原方法的副作用）。
+若要测试此方法，可以利用`TestableMock`快速Mock掉`System.out.println`方法。在Mock方法体里可以继续执行原调用（相当于并不影响本来方法功能，仅用于做调用记录），也可以直接留空（相当于去除了原方法的副作用）。
 
 在执行完被测的void类型方法以后，用`InvokeVerifier.verify()`校验传入的打印内容是否符合预期：
 
