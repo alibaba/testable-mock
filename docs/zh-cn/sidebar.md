@@ -6,7 +6,7 @@
 
 - 使用参考
   - [校验Mock调用](zh-cn/doc/invoke-matcher.md)
-  - [常见使用问题](zh-cn/doc/frequency-asked-questions.md)
+  - [常见使用问题](zh-cn/doc/frequently-asked-questions.md)
   - [自助问题排查](zh-cn/doc/troubleshooting.md)
   - [Testable Maven插件](zh-cn/doc/use-maven-plugin.md)
 

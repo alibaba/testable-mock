@@ -3,7 +3,7 @@
 
 在测试中，除了需要将某些含有外部依赖的方法替换为Mock，经常还会需要验证该方法被调用时的参数是否符合预期。
 
-在TestableMock中提供了校验器（verifier）和匹配器（matcher）来实现这一功能。譬如：
+在`TestableMock`中提供了校验器（verifier）和匹配器（matcher）来实现这一功能。譬如：
 
 ```java
 @Test
@@ -15,7 +15,7 @@ public test_case() {
 
 这个用例会检查在执行被测方法`methodToTest()`时，名称是`mockMethod`的Mock方法是否有被调用过，且调用时收到的参数值是否为`123`和`"abc"`（假设被Mock的`mockMethod`方法有两个参数）。
 
-除了这种简单校验以外，TestableMock当前已经支持了多种**校验器**，以及能够模糊匹配参数特征的**匹配器**。
+除了这种简单校验以外，`TestableMock`当前已经支持了多种**校验器**，以及能够模糊匹配参数特征的**匹配器**。
 
 在示例项目`java-demo`和`kotlin-demo`中的`DemoMatcherTest`测试类详细展示了这些校验器和匹配器的用法。
 

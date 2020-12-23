@@ -7,6 +7,8 @@
 > - Mock非构造方法，拷贝原方法定义到测试类，增加一个与调用者类型相同的参数，加`@MockMethod`注解
 > - Mock构造方法，拷贝原方法定义到测试类，返回值换成构造的类型，方法名随意，加`@MockContructor`注解
 
+> **注意**：当前版本还有一项约定是，测试类名称应该为`被测类名+Test`，通常Java单元测试均符合这种惯例。此约定在未来的`TestableMock`版本中可能会被放宽或去除。
+
 具体的Mock方法定义约定如下：
 
 #### 1. 覆写任意类的方法调用
@@ -104,6 +106,8 @@ private BlackBox createBlackBox(String text) {
 #### 5. 识别当前测试用例和调用来源
 
 在Mock方法中可以通过`TestableTool.TEST_CASE`和`TestableTool.SOURCE_METHOD`来识别**当前运行的测试用例名称**和**进入该Mock方法前的被测类方法名称**，从而区分处理不同的调用场景。
+
+> 这两个字段的实现机制基于调用堆栈分析，尽管已经做了各种特殊情况的处理，但在涉及多线程的复杂场景下，依然存在误判的可能。若您发现了相关的可复现BUG，请在Github提交Issue。
 
 完整代码示例见`java-demo`和`kotlin-demo`示例项目中的`should_able_to_get_source_method_name()`和`should_able_to_get_test_case_name()`测试用例。
 
