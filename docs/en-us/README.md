@@ -10,4 +10,4 @@ However, when the current mainstream Mock framework implements the Mock function
 Therefore, we developed `TestableMock`, **a maverick and lightweight mock tool**.
 
 
-!#[mock](https://testable-code.oss-cn-beijing.aliyuncs.com/en-us/mock-simpson.png)
+![mock](https://testable-code.oss-cn-beijing.aliyuncs.com/en-us/mock-simpson.png)
