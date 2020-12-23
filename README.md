@@ -5,7 +5,9 @@
 无需初始化，不挑测试框架，甭管要换的是私有方法、静态方法、构造方法还是其他任何类的任何方法，也甭管要换的对象是怎么创建的。写好Mock定义，加个`@MockMethod`注解，一切统统搞定。
 
 - 文档：https://alibaba.github.io/testable-mock/
-- 国内文档镜像（内容稍有延迟）：http://freyrlin.gitee.io/testable-mock/ 
+- 国内文档镜像：http://freyrlin.gitee.io/testable-mock/ （速度快，内容稍有延迟）
+
+阅读[这里](https://mp.weixin.qq.com/s/KyU6Eu7mDkZU8FspfSqfMw)了解更多故事。
 
 ## 目录结构
 
