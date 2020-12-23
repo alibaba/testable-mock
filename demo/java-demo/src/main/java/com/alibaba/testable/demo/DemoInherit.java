@@ -5,7 +5,8 @@ import com.alibaba.testable.demo.model.Box;
 import com.alibaba.testable.demo.model.Color;
 
 /**
- * @author flin
+ * 演示父类变量引用子类对象时的Mock场景
+ * Demonstrate scenario of mocking method from sub-type object referred by parent-type variable
  */
 public class DemoInherit {
 

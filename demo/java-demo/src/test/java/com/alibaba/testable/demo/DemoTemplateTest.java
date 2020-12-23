@@ -9,8 +9,8 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
- * 演示模板方法可以被Mock
- * Demonstrate template method can be mocked
+ * 演示模板方法的Mock场景
+ * Demonstrate scenario of mocking template method
  */
 class DemoTemplateTest {
 

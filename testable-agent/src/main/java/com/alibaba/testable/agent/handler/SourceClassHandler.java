@@ -122,6 +122,9 @@ public class SourceClassHandler extends BaseClassHandler {
 
     private int getMemberMethodStart(AbstractInsnNode[] instructions, int rangeEnd) {
         int stackLevel = getInitialStackLevel((MethodInsnNode)instructions[rangeEnd]);
+        if (stackLevel < 0) {
+            return rangeEnd;
+        }
         for (int i = rangeEnd - 1; i >= 0; i--) {
             stackLevel += getStackLevelChange(instructions[i]);
             if (stackLevel < 0) {

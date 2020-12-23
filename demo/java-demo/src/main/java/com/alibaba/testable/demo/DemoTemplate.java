@@ -2,6 +2,10 @@ package com.alibaba.testable.demo;
 
 import java.util.*;
 
+/**
+ * 演示模板方法的Mock场景
+ * Demonstrate scenario of mocking template method
+ */
 public class DemoTemplate {
 
     private <T> List<T> getList(T value) {

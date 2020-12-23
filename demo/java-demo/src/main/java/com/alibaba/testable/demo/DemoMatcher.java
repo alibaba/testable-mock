@@ -9,7 +9,8 @@ import java.util.HashSet;
 import java.util.List;
 
 /**
- * @author flin
+ * 演示Mock方法调用校验器
+ * Demonstrate mock method invocation verifier
  */
 public class DemoMatcher {
 

@@ -1,7 +1,8 @@
 package com.alibaba.testable.demo;
 
 /**
- * @author flin
+ * 演示私有成员访问功能
+ * Demonstrate private member access functionality
  */
 public class DemoPrivateAccess {
 
