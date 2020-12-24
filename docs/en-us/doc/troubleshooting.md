@@ -3,7 +3,7 @@ Self-Help Troubleshooting
 
 Compared with `Mockito` and other mock tools where developers have to manually inject mock classes, `TestableMock` uses method name and parameter type matching to automatically find invocations that require mock. While this mechanism brings convenience, it may also cause unexpected mock replacement.
 
-To troubleshoot mock-related issues, just add the `@MockWith` annotation to the test class, and configure the parameter `diagnose` to `MockDiagnose.ENABLE`, so the detailed Mock method replacement process will be printed when the test is run.
+To troubleshoot mock-related issues, just add the `@MockWith` annotation to the test class, and configure the parameter `diagnose` to `MockDiagnose.ENABLE`, so the detailed mock method replacement process will be printed when the test is run.
 
 ```java
 @MockWith(diagnose = MockDiagnose.ENABLE)

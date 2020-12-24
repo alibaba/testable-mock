@@ -14,7 +14,7 @@ Usage Document: https://alibaba.github.io/testable-mock/#/en-us/
 |-- testable-all          ➜ Dependence aggration, for easily import all modules at once
 |-- testable-processor    ➜ Compile-time code preprocessing module, provides test assist functions
 |-- testable-agent        ➜ JavaAgent module, provides test mocking related functions
-|-- testable-core         ➜ Basic function module, provides Mock related class and annotation
+|-- testable-core         ➜ Basic function module, provides mock related class and annotation
 |-- testable-maven-plugin ➜ Maven plugin module, for simplify JavaAgent injection
 |-- demo
 |   |-- java-demo         ➜ Java code example

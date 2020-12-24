@@ -68,7 +68,7 @@ class Demo {
 }
 ```
 
-To test this method, you can use `TestableMock` to quickly mock out the `System.out.println` method. In the Mock method body, you can simply call the original method (equivalent to not affecting the original method function, only used for call recording), or leave it blank (equivalent to removing the side effects of the original method).
+To test this method, you can use `TestableMock` to quickly mock out the `System.out.println` method. In the mock method body, you can simply call the original method (equivalent to not affecting the original method function, only used for call recording), or leave it blank (equivalent to removing the side effects of the original method).
 
 After executing the void type method under test, use `InvokeVerifier.verify()` to verify whether the incoming print content meets expectations:
 

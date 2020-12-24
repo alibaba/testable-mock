@@ -1,9 +1,9 @@
 Mock Tools Comparison
 ---
 
-Besides `TestableMock`, there are also several other community Mock tools, such as `Mockito`, `Spock`, `PowerMock` and `JMockit`. Comparison as follows:
+Besides `TestableMock`, there are also several other community mock tools, such as `Mockito`, `Spock`, `PowerMock` and `JMockit`. Comparison as follows:
 
-|  Tool        | Mechanism                     | Minimal Mock Unit | Limitation of method be mocked               | Ease of use   | IDE support   |
+|  Tool        | Mechanism                     | Minimal mock unit | Limitation of method be mocked               | Ease of use   | IDE support   |
 |  ----        | ----                          | ----              | ----                                         | ----          | ----          |
 | Mockito      | Dynamic proxy                 | Class             | Except private/static method and constructor | **Easy**      | **Very well** |
 | Spock        | Dynamic proxy                 | Class             | Except private/static method and constructor | Complicate    | Just so so    |

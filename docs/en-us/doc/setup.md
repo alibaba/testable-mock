@@ -4,8 +4,8 @@ Use TestableMock
 `TestableMock` is an assist tool for Java unit testing based on source code and bytecode enhancement, including the following functions:
 
 - [Access private members of the class under test](en-us/doc/private-accessor.md): enable unit tests directly invoke or access private members of the class under test, solve the problems of private member initialization and private method testing
-- [Quick Mock arbitrary call](en-us/doc/use-mock.md): quickly replace any method invocation in the class under test with a mock method, solve the cumbersome use of traditional mock tools problem
-- [Auxiliary test void method](en-us/doc/test-void-method.md): use the Mock validator to check the internal logic of method, solve the problem that unit testing is difficult to implement to the method with no return value
+- [Quick mock arbitrary call](en-us/doc/use-mock.md): quickly replace any method invocation in the class under test with a mock method, solve the cumbersome use of traditional mock tools problem
+- [Auxiliary test void method](en-us/doc/test-void-method.md): use the mock validator to check the internal logic of method, solve the problem that unit testing is difficult to implement to the method with no return value
 
 ## Use in Maven project
 
