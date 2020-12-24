@@ -1,5 +1,7 @@
 package com.alibaba.testable.demo;
 
+import java.util.List;
+
 /**
  * 演示私有成员访问功能
  * Demonstrate private member access functionality
@@ -22,15 +24,15 @@ public class DemoPrivateAccess {
     /**
      * private static method
      */
-    private static String privateStaticFunc(String s, int i) {
-        return s + " + " + i;
+    private static String privateStaticFunc(String str, int i) {
+        return str + " + " + i;
     }
 
     /**
      * private member method
      */
-    private String privateFunc(String s, int i) {
-        return s + " - " + i;
+    private String privateFunc(List<String> list, String str, int i) {
+        return list.stream().reduce((a, s) -> a + s).orElse("") + " + " + str + " + " + i;
     }
 
 }

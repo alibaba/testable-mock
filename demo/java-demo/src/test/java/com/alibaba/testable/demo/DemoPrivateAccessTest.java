@@ -4,6 +4,9 @@ import com.alibaba.testable.core.accessor.PrivateAccessor;
 import com.alibaba.testable.processor.annotation.EnablePrivateAccess;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
@@ -17,8 +20,9 @@ class DemoPrivateAccessTest {
 
     @Test
     void should_able_to_access_private_method() {
-        assertEquals("hello - 1", demoPrivateAccess.privateFunc("hello", 1));
-        assertEquals("hello - 1", PrivateAccessor.invoke(demoPrivateAccess, "privateFunc", "hello", 1));
+        List<String> list = new ArrayList<String>() {{ add("a"); add("b"); add("c"); }};
+        assertEquals("abc + hello + 1", demoPrivateAccess.privateFunc(list, "hello", 1));
+        assertEquals("abc + hello + 1", PrivateAccessor.invoke(demoPrivateAccess, "privateFunc", list, "hello", 1));
     }
 
     @Test
