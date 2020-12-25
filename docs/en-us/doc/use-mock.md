@@ -7,7 +7,7 @@ Compared with the class-granularity mocking practices of existing mock tools, `T
 > - Mock non-constructive method, copy the original method definition to the test class, add a parameter of the same type as the caller, and add a `@MockMethod` annotation
 > - Mock construction method, copy the original method definition to the test class, replace the return value with the constructed type, the method name is arbitrary, and add a `@MockContructor` annotation
 
-> **Note**: There is also a convention in the current version that the name of the test class should be `<NameOfClassUnderTest> + Test`, which is usually the by-default naming convention of Java unit tests. This constraint may be relaxed or removed in future versions of `TestableMock`.
+> **Note**: There is also a convention in the current version that the name of the test class should be `<NameOfClassUnderTest> + Test` (and in the same package path), which is usually the by-default naming convention of Java project managed by `Maven` or `Gradle`. This constraint may be relaxed or removed in future versions of `TestableMock`.
 
 The detail mock method definition convention is as follows:
 
