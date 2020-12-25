@@ -35,9 +35,9 @@ Kotlin语言中的`String`类型实际上是`kotlin.String`，而非`java.lang.S
 
 实际场景中需要对`String`类中的方法进行Mock的场景很少，`TestableMock`暂未对这种情况做特别处理。
 
-#### 6. 在IntelliJ IDE中运行单个测试用例时，用了`@EnablePrivateAccess`注解还是报私有成员访问错误？
+#### 6. 在IntelliJ IDE 2020.3版本中运行单个测试用例时，用了`@EnablePrivateAccess`注解还是报私有成员访问错误？
 
-IntelliJ默认编译方法对`JSR-269`规范注解处理器的处理机制与Maven标准不完全兼容，在IntelliJ系统配置的"Build Tools > Maven > Runner"中开启"Delegate IDE build/run actions to maven"选项即可：
+IntelliJ从`2020.2.2`版本以后，IntelliJ对`JSR-269`规范注解处理器的处理机制发生了变化，与Maven标准不再完全兼容。可通过IntelliJ系统配置的"Build Tools > Maven > Runner"中开启"Delegate IDE build/run actions to maven"选项解决：
 
 ![delegate-ide-build-to-maven](https://testable-code.oss-cn-beijing.aliyuncs.com/delegate-ide-build-to-maven.png)
 
