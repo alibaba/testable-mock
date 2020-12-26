@@ -26,7 +26,7 @@ public class TestClassHandler extends BaseClassHandler {
     private static final String METHOD_CURRENT_TEST_CASE_NAME = "currentTestCaseName";
     private static final String METHOD_CURRENT_SOURCE_METHOD_NAME = "currentSourceMethodName";
     private static final String METHOD_RECORD_MOCK_INVOKE = "recordMockInvoke";
-    private static final String SIGNATURE_CURRENT_TEST_CASE_NAME = "(Ljava/lang/Object;)Ljava/lang/String;";
+    private static final String SIGNATURE_CURRENT_TEST_CASE_NAME = "(Ljava/lang/String;)Ljava/lang/String;";
     private static final String SIGNATURE_CURRENT_SOURCE_METHOD_NAME = "()Ljava/lang/String;";
     private static final String SIGNATURE_INVOKE_RECORDER_METHOD = "([Ljava/lang/Object;Z)V";
 
@@ -41,7 +41,7 @@ public class TestClassHandler extends BaseClassHandler {
         }
         for (MethodNode mn : cn.methods) {
             handleMockMethod(mn);
-            handleInstruction(mn);
+            handleInstruction(cn, mn);
         }
     }
 
@@ -60,11 +60,28 @@ public class TestClassHandler extends BaseClassHandler {
 
     private void handleMockMethod(MethodNode mn) {
         if (isMockMethod(mn)) {
-            mn.access &= ~ACC_PRIVATE;
-            mn.access &= ~ACC_PROTECTED;
-            mn.access |= ACC_PUBLIC;
-            mn.access |= ACC_STATIC;
+            toPublicStatic(mn);
             injectInvokeRecorder(mn);
+        }
+    }
+
+    private void toPublicStatic(MethodNode mn) {
+        mn.access &= ~ACC_PRIVATE;
+        mn.access &= ~ACC_PROTECTED;
+        mn.access |= ACC_PUBLIC;
+        if ((mn.access & ACC_STATIC) == 0) {
+            mn.access |= ACC_STATIC;
+            // remote `this` reference
+            mn.localVariables.remove(0);
+            for (LocalVariableNode vn : mn.localVariables) {
+                vn.index--;
+            }
+            for (AbstractInsnNode in : mn.instructions) {
+                if (in.getOpcode() >= ILOAD && in.getOpcode() <= SASTORE) {
+                    ((VarInsnNode)in).var--;
+                }
+            }
+            mn.maxLocals--;
         }
     }
 
@@ -82,14 +99,14 @@ public class TestClassHandler extends BaseClassHandler {
         return false;
     }
 
-    private void handleInstruction(MethodNode mn) {
+    private void handleInstruction(ClassNode cn, MethodNode mn) {
         AbstractInsnNode[] instructions = mn.instructions.toArray();
         int i = 0;
         do {
             if (instructions[i].getOpcode() == GETSTATIC) {
                 FieldInsnNode fieldInsnNode = (FieldInsnNode)instructions[i];
                 if (isTestableUtilField(fieldInsnNode)) {
-                    instructions = replaceTestableUtilField(mn, instructions, fieldInsnNode.name, i);
+                    instructions = replaceTestableUtilField(cn, mn, instructions, fieldInsnNode.name, i);
                 }
             }
             i++;
@@ -101,11 +118,11 @@ public class TestClassHandler extends BaseClassHandler {
             (fieldInsnNode.name.equals(FIELD_TEST_CASE) || fieldInsnNode.name.equals(FIELD_SOURCE_METHOD));
     }
 
-    private AbstractInsnNode[] replaceTestableUtilField(MethodNode mn, AbstractInsnNode[] instructions,
+    private AbstractInsnNode[] replaceTestableUtilField(ClassNode cn, MethodNode mn, AbstractInsnNode[] instructions,
                                                         String fieldName, int pos) {
         InsnList il = new InsnList();
         if (FIELD_TEST_CASE.equals(fieldName)) {
-            il.add(new VarInsnNode(ALOAD, 0));
+            il.add(new LdcInsnNode(ClassUtil.toDotSeparatedName(cn.name)));
             il.add(new MethodInsnNode(INVOKESTATIC, CLASS_TESTABLE_UTIL, METHOD_CURRENT_TEST_CASE_NAME,
                 SIGNATURE_CURRENT_TEST_CASE_NAME, false));
         } else if (FIELD_SOURCE_METHOD.equals(fieldName)) {
@@ -123,7 +140,7 @@ public class TestClassHandler extends BaseClassHandler {
         InsnList il = new InsnList();
         List<Byte> types = ClassUtil.getParameterTypes(mn.desc);
         int size = types.size();
-        int parameterOffset = 1;
+        int parameterOffset = 0;
         mn.maxStack += 1;
         il.add(getIntInsn(size));
         il.add(new TypeInsnNode(ANEWARRAY, ClassUtil.CLASS_OBJECT));

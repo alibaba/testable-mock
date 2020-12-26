@@ -30,17 +30,6 @@ public class TestableUtil {
 
     /**
      * Get current test case method
-     * @param testClassRef usually `this` variable of the test class
-     * @return method name
-     */
-    public static String currentTestCaseName(Object testClassRef) {
-        Class<?> testClass = testClassRef.getClass();
-        String testClassName = getOuterClassName(testClass.getName());
-        return currentTestCaseName(testClassName);
-    }
-
-    /**
-     * Get current test case method
      * @param testClassName name of current test class
      * @return method name
      */
