@@ -1,7 +1,7 @@
 package com.alibaba.testable.agent;
 
 import com.alibaba.testable.agent.transformer.TestableClassTransformer;
-import com.alibaba.testable.core.util.LogUtil;
+import com.alibaba.testable.agent.util.GlobalConfig;
 
 import java.lang.instrument.Instrumentation;
 
@@ -12,9 +12,6 @@ import java.lang.instrument.Instrumentation;
 public class PreMain {
 
     private static final String AND = "&";
-    private static final String MUTE = "mute";
-    private static final String DEBUG = "debug";
-    private static final String VERBOSE = "verbose";
     private static final String LOG_LEVEL = "logLevel";
     private static final String EQUAL = "=";
 
@@ -33,26 +30,12 @@ public class PreMain {
                 String k = a.substring(0, i);
                 String v = a.substring(i + 1);
                 if (k.equals(LOG_LEVEL)) {
-                    setLogLevel(v);
+                    GlobalConfig.setLogLevel(v);
                 }
             } else {
-                setLogLevel(a);
+                GlobalConfig.setLogLevel(a);
             }
         }
-    }
-
-    private static boolean setLogLevel(String level) {
-        if (level.equals(MUTE)) {
-            LogUtil.setDefaultLevel(LogUtil.LogLevel.LEVEL_MUTE);
-            return true;
-        } else if (level.equals(DEBUG)) {
-            LogUtil.setDefaultLevel(LogUtil.LogLevel.LEVEL_DIAGNOSE);
-            return true;
-        } else if (level.equals(VERBOSE)) {
-            LogUtil.setDefaultLevel(LogUtil.LogLevel.LEVEL_VERBOSE);
-            return true;
-        }
-        return false;
     }
 
 }
