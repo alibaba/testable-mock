@@ -80,8 +80,7 @@ public class EnablePrivateAccessProcessor extends AbstractProcessor {
 
     private void processClassElement(Symbol.ClassSymbol clazz) {
         JCTree tree = cx.trees.getTree(clazz);
-        String pkgName = ((Symbol.PackageSymbol)clazz.owner).fullname.toString();
-        tree.accept(new EnablePrivateAccessTranslator(pkgName, clazz.getSimpleName().toString(), cx));
+        tree.accept(new EnablePrivateAccessTranslator(clazz, cx));
     }
 
 }

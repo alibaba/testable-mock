@@ -4,6 +4,7 @@ import com.alibaba.testable.processor.constant.ConstPool;
 import com.alibaba.testable.processor.generator.PrivateAccessStatementGenerator;
 import com.alibaba.testable.processor.model.MemberType;
 import com.alibaba.testable.processor.model.TestableContext;
+import com.sun.tools.javac.code.Symbol;
 import com.sun.tools.javac.tree.JCTree.*;
 import com.sun.tools.javac.util.ListBuffer;
 import com.sun.tools.javac.util.Name;
@@ -20,6 +21,9 @@ import java.net.URLClassLoader;
  * @author flin
  */
 public class EnablePrivateAccessTranslator extends BaseTranslator {
+
+    private static final String IDEA_PATHS_SELECTOR = "idea.paths.selector";
+    private static final String USER_DIR = "user.dir";
 
     /**
      * Name of source class
@@ -40,7 +44,9 @@ public class EnablePrivateAccessTranslator extends BaseTranslator {
 
     private final PrivateAccessStatementGenerator privateAccessStatementGenerator;
 
-    public EnablePrivateAccessTranslator(String pkgName, String testClassName, TestableContext cx) {
+    public EnablePrivateAccessTranslator(Symbol.ClassSymbol clazz, TestableContext cx) {
+        String pkgName = ((Symbol.PackageSymbol)clazz.owner).fullname.toString();
+        String testClassName = clazz.getSimpleName().toString();
         String sourceClass = testClassName.substring(0, testClassName.length() - ConstPool.TEST_POSTFIX.length());
         this.privateAccessStatementGenerator = new PrivateAccessStatementGenerator(cx);
         this.sourceClassName = cx.names.fromString(sourceClass);
@@ -50,9 +56,19 @@ public class EnablePrivateAccessTranslator extends BaseTranslator {
             try {
                 cls = Class.forName(sourceClassFullName);
             } catch (ClassNotFoundException e) {
-                // fit for gradle build
-                String path = "file:" + System.getProperty("user.dir") + "/build/classes/java/main/";
-                cls = new URLClassLoader(new URL[]{new URL(path)}).loadClass(sourceClassFullName);
+                if (System.getProperty(IDEA_PATHS_SELECTOR) != null) {
+                    // fit for intellij 2020.3+
+                    String sourceFileWrapperString = clazz.sourcefile.toString();
+                    String sourceFilePath = sourceFileWrapperString.substring(
+                        sourceFileWrapperString.lastIndexOf("[") + 1, sourceFileWrapperString.indexOf("]"));
+                    String targetFolderPath = sourceFilePath.substring(0, sourceFilePath.lastIndexOf("/src/")) +
+                        "/target/classes/";
+                    cls = new URLClassLoader(new URL[] {new URL(targetFolderPath)}).loadClass(sourceClassFullName);
+                } else {
+                    // fit for gradle build
+                    String path = "file:" + System.getProperty(USER_DIR) + "/build/classes/java/main/";
+                    cls = new URLClassLoader(new URL[] {new URL(path)}).loadClass(sourceClassFullName);
+                }
             }
             if (cls == null) {
                 System.err.println("Failed to load source class: " + sourceClassFullName);
