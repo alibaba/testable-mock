@@ -4,6 +4,7 @@ import com.alibaba.testable.processor.annotation.EnablePrivateAccess;
 import com.alibaba.testable.processor.constant.ConstPool;
 import com.alibaba.testable.processor.model.TestableContext;
 import com.alibaba.testable.processor.translator.EnablePrivateAccessTranslator;
+import com.alibaba.testable.processor.util.JavacUtil;
 import com.alibaba.testable.processor.util.TestableLogger;
 import com.sun.tools.javac.api.JavacTrees;
 import com.sun.tools.javac.code.Symbol;
@@ -46,14 +47,6 @@ public class EnablePrivateAccessProcessor extends AbstractProcessor {
         cx.logger.info("Testable processor initialized");
     }
 
-    private Context getJavacProcessingContext(ProcessingEnvironment processingEnv) {
-        try {
-            return ((JavacProcessingEnvironment)processingEnv).getContext();
-        } catch (Exception e) {
-            return null;
-        }
-    }
-
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
         if (cx.names == null) {
@@ -72,6 +65,15 @@ public class EnablePrivateAccessProcessor extends AbstractProcessor {
     public SourceVersion getSupportedSourceVersion() {
         // always return the latest version
         return SourceVersion.values()[SourceVersion.values().length - 1];
+    }
+
+    private Context getJavacProcessingContext(ProcessingEnvironment processingEnv) {
+        try {
+            JavacProcessingEnvironment javacProcessingEnv = JavacUtil.getJavacProcessingEnvironment(processingEnv);
+            return javacProcessingEnv.getContext();
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     private boolean isTestClass(Name name) {
