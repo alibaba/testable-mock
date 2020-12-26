@@ -40,6 +40,12 @@ public class TestableMojo extends AbstractMojo
     private String logLevel;
 
     /**
+     * Path to dump transformed class file
+     */
+    @Parameter
+    private String dumpPath;
+
+    /**
      * Name of the Testable Agent artifact.
      */
     private static final String AGENT_ARTIFACT_NAME = "com.alibaba.testable:testable-agent";
@@ -67,14 +73,17 @@ public class TestableMojo extends AbstractMojo
         }
         String extraArgs = "";
         if (logLevel != null && !logLevel.isEmpty()) {
-            extraArgs += logLevel;
+            extraArgs += "&logLevel=" + logLevel;
+        }
+        if (dumpPath != null && !dumpPath.isEmpty()) {
+            extraArgs += "&dumpPath=" + dumpPath;
         }
         final String oldArgs = projectProperties.getProperty(testArgsPropertyKey);
         String newArgs = (oldArgs == null) ? getAgentJarArgs().trim() : (oldArgs + getAgentJarArgs());
-        getLog().info(testArgsPropertyKey + " set to " + newArgs);
         if (!extraArgs.isEmpty()) {
-            newArgs += ("=" + extraArgs);
+            newArgs += ("=" + extraArgs.substring(1));
         }
+        getLog().info(testArgsPropertyKey + " set to " + newArgs);
         projectProperties.setProperty(testArgsPropertyKey, newArgs);
     }
 

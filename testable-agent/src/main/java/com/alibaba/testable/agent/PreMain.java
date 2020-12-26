@@ -13,6 +13,7 @@ public class PreMain {
 
     private static final String AND = "&";
     private static final String LOG_LEVEL = "logLevel";
+    private static final String DUMP_PATH = "dumpPath";
     private static final String EQUAL = "=";
 
     public static void premain(String agentArgs, Instrumentation inst) {
@@ -31,6 +32,8 @@ public class PreMain {
                 String v = a.substring(i + 1);
                 if (k.equals(LOG_LEVEL)) {
                     GlobalConfig.setLogLevel(v);
+                } else if (k.equals(DUMP_PATH)) {
+                    GlobalConfig.setDumpPath(v);
                 }
             } else {
                 GlobalConfig.setLogLevel(a);

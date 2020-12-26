@@ -19,4 +19,14 @@ public class StringUtil {
         return sb.toString();
     }
 
+    /**
+     * join a path text and a file name to full file path
+     * @param folder path text
+     * @param file file name
+     * @return joined full file path
+     */
+    public static String joinPath(String folder, String file) {
+        return (folder.endsWith("/") ? folder : (folder + "/")) + file;
+    }
+
 }

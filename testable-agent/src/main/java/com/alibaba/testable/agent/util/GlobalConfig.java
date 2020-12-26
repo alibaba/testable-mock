@@ -11,6 +11,8 @@ public class GlobalConfig {
     private static final String DEBUG = "debug";
     private static final String VERBOSE = "verbose";
 
+    private static String dumpPath = null;
+
     public static boolean setLogLevel(String level) {
         if (level.equals(MUTE)) {
             LogUtil.setDefaultLevel(LogUtil.LogLevel.LEVEL_MUTE);
@@ -24,4 +26,13 @@ public class GlobalConfig {
         }
         return false;
     }
+
+    public static void setDumpPath(String path) {
+        dumpPath = path;
+    }
+
+    public static String getDumpPath() {
+        return dumpPath;
+    }
+
 }

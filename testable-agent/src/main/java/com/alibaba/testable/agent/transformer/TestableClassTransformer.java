@@ -7,6 +7,8 @@ import com.alibaba.testable.agent.tool.ImmutablePair;
 import com.alibaba.testable.agent.model.MethodInfo;
 import com.alibaba.testable.agent.util.AnnotationUtil;
 import com.alibaba.testable.agent.util.ClassUtil;
+import com.alibaba.testable.agent.util.GlobalConfig;
+import com.alibaba.testable.agent.util.StringUtil;
 import com.alibaba.testable.core.util.LogUtil;
 import com.alibaba.testable.core.model.MockDiagnose;
 import org.objectweb.asm.ClassReader;
@@ -14,6 +16,8 @@ import org.objectweb.asm.tree.AnnotationNode;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.MethodNode;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.instrument.ClassFileTransformer;
 import java.security.ProtectionDomain;
@@ -52,17 +56,34 @@ public class TestableClassTransformer implements ClassFileTransformer {
                 LogUtil.diagnose("Handling source class %s", className);
                 List<MethodInfo> injectMethods = getTestableMockMethods(ClassUtil.getTestClassName(className));
                 bytes = new SourceClassHandler(injectMethods).getBytes(classFileBuffer);
+                dumpByte(className, bytes);
                 resetMockContext();
             } else if (shouldTransformAsTestClass(className)) {
                 // it's a test class with testable enabled
                 LogUtil.diagnose("Handling test class %s", className);
                 bytes = new TestClassHandler().getBytes(classFileBuffer);
+                dumpByte(className, bytes);
                 resetMockContext();
             }
         } catch (IOException e) {
             LogUtil.warn("Failed to transform class " + className);
         }
         return bytes;
+    }
+
+    private void dumpByte(String className, byte[] bytes) {
+        String dumpDir = GlobalConfig.getDumpPath();
+        if (dumpDir == null || dumpDir.isEmpty() || !new File(dumpDir).isDirectory()) {
+            return;
+        }
+        try {
+            String dumpFile = StringUtil.joinPath(dumpDir, className.replaceAll("/", "_") + ".class");
+            FileOutputStream stream = new FileOutputStream(dumpFile);
+            stream.write(bytes);
+            stream.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private boolean shouldTransformAsSourceClass(String className) {
