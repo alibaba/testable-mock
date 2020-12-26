@@ -71,8 +71,20 @@ public class JavacUtil {
         }
     }
 
-    private static Field getField(Class<?> clazz, String field) {
-        return null;
+    private static Field getField(Class<?> c, String fName) throws NoSuchFieldException {
+        Field f = null;
+        Class<?> oc = c;
+        while (c != null) {
+            try {
+                f = c.getDeclaredField(fName);
+                break;
+            } catch (NoSuchFieldException e) {}
+            c = c.getSuperclass();
+        }
+        if (f == null) {
+            throw new NoSuchFieldException(oc.getName() + " :: " + fName);
+        }
+        f.setAccessible(true);
+        return f;
     }
-
 }

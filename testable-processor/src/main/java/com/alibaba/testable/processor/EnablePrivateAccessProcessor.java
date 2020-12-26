@@ -11,7 +11,6 @@ import com.sun.tools.javac.code.Symbol;
 import com.sun.tools.javac.processing.JavacProcessingEnvironment;
 import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.tree.TreeMaker;
-import com.sun.tools.javac.util.Context;
 import com.sun.tools.javac.util.Names;
 
 import javax.annotation.processing.AbstractProcessor;
@@ -35,14 +34,14 @@ public class EnablePrivateAccessProcessor extends AbstractProcessor {
     @Override
     public synchronized void init(ProcessingEnvironment processingEnv) {
         super.init(processingEnv);
-        Context context = getJavacProcessingContext(processingEnv);
-        if (context == null) {
+        JavacProcessingEnvironment javacProcessingContext = getJavacProcessingEnvironment(processingEnv);
+        if (javacProcessingContext == null) {
             cx = new TestableContext(new TestableLogger(processingEnv.getMessager()), processingEnv.getFiler());
             cx.logger.info("Skip testable compile time processing");
         } else {
             cx = new TestableContext(new TestableLogger(processingEnv.getMessager()), processingEnv.getFiler(),
-                processingEnv.getElementUtils(), processingEnv.getTypeUtils(), JavacTrees.instance(processingEnv),
-                TreeMaker.instance(context), Names.instance(context));
+                processingEnv.getElementUtils(), processingEnv.getTypeUtils(), JavacTrees.instance(javacProcessingContext),
+                TreeMaker.instance(javacProcessingContext.getContext()), Names.instance(javacProcessingContext.getContext()));
         }
         cx.logger.info("Testable processor initialized");
     }
@@ -67,10 +66,9 @@ public class EnablePrivateAccessProcessor extends AbstractProcessor {
         return SourceVersion.values()[SourceVersion.values().length - 1];
     }
 
-    private Context getJavacProcessingContext(ProcessingEnvironment processingEnv) {
+    private JavacProcessingEnvironment getJavacProcessingEnvironment(ProcessingEnvironment processingEnv) {
         try {
-            JavacProcessingEnvironment javacProcessingEnv = JavacUtil.getJavacProcessingEnvironment(processingEnv);
-            return javacProcessingEnv.getContext();
+            return JavacUtil.getJavacProcessingEnvironment(processingEnv);
         } catch (Exception e) {
             return null;
         }
