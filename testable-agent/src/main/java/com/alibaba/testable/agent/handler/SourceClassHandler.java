@@ -178,9 +178,7 @@ public class SourceClassHandler extends BaseClassHandler {
         String classType = ((TypeInsnNode)instructions[start]).desc;
         String constructorDesc = ((MethodInsnNode)instructions[end]).desc;
         String testClassName = ClassUtil.getTestClassName(cn.name);
-        mn.instructions.insertBefore(instructions[start], new FieldInsnNode(GETSTATIC, testClassName,
-            ConstPool.TESTABLE_INJECT_REF, ClassUtil.toByteCodeClassName(testClassName)));
-        mn.instructions.insertBefore(instructions[end], new MethodInsnNode(INVOKEVIRTUAL, testClassName,
+        mn.instructions.insertBefore(instructions[end], new MethodInsnNode(INVOKESTATIC, testClassName,
             newOperatorInjectMethodName, getConstructorInjectDesc(constructorDesc, classType), false));
         mn.instructions.remove(instructions[start]);
         mn.instructions.remove(instructions[start + 1]);
@@ -209,8 +207,6 @@ public class SourceClassHandler extends BaseClassHandler {
         mn.maxStack++;
         MethodInsnNode method = (MethodInsnNode)instructions[end];
         String testClassName = ClassUtil.getTestClassName(cn.name);
-        mn.instructions.insertBefore(instructions[start], new FieldInsnNode(GETSTATIC, testClassName,
-            ConstPool.TESTABLE_INJECT_REF, ClassUtil.toByteCodeClassName(testClassName)));
         if (Opcodes.INVOKESTATIC == opcode || isCompanionMethod(ownerClass, opcode)) {
             // append a null value if it was a static invoke or in kotlin companion class
             mn.instructions.insertBefore(instructions[start], new InsnNode(ACONST_NULL));
@@ -219,8 +215,8 @@ public class SourceClassHandler extends BaseClassHandler {
                 mn.instructions.remove(instructions[end - 1]);
             }
         }
-        // method with @MockMethod will be modified as public access, so INVOKEVIRTUAL is used
-        mn.instructions.insertBefore(instructions[end], new MethodInsnNode(INVOKEVIRTUAL, testClassName,
+        // method with @MockMethod will be modified as public static access, so INVOKESTATIC is used
+        mn.instructions.insertBefore(instructions[end], new MethodInsnNode(INVOKESTATIC, testClassName,
             substitutionMethod, addFirstParameter(method.desc, ClassUtil.fitCompanionClassName(ownerClass)), false));
         mn.instructions.remove(instructions[end]);
         return mn.instructions.toArray();

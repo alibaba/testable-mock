@@ -7,7 +7,6 @@ import com.alibaba.testable.agent.util.ClassUtil;
 import com.alibaba.testable.core.util.LogUtil;
 import org.objectweb.asm.tree.*;
 
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -21,15 +20,14 @@ public class TestClassHandler extends BaseClassHandler {
     private static final String CLASS_TESTABLE_TOOL = "com/alibaba/testable/core/tool/TestableTool";
     private static final String CLASS_TESTABLE_UTIL = "com/alibaba/testable/core/util/TestableUtil";
     private static final String CLASS_INVOKE_RECORD_UTIL = "com/alibaba/testable/core/util/InvokeRecordUtil";
+    private static final String TESTABLE_MARK_FIELD = "__testable";
     private static final String FIELD_TEST_CASE = "TEST_CASE";
     private static final String FIELD_SOURCE_METHOD = "SOURCE_METHOD";
     private static final String METHOD_CURRENT_TEST_CASE_NAME = "currentTestCaseName";
     private static final String METHOD_CURRENT_SOURCE_METHOD_NAME = "currentSourceMethodName";
-    private static final String METHOD_MARK_TEST_CASE_BEGIN = "markTestCaseBegin";
     private static final String METHOD_RECORD_MOCK_INVOKE = "recordMockInvoke";
     private static final String SIGNATURE_CURRENT_TEST_CASE_NAME = "(Ljava/lang/Object;)Ljava/lang/String;";
     private static final String SIGNATURE_CURRENT_SOURCE_METHOD_NAME = "()Ljava/lang/String;";
-    private static final String SIGNATURE_VOID_METHOD_WITHOUT_PARAMETER = "()V";
     private static final String SIGNATURE_INVOKE_RECORDER_METHOD = "([Ljava/lang/Object;Z)V";
 
     /**
@@ -38,45 +36,50 @@ public class TestClassHandler extends BaseClassHandler {
      */
     @Override
     protected void transform(ClassNode cn) {
-        Iterator<FieldNode> iterator = cn.fields.iterator();
-        if (iterator.hasNext()) {
-            if (ConstPool.TESTABLE_INJECT_REF.equals(iterator.next().name)) {
-                // avoid duplicate injection
-                LogUtil.verbose("Duplicate injection found, ignore " + cn.name);
-                return;
-            }
-        }
-        cn.fields.add(new FieldNode(ACC_PUBLIC | ACC_STATIC, ConstPool.TESTABLE_INJECT_REF,
-            ClassUtil.toByteCodeClassName(cn.name), null, null));
-        for (MethodNode m : cn.methods) {
-            transformMethod(cn, m);
-        }
-    }
-
-    private void transformMethod(ClassNode cn, MethodNode mn) {
-        handleAnnotation(cn, mn);
-        handleInstruction(mn);
-    }
-
-    private void handleAnnotation(ClassNode cn, MethodNode mn) {
-        List<String> visibleAnnotationNames = new ArrayList<String>();
-        if (mn.visibleAnnotations == null) {
-            // let's assume test case should has a annotation, e.g. @Test or whatever
+        if (wasTransformed(cn)) {
             return;
         }
-        for (AnnotationNode n : mn.visibleAnnotations) {
-            visibleAnnotationNames.add(n.desc);
+        for (MethodNode mn : cn.methods) {
+            handleMockMethod(mn);
+            handleInstruction(mn);
         }
-        if (visibleAnnotationNames.contains(ClassUtil.toByteCodeClassName(ConstPool.MOCK_METHOD)) ||
-            visibleAnnotationNames.contains(ClassUtil.toByteCodeClassName(ConstPool.TESTABLE_MOCK)) ||
-            visibleAnnotationNames.contains(ClassUtil.toByteCodeClassName(ConstPool.MOCK_CONSTRUCTOR))) {
+    }
+
+    private boolean wasTransformed(ClassNode cn) {
+        Iterator<FieldNode> iterator = cn.fields.iterator();
+        if (iterator.hasNext()) {
+            if (TESTABLE_MARK_FIELD.equals(iterator.next().name)) {
+                // avoid duplicate injection
+                LogUtil.verbose("Duplicate injection found, ignore " + cn.name);
+                return true;
+            }
+        }
+        cn.fields.add(new FieldNode(ACC_PRIVATE, TESTABLE_MARK_FIELD, "I", null, null));
+        return false;
+    }
+
+    private void handleMockMethod(MethodNode mn) {
+        if (isMockMethod(mn)) {
             mn.access &= ~ACC_PRIVATE;
             mn.access &= ~ACC_PROTECTED;
             mn.access |= ACC_PUBLIC;
+            mn.access |= ACC_STATIC;
             injectInvokeRecorder(mn);
-        } else if (couldBeTestMethod(mn)) {
-            injectTestableRef(cn, mn);
         }
+    }
+
+    private boolean isMockMethod(MethodNode mn) {
+        if (mn.visibleAnnotations == null) {
+            return false;
+        }
+        for (AnnotationNode an : mn.visibleAnnotations) {
+            if (ClassUtil.toByteCodeClassName(ConstPool.MOCK_METHOD).equals(an.desc) ||
+                ClassUtil.toByteCodeClassName(ConstPool.TESTABLE_MOCK).equals(an.desc) ||
+                ClassUtil.toByteCodeClassName(ConstPool.MOCK_CONSTRUCTOR).equals(an.desc)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private void handleInstruction(MethodNode mn) {
@@ -197,28 +200,6 @@ public class TestClassHandler extends BaseClassHandler {
             default:
                 return new IntInsnNode(BIPUSH, num);
         }
-    }
-
-    private void injectTestableRef(ClassNode cn, MethodNode mn) {
-        InsnList il = new InsnList();
-        // Initialize "_testableInternalRef"
-        il.add(new VarInsnNode(ALOAD, 0));
-        il.add(new FieldInsnNode(PUTSTATIC, cn.name, ConstPool.TESTABLE_INJECT_REF,
-            ClassUtil.toByteCodeClassName(cn.name)));
-        // Invoke "markTestCaseBegin"
-        il.add(new MethodInsnNode(INVOKESTATIC, CLASS_TESTABLE_UTIL, METHOD_MARK_TEST_CASE_BEGIN,
-            SIGNATURE_VOID_METHOD_WITHOUT_PARAMETER, false));
-        mn.instructions.insertBefore(mn.instructions.getFirst(), il);
-    }
-
-    /**
-     * Different unit test framework may have different @Test annotation
-     * but they should always NOT private, protected or static
-     * and has neither parameter nor return value
-     */
-    private boolean couldBeTestMethod(MethodNode mn) {
-        return (mn.access & (ACC_PRIVATE | ACC_PROTECTED | ACC_STATIC)) == 0 &&
-            mn.desc.equals(SIGNATURE_VOID_METHOD_WITHOUT_PARAMETER);
     }
 
 }
