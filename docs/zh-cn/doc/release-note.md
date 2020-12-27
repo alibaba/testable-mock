@@ -1,5 +1,10 @@
 # Release Note
 
+## 0.4.5
+- 修复IntelliJ 2020.3+环境下的私有成员访问编译期错误
+- 修复潜在的跨用例初始化空指针异常 (issue-20)
+- 支持将运行期修改后的字节码Dump到本地文件
+
 ## 0.4.4
 - 修复无法访问参数类型包含接口的私有方法的BUG (issue-15)
 - 修复Mock无参数的静态方法会出错的BUG (issue-16)
@@ -8,44 +13,44 @@
 - 完善了对私有静态成员的直接访问能力
 
 ## 0.4.2
-- support change javaagent global log level via maven plugin
-- fix an issue of duplicate test class injection
-- fix an issue cause multiple-line method invocation mock fail
+- 支持通过Maven插件设置`TestableAgent`的全局日志级别
+- 修复测试类可能被重复注入多余字节码的BUG
+- 修复一处导致跨行的方法调用Mock报错的BUG
 
 ## 0.4.1
-- deprecate @TestableMock annotation, use @MockMethod and @MockConstructor instead
+- `@TestableMock`注解已弃用，推荐使用`@MockMethod`和`@MockConstructor`注解
 
 ## 0.4.0
-- fix a jvm 9+ compatibility issue cause by default classloader change
-- fix a conflict issue when testcase name duplicated between different class
-- refactor code structure, module `testable-all` added
-- separate constant definition from `TestableTool` to `TestableConst`
+- 修复由于默认类加载器变化导致JVM 9+运行时Mock出错的BUG
+- 修复多个测试类包含同名Mock方法时潜在的串号问题
+- 重构项目结构，增加用于简化依赖配置的`testable-all`模块
+- `TestableTool`中与用户无关的内容迁移到了`TestableConst`类型
 
 ## 0.3.2
-- support grable project for both private member access and quick mock
-- support access private static field and methods via PrivateAccessor
+- 支持在Gradle项目中使用私有成员访问和快速Mock功能
+- 支持通过`PrivateAccessor`工具类访问私有静态成员
 
 ## 0.3.1
-- support detail log of mocking process for diagnosis
+- 支持使用`@MockWith`注解打印详细Mock执行过程
 
 ## v0.3.0
-- add `without()` checker to verify mock method never invoked with specified parameters
-- support fuzz matcher when verifying mock invocation
+- 增加`without()`校验器用于匹配指定Mock方法从未被调用的场景
+- 支持对Mock调用参数验证时使用模糊匹配
 
 ## v0.2.2
-- support mock method parameters check
-- fix a compatibility issue with jvm 9+
+- 支持对Mock调用参数进行校验
+- 修复JVM 9+的兼容性问题
 
 ## v0.2.1
-- support mock static method
-- support mock kotlin companion object method
-- support mock invoke by interface / base class object
+- 支持Mock静态方法
+- 支持Mock Kotlin Companion对象的方法
+- 支持Mock接口或父类引用指向子类实例时的调用
 
 ## v0.2.0
-- use `TestableTool` class to expose test context and verify mock invoke
-- add `testable-maven-plugin` module to simplify javaagent configuration
-- remove dependence on EnableTestable annotation in `testable-agent`
-- rename annotations to reflect the actual use
+- 支持通过`TestableTool`工具类识别当前的调用上下文
+- 增加`testable-maven-plugin`模块用于简化运行时JavaAgent配置
+- 不再需要使用`@EnableTestable`注释显式标记测试类
+- 重名了现有的各种注解，以便与更好的与实际功能对应
 
 ## v0.1.0
 - move generated agent jar to class folder

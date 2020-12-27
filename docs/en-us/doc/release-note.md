@@ -1,5 +1,10 @@
 # Release Note
 
+## 0.4.5
+- fix private access compile error in intelliJ 2020.3+ environment
+- change javaagent initialization logic to avoid NPE in cross-layer test scenario
+- support dump transformed byte code to local file for issue investigation
+
 ## 0.4.4
 - fix an issue of accessing private method with interface type parameter fail
 - fix an issue of mocking static method without parameter fail 
@@ -22,7 +27,7 @@
 - separate constant definition from `TestableTool` to `TestableConst`
 
 ## 0.3.2
-- support grable project for both private member access and quick mock
+- support gradle project for both private member access and quick mock
 - support access private static field and methods via PrivateAccessor
 
 ## 0.3.1
@@ -44,7 +49,7 @@
 ## v0.2.0
 - use `TestableTool` class to expose test context and verify mock invoke
 - add `testable-maven-plugin` module to simplify javaagent configuration
-- remove dependence on EnableTestable annotation in `testable-agent`
+- remove dependence on `@EnableTestable` annotation in `testable-agent`
 - rename annotations to reflect the actual use
 
 ## v0.1.0
