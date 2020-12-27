@@ -35,11 +35,11 @@ Kotlin语言中的`String`类型实际上是`kotlin.String`，而非`java.lang.S
 
 实际场景中需要对`String`类中的方法进行Mock的场景很少，`TestableMock`暂未对这种情况做特别处理。
 
-#### 6. 在IntelliJ IDE 2020.3版本中运行单个测试用例时，用了`@EnablePrivateAccess`注解还是报私有成员访问错误？
+#### 6. 当被Mock的方法被其它测试类**间接调用**时依然有效吗？
 
-IntelliJ从`2020.2.2`版本以后，IntelliJ对`JSR-269`规范注解处理器的处理机制发生了变化，与Maven标准不再完全兼容。可通过IntelliJ系统配置的"Build Tools > Maven > Runner"中开启"Delegate IDE build/run actions to maven"选项解决：
+同样有效，Mock的作用范围是整个测试运行过程。
 
-![delegate-ide-build-to-maven](https://testable-code.oss-cn-beijing.aliyuncs.com/delegate-ide-build-to-maven.png)
+例如测试类`AaaTest`中Mock了`Aaa`类的某些私有方法、以及某些公有方法中的外部调用；在另一个测试类`BbbTest`中测试`Bbb`类时，某些方法间接用到了`Aaa`类被Mock过的方法或调用，此时实际调用的同样会是`AaaTest`类中定义的Mock方法。
 
 #### 7. `TestableMock`能否用于Android项目的测试？
 

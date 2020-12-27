@@ -7,13 +7,15 @@ Compared with the class-granularity mocking practices of existing mock tools, `T
 > - Mock non-constructive method, copy the original method definition to the test class, add a parameter of the same type as the caller, and add a `@MockMethod` annotation
 > - Mock construction method, copy the original method definition to the test class, replace the return value with the constructed type, the method name is arbitrary, and add a `@MockContructor` annotation
 
-> **Note**: There is also a convention in the current version that the name of the test class should be `<NameOfClassUnderTest> + Test` (and in the same package path), which is usually the by-default naming convention of Java project managed by `Maven` or `Gradle`. This constraint may be relaxed or removed in future versions of `TestableMock`.
+> **Mock convention**: 
+> - The name of the test class should be `<NameOfClassUnderTest> + Test` (and in the same package path), which is usually the by-default naming convention of Java project managed by `Maven` or `Gradle`. This constraint may be relaxed or removed in future versions of `TestableMock`.
+> - Methods that is decorated by `@MockMethod` or `@MockContructor` annotations will be automatically modified to `static` methods during runtime. Please do not access any non-`static` members in these methods. To be on the safe side, it is recommended to define these methods directly as `static`. In future versions, a compile-time warning will be added to non-`static` declared mock methods.
 
 The detail mock method definition convention is as follows:
 
 #### 1. Mock method calls of any class
 
-Define an ordinary method annotated with `@MockMethod` in the test class with exactly the same signature (name, parameter, and return value type) as the method to be mocked, and then add an extra parameter as the first parameter of method, with the same type as the object that the method originally belongs to.
+Define an ordinary method annotated with `@MockMethod` in the test class with exactly the same signature (name, parameter, and return value type) as the method to be mocked (`static` declaration is recommended), and then add an extra parameter as the first parameter of method, with the same type as the object that the method originally belongs to.
 
 At this time, all invocations to that original method in the class under test will be automatically replaced with invocations to the above-mentioned mock method when the unit test is running.
 
@@ -27,7 +29,7 @@ For example, there is a call to `"anything".substring(1, 2)` in the class under 
 // Adds a `String` type parameter to the first position the mock method parameter list (parameter name is arbitrary)
 // This parameter can be used to get the value and context of the actual invoker at runtime
 @MockMethod
-private String substring(String self, int i, int j) {
+private static String substring(String self, int i, int j) {
     return "sub_string";
 }
 ```
@@ -38,7 +40,7 @@ The following example shows the usage of the `targetMethod` parameter, and its e
 // Use `targetMethod` to specify the name of the method that needs to be mocked
 // The method itself can now be named arbitrarily, but the method parameters still need to follow the same matching rules
 @MockMethod(targetMethod = "substring")
-private String use_any_mock_method_name(String self, int i, int j) {
+private static String use_any_mock_method_name(String self, int i, int j) {
     return "sub_string";
 }
 ```
@@ -57,7 +59,7 @@ For example, there is a private method with the signature `String innerFunc(Stri
 // The type to test is `DemoMock`
 // So when defining the mock method, add a parameter of type `DemoMock` to the first position of parameter list (the name is arbitrary)
 @MockMethod
-private String innerFunc(DemoMock self, String text) {
+private static String innerFunc(DemoMock self, String text) {
     return "mock_" + text;
 }
 ```
@@ -75,7 +77,7 @@ For example, if the static method `secretBox()` of the `BlackBox` type is invoke
 // When defining the mock method, add a parameter of type `BlackBox` to the first position parameter list (the name is arbitrary)
 // This parameter is only used to identify the target type, the actual incoming value will always be `null`
 @MockMethod
-private BlackBox secretBox(BlackBox ignore) {
+private static BlackBox secretBox(BlackBox ignore) {
     return new BlackBox("not_secret_box");
 }
 ```
@@ -84,7 +86,7 @@ For complete code examples, see the `should_able_to_mock_static_method()` test c
 
 #### 4. Mock `new` operation of any type
 
-Define an ordinary method annotated with `@MockContructor` in the test class, make the return value type of the method the type of the object to be created, and the method parameters are exactly the same as the constructor parameters to be mocked, the method name is arbitrary.
+Define an ordinary method annotated with `@MockContructor` in the test class (`static` declaration is recommended), make the return value type of the method the type of the object to be created, and the method parameters are exactly the same as the constructor parameters to be mocked, the method name is arbitrary.
 
 At this time, all operations in the class under test that use `new` to create the specified class (and use the constructor that is consistent with the mock method parameters) will be replaced with calls to the custom method.
 
@@ -94,7 +96,7 @@ For example, if there is a call to `new BlackBox("something")` in the class unde
 // The signature of the constructor to be mocked is `BlackBox(String)`
 // No need to add additional parameters to the mock method parameter list, and the name of the mock method is arbitrary 
 @MockContructor
-private BlackBox createBlackBox(String text) {
+private static BlackBox createBlackBox(String text) {
     return new BlackBox("mock_" + text);
 }
 ```

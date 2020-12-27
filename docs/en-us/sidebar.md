@@ -4,9 +4,10 @@
   - [Fast Mocking](en-us/doc/use-mock.md)
   - [Test Void Method](en-us/doc/test-void-method.md)
 
-- Usage Reference
+- Usage Guide
   - [Verify Mock Invocation](en-us/doc/invoke-matcher.md)
   - [Frequently Asked Questions](en-us/doc/frequently-asked-questions.md)
+  - [Use TestableMock In IDE](en-us/doc/use-in-ide.md)
   - [Self-Help Troubleshooting](en-us/doc/troubleshooting.md)
   - [Testable Maven Plugin](en-us/doc/use-maven-plugin.md)
 

@@ -7,7 +7,9 @@
 > - Mock非构造方法，拷贝原方法定义到测试类，增加一个与调用者类型相同的参数，加`@MockMethod`注解
 > - Mock构造方法，拷贝原方法定义到测试类，返回值换成构造的类型，方法名随意，加`@MockContructor`注解
 
-> **注意**：当前版本还有一项约定是，测试类与被测类的包路径应相同，且名称为`被测类名+Test`，通常采用`Maven`或`Gradle`构建的Java项目符合这种惯例。此约定在未来的`TestableMock`版本中可能会被放宽或去除。
+> **Mock约定**：
+> - 测试类与被测类的包路径应相同，且名称为`被测类名+Test`。通常采用`Maven`或`Gradle`构建的Java项目均符合这种惯例。此约定在未来的`TestableMock`版本中可能会被放宽或去除（请关注[Issue-12](https://github.com/alibaba/testable-mock/issues/12)）。
+> - 包含`@MockMethod`或`@MockContructor`注解的方法会在运行期被自动修改为`static`方法，请勿在这些方法中访问任何非`static`成员。为保险起见，建议将这些方法直接定义为`static`，在未来版本中会对非静态定义的Mock方法增加编译期警告。
 
 具体的Mock方法定义约定如下：
 
@@ -27,7 +29,7 @@
 // 则Mock方法签名在其参数列表首位增加一个类型为`String`的参数（名字随意）
 // 此参数可用于获得当时的实际调用者的值和上下文
 @MockMethod
-private String substring(String self, int i, int j) {
+private static String substring(String self, int i, int j) {
     return "sub_string";
 }
 ```
@@ -38,7 +40,7 @@ private String substring(String self, int i, int j) {
 // 使用`targetMethod`指定需Mock的方法名
 // 此方法本身现在可以随意命名，但方法参数依然需要遵循相同的匹配规则
 @MockMethod(targetMethod = "substring")
-private String use_any_mock_method_name(String self, int i, int j) {
+private static String use_any_mock_method_name(String self, int i, int j) {
     return "sub_string";
 }
 ```
@@ -51,13 +53,13 @@ private String use_any_mock_method_name(String self, int i, int j) {
 
 操作方法与前一种情况相同，Mock方法的第一个参数类型需与被测类相同，即可实现对被测类自身（不论是公有或私有）成员方法的覆写。
 
-例如，被测类中有一个签名为`String innerFunc(String)`的私有方法，我们希望在测试的时候将它替换掉，则只需在测试类定义如下方法：
+例如，被测类中有一个签名为`String innerFunc(String)`的私有方法（建议使用静态方法），我们希望在测试的时候将它替换掉，则只需在测试类定义如下方法：
 
 ```java
 // 被测类型是`DemoMock`
 // 因此在定义Mock方法时，在目标方法参数首位加一个类型为`DemoMock`的参数（名字随意）
 @MockMethod
-private String innerFunc(DemoMock self, String text) {
+private static String innerFunc(DemoMock self, String text) {
     return "mock_" + text;
 }
 ```
@@ -75,7 +77,7 @@ private String innerFunc(DemoMock self, String text) {
 // 在定义Mock方法时，在目标方法参数首位加一个类型为`BlackBox`的参数（名字随意）
 // 此参数仅用于标识目标类型，实际传入值将始终为`null`
 @MockMethod
-private BlackBox secretBox(BlackBox ignore) {
+private static BlackBox secretBox(BlackBox ignore) {
     return new BlackBox("not_secret_box");
 }
 ```
@@ -84,7 +86,7 @@ private BlackBox secretBox(BlackBox ignore) {
 
 #### 4. 覆写任意类的new操作
 
-在测试类里定义一个有`@MockContructor`注解的普通方法，使该方法返回值类型为要被创建的对象类型，且方法参数与要Mock的构造函数参数完全一致，方法名称随意。
+在测试类里定义一个有`@MockContructor`注解的普通方法（建议使用静态方法），使该方法返回值类型为要被创建的对象类型，且方法参数与要Mock的构造函数参数完全一致，方法名称随意。
 
 此时被测类中所有用`new`创建指定类的操作（并使用了与Mock方法参数一致的构造函数）将被替换为对该自定义方法的调用。
 
@@ -94,7 +96,7 @@ private BlackBox secretBox(BlackBox ignore) {
 // 要覆写的构造函数签名为`BlackBox(String)`
 // 无需在Mock方法参数列表增加额外参数，Mock方法的名称随意起
 @MockContructor
-private BlackBox createBlackBox(String text) {
+private static BlackBox createBlackBox(String text) {
     return new BlackBox("mock_" + text);
 }
 ```

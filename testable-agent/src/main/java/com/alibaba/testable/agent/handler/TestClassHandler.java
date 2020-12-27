@@ -68,7 +68,7 @@ public class TestClassHandler extends BaseClassHandler {
             if (thisRef != null) {
                 mn.localVariables.remove(thisRef);
             } else {
-                LogUtil.error("Fail to find `this` reference in none-static method " + getName(cn, mn));
+                LogUtil.error("Fail to find `this` reference in non-static method " + getName(cn, mn));
                 return;
             }
             for (AbstractInsnNode in : mn.instructions) {
@@ -76,7 +76,7 @@ public class TestClassHandler extends BaseClassHandler {
                     if (((VarInsnNode)in).var > 0) {
                         ((VarInsnNode)in).var--;
                     } else if (in.getOpcode() == ALOAD) {
-                        LogUtil.error("Attempt to access none-static member in mock method " + getName(cn, mn));
+                        LogUtil.error("Attempt to access non-static member in mock method " + getName(cn, mn));
                         return;
                     }
                 }

@@ -35,11 +35,11 @@ The `String` type in Kotlin language is actually `kotlin.String` instead of `jav
 
 In actual scenarios, there are very few scenarios where methods in the `String` class need to be mocked, so `TestableMock` has not dealt with this situation specifically.
 
-#### 6. When trigger a single test case in IntelliJ IDE 2020.3, why class with `@EnablePrivateAccess` annotation report still private member access errors?
+#### 6. Will the mock definition still be valid when it is **indirectly called** from other test classes?
 
-From version `2020.2.2`, the compiler provided by IntelliJ handle the annotation processor of the `JSR-269` specification in an incompatible way of maven. You can turn on the "Delegate IDE build/run actions to maven" option in "Build Tools > Maven > Runner" of IntelliJ system configuration:
+Equally effective, the scope of mock is the entire test runtime process.
 
-![delegate-ide-build-to-maven](https://testable-code.oss-cn-beijing.aliyuncs.com/delegate-ide-build-to-maven.png)
+For example, some private methods and external invocation in the `Aaa` class are mocked, mock method are defined in the test class `AaaTest`. When testing the `Bbb` class in another test class `BbbTest`, some mocked methods are invoked indirectly in the `Aaa` class, the actual call will also be routed to the mock method defined in the `AaaTest` class.
 
 #### 7. Can `TestableMock` be used for testing Android projects?
 

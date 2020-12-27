@@ -4,9 +4,10 @@
   - [快速Mock任意方法](zh-cn/doc/use-mock.md)
   - [测试无返回值的方法](zh-cn/doc/test-void-method.md)
 
-- 使用参考
+- 使用指南
   - [校验Mock调用](zh-cn/doc/invoke-matcher.md)
   - [常见使用问题](zh-cn/doc/frequently-asked-questions.md)
+  - [在IDE运行单元测试](zh-cn/doc/use-in-ide.md)
   - [自助问题排查](zh-cn/doc/troubleshooting.md)
   - [Testable Maven插件](zh-cn/doc/use-maven-plugin.md)
 
