@@ -45,7 +45,6 @@ public class TestableClassTransformer implements ClassFileTransformer {
                             ProtectionDomain protectionDomain, byte[] classFileBuffer) {
         if (isSystemClass(className)) {
             // Ignore system class and reloaded class
-            LogUtil.verbose("Ignore class: " + (className == null ? "<lambda>" : className));
             return null;
         }
         LogUtil.verbose("Handle class: " + className);
@@ -65,8 +64,9 @@ public class TestableClassTransformer implements ClassFileTransformer {
                 dumpByte(className, bytes);
                 resetMockContext();
             }
-        } catch (IOException e) {
+        } catch (Throwable t) {
             LogUtil.warn("Failed to transform class " + className);
+            LogUtil.diagnose(t.toString());
         }
         return bytes;
     }
@@ -77,7 +77,8 @@ public class TestableClassTransformer implements ClassFileTransformer {
             return;
         }
         try {
-            String dumpFile = StringUtil.joinPath(dumpDir, className.replaceAll("/", "_") + ".class");
+            String dumpFile = StringUtil.joinPath(dumpDir, className.replaceAll("/", ".") + ".class");
+            LogUtil.verbose("Dump class: " + dumpFile);
             FileOutputStream stream = new FileOutputStream(dumpFile);
             stream.write(bytes);
             stream.close();

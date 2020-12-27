@@ -7,7 +7,6 @@ import com.alibaba.testable.agent.util.ClassUtil;
 import com.alibaba.testable.core.util.LogUtil;
 import org.objectweb.asm.tree.*;
 
-import java.util.Iterator;
 import java.util.List;
 
 import static com.alibaba.testable.agent.util.ClassUtil.toDotSeparateFullClassName;
@@ -20,7 +19,6 @@ public class TestClassHandler extends BaseClassHandler {
     private static final String CLASS_TESTABLE_TOOL = "com/alibaba/testable/core/tool/TestableTool";
     private static final String CLASS_TESTABLE_UTIL = "com/alibaba/testable/core/util/TestableUtil";
     private static final String CLASS_INVOKE_RECORD_UTIL = "com/alibaba/testable/core/util/InvokeRecordUtil";
-    private static final String TESTABLE_MARK_FIELD = "__testable";
     private static final String FIELD_TEST_CASE = "TEST_CASE";
     private static final String FIELD_SOURCE_METHOD = "SOURCE_METHOD";
     private static final String METHOD_CURRENT_TEST_CASE_NAME = "currentTestCaseName";
@@ -40,32 +38,19 @@ public class TestClassHandler extends BaseClassHandler {
             return;
         }
         for (MethodNode mn : cn.methods) {
-            handleMockMethod(mn);
+            handleMockMethod(cn, mn);
             handleInstruction(cn, mn);
         }
     }
 
-    private boolean wasTransformed(ClassNode cn) {
-        Iterator<FieldNode> iterator = cn.fields.iterator();
-        if (iterator.hasNext()) {
-            if (TESTABLE_MARK_FIELD.equals(iterator.next().name)) {
-                // avoid duplicate injection
-                LogUtil.verbose("Duplicate injection found, ignore " + cn.name);
-                return true;
-            }
-        }
-        cn.fields.add(new FieldNode(ACC_PRIVATE, TESTABLE_MARK_FIELD, "I", null, null));
-        return false;
-    }
-
-    private void handleMockMethod(MethodNode mn) {
+    private void handleMockMethod(ClassNode cn, MethodNode mn) {
         if (isMockMethod(mn)) {
-            toPublicStatic(mn);
+            toPublicStatic(cn, mn);
             injectInvokeRecorder(mn);
         }
     }
 
-    private void toPublicStatic(MethodNode mn) {
+    private void toPublicStatic(ClassNode cn, MethodNode mn) {
         mn.access &= ~ACC_PRIVATE;
         mn.access &= ~ACC_PROTECTED;
         mn.access |= ACC_PUBLIC;
