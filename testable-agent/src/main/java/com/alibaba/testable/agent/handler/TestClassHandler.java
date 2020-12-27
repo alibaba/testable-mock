@@ -56,22 +56,37 @@ public class TestClassHandler extends BaseClassHandler {
         mn.access |= ACC_PUBLIC;
         if ((mn.access & ACC_STATIC) == 0) {
             mn.access |= ACC_STATIC;
-            // remote `this` reference
-            mn.localVariables.remove(0);
+            // remove `this` reference
+            LocalVariableNode thisRef = null;
             for (LocalVariableNode vn : mn.localVariables) {
-                vn.index--;
+                if (vn.index == 0) {
+                    thisRef = vn;
+                } else {
+                    vn.index--;
+                }
+            }
+            if (thisRef != null) {
+                mn.localVariables.remove(thisRef);
+            } else {
+                LogUtil.error("Fail to find `this` reference in none-static method " + getName(cn, mn));
+                return;
             }
             for (AbstractInsnNode in : mn.instructions) {
                 if (in.getOpcode() >= ILOAD && in.getOpcode() <= SASTORE && in instanceof VarInsnNode) {
                     if (((VarInsnNode)in).var > 0) {
                         ((VarInsnNode)in).var--;
                     } else if (in.getOpcode() == ALOAD) {
-                        LogUtil.warn("Attempt to access none-static member in mock method !");
+                        LogUtil.error("Attempt to access none-static member in mock method " + getName(cn, mn));
+                        return;
                     }
                 }
             }
             mn.maxLocals--;
         }
+    }
+
+    private String getName(ClassNode cn, MethodNode mn) {
+        return cn.name + ":" + mn.name;
     }
 
     private boolean isMockMethod(MethodNode mn) {

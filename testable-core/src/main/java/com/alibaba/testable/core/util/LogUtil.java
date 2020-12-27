@@ -50,6 +50,10 @@ public class LogUtil {
         }
     }
 
+    public static void error(String msg, Object... args) {
+        System.err.println(String.format("[FAIL] " + msg, args));
+    }
+
     public static void enableDiagnose(boolean enable) {
         currentLogLevel = enable ? LogLevel.LEVEL_DIAGNOSE : LogLevel.LEVEL_MUTE;
     }
