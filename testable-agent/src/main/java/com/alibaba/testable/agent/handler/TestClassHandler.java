@@ -62,8 +62,12 @@ public class TestClassHandler extends BaseClassHandler {
                 vn.index--;
             }
             for (AbstractInsnNode in : mn.instructions) {
-                if (in.getOpcode() >= ILOAD && in.getOpcode() <= SASTORE) {
-                    ((VarInsnNode)in).var--;
+                if (in.getOpcode() >= ILOAD && in.getOpcode() <= SASTORE && in instanceof VarInsnNode) {
+                    if (((VarInsnNode)in).var > 0) {
+                        ((VarInsnNode)in).var--;
+                    } else if (in.getOpcode() == ALOAD) {
+                        LogUtil.warn("Attempt to access none-static member in mock method !");
+                    }
                 }
             }
             mn.maxLocals--;

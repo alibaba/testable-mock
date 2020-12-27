@@ -20,12 +20,12 @@ class DemoTemplateTest {
     /* First solution: use generics type */
 
     @MockMethod
-    private <T> List<T> getList(DemoTemplate self, T value) {
+    private static <T> List<T> getList(DemoTemplate self, T value) {
         return new ArrayList<T>() {{ add((T)(value.toString() + "_mock_list")); }};
     }
 
     @MockMethod
-    private <K, V> Map<K, V> getMap(DemoTemplate self, K key, V value) {
+    private static <K, V> Map<K, V> getMap(DemoTemplate self, K key, V value) {
         return new HashMap<K, V>() {{ put(key, (V)(value.toString() + "_mock_map")); }};
     }
 
@@ -46,12 +46,12 @@ class DemoTemplateTest {
     /* Second solution: use object type */
 
     //@MockMethod
-    //private List<Object> getList(DemoTemplate self, Object value) {
+    //private static List<Object> getList(DemoTemplate self, Object value) {
     //    return new ArrayList<Object>() {{ add(value.toString() + "_mock_list"); }};
     //}
     //
     //@MockMethod
-    //private Map<Object, Object> getMap(DemoTemplate self, Object key, Object value) {
+    //private static Map<Object, Object> getMap(DemoTemplate self, Object key, Object value) {
     //    return new HashMap<Object, Object>() {{ put(key, value.toString() + "_mock_map"); }};
     //}
     //
