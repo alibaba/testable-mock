@@ -72,7 +72,9 @@ public class TestClassHandler extends BaseClassHandler {
                 return;
             }
             for (AbstractInsnNode in : mn.instructions) {
-                if (in.getOpcode() >= ILOAD && in.getOpcode() <= SASTORE && in instanceof VarInsnNode) {
+                if (in instanceof IincInsnNode) {
+                    ((IincInsnNode)in).var--;
+                } else if (in instanceof VarInsnNode) {
                     if (((VarInsnNode)in).var > 0) {
                         ((VarInsnNode)in).var--;
                     } else if (in.getOpcode() == ALOAD) {
