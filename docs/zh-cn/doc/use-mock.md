@@ -9,7 +9,7 @@
 
 > **Mock约定**：
 > - 测试类与被测类的包路径应相同，且名称为`被测类名+Test`。通常采用`Maven`或`Gradle`构建的Java项目均符合这种惯例。此约定在未来的`TestableMock`版本中可能会被放宽或去除（请关注[Issue-12](https://github.com/alibaba/testable-mock/issues/12)）。
-> - 包含`@MockMethod`或`@MockContructor`注解的方法会在运行期被自动修改为`static`方法，请勿在这些方法中访问任何非`static`成员。为保险起见，建议将这些方法直接定义为`static`，在未来版本中会对非静态定义的Mock方法增加编译期警告。
+> - 包含`@MockMethod`或`@MockContructor`注解的方法会在运行期被自动修改为静态（`static`）方法，请勿在其中访问任何非静态成员。为保险起见，建议将这些方法直接定义为静态方法。在未来版本中会增加对定义非静态Mock方法的编译期警告。
 
 具体的Mock方法定义约定如下：
 
