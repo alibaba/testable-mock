@@ -19,7 +19,7 @@ public class TestClassHandler extends BaseClassHandler {
     private static final String CLASS_TESTABLE_TOOL = "com/alibaba/testable/core/tool/TestableTool";
     private static final String CLASS_TESTABLE_UTIL = "com/alibaba/testable/core/util/TestableUtil";
     private static final String CLASS_INVOKE_RECORD_UTIL = "com/alibaba/testable/core/util/InvokeRecordUtil";
-    private static final String CLASS_TESTABLE_CONTEXT = "com/alibaba/testable/agent/model/TestableContext";
+    private static final String CLASS_MOCK_CONTEXT = "com/alibaba/testable/agent/model/MockContext";
     private static final String REF_TESTABLE_CONTEXT = "_testableContextReference";
     private static final String FIELD_TEST_CASE = "TEST_CASE";
     private static final String FIELD_SOURCE_METHOD = "SOURCE_METHOD";
@@ -39,7 +39,7 @@ public class TestClassHandler extends BaseClassHandler {
      */
     @Override
     protected void transform(ClassNode cn) {
-        if (wasTransformed(cn, REF_TESTABLE_CONTEXT, ClassUtil.toByteCodeClassName(CLASS_TESTABLE_CONTEXT))) {
+        if (wasTransformed(cn, REF_TESTABLE_CONTEXT, ClassUtil.toByteCodeClassName(CLASS_MOCK_CONTEXT))) {
             return;
         }
         for (MethodNode mn : cn.methods) {
@@ -54,11 +54,11 @@ public class TestClassHandler extends BaseClassHandler {
 
     private void initMockContextReference(ClassNode cn, MethodNode mn) {
         InsnList il = new InsnList();
-        il.add(new TypeInsnNode(NEW, CLASS_TESTABLE_CONTEXT));
+        il.add(new TypeInsnNode(NEW, CLASS_MOCK_CONTEXT));
         il.add(new InsnNode(DUP));
-        il.add(new MethodInsnNode(INVOKESPECIAL, CLASS_TESTABLE_CONTEXT, "<init>", "()V", false));
+        il.add(new MethodInsnNode(INVOKESPECIAL, CLASS_MOCK_CONTEXT, "<init>", "()V", false));
         il.add(new FieldInsnNode(PUTSTATIC, cn.name, REF_TESTABLE_CONTEXT,
-            ClassUtil.toByteCodeClassName(CLASS_TESTABLE_CONTEXT)));
+            ClassUtil.toByteCodeClassName(CLASS_MOCK_CONTEXT)));
         mn.instructions.insertBefore(mn.instructions.get(0), il);
     }
 
@@ -156,8 +156,8 @@ public class TestClassHandler extends BaseClassHandler {
                 SIGNATURE_CURRENT_SOURCE_METHOD_NAME, false));
         } else if (FIELD_MOCK_CONTEXT.equals(fieldName)) {
             il.add(new FieldInsnNode(GETSTATIC, cn.name, REF_TESTABLE_CONTEXT,
-                ClassUtil.toByteCodeClassName(CLASS_TESTABLE_CONTEXT)));
-            il.add(new FieldInsnNode(GETFIELD, CLASS_TESTABLE_CONTEXT, FIELD_PARAMETERS, SIGNATURE_PARAMETERS));
+                ClassUtil.toByteCodeClassName(CLASS_MOCK_CONTEXT)));
+            il.add(new FieldInsnNode(GETFIELD, CLASS_MOCK_CONTEXT, FIELD_PARAMETERS, SIGNATURE_PARAMETERS));
         }
         if (il.size() > 0) {
             mn.instructions.insert(instructions[pos], il);

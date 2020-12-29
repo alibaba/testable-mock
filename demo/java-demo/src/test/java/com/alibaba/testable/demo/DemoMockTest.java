@@ -111,7 +111,7 @@ class DemoMockTest {
         // asynchronous
         assertEquals("mock_special", Executors.newSingleThreadExecutor().submit(() -> demoMock.callerOne()).get());
         verify("callFromDifferentMethod").withTimes(2);
-        MOCK_CONTEXT.remove("case");
+        MOCK_CONTEXT.clear();
     }
 
 }

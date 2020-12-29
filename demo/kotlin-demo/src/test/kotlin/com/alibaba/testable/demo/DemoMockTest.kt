@@ -105,6 +105,6 @@ internal class DemoMockTest {
             demoMock.callerOne()
         }.get())
         verify("callFromDifferentMethod").withTimes(2)
-        MOCK_CONTEXT.remove("case")
+        MOCK_CONTEXT.clear()
     }
 }
