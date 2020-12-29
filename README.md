@@ -9,6 +9,10 @@
 
 阅读[这里](https://mp.weixin.qq.com/s/KyU6Eu7mDkZU8FspfSqfMw)了解更多故事。
 
+> 特别说明
+> 1. 如有遇到启动报空指针异常问题，请将`TestableMock`升级到`0.4.5`或以上版本
+> 2. 如遇到"Attempt to access none-static member in mock method"错误，参见[常见问题](https://alibaba.github.io/testable-mock/#/zh-cn/doc/frequently-asked-questions)第8条
+
 ## 目录结构
 
 ```bash

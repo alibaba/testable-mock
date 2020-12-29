@@ -46,3 +46,23 @@ Kotlin语言中的`String`类型实际上是`kotlin.String`，而非`java.lang.S
 结合[Roboelectric](https://github.com/robolectric/robolectric)测试框架可使用。
 
 Android系统的`Dalvik`和`ART`虚拟机采用了与标准JVM不同的字节码体系，会影响`TestableMock`的正常工作。`Roboelectric`框架能在普通JVM虚拟机上运行Android单元测试，其速度比通过Android虚拟机运行单元测试快非常多，绝大多数Android App的单元测试都在使用`Roboelectric`框架。
+
+#### 8. 使用Mock时候遇到"Attempt to access none-static member in mock method"错误？
+
+当前`TestableMock`的设计不允许在Mock方法中访问测试类的非`static`成员（因为Mock方法自身会在运行期被动态修改为`static`类型）。然而有些Java语句，包括构造块（譬如`new ArrayList<String>() {{ append("data"); }}`）、匿名函数（譬如`list.stream().map(i -> i.get)`）等等，会在编译过程中生成额外的成员方法调用，导致Mock方法执行报错。
+
+最简单的解决办法是将Mock方法本身也声明为`static`类型（这样动态生成的调用也会是`static`的，避免了以上错误），例如原方法定义为：
+
+```java
+@MockMethod
+private int getXxx(Demo self) {}
+```
+
+将其修改为：
+
+```java
+@MockMethod
+private static int getXxx(Demo self) {}
+```
+
+在下一个大迭代版本（即`0.5`版本）中，将会在保持当前Mock体验的前提下，对Mock的实现机制进行修改，不再需要修改Mock方法为静态方法，从而彻底解决此类报错问题。
