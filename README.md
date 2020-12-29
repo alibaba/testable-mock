@@ -12,6 +12,7 @@
 > 特别说明
 > 1. 如有遇到启动报空指针异常问题，请将`TestableMock`升级到`0.4.5`或以上版本
 > 2. 如遇到"Attempt to access none-static member in mock method"错误，参见[常见问题](https://alibaba.github.io/testable-mock/#/zh-cn/doc/frequently-asked-questions)第8条
+> 3. 如果有遇到其他任何使用问题，请直接在[Issue](https://github.com/alibaba/testable-mock/issues)中提出，我们将在24小时内回复并处理
 
 ## 目录结构
 
