@@ -209,7 +209,6 @@ public class SourceClassHandler extends BaseClassHandler {
                                                     AbstractInsnNode[] instructions, String ownerClass,
                                                     int opcode, int start, int end) {
         LogUtil.diagnose("    Line %d, mock method %s used", getLineNum(instructions, start), substitutionMethod);
-        mn.maxStack++;
         MethodInsnNode method = (MethodInsnNode)instructions[end];
         String testClassName = ClassUtil.getTestClassName(cn.name);
         if (Opcodes.INVOKESTATIC == opcode || isCompanionMethod(ownerClass, opcode)) {
