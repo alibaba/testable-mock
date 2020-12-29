@@ -15,18 +15,17 @@ import java.util.Iterator;
  */
 abstract public class BaseClassHandler implements Opcodes {
 
-    protected static final String TESTABLE_MARK_FIELD = "__testable";
-
-    protected boolean wasTransformed(ClassNode cn) {
+    protected boolean wasTransformed(ClassNode cn, String refName, String refDescriptor) {
         Iterator<FieldNode> iterator = cn.fields.iterator();
         if (iterator.hasNext()) {
-            if (TESTABLE_MARK_FIELD.equals(iterator.next().name)) {
+            if (refName.equals(iterator.next().name)) {
                 // avoid duplicate injection
                 LogUtil.verbose("Duplicate injection found, ignore " + cn.name);
                 return true;
             }
         }
-        cn.fields.add(new FieldNode(ACC_PRIVATE, TESTABLE_MARK_FIELD, "I", null, null));
+        // TODO: `ACC_STATIC` should be removed in v0.5 to shorten the life cycle of this variable
+        cn.fields.add(new FieldNode(ACC_PRIVATE | ACC_STATIC, refName, refDescriptor, null, null));
         return false;
     }
 

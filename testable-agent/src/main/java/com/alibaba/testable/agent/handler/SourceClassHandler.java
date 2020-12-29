@@ -18,6 +18,8 @@ import java.util.Set;
  */
 public class SourceClassHandler extends BaseClassHandler {
 
+    private static final String TESTABLE_MARK_FIELD = "__testable";
+
     private final List<MethodInfo> injectMethods;
     private final Set<Integer> invokeOps = new HashSet<Integer>() {{
         add(Opcodes.INVOKEVIRTUAL);
@@ -36,7 +38,7 @@ public class SourceClassHandler extends BaseClassHandler {
      */
     @Override
     protected void transform(ClassNode cn) {
-        if (wasTransformed(cn)) {
+        if (wasTransformed(cn, TESTABLE_MARK_FIELD, "I")) {
             return;
         }
         Set<MethodInfo> memberInjectMethods = new HashSet<MethodInfo>();

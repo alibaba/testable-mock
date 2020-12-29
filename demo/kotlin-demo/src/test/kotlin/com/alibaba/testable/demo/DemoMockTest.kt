@@ -4,7 +4,7 @@ import com.alibaba.testable.core.annotation.MockConstructor
 import com.alibaba.testable.core.annotation.MockMethod
 import com.alibaba.testable.core.matcher.InvokeVerifier.verify
 import com.alibaba.testable.core.tool.TestableTool.SOURCE_METHOD
-import com.alibaba.testable.core.tool.TestableTool.TEST_CASE
+import com.alibaba.testable.core.tool.TestableTool.MOCK_CONTEXT
 import com.alibaba.testable.demo.model.BlackBox
 import com.alibaba.testable.demo.model.ColorBox
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -46,7 +46,7 @@ internal class DemoMockTest {
 
     @MockMethod
     private fun callFromDifferentMethod(self: DemoMock): String {
-        return if (TEST_CASE == "should_able_to_get_test_case_name") {
+        return if (MOCK_CONTEXT["case"] == "special_case") {
             "mock_special"
         } else {
             when (SOURCE_METHOD) {
@@ -97,6 +97,7 @@ internal class DemoMockTest {
 
     @Test
     fun should_able_to_get_test_case_name() {
+        MOCK_CONTEXT["case"] = "special_case"
         // synchronous
         assertEquals("mock_special", demoMock.callerOne())
         // asynchronous
@@ -104,5 +105,6 @@ internal class DemoMockTest {
             demoMock.callerOne()
         }.get())
         verify("callFromDifferentMethod").withTimes(2)
+        MOCK_CONTEXT.remove("case")
     }
 }

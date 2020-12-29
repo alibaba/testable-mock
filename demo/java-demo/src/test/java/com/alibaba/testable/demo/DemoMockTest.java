@@ -9,7 +9,7 @@ import java.util.concurrent.Executors;
 
 import static com.alibaba.testable.core.matcher.InvokeVerifier.verify;
 import static com.alibaba.testable.core.tool.TestableTool.SOURCE_METHOD;
-import static com.alibaba.testable.core.tool.TestableTool.TEST_CASE;
+import static com.alibaba.testable.core.tool.TestableTool.MOCK_CONTEXT;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
@@ -57,7 +57,7 @@ class DemoMockTest {
 
     @MockMethod
     private String callFromDifferentMethod(DemoMock self) {
-        if (TEST_CASE.equals("should_able_to_get_test_case_name")) {
+        if ("special_case".equals(MOCK_CONTEXT.get("case"))) {
             return "mock_special";
         }
         switch (SOURCE_METHOD) {
@@ -105,11 +105,13 @@ class DemoMockTest {
 
     @Test
     void should_able_to_get_test_case_name() throws Exception {
+        MOCK_CONTEXT.put("case", "special_case");
         // synchronous
         assertEquals("mock_special", demoMock.callerOne());
         // asynchronous
         assertEquals("mock_special", Executors.newSingleThreadExecutor().submit(() -> demoMock.callerOne()).get());
         verify("callFromDifferentMethod").withTimes(2);
+        MOCK_CONTEXT.remove("case");
     }
 
 }
