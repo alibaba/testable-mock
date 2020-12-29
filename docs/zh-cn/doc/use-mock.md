@@ -107,9 +107,11 @@ private BlackBox createBlackBox(String text) {
 
 #### 5. 识别当前测试用例和调用来源
 
-在Mock方法中可以通过`TestableTool.TEST_CASE`和`TestableTool.SOURCE_METHOD`来识别**当前运行的测试用例名称**和**进入该Mock方法前的被测类方法名称**，从而区分处理不同的调用场景。
+在Mock方法中可以通过`TestableTool.SOURCE_METHOD`变量来识别**进入该Mock方法前的被测类方法名称**；此外，通过`TestableTool.MOCK_CONTEXT`变量能够为Mock方法注入**额外的上下文参数**，从而区分处理不同的调用场景。
 
-> 这两个字段的实现机制基于调用堆栈分析，尽管已经做了各种特殊情况的处理，但在涉及多线程的复杂场景下，依然存在误判的可能。若您发现了相关的可复现BUG，请在Github提交Issue。
+注意，由于`TestableMock`并不依赖（也不希望依赖）任何特定测试框架，因而无法自动识别单个测试用例的结束位置，这使得设置到`TestableTool.MOCK_CONTEXT`变量的参数可能会在同测试类中跨测试用例存在。建议总是在使用后及时使用`MOCK_CONTEXT.clear()`清空上下文，也可将这行语句添加到单元测试框架特定的测试用例结束的统一位置，比如JUnit 5的`@AfterEach`方法。
+
+> `TestableTool.MOCK_CONTEXT`变量目前是在测试类内共享的，当单元测试并行运行时，建议请选择`parallel`类型为`classes`
 
 完整代码示例见`java-demo`和`kotlin-demo`示例项目中的`should_able_to_get_source_method_name()`和`should_able_to_get_test_case_name()`测试用例。
 

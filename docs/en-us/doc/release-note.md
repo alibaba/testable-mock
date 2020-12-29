@@ -1,5 +1,10 @@
 # Release Note
 
+## 0.4.6
+- fix an issue of `IINC` bytecode processing
+- support `TestableTool.MOCK_CONTEXT` variable to inject extra parameters to mock context
+- use `TestableTool.TEST_CASE` variable to distinguish test case is no longer recommended
+
 ## 0.4.5
 - fix private access compile error in intelliJ 2020.3+ environment
 - change javaagent initialization logic to avoid NPE in cross-layer test scenario
@@ -44,7 +49,7 @@
 ## v0.2.1
 - support mock static method
 - support mock kotlin companion object method
-- support mock invoke by interface / base class object
+- support mock invoke by an interface / base class object
 
 ## v0.2.0
 - use `TestableTool` class to expose test context and verify mock invoke

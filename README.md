@@ -10,7 +10,7 @@
 阅读[这里](https://mp.weixin.qq.com/s/KyU6Eu7mDkZU8FspfSqfMw)了解更多故事。
 
 > 特别说明
-> 1. 如有遇到启动报空指针异常问题，请将`TestableMock`升级到`0.4.5`或以上版本
+> 1. 如有遇到启动报空指针异常问题，请升级`TestableMock`版本，这是BUG，已修复😛
 > 2. 如遇到"Attempt to access none-static member in mock method"错误，参见[常见问题](https://alibaba.github.io/testable-mock/#/zh-cn/doc/frequently-asked-questions)第8条
 > 3. 如果有遇到其他任何使用问题，请直接在[Issue](https://github.com/alibaba/testable-mock/issues)中提出，我们将在24小时内回复并处理
 

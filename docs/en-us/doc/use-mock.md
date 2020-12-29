@@ -107,9 +107,11 @@ For complete code examples, see the `should_able_to_mock_new_object()` test case
 
 #### 5. Identify the current test case and invoke source
 
-In the mock method, you can use `TestableTool.TEST_CASE` and `TestableTool.SOURCE_METHOD` to identify **the name of the currently running test case** and **the name of the method under test before entering the mock method**, so as to distinguish different invocation source.
+In the mock method, you can use the `TestableTool.SOURCE_METHOD` variable to identify **the method name of the class under test before entering the mock method**; in addition, the `TestableTool.MOCK_CONTEXT` variable can **inject additional context parameters into the mock method**, to distinguish and process different calling scenarios.
 
-> The implementation mechanism of these two fields is based on call stack analysis. Although various special cases have been dealt with, there is still the possibility of misjudgment in complex scenarios involving multiple threads. If you find a relevant reproducible BUG, please submit an issue on Github.
+Note that because `TestableMock` does not (and won't to) rely on any specific test framework, it cannot automatically identify the end position of a single test case, which makes the parameters set to the `TestableTool.MOCK_CONTEXT` variable may exist cross test cases in the same test class. It is recommended to always use `MOCK_CONTEXT.clear()` to clear the context immediately after use. You can also add this statement to the unified position where the test case ends of the specific unit test framework, such as the `@AfterEach` method of JUnit 5.
+
+> The `TestableTool.MOCK_CONTEXT` variable is currently shared within the test class. When the unit test runs in parallel, it is recommended to select the `parallel` type as `classes`
 
 For complete code examples, see the `should_able_to_get_source_method_name()` and `should_able_to_get_test_case_name()` test cases in the `java-demo` and `kotlin-demo` sample projects.
 

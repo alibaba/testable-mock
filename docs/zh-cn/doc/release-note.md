@@ -1,5 +1,10 @@
 # Release Note
 
+## 0.4.6
+- 修复一处`IINC`字节码处理异常
+- 支持使用`TestableTool.MOCK_CONTEXT`变量为Mock方法注入额外上下文参数
+- 不再推荐使用`TestableTool.TEST_CASE`变量来区分测试用例
+
 ## 0.4.5
 - 修复IntelliJ 2020.3+环境下的私有成员访问编译期错误
 - 修复潜在的跨用例初始化空指针异常 (issue-20)

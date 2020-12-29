@@ -43,11 +43,11 @@ public class SourceClassHandler extends BaseClassHandler {
         }
         Set<MethodInfo> memberInjectMethods = new HashSet<MethodInfo>();
         Set<MethodInfo> newOperatorInjectMethods = new HashSet<MethodInfo>();
-        for (MethodInfo mi : injectMethods) {
-            if (mi.getName().equals(ConstPool.CONSTRUCTOR)) {
-                newOperatorInjectMethods.add(mi);
+        for (MethodInfo im : injectMethods) {
+            if (im.getName().equals(ConstPool.CONSTRUCTOR)) {
+                newOperatorInjectMethods.add(im);
             } else {
-                memberInjectMethods.add(mi);
+                memberInjectMethods.add(im);
             }
         }
         for (MethodNode m : cn.methods) {
