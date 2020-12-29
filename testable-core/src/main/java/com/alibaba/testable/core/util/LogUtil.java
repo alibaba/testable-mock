@@ -51,7 +51,7 @@ public class LogUtil {
     }
 
     public static void error(String msg, Object... args) {
-        System.err.println(String.format("[FAIL] " + msg, args));
+        System.err.println(String.format("[ERROR] " + msg, args));
     }
 
     public static void enableDiagnose(boolean enable) {
