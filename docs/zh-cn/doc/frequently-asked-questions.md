@@ -65,4 +65,4 @@ private int getXxx(Demo self) {}
 private static int getXxx(Demo self) {}
 ```
 
-在下一个大迭代版本（即`0.5`版本）中，将会在保持当前Mock体验的前提下，对Mock的实现机制进行修改，不再需要修改Mock方法为静态方法，从而彻底解决此类报错问题。
+在下一个大迭代版本（**即`0.5`版本**）中，将会在保持当前Mock体验的前提下，对Mock的实现机制进行修改，不再需要修改Mock方法为静态方法，从而彻底解决此类报错问题。

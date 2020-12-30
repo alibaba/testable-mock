@@ -6,7 +6,7 @@
     <parent>
         <groupId>com.alibaba.testable</groupId>
         <artifactId>testable-parent</artifactId>
-        <version>0.4.6</version>
+        <version>0.4.7</version>
         <relativePath>../testable-parent</relativePath>
     </parent>
     <artifactId>testable-agent</artifactId>

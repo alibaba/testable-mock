@@ -1,5 +1,9 @@
 # Release Note
 
+## 0.4.7
+- 修复由于`MOCK_CONTEXT`引入的堆栈大小错误
+- 修复Windows下的`Gradle`构建路径错误
+
 ## 0.4.6
 - 修复一处`IINC`字节码处理异常
 - 支持使用`TestableTool.MOCK_CONTEXT`变量为Mock方法注入额外上下文参数

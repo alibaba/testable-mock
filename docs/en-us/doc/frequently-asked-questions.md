@@ -46,3 +46,23 @@ For example, some private methods and external invocation in the `Aaa` class are
 It can be used in combination with [Roboelectric](https://github.com/robolectric/robolectric) testing framework.
 
 The `Dalvik` and `ART` virtual machines of the Android system use a bytecode system different from the standard JVM, which will affect the normal functionality of `TestableMock`. The `Roboelectric` framework can run Android unit tests on a standard JVM virtual machine, which is much faster than running unit tests through the Android virtual machine. Recently, most Android App unit tests are written with the `Roboelectric` framework.
+
+#### 8. Meet "Attempt to access none-static member in mock method" error during mocking？
+
+The current design of `TestableMock` does not allow access to the non-`static` members of the test class in the mock method (because the mock method itself will be dynamically modified to the `static` type during runtime). However, some Java statements include building blocks (like `new ArrayList<String>() {{ append("data"); }}`), lambda expression (like `list.stream().map(i -> i. get)`) and so on, will generate additional member method invocations during compilation, causing mock method execution report above error.
+
+The simplest solution is to declare the mock method itself as a `static` type (so that dynamically generated invocation will also be `static` to avoid the errors), for example, the original method is defined as:
+
+```java
+@MockMethod
+private int getXxx(Demo self) {}
+```
+
+Modify it to：
+
+```java
+@MockMethod
+private static int getXxx(Demo self) {}
+```
+
+In the next major iteration (**i.e. `v0.5`**), the mock implementation mechanism will be modified while maintaining the current mock experience. Then, it will be no longer necessary to modify the mock method to a static method, and completely solving this problem.

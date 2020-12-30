@@ -1,5 +1,9 @@
 # Release Note
 
+## 0.4.7
+- Fix incorrect stack size caused by `MOCK_CONTEXT` variable initialization
+- Fix incorrect gradle build path of under Windows operating system
+
 ## 0.4.6
 - fix an issue of `IINC` bytecode processing
 - support `TestableTool.MOCK_CONTEXT` variable to inject extra parameters to mock context
