@@ -2,6 +2,7 @@ package com.alibaba.testable.agent.handler;
 
 import com.alibaba.testable.agent.constant.ConstPool;
 import com.alibaba.testable.agent.model.MethodInfo;
+import com.alibaba.testable.agent.model.ModifiedInsnNodes;
 import com.alibaba.testable.agent.util.BytecodeUtil;
 import com.alibaba.testable.agent.util.ClassUtil;
 import com.alibaba.testable.core.util.LogUtil;
@@ -61,6 +62,7 @@ public class SourceClassHandler extends BaseClassHandler {
         AbstractInsnNode[] instructions = mn.instructions.toArray();
         List<MethodInfo> memberInjectMethodList = new ArrayList<MethodInfo>(memberInjectMethods);
         int i = 0;
+        int maxStackDiff = 0;
         do {
             if (invokeOps.contains(instructions[i].getOpcode())) {
                 MethodInsnNode node = (MethodInsnNode)instructions[i];
@@ -69,8 +71,10 @@ public class SourceClassHandler extends BaseClassHandler {
                     // it's a member or static method and an inject method for it exist
                     int rangeStart = getMemberMethodStart(instructions, i);
                     if (rangeStart >= 0) {
-                        instructions = replaceMemberCallOps(cn, mn, memberInjectMethodName, instructions,
-                            node.owner, node.getOpcode(), rangeStart, i);
+                        ModifiedInsnNodes modifiedInsnNodes = replaceMemberCallOps(cn, mn, memberInjectMethodName,
+                            instructions, node.owner, node.getOpcode(), rangeStart, i);
+                        instructions = modifiedInsnNodes.nodes;
+                        maxStackDiff = Math.max(maxStackDiff, modifiedInsnNodes.stackDiff);
                         i = rangeStart;
                     } else {
                         LogUtil.warn("Potential missed mocking at %s:%s", mn.name, getLineNum(instructions, i));
@@ -82,7 +86,10 @@ public class SourceClassHandler extends BaseClassHandler {
                         // and an inject method for it exist
                         int rangeStart = getConstructorStart(instructions, node.owner, i);
                         if (rangeStart >= 0) {
-                            instructions = replaceNewOps(cn, mn, newOperatorInjectMethodName, instructions, rangeStart, i);
+                            ModifiedInsnNodes modifiedInsnNodes = replaceNewOps(cn, mn, newOperatorInjectMethodName,
+                                instructions, rangeStart, i);
+                            instructions = modifiedInsnNodes.nodes;
+                            maxStackDiff = Math.max(maxStackDiff, modifiedInsnNodes.stackDiff);
                             i = rangeStart;
                         }
                     }
@@ -90,6 +97,7 @@ public class SourceClassHandler extends BaseClassHandler {
             }
             i++;
         } while (i < instructions.length);
+        mn.maxStack += maxStackDiff;
     }
 
     private String getMemberInjectMethodName(List<MethodInfo> memberInjectMethodList, MethodInsnNode node) {
@@ -176,7 +184,7 @@ public class SourceClassHandler extends BaseClassHandler {
         return ClassUtil.getParameterTypes(desc).size() - (ClassUtil.getReturnType(desc).isEmpty() ? 0 : 1);
     }
 
-    private AbstractInsnNode[] replaceNewOps(ClassNode cn, MethodNode mn, String newOperatorInjectMethodName,
+    private ModifiedInsnNodes replaceNewOps(ClassNode cn, MethodNode mn, String newOperatorInjectMethodName,
                                              AbstractInsnNode[] instructions, int start, int end) {
         LogUtil.diagnose("    Line %d, mock method %s used", getLineNum(instructions, start),
             newOperatorInjectMethodName);
@@ -188,7 +196,7 @@ public class SourceClassHandler extends BaseClassHandler {
         mn.instructions.remove(instructions[start]);
         mn.instructions.remove(instructions[start + 1]);
         mn.instructions.remove(instructions[end]);
-        return mn.instructions.toArray();
+        return new ModifiedInsnNodes(mn.instructions.toArray(), 0);
     }
 
     private int getLineNum(AbstractInsnNode[] instructions, int start) {
@@ -205,9 +213,9 @@ public class SourceClassHandler extends BaseClassHandler {
             ClassUtil.toByteCodeClassName(classType);
     }
 
-    private AbstractInsnNode[] replaceMemberCallOps(ClassNode cn, MethodNode mn, String substitutionMethod,
-                                                    AbstractInsnNode[] instructions, String ownerClass,
-                                                    int opcode, int start, int end) {
+    private ModifiedInsnNodes replaceMemberCallOps(ClassNode cn, MethodNode mn, String substitutionMethod,
+                                                   AbstractInsnNode[] instructions, String ownerClass,
+                                                   int opcode, int start, int end) {
         LogUtil.diagnose("    Line %d, mock method %s used", getLineNum(instructions, start), substitutionMethod);
         MethodInsnNode method = (MethodInsnNode)instructions[end];
         String testClassName = ClassUtil.getTestClassName(cn.name);
@@ -223,7 +231,7 @@ public class SourceClassHandler extends BaseClassHandler {
         mn.instructions.insertBefore(instructions[end], new MethodInsnNode(INVOKESTATIC, testClassName,
             substitutionMethod, addFirstParameter(method.desc, ClassUtil.fitCompanionClassName(ownerClass)), false));
         mn.instructions.remove(instructions[end]);
-        return mn.instructions.toArray();
+        return new ModifiedInsnNodes(mn.instructions.toArray(), 1);
     }
 
     private boolean isCompanionMethod(String ownerClass, int opcode) {

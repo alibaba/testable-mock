@@ -60,6 +60,7 @@ public class TestClassHandler extends BaseClassHandler {
         il.add(new FieldInsnNode(PUTSTATIC, cn.name, REF_TESTABLE_CONTEXT,
             ClassUtil.toByteCodeClassName(CLASS_MOCK_CONTEXT)));
         mn.instructions.insertBefore(mn.instructions.get(0), il);
+        mn.maxStack++;
     }
 
     private void handleMockMethod(ClassNode cn, MethodNode mn) {
