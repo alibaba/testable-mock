@@ -23,6 +23,8 @@ import java.lang.instrument.ClassFileTransformer;
 import java.security.ProtectionDomain;
 import java.util.*;
 
+import static com.alibaba.testable.agent.constant.ConstPool.DOT;
+import static com.alibaba.testable.agent.constant.ConstPool.SLASH;
 import static com.alibaba.testable.agent.util.ClassUtil.toDotSeparateFullClassName;
 
 /**
@@ -77,7 +79,7 @@ public class TestableClassTransformer implements ClassFileTransformer {
             return;
         }
         try {
-            String dumpFile = StringUtil.joinPath(dumpDir, className.replaceAll("/", ".") + ".class");
+            String dumpFile = StringUtil.joinPath(dumpDir, className.replaceAll(SLASH, DOT) + ".class");
             LogUtil.verbose("Dump class: " + dumpFile);
             FileOutputStream stream = new FileOutputStream(dumpFile);
             stream.write(bytes);

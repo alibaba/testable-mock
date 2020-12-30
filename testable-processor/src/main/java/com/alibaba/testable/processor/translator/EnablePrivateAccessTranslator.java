@@ -4,11 +4,13 @@ import com.alibaba.testable.processor.constant.ConstPool;
 import com.alibaba.testable.processor.generator.PrivateAccessStatementGenerator;
 import com.alibaba.testable.processor.model.MemberType;
 import com.alibaba.testable.processor.model.TestableContext;
+import com.alibaba.testable.processor.util.StringUtil;
 import com.sun.tools.javac.code.Symbol;
 import com.sun.tools.javac.tree.JCTree.*;
 import com.sun.tools.javac.util.ListBuffer;
 import com.sun.tools.javac.util.Name;
 
+import java.io.File;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -61,12 +63,14 @@ public class EnablePrivateAccessTranslator extends BaseTranslator {
                     String sourceFileWrapperString = clazz.sourcefile.toString();
                     String sourceFilePath = sourceFileWrapperString.substring(
                         sourceFileWrapperString.lastIndexOf("[") + 1, sourceFileWrapperString.indexOf("]"));
-                    String targetFolderPath = sourceFilePath.substring(0, sourceFilePath.lastIndexOf("/src/")) +
-                        "/target/classes/";
+                    int indexOfSrc = sourceFilePath.lastIndexOf(File.separator + "src" + File.separator);
+                    String targetFolderPath = StringUtil.fitPathString(sourceFilePath.substring(0, indexOfSrc) +
+                        "/target/classes/");
                     cls = new URLClassLoader(new URL[] {new URL(targetFolderPath)}).loadClass(sourceClassFullName);
                 } else {
                     // fit for gradle build
-                    String path = "file:" + System.getProperty(USER_DIR) + "/build/classes/java/main/";
+                    String path = StringUtil.fitPathString("file:"
+                        + System.getProperty(USER_DIR) + "/build/classes/java/main/");
                     cls = new URLClassLoader(new URL[] {new URL(path)}).loadClass(sourceClassFullName);
                 }
             }

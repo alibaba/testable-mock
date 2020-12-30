@@ -1,5 +1,7 @@
 package com.alibaba.testable.agent.util;
 
+import java.io.File;
+
 /**
  * @author flin
  */
@@ -26,7 +28,7 @@ public class StringUtil {
      * @return joined full file path
      */
     public static String joinPath(String folder, String file) {
-        return (folder.endsWith("/") ? folder : (folder + "/")) + file;
+        return (folder.endsWith(File.separator) ? folder : (folder + File.separator)) + file;
     }
 
 }
