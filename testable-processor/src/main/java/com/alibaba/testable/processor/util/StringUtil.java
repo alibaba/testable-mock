@@ -7,11 +7,6 @@ import java.util.List;
  */
 public class StringUtil {
 
-    private static final String PREFIX_WIN = "win";
-    private static final String PROPERTY_OS_NAME = "os.name";
-    private static final String PATH_SPLIT_UNIX = "/";
-    private static final String PATH_SPLIT_WIN = "\\";
-
     /**
      * Join strings
      * @param list        strings to join
@@ -30,19 +25,6 @@ public class StringUtil {
             sb.append(item);
         }
         return sb.toString();
-    }
-
-    /**
-     * Fit path according to operation system type
-     * @param path original path
-     * @return fitted path
-     */
-    static public String fitPathString(String path) {
-        String os = System.getProperty(PROPERTY_OS_NAME);
-        if (os.toLowerCase().startsWith(PREFIX_WIN)) {
-            return path.replaceAll(PATH_SPLIT_UNIX, PATH_SPLIT_WIN);
-        }
-        return path;
     }
 
 }

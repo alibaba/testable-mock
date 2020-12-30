@@ -4,7 +4,7 @@ import com.alibaba.testable.processor.constant.ConstPool;
 import com.alibaba.testable.processor.generator.PrivateAccessStatementGenerator;
 import com.alibaba.testable.processor.model.MemberType;
 import com.alibaba.testable.processor.model.TestableContext;
-import com.alibaba.testable.processor.util.StringUtil;
+import com.alibaba.testable.processor.util.PathUtil;
 import com.sun.tools.javac.code.Symbol;
 import com.sun.tools.javac.tree.JCTree.*;
 import com.sun.tools.javac.util.ListBuffer;
@@ -14,6 +14,7 @@ import java.io.File;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 
@@ -26,6 +27,8 @@ public class EnablePrivateAccessTranslator extends BaseTranslator {
 
     private static final String IDEA_PATHS_SELECTOR = "idea.paths.selector";
     private static final String USER_DIR = "user.dir";
+    private static final String GRADLE_CLASS_FOLDER = "/build/classes/java/main/";
+    private static final String MAVEN_CLASS_FOLDER = "/target/classes/";
 
     /**
      * Name of source class
@@ -56,6 +59,7 @@ public class EnablePrivateAccessTranslator extends BaseTranslator {
             Class<?> cls = null;
             String sourceClassFullName = pkgName + "." + sourceClass;
             try {
+                // maven build goes here
                 cls = Class.forName(sourceClassFullName);
             } catch (ClassNotFoundException e) {
                 if (System.getProperty(IDEA_PATHS_SELECTOR) != null) {
@@ -64,14 +68,18 @@ public class EnablePrivateAccessTranslator extends BaseTranslator {
                     String sourceFilePath = sourceFileWrapperString.substring(
                         sourceFileWrapperString.lastIndexOf("[") + 1, sourceFileWrapperString.indexOf("]"));
                     int indexOfSrc = sourceFilePath.lastIndexOf(File.separator + "src" + File.separator);
-                    String targetFolderPath = StringUtil.fitPathString(sourceFilePath.substring(0, indexOfSrc) +
-                        "/target/classes/");
-                    cls = new URLClassLoader(new URL[] {new URL(targetFolderPath)}).loadClass(sourceClassFullName);
+                    String basePath = sourceFilePath.substring(0, indexOfSrc);
+                    String targetFolderPath = PathUtil.fitPathString(basePath + MAVEN_CLASS_FOLDER);
+                    try {
+                        cls = loadClass(targetFolderPath, sourceClassFullName);
+                    } catch (ClassNotFoundException e2) {
+                        targetFolderPath = PathUtil.fitPathString(basePath + GRADLE_CLASS_FOLDER);
+                        cls = loadClass(targetFolderPath, sourceClassFullName);
+                    }
                 } else {
                     // fit for gradle build
-                    String path = StringUtil.fitPathString("file:"
-                        + System.getProperty(USER_DIR) + "/build/classes/java/main/");
-                    cls = new URLClassLoader(new URL[] {new URL(path)}).loadClass(sourceClassFullName);
+                    String path = PathUtil.fitPathString("file:" + System.getProperty(USER_DIR) + GRADLE_CLASS_FOLDER);
+                    cls = loadClass(path, sourceClassFullName);
                 }
             }
             if (cls == null) {
@@ -174,6 +182,11 @@ public class EnablePrivateAccessTranslator extends BaseTranslator {
             }
         }
         return expr;
+    }
+
+    private Class<?> loadClass(String targetFolderPath, String sourceClassFullName)
+        throws ClassNotFoundException, MalformedURLException {
+        return new URLClassLoader(new URL[] {new URL(targetFolderPath)}).loadClass(sourceClassFullName);
     }
 
     private MemberType checkGetterType(JCFieldAccess access) {
