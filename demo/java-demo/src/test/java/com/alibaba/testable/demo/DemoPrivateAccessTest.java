@@ -21,8 +21,10 @@ class DemoPrivateAccessTest {
     @Test
     void should_able_to_access_private_method() {
         List<String> list = new ArrayList<String>() {{ add("a"); add("b"); add("c"); }};
-        assertEquals("abc + hello + 1", demoPrivateAccess.privateFunc(list, "hello", 1));
-        assertEquals("abc + hello + 1", PrivateAccessor.invoke(demoPrivateAccess, "privateFunc", list, "hello", 1));
+        assertEquals("member", demoPrivateAccess.privateFunc());
+        assertEquals("member", PrivateAccessor.invoke(demoPrivateAccess, "privateFunc"));
+        assertEquals("abc + hello + 1", demoPrivateAccess.privateFuncWithArgs(list, "hello", 1));
+        assertEquals("abc + hello + 1", PrivateAccessor.invoke(demoPrivateAccess, "privateFuncWithArgs", list, "hello", 1));
     }
 
     @Test
@@ -36,8 +38,10 @@ class DemoPrivateAccessTest {
 
     @Test
     void should_able_to_access_private_static_method() {
-        assertEquals("hello + 1", DemoPrivateAccess.privateStaticFunc("hello", 1));
-        assertEquals("hello + 1", PrivateAccessor.invokeStatic(DemoPrivateAccess.class, "privateStaticFunc", "hello", 1));
+        assertEquals("static", DemoPrivateAccess.privateStaticFunc());
+        assertEquals("static", PrivateAccessor.invokeStatic(DemoPrivateAccess.class, "privateStaticFunc"));
+        assertEquals("hello + 1", DemoPrivateAccess.privateStaticFuncWithArgs("hello", 1));
+        assertEquals("hello + 1", PrivateAccessor.invokeStatic(DemoPrivateAccess.class, "privateStaticFuncWithArgs", "hello", 1));
     }
 
     @Test

@@ -22,16 +22,30 @@ public class DemoPrivateAccess {
     public final Double pi = 3.14;
 
     /**
-     * private static method
+     * private static method without arguments
      */
-    private static String privateStaticFunc(String str, int i) {
+    private static String privateStaticFunc() {
+        return "static";
+    }
+
+    /**
+     * private static method with arguments
+     */
+    private static String privateStaticFuncWithArgs(String str, int i) {
         return str + " + " + i;
     }
 
     /**
-     * private member method
+     * private member method without arguments
      */
-    private String privateFunc(List<String> list, String str, int i) {
+    private String privateFunc() {
+        return "member";
+    }
+
+    /**
+     * private member method with arguments
+     */
+    private String privateFuncWithArgs(List<String> list, String str, int i) {
         return list.stream().reduce((a, s) -> a + s).orElse("") + " + " + str + " + " + i;
     }
 
