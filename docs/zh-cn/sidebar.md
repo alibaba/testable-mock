@@ -14,4 +14,5 @@
 - 技术参考
   - [主流Mock工具对比](zh-cn/doc/comparation.md)
   - [Release Note](zh-cn/doc/release-note.md)
+  - [关于我们](zh-cn/doc/about-us.md)
   - [问题反馈](zh-cn/doc/feedback.md)

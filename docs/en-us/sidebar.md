@@ -14,4 +14,5 @@
 - Technical Reference
   - [Mock Tools Comparison](en-us/doc/comparation.md)
   - [Release Note](en-us/doc/release-note.md)
+  - [About Us](en-us/doc/about-us.md)
   - [Feedback Channel](en-us/doc/feedback.md)

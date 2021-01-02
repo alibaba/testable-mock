@@ -39,7 +39,7 @@ Kotlin语言中的`String`类型实际上是`kotlin.String`，而非`java.lang.S
 
 同样有效，Mock的作用范围是整个测试运行过程。
 
-例如测试类`AaaTest`中Mock了`Aaa`类的某些私有方法、以及某些公有方法中的外部调用；在另一个测试类`BbbTest`中测试`Bbb`类时，某些方法间接用到了`Aaa`类被Mock过的方法或调用，此时实际调用的同样会是`AaaTest`类中定义的Mock方法。
+例如测试类`AaaTest`中Mock了`Aaa`类的某些私有方法（或者某些外部方法调用）；在另一个测试类`BbbTest`中测试`Bbb`类时，某些方法间接用到了`Aaa`类被Mock过的方法或调用，此时实际调用的同样会是`AaaTest`类中定义的Mock方法。
 
 #### 7. `TestableMock`能否用于Android项目的测试？
 
