@@ -107,11 +107,42 @@ private BlackBox createBlackBox(String text) {
 
 #### 5. 识别当前测试用例和调用来源
 
-在Mock方法中可以通过`TestableTool.SOURCE_METHOD`变量来识别**进入该Mock方法前的被测类方法名称**；此外，通过`TestableTool.MOCK_CONTEXT`变量能够为Mock方法注入**额外的上下文参数**，从而区分处理不同的调用场景。
+在Mock方法中通过`TestableTool.SOURCE_METHOD`变量可以识别**进入该Mock方法前的被测类方法名称**；此外，还可以借助`TestableTool.MOCK_CONTEXT`变量为Mock方法注入“**额外的上下文参数**”，从而区分处理不同的调用场景。
+
+例如，在测试用例中验证当被Mock方法返回不同结果时，对被测目标方法的影响：
+
+```java
+@Test
+public void testDemo() {
+    MOCK_CONTEXT.set("case", "data-ready");
+    assertEquals(true, demo());
+    MOCK_CONTEXT.set("case", "has-error");
+    assertEquals(false, demo());
+    MOCK_CONTEXT.clear();
+}
+```
+
+在Mock方法中取出注入的参数，根据情况返回不同结果：
+
+```java
+@MockMethod
+private Data mockDemo() {
+    switch((String)MOCK_CONTEXT.get("case")) {
+        case "data-ready":
+            return new Data();
+        case "has-error":
+            throw new NetworkException();
+        default:
+            return null;
+    }
+}
+```
 
 注意，由于`TestableMock`并不依赖（也不希望依赖）任何特定测试框架，因而无法自动识别单个测试用例的结束位置，这使得设置到`TestableTool.MOCK_CONTEXT`变量的参数可能会在同测试类中跨测试用例存在。建议总是在使用后及时使用`MOCK_CONTEXT.clear()`清空上下文，也可将这行语句添加到单元测试框架特定的测试用例结束的统一位置，比如JUnit 5的`@AfterEach`方法。
 
-> `TestableTool.MOCK_CONTEXT`变量目前是在测试类内共享的，当单元测试并行运行时，建议请选择`parallel`类型为`classes`
+在当前版本中，此变量在运行期的效果类似于一个在测试类中的普通`Map`类型成员对象，但请尽量使用此变量而非自定义对象传递附加的Mock参数，以便在将来升级至`v0.5`版本时获得更好的兼容性。
+
+> `TestableTool.MOCK_CONTEXT`变量的值是在测试类内共享的，当单元测试并行运行时，建议请选择`parallel`类型为`classes`
 
 完整代码示例见`java-demo`和`kotlin-demo`示例项目中的`should_able_to_get_source_method_name()`和`should_able_to_get_test_case_name()`测试用例。
 

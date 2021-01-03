@@ -109,7 +109,38 @@ For complete code examples, see the `should_able_to_mock_new_object()` test case
 
 In the mock method, you can use the `TestableTool.SOURCE_METHOD` variable to identify **the method name of the class under test before entering the mock method**; in addition, the `TestableTool.MOCK_CONTEXT` variable can **inject additional context parameters into the mock method**, to distinguish and process different calling scenarios.
 
+For example, to verify the impact on the target method under test when the mock method returns different results in the test case:
+
+```java
+@Test
+public void testDemo() {
+    MOCK_CONTEXT.set("case", "data-ready");
+    assertEquals(true, demo());
+    MOCK_CONTEXT.set("case", "has-error");
+    assertEquals(false, demo());
+    MOCK_CONTEXT.clear();
+}
+```
+
+Take out the injected parameters in the mock method and return different results according to the situation:
+
+```java
+@MockMethod
+private Data mockDemo() {
+    switch((String)MOCK_CONTEXT.get("case")) {
+        case "data-ready":
+            return new Data();
+        case "has-error":
+            throw new NetworkException();
+        default:
+            return null;
+    }
+}
+```
+
 Note that because `TestableMock` does not (and won't to) rely on any specific test framework, it cannot automatically identify the end position of a single test case, which makes the parameters set to the `TestableTool.MOCK_CONTEXT` variable may exist cross test cases in the same test class. It is recommended to always use `MOCK_CONTEXT.clear()` to clear the context immediately after use. You can also add this statement to the unified position where the test case ends of the specific unit test framework, such as the `@AfterEach` method of JUnit 5.
+
+In the current version, the effect of this variable at runtime is similar to a normal `Map` type member object in the test class, but please try to use this variable instead of a custom object to pass additional mock parameters in order to get better compatibility in the upcoming`v0.5` version.
 
 > The `TestableTool.MOCK_CONTEXT` variable is currently shared within the test class. When the unit test runs in parallel, it is recommended to select the `parallel` type as `classes`
 
