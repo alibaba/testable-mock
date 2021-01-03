@@ -5,7 +5,7 @@
 无需初始化，不挑测试框架，甭管要换的是私有方法、静态方法、构造方法还是其他任何类的任何方法，也甭管要换的对象是怎么创建的。写好Mock定义，加个`@MockMethod`注解，一切统统搞定。
 
 - 文档：https://alibaba.github.io/testable-mock/
-- 国内文档镜像：http://freyrlin.gitee.io/testable-mock/ （内容延迟问题已解决）
+- 国内文档镜像：http://freyrlin.gitee.io/testable-mock/
 
 阅读[这里](https://mp.weixin.qq.com/s/KyU6Eu7mDkZU8FspfSqfMw)了解更多故事。
 
@@ -22,7 +22,7 @@
 
 - `0.4.x` 当前版本，进行中的工作内容参考[Issue](https://github.com/alibaba/testable-mock/issues)清单
 - `0.5` 实现以"Mock方法集"为单元的Mock方法复用机制，让测试类之间可以方便复用相同的Mock方法
-- `0.6` 实现第四项单元测试增强能力"万能入参构造器"。不论被测方法所需的参数结构多么错综复杂、甚至没有合适的构造方法、甚至需要私有内部类对象... 呼唤TestableMock，马上递给您~
+- `0.6` 实现第四项单元测试增强能力"快速入参构造器"。不论被测方法所需的参数结构多么错综复杂、甚至没有合适的构造方法、甚至需要私有内部类对象... 呼唤TestableMock，马上递给您~
 
 ## 目录结构
 

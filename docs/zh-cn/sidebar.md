@@ -9,10 +9,10 @@
   - [常见使用问题](zh-cn/doc/frequently-asked-questions.md)
   - [在IDE运行单元测试](zh-cn/doc/use-in-ide.md)
   - [自助问题排查](zh-cn/doc/troubleshooting.md)
-  - [Testable Maven插件](zh-cn/doc/use-maven-plugin.md)
+  - [使用Maven插件](zh-cn/doc/use-maven-plugin.md)
 
 - 技术参考
   - [主流Mock工具对比](zh-cn/doc/comparation.md)
-  - [Release Note](zh-cn/doc/release-note.md)
+  - [版本更新](zh-cn/doc/release-note.md)
   - [关于我们](zh-cn/doc/about-us.md)
   - [问题反馈](zh-cn/doc/feedback.md)

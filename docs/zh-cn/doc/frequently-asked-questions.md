@@ -7,7 +7,7 @@
 
 #### 2. `TestableMock`是否能够与其他Mock工具一起使用？
 
-`TestableMock`可与其他基于动态代理机制的Mock工具安全的共同使用，譬如`Mockito`、`EasyMock`、`MockRunner`等皆属此范畴。
+`TestableMock`可与其他基于动态代理机制的Mock工具安全的共同使用，譬如`Mockito`、`Spock`、`EasyMock`等皆属此范畴。
 
 对于会修改类加载器或被测类字节码的Mock工具，譬如`PowerMock`和`JMockit`，尚无案例证明会与`TestableMock`发生冲突，但从原理来说二者可能存在不兼容风险，请谨慎使用。
 
