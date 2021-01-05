@@ -4,7 +4,8 @@ import com.alibaba.testable.demo.model.BlackBox
 import java.util.*
 
 /**
- * @author flin
+ * 演示Mock方法调用校验器
+ * Demonstrate mock method invocation verifier
  */
 class DemoMatcher {
     /**

@@ -14,7 +14,8 @@ internal class DemoPrivateAccessTest {
 
     @Test
     fun should_able_to_access_private_method() {
-        assertEquals("hello - 1", PrivateAccessor.invoke(demoPrivateAccess, "privateFunc", "hello", 1))
+        val list = listOf("a", "b", "c");
+        assertEquals("abc + hello + 1", PrivateAccessor.invoke(demoPrivateAccess, "privateFunc", list, "hello", 1))
     }
 
     @Test
@@ -25,8 +26,9 @@ internal class DemoPrivateAccessTest {
 
     @Test
     fun should_able_to_access_private_static_method() {
+        val list = listOf("a", "b", "c");
         assertEquals("hello + 1", PrivateAccessor.invokeStatic(DemoPrivateAccess::class.java, "privateStaticFunc", "hello", 1))
-        assertEquals("hello * 1", PrivateAccessor.invokeStatic(DemoPrivateAccess::class.java, "privateJvmStaticFunc", "hello", 1))
+        assertEquals("abc * hello * 1", PrivateAccessor.invokeStatic(DemoPrivateAccess::class.java, "privateJvmStaticFunc", list, "hello", 1))
     }
 
     @Test

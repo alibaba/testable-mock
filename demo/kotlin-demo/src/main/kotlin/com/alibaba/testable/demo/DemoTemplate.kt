@@ -4,6 +4,10 @@ import java.util.ArrayList
 import java.util.HashMap
 import java.util.HashSet
 
+/**
+ * 演示模板方法的Mock场景
+ * Demonstrate scenario of mocking template method
+ */
 class DemoTemplate {
     private fun <T> getList(value: T): List<T> {
         val l: MutableList<T> = ArrayList()

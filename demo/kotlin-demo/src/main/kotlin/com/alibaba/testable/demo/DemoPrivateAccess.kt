@@ -1,5 +1,9 @@
 package com.alibaba.testable.demo
 
+/**
+ * 演示私有成员访问功能
+ * Demonstrate private member access functionality
+ */
 class DemoPrivateAccess {
 
     /**
@@ -15,8 +19,8 @@ class DemoPrivateAccess {
     /**
      * private member method
      */
-    private fun privateFunc(s: String, i: Int): String {
-        return "$s - $i"
+    private fun privateFunc(list: List<String>, str: String, i: Int): String {
+        return list.reduce { a: String, s: String -> a + s } + " + " + "$str + $i"
     }
 
     companion object {
@@ -29,15 +33,15 @@ class DemoPrivateAccess {
         /**
          * private static method
          */
-        private fun privateStaticFunc(s: String, i: Int): String {
-            return "$s + $i"
+        private fun privateStaticFunc(str: String, i: Int): String {
+            return "$str + $i"
         }
 
         /**
          * private jvm static method
          */
-        @JvmStatic private fun privateJvmStaticFunc(s: String, i: Int): String {
-            return "$s * $i"
+        @JvmStatic private fun privateJvmStaticFunc(list: List<String>, str: String, i: Int): String {
+            return list.reduce { a: String, s: String -> a + s } + " * " + "$str * $i"
         }
     }
 

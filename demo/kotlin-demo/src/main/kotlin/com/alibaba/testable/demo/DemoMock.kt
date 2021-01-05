@@ -5,6 +5,10 @@ import com.alibaba.testable.demo.model.ColorBox
 import java.nio.file.Files
 import java.nio.file.Paths
 
+/**
+ * 演示基本的Mock功能
+ * Demonstrate basic mock functionality
+ */
 class DemoMock {
 
     /**
@@ -18,7 +22,7 @@ class DemoMock {
      * method with member method invoke
      */
     fun outerFunc(s: String): String {
-        return "{ \"res\": \"" + innerFunc(s) + "\"}"
+        return "{ \"res\": \"" + innerFunc(s) + staticFunc() + "\"}"
     }
 
     /**
@@ -52,4 +56,10 @@ class DemoMock {
     }
 
     private fun callFromDifferentMethod() = "realOne"
+
+    companion object {
+        private fun staticFunc(): String {
+            return "_STATIC_TAIL"
+        }
+    }
 }
