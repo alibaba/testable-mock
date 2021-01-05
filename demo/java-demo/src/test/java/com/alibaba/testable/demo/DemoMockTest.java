@@ -25,38 +25,38 @@ class DemoMockTest {
         return new BlackBox("mock_" + text);
     }
 
-    @MockMethod
-    private String innerFunc(DemoMock self, String text) {
+    @MockMethod(targetClass = DemoMock.class)
+    private String innerFunc(String text) {
         return "mock_" + text;
     }
 
-    @MockMethod
-    private String staticFunc(DemoMock ignore) {
+    @MockMethod(targetClass = DemoMock.class)
+    private String staticFunc() {
         return "_MOCK_TAIL";
     }
 
-    @MockMethod
-    private String trim(String self) {
+    @MockMethod(targetClass = String.class)
+    private String trim() {
         return "trim_string";
     }
 
-    @MockMethod(targetMethod = "substring")
-    private String sub(String self, int i, int j) {
+    @MockMethod(targetClass = String.class, targetMethod = "substring")
+    private String sub(int i, int j) {
         return "sub_string";
     }
 
-    @MockMethod
-    private boolean startsWith(String self, String s) {
+    @MockMethod(targetClass = String.class)
+    private boolean startsWith(String s) {
         return false;
     }
 
-    @MockMethod
-    private BlackBox secretBox(BlackBox ignore) {
+    @MockMethod(targetClass = BlackBox.class)
+    private BlackBox secretBox() {
         return new BlackBox("not_secret_box");
     }
 
-    @MockMethod
-    private String callFromDifferentMethod(DemoMock self) {
+    @MockMethod(targetClass = DemoMock.class)
+    private String callFromDifferentMethod() {
         if ("special_case".equals(MOCK_CONTEXT.get("case"))) {
             return "mock_special";
         }

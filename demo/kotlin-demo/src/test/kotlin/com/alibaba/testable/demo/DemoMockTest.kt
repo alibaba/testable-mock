@@ -22,35 +22,35 @@ internal class DemoMockTest {
     @MockConstructor
     private fun createBlackBox(text: String) = BlackBox("mock_$text")
 
-    @MockMethod
-    private fun innerFunc(self: DemoMock, text: String) = "mock_$text"
+    @MockMethod(targetClass = DemoMock::class)
+    private fun innerFunc(text: String) = "mock_$text"
 
-    @MockMethod
-    private fun staticFunc(ignore: DemoMock): String {
+    @MockMethod(targetClass = DemoMock::class)
+    private fun staticFunc(): String {
         return "_MOCK_TAIL";
     }
 
-    @MockMethod
-    private fun trim(self: BlackBox) = "trim_string"
+    @MockMethod(targetClass = BlackBox::class)
+    private fun trim() = "trim_string"
 
-    @MockMethod(targetMethod = "substring")
-    private fun sub(self: BlackBox, i: Int, j: Int) = "sub_string"
+    @MockMethod(targetClass = BlackBox::class, targetMethod = "substring")
+    private fun sub(i: Int, j: Int) = "sub_string"
 
-    @MockMethod
-    private fun startsWith(self: BlackBox, s: String) = false
+    @MockMethod(targetClass = BlackBox::class)
+    private fun startsWith(s: String) = false
 
-    @MockMethod
-    private fun secretBox(ignore: BlackBox): BlackBox {
+    @MockMethod(targetClass = BlackBox::class)
+    private fun secretBox(): BlackBox {
         return BlackBox("not_secret_box")
     }
 
-    @MockMethod
-    private fun createBox(ignore: ColorBox, color: String, box: BlackBox): BlackBox {
+    @MockMethod(targetClass = ColorBox::class)
+    private fun createBox(color: String, box: BlackBox): BlackBox {
         return BlackBox("White_${box.get()}")
     }
 
-    @MockMethod
-    private fun callFromDifferentMethod(self: DemoMock): String {
+    @MockMethod(targetClass = DemoMock::class)
+    private fun callFromDifferentMethod(): String {
         return if (MOCK_CONTEXT["case"] == "special_case") {
             "mock_special"
         } else {
