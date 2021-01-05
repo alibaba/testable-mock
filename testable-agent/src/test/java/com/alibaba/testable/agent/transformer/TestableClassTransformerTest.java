@@ -17,7 +17,7 @@ class TestableClassTransformerTest {
         assertNull(parameters);
         parameters = PrivateAccessor.invoke(testableClassTransformer, "extractFirstParameter", "(Lcom.alibaba.demo.Class;ILjava.lang.String;Z)");
         assertNotNull(parameters);
-        assertEquals("Lcom.alibaba.demo.Class;", parameters.left);
+        assertEquals("com.alibaba.demo.Class", parameters.left);
         assertEquals("(ILjava.lang.String;Z)", parameters.right);
     }
 }

@@ -26,7 +26,7 @@ public class InvokeRecordUtil {
      * @param args invocation parameters
      * @param isConstructor whether mocked method is constructor
      */
-    public static void recordMockInvoke(Object[] args, boolean isConstructor) {
+    public static void recordMockInvoke(Object[] args, boolean isConstructor, boolean isTargetClassInParameter) {
         StackTraceElement mockMethodTraceElement = Thread.currentThread().getStackTrace()[INDEX_OF_TEST_CLASS];
         String mockMethodName = mockMethodTraceElement.getMethodName();
         String testClass = mockMethodTraceElement.getClassName();
@@ -37,7 +37,7 @@ public class InvokeRecordUtil {
             records.add(args);
             LogUtil.verbose("  Mock constructor invoked \"%s\"", identify);
         } else {
-            records.add(slice(args, 1));
+            records.add(isTargetClassInParameter ? slice(args, 1) : args);
             LogUtil.verbose("  Mock method invoked \"%s\"", identify);
         }
         INVOKE_RECORDS.put(identify, records);

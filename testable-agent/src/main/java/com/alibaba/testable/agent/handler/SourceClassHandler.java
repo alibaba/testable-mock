@@ -3,7 +3,6 @@ package com.alibaba.testable.agent.handler;
 import com.alibaba.testable.agent.constant.ConstPool;
 import com.alibaba.testable.agent.model.MethodInfo;
 import com.alibaba.testable.agent.model.ModifiedInsnNodes;
-import com.alibaba.testable.agent.tool.ImmutablePair;
 import com.alibaba.testable.agent.util.BytecodeUtil;
 import com.alibaba.testable.agent.util.ClassUtil;
 import com.alibaba.testable.core.util.LogUtil;
@@ -65,7 +64,7 @@ public class SourceClassHandler extends BaseClassHandler {
         do {
             if (invokeOps.contains(instructions[i].getOpcode())) {
                 MethodInsnNode node = (MethodInsnNode)instructions[i];
-                ImmutablePair<String, String> mockMethod = getMemberInjectMethodName(memberInjectMethods, node);
+                MethodInfo mockMethod = getMemberInjectMethodName(memberInjectMethods, node);
                 if (mockMethod != null) {
                     // it's a member or static method and an inject method for it exist
                     int rangeStart = getMemberMethodStart(instructions, i);
@@ -103,14 +102,13 @@ public class SourceClassHandler extends BaseClassHandler {
      * find the mock method fit for specified method node
      * @param memberInjectMethods mock methods available
      * @param node method node to match for
-     * @return pair of <mock-method-name, mock-method-desc>
+     * @return mock method info
      */
-    private ImmutablePair<String, String> getMemberInjectMethodName(Set<MethodInfo> memberInjectMethods,
-                                                                    MethodInsnNode node) {
+    private MethodInfo getMemberInjectMethodName(Set<MethodInfo> memberInjectMethods, MethodInsnNode node) {
         for (MethodInfo m : memberInjectMethods) {
             String nodeOwner = ClassUtil.fitCompanionClassName(node.owner);
             if (m.getClazz().equals(nodeOwner) && m.getName().equals(node.name) && m.getDesc().equals(node.desc)) {
-                return ImmutablePair.of(m.getMockName(), m.getMockDesc());
+                return m;
             }
         }
         return null;
@@ -219,23 +217,29 @@ public class SourceClassHandler extends BaseClassHandler {
             ClassUtil.toByteCodeClassName(classType);
     }
 
-    private ModifiedInsnNodes replaceMemberCallOps(ClassNode cn, MethodNode mn, ImmutablePair<String, String> mockMethod,
+    private ModifiedInsnNodes replaceMemberCallOps(ClassNode cn, MethodNode mn, MethodInfo mockMethod,
                                                    AbstractInsnNode[] instructions, String ownerClass,
                                                    int opcode, int start, int end) {
-        LogUtil.diagnose("    Line %d, mock method %s used", getLineNum(instructions, start), mockMethod.left);
-        MethodInsnNode method = (MethodInsnNode)instructions[end];
+        LogUtil.diagnose("    Line %d, mock method %s used", getLineNum(instructions, start),
+            mockMethod.getMockName());
+        boolean shouldAppendTypeParameter = !mockMethod.getDesc().equals(mockMethod.getMockDesc());
         String testClassName = ClassUtil.getTestClassName(cn.name);
         if (Opcodes.INVOKESTATIC == opcode || isCompanionMethod(ownerClass, opcode)) {
-            // append a null value if it was a static invoke or in kotlin companion class
-            mn.instructions.insertBefore(instructions[start], new InsnNode(ACONST_NULL));
+            if (shouldAppendTypeParameter) {
+                // append a null value if it was a static invoke or in kotlin companion class
+                mn.instructions.insertBefore(instructions[start], new InsnNode(ACONST_NULL));
+            }
             if (ClassUtil.isCompanionClassName(ownerClass)) {
                 // for kotlin companion class, remove the byte code of reference to "companion" static field
                 mn.instructions.remove(instructions[end - 1]);
             }
+        } else if (!shouldAppendTypeParameter) {
+            // remove extra target ops code
+            mn.instructions.remove(instructions[start]);
         }
         // method with @MockMethod will be modified as public static access, so INVOKESTATIC is used
         mn.instructions.insertBefore(instructions[end], new MethodInsnNode(INVOKESTATIC, testClassName,
-            mockMethod.left, mockMethod.right, false));
+            mockMethod.getMockName(), mockMethod.getMockDesc(), false));
         mn.instructions.remove(instructions[end]);
         return new ModifiedInsnNodes(mn.instructions.toArray(), 1);
     }
