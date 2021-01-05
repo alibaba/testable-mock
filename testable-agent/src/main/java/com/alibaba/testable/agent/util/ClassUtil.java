@@ -61,7 +61,7 @@ public class ClassUtil {
      * @return is companion class or not
      */
     public static boolean isCompanionClassName(String name) {
-        return name.endsWith("$Companion");
+        return name.endsWith(ConstPool.KOTLIN_POSTFIX_COMPANION);
     }
 
     /**
@@ -70,7 +70,18 @@ public class ClassUtil {
      * @return original name
      */
     public static String fitCompanionClassName(String name) {
-        return name.replaceAll("\\$Companion$", "");
+        return isCompanionClassName(name) ?
+            name.substring(0, name.length() - ConstPool.KOTLIN_POSTFIX_COMPANION.length()) : name;
+    }
+
+    /**
+     * fit kotlin accessor method name to original name
+     * @param name a accessor name (which could be a common kotlin method)
+     * @return original name
+     */
+    public static String fitKotlinAccessorName(String name) {
+        return name.startsWith(ConstPool.KOTLIN_PREFIX_ACCESS) ?
+            name.substring(ConstPool.KOTLIN_PREFIX_ACCESS.length()) : name;
     }
 
     /**
@@ -196,6 +207,15 @@ public class ClassUtil {
      */
     public static String toSlashSeparateFullClassName(String className) {
         return toSlashSeparatedName(className).substring(1, className.length() - 1);
+    }
+
+    /**
+     * remove first parameter from method descriptor
+     * @param desc original descriptor
+     * @return descriptor without first parameter
+     */
+    public static String removeFirstParameter(String desc) {
+        return "(" + desc.substring(desc.indexOf(";") + 1);
     }
 
     private static String toDescriptor(Byte type, String objectType) {

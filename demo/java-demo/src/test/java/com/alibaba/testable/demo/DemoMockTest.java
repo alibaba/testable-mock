@@ -31,7 +31,7 @@ class DemoMockTest {
     }
 
     @MockMethod
-    private String staticFunc(DemoMock self) {
+    private String staticFunc(DemoMock ignore) {
         return "_MOCK_TAIL";
     }
 
@@ -77,6 +77,7 @@ class DemoMockTest {
     void should_able_to_mock_member_method() throws Exception {
         assertEquals("{ \"res\": \"mock_hello_MOCK_TAIL\"}", demoMock.outerFunc("hello"));
         verify("innerFunc").with("hello");
+        verify("staticFunc").with();
     }
 
     @Test

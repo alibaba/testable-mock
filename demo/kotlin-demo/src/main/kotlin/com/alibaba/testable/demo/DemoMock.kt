@@ -61,5 +61,9 @@ class DemoMock {
         private fun staticFunc(): String {
             return "_STATIC_TAIL"
         }
+
+//        fun callStaticFunc(): String {
+//            return "CALL${staticFunc()}"
+//        }
     }
 }

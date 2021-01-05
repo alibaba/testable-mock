@@ -26,7 +26,7 @@ internal class DemoMockTest {
     private fun innerFunc(self: DemoMock, text: String) = "mock_$text"
 
     @MockMethod
-    private fun staticFunc(self: DemoMock): String {
+    private fun staticFunc(ignore: DemoMock): String {
         return "_MOCK_TAIL";
     }
 
@@ -72,7 +72,14 @@ internal class DemoMockTest {
     fun should_able_to_mock_member_method() {
         assertEquals("{ \"res\": \"mock_hello_MOCK_TAIL\"}", demoMock.outerFunc("hello"))
         verify("innerFunc").with("hello")
+        verify("staticFunc").with()
     }
+
+//    @Test
+//    fun should_able_to_mock_method_in_companion_object() {
+//        assertEquals("CALL_MOCK_TAIL", DemoMock.callStaticFunc())
+//        verify("staticFunc").with()
+//    }
 
     @Test
     fun should_able_to_mock_common_method() {
