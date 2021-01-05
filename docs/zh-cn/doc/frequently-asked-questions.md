@@ -66,3 +66,9 @@ private static int getXxx(Demo self) {}
 ```
 
 在下一个大迭代版本（**即`0.5`版本**）中，将会在保持当前Mock体验的前提下，对Mock的实现机制进行修改，不再需要修改Mock方法为静态方法，从而彻底解决此类报错问题。
+
+#### 9. 在IntelliJ运行测试报"Command Line is too Long. Shorten command line for ..."错误？
+
+这个问题是由于系统ClassPath包含太多路径所致，与是否使用`TestableMock`无关。但需要注意的是，IntelliJ提供了两种辅助解决机制：`JAR manifest`和`classpath file`，若测试中使用了`TestableMock`，请选择`JAR manifest`。
+
+![jar-manifest](https://testable-code.oss-cn-beijing.aliyuncs.com/jar-manifest.png)

@@ -66,3 +66,9 @@ private static int getXxx(Demo self) {}
 ```
 
 In the next major iteration (**i.e. `v0.5`**), the mock implementation mechanism will be modified while maintaining the current mock experience. Then, it will be no longer necessary to modify the mock method to a static method, and completely solving this problem.
+
+#### 9. Meet "Command Line is too Long. Shorten command line for ..." error when triggering test in IntelliJ IDE?
+
+This problem is caused by the system `Class Path` content is too long, and has nothing to do with `TestableMock`. However, it should be noted that IntelliJ provides two auxiliary solutions: `JAR manifest` and `classpath file`. If `TestableMock` is used in the test, please select `JAR manifest`.
+
+![jar-manifest](https://testable-code.oss-cn-beijing.aliyuncs.com/jar-manifest.png)
