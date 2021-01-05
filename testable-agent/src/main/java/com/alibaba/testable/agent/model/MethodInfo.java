@@ -14,19 +14,24 @@ public class MethodInfo {
      */
     private final String name;
     /**
+     * parameter and return value of the source method
+     */
+    private final String desc;
+    /**
      * name of the mock method
      */
     private final String mockName;
     /**
-     * parameter and return value of the source method
+     * parameter and return value of the mock method
      */
-    private final String desc;
+    private final String mockDesc;
 
-    public MethodInfo(String clazz, String name, String mockName, String desc) {
+    public MethodInfo(String clazz, String name, String desc, String mockName, String mockDesc) {
         this.clazz = clazz;
         this.name = name;
-        this.mockName = mockName;
         this.desc = desc;
+        this.mockName = mockName;
+        this.mockDesc = mockDesc;
     }
 
     public String getClazz() {
@@ -37,12 +42,16 @@ public class MethodInfo {
         return name;
     }
 
+    public String getDesc() {
+        return desc;
+    }
+
     public String getMockName() {
         return mockName;
     }
 
-    public String getDesc() {
-        return desc;
+    public String getMockDesc() {
+        return mockDesc;
     }
 
     @Override
@@ -54,16 +63,18 @@ public class MethodInfo {
 
         if (!clazz.equals(that.clazz)) { return false; }
         if (!name.equals(that.name)) { return false; }
+        if (!desc.equals(that.desc)) { return false; }
         if (!mockName.equals(that.mockName)) { return false; }
-        return desc.equals(that.desc);
+        return mockDesc.equals(that.mockDesc);
     }
 
     @Override
     public int hashCode() {
         int result = clazz.hashCode();
         result = 31 * result + name.hashCode();
-        result = 31 * result + mockName.hashCode();
         result = 31 * result + desc.hashCode();
+        result = 31 * result + mockName.hashCode();
+        result = 31 * result + mockDesc.hashCode();
         return result;
     }
 }

@@ -3,16 +3,17 @@ package com.alibaba.testable.agent.transformer;
 import com.alibaba.testable.agent.constant.ConstPool;
 import com.alibaba.testable.agent.handler.SourceClassHandler;
 import com.alibaba.testable.agent.handler.TestClassHandler;
-import com.alibaba.testable.agent.tool.ImmutablePair;
 import com.alibaba.testable.agent.model.MethodInfo;
+import com.alibaba.testable.agent.tool.ImmutablePair;
 import com.alibaba.testable.agent.util.AnnotationUtil;
 import com.alibaba.testable.agent.util.ClassUtil;
 import com.alibaba.testable.agent.util.GlobalConfig;
 import com.alibaba.testable.agent.util.StringUtil;
+import com.alibaba.testable.core.model.MockDiagnose;
 import com.alibaba.testable.core.model.NullType;
 import com.alibaba.testable.core.util.LogUtil;
-import com.alibaba.testable.core.model.MockDiagnose;
 import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AnnotationNode;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.MethodNode;
@@ -22,7 +23,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.instrument.ClassFileTransformer;
 import java.security.ProtectionDomain;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.alibaba.testable.agent.constant.ConstPool.DOT;
 import static com.alibaba.testable.agent.constant.ConstPool.SLASH;
@@ -138,44 +140,43 @@ public class TestableClassTransformer implements ClassFileTransformer {
         for (AnnotationNode an : mn.visibleAnnotations) {
             String fullClassName = toDotSeparateFullClassName(an.desc);
             if (fullClassName.equals(ConstPool.MOCK_CONSTRUCTOR)) {
-                addMockConstructor(cn, methodInfos, mn);
+                addMockConstructor(methodInfos, cn, mn);
             } else if (fullClassName.equals(ConstPool.MOCK_METHOD) ||
                        fullClassName.equals(ConstPool.TESTABLE_MOCK)) {
-                ImmutablePair<String, String> methodDescPair = getMethodDescPair(mn, an);
-                if (methodDescPair == null) {
-                    return;
-                }
                 String targetMethod = AnnotationUtil.getAnnotationParameter(
                     an, ConstPool.FIELD_TARGET_METHOD, mn.name, String.class);
-                if (targetMethod.equals(ConstPool.CONSTRUCTOR)) {
-                    addMockConstructor(cn, methodInfos, mn);
+                if (ConstPool.CONSTRUCTOR.equals(targetMethod)) {
+                    addMockConstructor(methodInfos, cn, mn);
                 } else {
-                    addMockMethod(methodInfos, mn, methodDescPair, targetMethod);
+                    MethodInfo mi = getMethodInfo(mn, an, targetMethod);
+                    if (mi != null) {
+                        methodInfos.add(mi);
+                    }
                 }
                 break;
             }
         }
     }
 
-    private ImmutablePair<String, String> getMethodDescPair(MethodNode mn, AnnotationNode an) {
-        Class<?> targetClass = AnnotationUtil.getAnnotationParameter(
-            an, ConstPool.FIELD_TARGET_CLASS, NullType.class, Class.class);
-        if (targetClass.equals(NullType.class)) {
-            return extractFirstParameter(mn.desc);
+    private MethodInfo getMethodInfo(MethodNode mn, AnnotationNode an, String targetMethod) {
+        Type targetType = AnnotationUtil.getAnnotationParameter(an, ConstPool.FIELD_TARGET_CLASS, null, Type.class);
+        if (targetType == null || targetType.getClassName().equals(NullType.class.getName())) {
+            // "targetClass" unset, use first parameter as target class type
+            ImmutablePair<String, String> methodDescPair = extractFirstParameter(mn.desc);
+            if (methodDescPair == null) {
+                return null;
+            }
+            return new MethodInfo(methodDescPair.left, targetMethod, methodDescPair.right, mn.name, mn.desc);
         } else {
-            return ImmutablePair.of(ClassUtil.toByteCodeClassName(targetClass.getName()), mn.desc);
+            // "targetClass" found, use it as target class type
+            String slashSeparatedName = ClassUtil.toSlashSeparatedName(targetType.getClassName());
+            return new MethodInfo(slashSeparatedName, targetMethod, mn.desc, mn.name, mn.desc);
         }
     }
 
-    private void addMockMethod(List<MethodInfo> methodInfos, MethodNode mn,
-                               ImmutablePair<String, String> methodDescPair, String targetMethod) {
-        String targetClass = ClassUtil.toSlashSeparateFullClassName(methodDescPair.left);
-        methodInfos.add(new MethodInfo(targetClass, targetMethod, mn.name, methodDescPair.right));
-    }
-
-    private void addMockConstructor(ClassNode cn, List<MethodInfo> methodInfos, MethodNode mn) {
+    private void addMockConstructor(List<MethodInfo> methodInfos, ClassNode cn, MethodNode mn) {
         String sourceClassName = ClassUtil.getSourceClassName(cn.name);
-        methodInfos.add(new MethodInfo(sourceClassName, ConstPool.CONSTRUCTOR, mn.name, mn.desc));
+        methodInfos.add(new MethodInfo(sourceClassName, ConstPool.CONSTRUCTOR, mn.desc, mn.name, mn.desc));
     }
 
     /**
@@ -232,7 +233,7 @@ public class TestableClassTransformer implements ClassFileTransformer {
     private ImmutablePair<String, String> extractFirstParameter(String desc) {
         // assume first parameter is a class
         int pos = desc.indexOf(";");
-        return pos < 0 ? null : ImmutablePair.of(desc.substring(1, pos + 1), "(" + desc.substring(pos + 1));
+        return pos < 0 ? null : ImmutablePair.of(desc.substring(2, pos), "(" + desc.substring(pos + 1));
     }
 
 }

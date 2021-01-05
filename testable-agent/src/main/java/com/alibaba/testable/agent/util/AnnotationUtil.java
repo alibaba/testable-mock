@@ -29,7 +29,11 @@ public class AnnotationUtil {
                         Class<? extends Enum> enumClazz = (Class<? extends Enum>)clazz;
                         return (T)Enum.valueOf(enumClazz, values[1]);
                     }
-                    return clazz.cast(an.values.get(i + 1));
+                    try {
+                        return clazz.cast(an.values.get(i + 1));
+                    } catch (ClassCastException e) {
+                        return defaultValue;
+                    }
                 }
             }
         }
