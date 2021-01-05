@@ -9,6 +9,7 @@ import com.alibaba.testable.agent.util.AnnotationUtil;
 import com.alibaba.testable.agent.util.ClassUtil;
 import com.alibaba.testable.agent.util.GlobalConfig;
 import com.alibaba.testable.agent.util.StringUtil;
+import com.alibaba.testable.core.model.NullType;
 import com.alibaba.testable.core.util.LogUtil;
 import com.alibaba.testable.core.model.MockDiagnose;
 import org.objectweb.asm.ClassReader;
@@ -131,8 +132,7 @@ public class TestableClassTransformer implements ClassFileTransformer {
     }
 
     private void checkMethodAnnotation(ClassNode cn, List<MethodInfo> methodInfos, MethodNode mn) {
-        ImmutablePair<String, String> methodDescPair = extractFirstParameter(mn.desc);
-        if (methodDescPair == null || mn.visibleAnnotations == null) {
+        if (mn.visibleAnnotations == null) {
             return;
         }
         for (AnnotationNode an : mn.visibleAnnotations) {
@@ -141,6 +141,10 @@ public class TestableClassTransformer implements ClassFileTransformer {
                 addMockConstructor(cn, methodInfos, mn);
             } else if (fullClassName.equals(ConstPool.MOCK_METHOD) ||
                        fullClassName.equals(ConstPool.TESTABLE_MOCK)) {
+                ImmutablePair<String, String> methodDescPair = getMethodDescPair(mn, an);
+                if (methodDescPair == null) {
+                    return;
+                }
                 String targetMethod = AnnotationUtil.getAnnotationParameter(
                     an, ConstPool.FIELD_TARGET_METHOD, mn.name, String.class);
                 if (targetMethod.equals(ConstPool.CONSTRUCTOR)) {
@@ -150,6 +154,16 @@ public class TestableClassTransformer implements ClassFileTransformer {
                 }
                 break;
             }
+        }
+    }
+
+    private ImmutablePair<String, String> getMethodDescPair(MethodNode mn, AnnotationNode an) {
+        Class<?> targetClass = AnnotationUtil.getAnnotationParameter(
+            an, ConstPool.FIELD_TARGET_CLASS, NullType.class, Class.class);
+        if (targetClass.equals(NullType.class)) {
+            return extractFirstParameter(mn.desc);
+        } else {
+            return ImmutablePair.of(ClassUtil.toByteCodeClassName(targetClass.getName()), mn.desc);
         }
     }
 

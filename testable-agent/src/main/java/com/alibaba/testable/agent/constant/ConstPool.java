@@ -11,6 +11,7 @@ public class ConstPool {
     public static final String TEST_POSTFIX = "Test";
 
     public static final String FIELD_TARGET_METHOD = "targetMethod";
+    public static final String FIELD_TARGET_CLASS = "targetClass";
 
     public static final String MOCK_WITH = "com.alibaba.testable.core.annotation.MockWith";
     public static final String MOCK_METHOD = "com.alibaba.testable.core.annotation.MockMethod";

@@ -1,6 +1,6 @@
 package com.alibaba.testable.core.annotation;
 
-import javax.lang.model.type.NullType;
+import com.alibaba.testable.core.model.NullType;
 import java.lang.annotation.*;
 
 /**
