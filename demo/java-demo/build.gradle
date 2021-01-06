@@ -16,6 +16,10 @@ dependencies {
     testAnnotationProcessor('com.alibaba.testable:testable-processor:0.4.7')
 }
 
+tasks.withType(JavaCompile) {
+    options.encoding = "UTF-8"
+}
+
 test {
     jvmArgs "-javaagent:${classpath.find { it.name.contains("testable-agent") }.absolutePath}"
     useJUnitPlatform()
