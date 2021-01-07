@@ -103,8 +103,12 @@ public class EnablePrivateAccessTranslator extends BaseTranslator {
         }
     }
 
+    /**
+     * var = d.privateMethod(args) → var = PrivateAccessor.invoke(d, "privateMethod", args)
+     */
     @Override
     public void visitVarDef(JCVariableDecl jcVariableDecl) {
+        jcVariableDecl.init = checkAndExchange(jcVariableDecl.init);
         super.visitVarDef(jcVariableDecl);
         if (jcVariableDecl.vartype.getClass().equals(JCIdent.class) &&
             ((JCIdent)jcVariableDecl.vartype).name.equals(sourceClassName)) {
