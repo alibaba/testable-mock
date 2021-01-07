@@ -110,7 +110,7 @@ public class EnablePrivateAccessTranslator extends BaseTranslator {
     public void visitVarDef(JCVariableDecl jcVariableDecl) {
         jcVariableDecl.init = checkAndExchange(jcVariableDecl.init);
         super.visitVarDef(jcVariableDecl);
-        if (jcVariableDecl.vartype.getClass().equals(JCIdent.class) &&
+        if (jcVariableDecl.vartype instanceof JCIdent &&
             ((JCIdent)jcVariableDecl.vartype).name.equals(sourceClassName)) {
             sourceClassIns.add(jcVariableDecl.name);
         }
@@ -123,7 +123,7 @@ public class EnablePrivateAccessTranslator extends BaseTranslator {
     @Override
     public void visitExec(JCExpressionStatement jcExpressionStatement) {
         // visitExec could be an assign statement to a private field
-        if (jcExpressionStatement.expr.getClass().equals(JCAssign.class)) {
+        if (jcExpressionStatement.expr instanceof JCAssign) {
             MemberType memberType = checkSetterType((JCAssign)jcExpressionStatement.expr);
             if (memberType.equals(MemberType.PRIVATE_OR_FINAL)) {
                 jcExpressionStatement.expr = privateAccessStatementGenerator.fetchSetterStatement(
@@ -168,7 +168,7 @@ public class EnablePrivateAccessTranslator extends BaseTranslator {
     @Override
     protected JCExpression checkAndExchange(JCExpression expr) {
         // check is accessing a private field of source class
-        if (expr.getClass().equals(JCFieldAccess.class)) {
+        if (expr instanceof JCFieldAccess) {
             MemberType memberType = checkGetterType((JCFieldAccess)expr);
             if (memberType.equals(MemberType.PRIVATE_OR_FINAL)) {
                 expr = privateAccessStatementGenerator.fetchGetterStatement((JCFieldAccess)expr);
@@ -177,13 +177,21 @@ public class EnablePrivateAccessTranslator extends BaseTranslator {
             }
         }
         // check is invoking a private method of source class
-        if (expr.getClass().equals(JCMethodInvocation.class)) {
-            MemberType memberType = checkInvokeType((JCMethodInvocation)expr);
+        if (expr instanceof JCMethodInvocation) {
+            JCMethodInvocation invocation = (JCMethodInvocation)expr;
+            // recursively check it parameters
+            invocation.args = checkAndExchange(invocation.args);
+            MemberType memberType = checkInvokeType(invocation);
             if (memberType.equals(MemberType.PRIVATE_OR_FINAL)) {
-                expr = privateAccessStatementGenerator.fetchInvokeStatement((JCMethodInvocation)expr);
+                expr = privateAccessStatementGenerator.fetchInvokeStatement(invocation);
             } else if (memberType.equals(MemberType.STATIC_PRIVATE)) {
-                expr = privateAccessStatementGenerator.fetchStaticInvokeStatement((JCMethodInvocation)expr);
+                expr = privateAccessStatementGenerator.fetchStaticInvokeStatement(invocation);
             }
+        }
+        // check the casted expression
+        if (expr instanceof JCTypeCast) {
+            JCTypeCast typeCast = (JCTypeCast)expr;
+            typeCast.expr = checkAndExchange(typeCast.expr);
         }
         return expr;
     }
@@ -194,16 +202,14 @@ public class EnablePrivateAccessTranslator extends BaseTranslator {
     }
 
     private MemberType checkGetterType(JCFieldAccess access) {
-        if (access.selected.getClass().equals(JCIdent.class) &&
-            privateOrFinalFields.contains(access.name.toString())) {
+        if (access.selected instanceof JCIdent && privateOrFinalFields.contains(access.name.toString())) {
             return checkSourceClassOrIns(((JCIdent)access.selected).name);
         }
         return MemberType.NONE_PRIVATE;
     }
 
     private MemberType checkSetterType(JCAssign assign) {
-        if (assign.lhs.getClass().equals(JCFieldAccess.class) &&
-            ((JCFieldAccess)(assign).lhs).selected.getClass().equals(JCIdent.class) &&
+        if (assign.lhs instanceof JCFieldAccess && ((JCFieldAccess)(assign).lhs).selected instanceof JCIdent &&
             privateOrFinalFields.contains(((JCFieldAccess)(assign).lhs).name.toString())) {
             return checkSourceClassOrIns(((JCIdent)((JCFieldAccess)(assign).lhs).selected).name);
         }
@@ -211,8 +217,7 @@ public class EnablePrivateAccessTranslator extends BaseTranslator {
     }
 
     private MemberType checkInvokeType(JCMethodInvocation expr) {
-        if (expr.meth.getClass().equals(JCFieldAccess.class) &&
-            ((JCFieldAccess)(expr).meth).selected.getClass().equals(JCIdent.class) &&
+        if (expr.meth instanceof JCFieldAccess && ((JCFieldAccess)(expr).meth).selected instanceof JCIdent &&
             privateMethods.contains(((JCFieldAccess)(expr).meth).name.toString())) {
             return checkSourceClassOrIns(((JCIdent)((JCFieldAccess)(expr).meth).selected).name);
         }
