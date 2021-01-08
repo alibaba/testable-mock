@@ -30,10 +30,10 @@ class DemoPrivateAccessTest {
     @Test
     void should_able_to_access_private_field() {
         demoPrivateAccess.count = 2;
-        assertEquals(new Integer(2), demoPrivateAccess.count);
+        assertEquals(Integer.valueOf(2), demoPrivateAccess.count);
 
         PrivateAccessor.set(demoPrivateAccess, "count", 3);
-        assertEquals(new Integer(3), PrivateAccessor.get(demoPrivateAccess, "count"));
+        assertEquals(Integer.valueOf(3), PrivateAccessor.get(demoPrivateAccess, "count"));
     }
 
     @Test
@@ -47,16 +47,16 @@ class DemoPrivateAccessTest {
     @Test
     void should_able_to_access_private_static_field() {
         DemoPrivateAccess.staticCount = 2;
-        assertEquals(new Integer(2), DemoPrivateAccess.staticCount);
+        assertEquals(Integer.valueOf(2), DemoPrivateAccess.staticCount);
 
         PrivateAccessor.setStatic(DemoPrivateAccess.class, "staticCount", 3);
-        assertEquals(new Integer(3), PrivateAccessor.getStatic(DemoPrivateAccess.class, "staticCount"));
+        assertEquals(Integer.valueOf(3), PrivateAccessor.getStatic(DemoPrivateAccess.class, "staticCount"));
     }
 
     @Test
     void should_able_to_update_final_field() {
         demoPrivateAccess.pi = 4.13;
-        assertEquals(4.13, demoPrivateAccess.pi);
+        assertEquals(Double.valueOf(4.13), demoPrivateAccess.pi);
     }
 
 }
