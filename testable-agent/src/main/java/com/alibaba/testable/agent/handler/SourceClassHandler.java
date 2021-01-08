@@ -3,6 +3,7 @@ package com.alibaba.testable.agent.handler;
 import com.alibaba.testable.agent.constant.ConstPool;
 import com.alibaba.testable.agent.model.MethodInfo;
 import com.alibaba.testable.agent.model.ModifiedInsnNodes;
+import com.alibaba.testable.agent.tool.ImmutablePair;
 import com.alibaba.testable.agent.util.BytecodeUtil;
 import com.alibaba.testable.agent.util.ClassUtil;
 import com.alibaba.testable.core.util.LogUtil;
@@ -237,14 +238,29 @@ public class SourceClassHandler extends BaseClassHandler {
                 mn.instructions.remove(instructions[end - 1]);
             }
         } else if (!shouldAppendTypeParameter) {
-            // remove extra target ops code
-            mn.instructions.remove(instructions[start]);
+            // remove extra ops code of the mocked instance, which was used as first parameter of mock method
+            ImmutablePair<Integer, Integer> range = findRangeOfInvokerInstance(instructions, start, end);
+            for (int i = range.left; i <= range.right; i++) {
+                mn.instructions.remove(instructions[i]);
+            }
         }
         // method with @MockMethod will be modified as public static access, so INVOKESTATIC is used
         mn.instructions.insertBefore(instructions[end], new MethodInsnNode(INVOKESTATIC, testClassName,
             mockMethod.getMockName(), mockMethod.getMockDesc(), false));
         mn.instructions.remove(instructions[end]);
         return new ModifiedInsnNodes(mn.instructions.toArray(), 1);
+    }
+
+    private ImmutablePair<Integer, Integer> findRangeOfInvokerInstance(AbstractInsnNode[] nodes, int start, int end) {
+        int accumulatedLevelChange = 0;
+        int edgeIndex = start;
+        for (int i = start; i < end; i++) {
+            accumulatedLevelChange -= getStackLevelChange(nodes[i]);
+            if (accumulatedLevelChange == 1) {
+                edgeIndex = i;
+            }
+        }
+        return ImmutablePair.of(start, edgeIndex);
     }
 
     private boolean isCompanionMethod(String ownerClass, int opcode) {
