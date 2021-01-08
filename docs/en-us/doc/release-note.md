@@ -1,5 +1,10 @@
 # Release Note
 
+## 0.4.8
+- Fix an issue of private method invocation failed in assignment statements
+- Support using mock for testing with `SpringRunner`
+- Support `targetClass` parameter in `@MockMethod` annotation
+
 ## 0.4.7
 - Fix incorrect stack size caused by `MOCK_CONTEXT` variable initialization
 - Fix incorrect gradle build path of under Windows operating system

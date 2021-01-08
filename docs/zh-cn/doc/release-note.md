@@ -1,12 +1,17 @@
 # Release Note
 
+## 0.4.8
+- 修复赋值语句中的私有方法调用无法访问的BUG (issue-33)
+- 支持在包含`SpringRunner`的测试中使用Mock (issue-30)
+- `@MockMethod`注解支持`targetClass`参数 (issue-24)
+
 ## 0.4.7
 - 修复由于`MOCK_CONTEXT`引入的堆栈大小错误
-- 修复Windows下的`Gradle`构建路径错误
+- 修复Windows下的`Gradle`构建路径错误 (issue-25)
 
 ## 0.4.6
 - 修复一处`IINC`字节码处理异常
-- 支持使用`TestableTool.MOCK_CONTEXT`变量为Mock方法注入额外上下文参数
+- 支持使用`TestableTool.MOCK_CONTEXT`变量为Mock方法注入额外上下文参数 (issue-17)
 - 不再推荐使用`TestableTool.TEST_CASE`变量来区分测试用例
 
 ## 0.4.5
