@@ -8,11 +8,10 @@
 > - Mock构造方法，拷贝原方法定义到测试类，返回值换成构造的类型，方法名随意，加`@MockContructor`注解
 
 > **Mock约定**：
-> - 测试类与被测类的包路径应相同，且名称为`被测类名+Test`。通常采用`Maven`或`Gradle`构建的Java项目均符合这种惯例。此约定在未来的`TestableMock`版本中可能会被放宽或去除（请关注[Issue-12](https://github.com/alibaba/testable-mock/issues/12)）。
-> - 请勿在Mock方法的定义中访问任何非静态成员。此约定在计划在`0.5`版本中去除，请留意相关更新。
+> - 测试类与被测类的包路径应相同，且名称为`被测类名+Test`。通常采用`Maven`或`Gradle`构建的Java项目均符合这种惯例。此约定在未来的`TestableMock`版本中会放宽（请关注[Issue-12](https://github.com/alibaba/testable-mock/issues/12)）。
 
 > **特别说明**：
-> - 当前Mock方法（即包含`@MockMethod`或`@MockContructor`注解的方法）会在运行期被自动修改为`static`方法，当Mock方法内容较复杂（包含Lambda语句、构造块、匿名类等）时，编译器会在构建期生成额外的非静态临时方法，导致"Bad type in operand stack"错误。如果有遇到此类错误，请将Mock方法显式加上`static`修饰即可解决。这个问题会在`0.5`版本中彻底解决。
+> - 当前Mock方法（即包含`@MockMethod`或`@MockContructor`注解的方法）会在运行期被自动修改为`static`方法，请勿在Mock方法的定义中访问任何非静态成员。当Mock方法内容较复杂（包含Lambda语句、构造块、匿名类等）时，编译器会在构建期生成额外的非静态临时方法，导致"Bad type in operand stack"错误。如果有遇到此类错误，请将Mock方法显式加上`static`修饰即可解决。这个问题会在`0.5`版本中彻底解决。
 
 具体的Mock方法定义约定如下：
 
