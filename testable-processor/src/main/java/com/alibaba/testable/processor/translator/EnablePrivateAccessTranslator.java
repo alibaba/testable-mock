@@ -48,6 +48,7 @@ public class EnablePrivateAccessTranslator extends BaseTranslator {
     private final ListBuffer<String> privateMethods = new ListBuffer<String>();
 
     private final PrivateAccessStatementGenerator privateAccessStatementGenerator;
+    private final PrivateAccessChecker privateAccessChecker;
 
     public EnablePrivateAccessTranslator(Symbol.ClassSymbol clazz, TestableContext cx) {
         String pkgName = ((Symbol.PackageSymbol)clazz.owner).fullname.toString();
@@ -56,51 +57,18 @@ public class EnablePrivateAccessTranslator extends BaseTranslator {
         this.privateAccessStatementGenerator = new PrivateAccessStatementGenerator(cx);
         this.sourceClassName = cx.names.fromString(sourceClass);
         try {
-            Class<?> cls = null;
             String sourceClassFullName = pkgName + "." + sourceClass;
-            try {
-                // maven build goes here
-                cls = Class.forName(sourceClassFullName);
-            } catch (ClassNotFoundException e) {
-                if (System.getProperty(IDEA_PATHS_SELECTOR) != null) {
-                    // fit for intellij 2020.3+
-                    String sourceFileWrapperString = clazz.sourcefile.toString();
-                    String sourceFilePath = sourceFileWrapperString.substring(
-                        sourceFileWrapperString.lastIndexOf("[") + 1, sourceFileWrapperString.indexOf("]"));
-                    int indexOfSrc = sourceFilePath.lastIndexOf(File.separator + "src" + File.separator);
-                    String basePath = sourceFilePath.substring(0, indexOfSrc);
-                    String targetFolderPath = PathUtil.fitPathString(basePath + MAVEN_CLASS_FOLDER);
-                    try {
-                        cls = loadClass(targetFolderPath, sourceClassFullName);
-                    } catch (ClassNotFoundException e2) {
-                        targetFolderPath = PathUtil.fitPathString(basePath + GRADLE_CLASS_FOLDER);
-                        cls = loadClass(targetFolderPath, sourceClassFullName);
-                    }
-                } else {
-                    // fit for gradle build
-                    String path = PathUtil.fitPathString("file:" + System.getProperty(USER_DIR) + GRADLE_CLASS_FOLDER);
-                    cls = loadClass(path, sourceClassFullName);
-                }
-            }
+            Class<?> cls = getSourceClass(clazz, sourceClassFullName);
             if (cls == null) {
-                System.err.println("Failed to load source class: " + sourceClassFullName);
-                return;
-            }
-            Field[] fields = cls.getDeclaredFields();
-            for (Field f : fields) {
-                if (Modifier.isFinal(f.getModifiers()) || Modifier.isPrivate(f.getModifiers())) {
-                    privateOrFinalFields.add(f.getName());
-                }
-            }
-            Method[] methods = cls.getDeclaredMethods();
-            for (Method m : methods) {
-                if (Modifier.isPrivate(m.getModifiers())) {
-                    privateMethods.add(m.getName());
-                }
+                cx.logger.error("Failed to load source class: " + sourceClassFullName);
+            } else {
+                findAllPrivateMembers(cls);
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
+        this.privateAccessChecker = new PrivateAccessChecker(sourceClassName.toString(),
+            privateOrFinalFields.toList(), privateMethods.toList());
     }
 
     /**
@@ -179,6 +147,7 @@ public class EnablePrivateAccessTranslator extends BaseTranslator {
         // check is invoking a private method of source class
         if (expr instanceof JCMethodInvocation) {
             JCMethodInvocation invocation = (JCMethodInvocation)expr;
+            privateAccessChecker.validate(invocation);
             MemberType memberType = checkInvokeType(invocation);
             if (memberType.equals(MemberType.PRIVATE_OR_FINAL)) {
                 expr = privateAccessStatementGenerator.fetchInvokeStatement(invocation);
@@ -194,9 +163,54 @@ public class EnablePrivateAccessTranslator extends BaseTranslator {
         return expr;
     }
 
+    private Class<?> getSourceClass(Symbol.ClassSymbol clazz, String sourceClassFullName)
+        throws MalformedURLException, ClassNotFoundException {
+        Class<?> cls;
+        try {
+            // maven build goes here
+            cls = Class.forName(sourceClassFullName);
+        } catch (ClassNotFoundException e) {
+            if (System.getProperty(IDEA_PATHS_SELECTOR) != null) {
+                // fit for intellij 2020.3+
+                String sourceFileWrapperString = clazz.sourcefile.toString();
+                String sourceFilePath = sourceFileWrapperString.substring(
+                    sourceFileWrapperString.lastIndexOf("[") + 1, sourceFileWrapperString.indexOf("]"));
+                int indexOfSrc = sourceFilePath.lastIndexOf(File.separator + "src" + File.separator);
+                String basePath = sourceFilePath.substring(0, indexOfSrc);
+                String targetFolderPath = PathUtil.fitPathString(basePath + MAVEN_CLASS_FOLDER);
+                try {
+                    cls = loadClass(targetFolderPath, sourceClassFullName);
+                } catch (ClassNotFoundException e2) {
+                    targetFolderPath = PathUtil.fitPathString(basePath + GRADLE_CLASS_FOLDER);
+                    cls = loadClass(targetFolderPath, sourceClassFullName);
+                }
+            } else {
+                // fit for gradle build
+                String path = PathUtil.fitPathString("file:" + System.getProperty(USER_DIR) + GRADLE_CLASS_FOLDER);
+                cls = loadClass(path, sourceClassFullName);
+            }
+        }
+        return cls;
+    }
+
     private Class<?> loadClass(String targetFolderPath, String sourceClassFullName)
         throws ClassNotFoundException, MalformedURLException {
         return new URLClassLoader(new URL[] {new URL(targetFolderPath)}).loadClass(sourceClassFullName);
+    }
+
+    private void findAllPrivateMembers(Class<?> cls) {
+        Field[] fields = cls.getDeclaredFields();
+        for (Field f : fields) {
+            if (Modifier.isFinal(f.getModifiers()) || Modifier.isPrivate(f.getModifiers())) {
+                privateOrFinalFields.add(f.getName());
+            }
+        }
+        Method[] methods = cls.getDeclaredMethods();
+        for (Method m : methods) {
+            if (Modifier.isPrivate(m.getModifiers())) {
+                privateMethods.add(m.getName());
+            }
+        }
     }
 
     private MemberType checkGetterType(JCFieldAccess access) {

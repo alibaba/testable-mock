@@ -79,8 +79,10 @@ public class EnablePrivateAccessProcessor extends AbstractProcessor {
     }
 
     private void processClassElement(Symbol.ClassSymbol clazz) {
-        JCTree tree = cx.trees.getTree(clazz);
-        tree.accept(new EnablePrivateAccessTranslator(clazz, cx));
+        if (cx.trees != null) {
+            JCTree tree = cx.trees.getTree(clazz);
+            tree.accept(new EnablePrivateAccessTranslator(clazz, cx));
+        }
     }
 
 }
