@@ -1,13 +1,17 @@
 # Release Note
 
+## 0.4.9
+- fix an issue cause by improperly bytecode processing while using `targetClass` parameter
+- auto validate access target of `PrivateAccessor`, improve resistance to code refactoring
+
 ## 0.4.8
-- Fix an issue of private method invocation failed in assignment statements
-- Support using mock for testing with `SpringRunner`
-- Support `targetClass` parameter in `@MockMethod` annotation
+- fix an issue of private method invocation failed in assignment statements
+- support using mock for testing with `SpringRunner`
+- support `targetClass` parameter in `@MockMethod` annotation
 
 ## 0.4.7
-- Fix incorrect stack size caused by `MOCK_CONTEXT` variable initialization
-- Fix incorrect gradle build path of under Windows operating system
+- fix incorrect stack size caused by `MOCK_CONTEXT` variable initialization
+- fix incorrect gradle build path of under Windows operating system
 
 ## 0.4.6
 - fix an issue of `IINC` bytecode processing

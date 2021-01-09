@@ -1,5 +1,9 @@
 # Release Note
 
+## 0.4.9
+- 修复发起调用的对象不是局部或成员变量时Mock出错的BUG (issue-40)
+- 增加`PrivateAccessor`访问目标有效性检查，提高抗代码重构能力 (issue-21)
+
 ## 0.4.8
 - 修复赋值语句中的私有方法调用无法访问的BUG (issue-33)
 - 支持在包含`SpringRunner`的测试中使用Mock (issue-30)
