@@ -1,5 +1,6 @@
 package com.alibaba.testable.core.accessor;
 
+import com.alibaba.testable.core.exception.MemberNotExistException;
 import com.alibaba.testable.core.util.TypeUtil;
 
 import java.lang.reflect.Field;
@@ -12,14 +13,67 @@ public class PrivateAccessor {
 
     private static final String KOTLIN_COMPANION_FIELD = "Companion";
 
+    public static class NoVerify {
+        public static <T> T get(Object ref, String field) {
+            try {
+                return PrivateAccessor.get(ref, field);
+            } catch (MemberNotExistException e) {
+                System.err.println(e.toString());
+                return null;
+            }
+        }
+
+        public static <T> void set(Object ref, String field, T value) {
+            try {
+                PrivateAccessor.set(ref, field, value);
+            } catch (MemberNotExistException e) {
+                System.err.println(e.toString());
+            }
+        }
+
+        public static <T> T invoke(Object ref, String method, Object... args) {
+            try {
+                return PrivateAccessor.invoke(ref, method, args);
+            } catch (MemberNotExistException e) {
+                System.err.println(e.toString());
+                return null;
+            }
+        }
+
+        public static <T> T getStatic(Class<?> clazz, String field) {
+            try {
+                return PrivateAccessor.getStatic(clazz, field);
+            } catch (MemberNotExistException e) {
+                System.err.println(e.toString());
+                return null;
+            }
+        }
+
+        public static <T> void setStatic(Class<?> clazz, String field, T value) {
+            try {
+                PrivateAccessor.setStatic(clazz, field, value);
+            } catch (MemberNotExistException e) {
+                System.err.println(e.toString());
+            }
+        }
+
+        public static <T> T invokeStatic(Class<?> clazz, String method, Object... args) {
+            try {
+                return PrivateAccessor.invokeStatic(clazz, method, args);
+            } catch (MemberNotExistException e) {
+                System.err.println(e.toString());
+                return null;
+            }
+        }
+    }
+
     public static <T> T get(Object ref, String field) {
         try {
             Field declaredField = ref.getClass().getDeclaredField(field);
             declaredField.setAccessible(true);
             return (T)declaredField.get(ref);
         } catch (Exception e) {
-            System.err.println("Failed to get private field \"" + field + "\": " + e.toString());
-            return null;
+            throw new MemberNotExistException("Failed to get private field \"" + field + "\"", e);
         }
     }
 
@@ -29,23 +83,23 @@ public class PrivateAccessor {
             declaredField.setAccessible(true);
             declaredField.set(ref, value);
         } catch (Exception e) {
-            System.err.println("Failed to set private field \"" + field + "\": " + e.toString());
+            throw new MemberNotExistException("Failed to set private field \"" + field + "\"", e);
         }
     }
 
     public static <T> T invoke(Object ref, String method, Object... args) {
         try {
             Class<?>[] cls = TypeUtil.getClassesFromObjects(args);
-            Method declaredMethod = TypeUtil.getMethodByNameAndParameterTypes(ref.getClass().getDeclaredMethods(), method, cls);
+            Method declaredMethod = TypeUtil.getMethodByNameAndParameterTypes(ref.getClass().getDeclaredMethods(),
+                method, cls);
             if (declaredMethod != null) {
                 declaredMethod.setAccessible(true);
                 return (T)declaredMethod.invoke(ref, args);
             }
         } catch (Exception e) {
-            System.err.println("Failed to invoke private method \"" + method + "\": " + e.toString());
-            return null;
+            throw new MemberNotExistException("Failed to invoke private method \"" + method + "\"", e);
         }
-        return null;
+        throw new MemberNotExistException("Private method \"" + method + "\" not found");
     }
 
     public static <T> T getStatic(Class<?> clazz, String field) {
@@ -54,8 +108,7 @@ public class PrivateAccessor {
             declaredField.setAccessible(true);
             return (T)declaredField.get(null);
         } catch (Exception e) {
-            System.err.println("Failed to get private static field \"" + field + "\": " + e.toString());
-            return null;
+            throw new MemberNotExistException("Failed to get private static field \"" + field + "\"", e);
         }
     }
 
@@ -65,7 +118,7 @@ public class PrivateAccessor {
             declaredField.setAccessible(true);
             declaredField.set(null, value);
         } catch (Exception e) {
-            System.err.println("Failed to set private static field \"" + field + "\": " + e.toString());
+            throw new MemberNotExistException("Failed to set private static field \"" + field + "\"", e);
         }
     }
 
@@ -87,9 +140,8 @@ public class PrivateAccessor {
                 return (T)declaredMethod.invoke(companionInstance, args);
             }
         } catch (Exception e) {
-            System.err.println("Failed to invoke private static method \"" + method + "\": " + e.toString());
-            return null;
+            throw new MemberNotExistException("Failed to invoke private static method \"" + method + "\"", e);
         }
-        return null;
+        throw new MemberNotExistException("Private static method \"" + method + "\" not found");
     }
 }
