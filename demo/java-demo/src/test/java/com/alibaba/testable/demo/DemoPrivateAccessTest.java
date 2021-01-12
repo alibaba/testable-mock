@@ -2,24 +2,24 @@ package com.alibaba.testable.demo;
 
 import com.alibaba.testable.core.accessor.PrivateAccessor;
 import com.alibaba.testable.processor.annotation.EnablePrivateAccess;
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.Assert.assertEquals;
 
 /**
  * 演示私有成员访问功能
  * Demonstrate private member access functionality
  */
 @EnablePrivateAccess
-class DemoPrivateAccessTest {
+public class DemoPrivateAccessTest {
 
     private DemoPrivateAccess demoPrivateAccess = new DemoPrivateAccess();
 
     @Test
-    void should_able_to_access_private_method() {
+    public void should_able_to_access_private_method() {
         List<String> list = new ArrayList<String>() {{ add("a"); add("b"); add("c"); }};
         assertEquals("member", demoPrivateAccess.privateFunc());
         assertEquals("member", PrivateAccessor.invoke(demoPrivateAccess, "privateFunc"));
@@ -28,7 +28,7 @@ class DemoPrivateAccessTest {
     }
 
     @Test
-    void should_able_to_access_private_field() {
+    public void should_able_to_access_private_field() {
         demoPrivateAccess.count = 2;
         assertEquals(Integer.valueOf(2), demoPrivateAccess.count);
 
@@ -37,7 +37,7 @@ class DemoPrivateAccessTest {
     }
 
     @Test
-    void should_able_to_access_private_static_method() {
+    public void should_able_to_access_private_static_method() {
         assertEquals("static", DemoPrivateAccess.privateStaticFunc());
         assertEquals("static", PrivateAccessor.invokeStatic(DemoPrivateAccess.class, "privateStaticFunc"));
         assertEquals("hello + 1", DemoPrivateAccess.privateStaticFuncWithArgs("hello", 1));
@@ -45,7 +45,7 @@ class DemoPrivateAccessTest {
     }
 
     @Test
-    void should_able_to_access_private_static_field() {
+    public void should_able_to_access_private_static_field() {
         DemoPrivateAccess.staticCount = 2;
         assertEquals(Integer.valueOf(2), DemoPrivateAccess.staticCount);
 
@@ -54,7 +54,7 @@ class DemoPrivateAccessTest {
     }
 
     @Test
-    void should_able_to_update_final_field() {
+    public void should_able_to_update_final_field() {
         demoPrivateAccess.pi = 4.13;
         assertEquals(Double.valueOf(4.13), demoPrivateAccess.pi);
     }

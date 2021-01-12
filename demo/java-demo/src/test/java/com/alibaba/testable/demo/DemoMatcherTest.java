@@ -3,17 +3,17 @@ package com.alibaba.testable.demo;
 import com.alibaba.testable.core.annotation.MockMethod;
 import com.alibaba.testable.core.error.VerifyFailedError;
 import com.alibaba.testable.demo.model.BlackBox;
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import static com.alibaba.testable.core.matcher.InvokeMatcher.*;
 import static com.alibaba.testable.core.matcher.InvokeVerifier.verify;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.Assert.fail;
 
 /**
  * 演示Mock方法调用校验器
  * Demonstrate mock method invocation verifier
  */
-class DemoMatcherTest {
+public class DemoMatcherTest {
 
     private DemoMatcher demoMatcher = new DemoMatcher();
 
@@ -28,7 +28,7 @@ class DemoMatcherTest {
 
 
     @Test
-    void should_match_no_argument() {
+    public void should_match_no_argument() {
         demoMatcher.callMethodWithoutArgument();
         verify("methodWithoutArgument").withTimes(1);
         demoMatcher.callMethodWithoutArgument();
@@ -36,7 +36,7 @@ class DemoMatcherTest {
     }
 
     @Test
-    void should_match_number_arguments() {
+    public void should_match_number_arguments() {
         demoMatcher.callMethodWithNumberArguments();
         verify("methodWithArguments").without(anyString(), 2);
         verify("methodWithArguments").withInOrder(anyInt(), 2);
@@ -49,7 +49,7 @@ class DemoMatcherTest {
     }
 
     @Test
-    void should_match_string_arguments() {
+    public void should_match_string_arguments() {
         demoMatcher.callMethodWithStringArgument();
         verify("methodWithArguments").with(startsWith("he"), endsWith("ld"));
         verify("methodWithArguments").with(contains("stab"), matches("m.[cd]k"));
@@ -57,7 +57,7 @@ class DemoMatcherTest {
     }
 
     @Test
-    void should_match_object_arguments() {
+    public void should_match_object_arguments() {
         demoMatcher.callMethodWithObjectArgument();
         verify("methodWithArguments").withInOrder(any(BlackBox.class), any(BlackBox.class));
         verify("methodWithArguments").withInOrder(nullable(BlackBox.class), nullable(BlackBox.class));
@@ -65,7 +65,7 @@ class DemoMatcherTest {
     }
 
     @Test
-    void should_match_with_times() {
+    public void should_match_with_times() {
         demoMatcher.callMethodWithNumberArguments();
         verify("methodWithArguments").with(anyNumber(), any()).times(3);
 

@@ -2,17 +2,17 @@ package com.alibaba.testable.demo;
 
 import com.alibaba.testable.core.annotation.MockConstructor;
 import com.alibaba.testable.core.annotation.MockMethod;
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import java.util.*;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.Assert.assertEquals;
 
 /**
  * 演示模板方法的Mock场景
  * Demonstrate scenario of mocking template method
  */
-class DemoTemplateTest {
+public class DemoTemplateTest {
 
     private DemoTemplate demoTemplate = new DemoTemplate();
 
@@ -70,19 +70,19 @@ class DemoTemplateTest {
 
 
     @Test
-    void should_able_to_mock_single_template_method() {
+    public void should_able_to_mock_single_template_method() {
         String res = demoTemplate.singleTemplateMethod();
         assertEquals("demo_mock_list", res);
     }
 
     @Test
-    void should_able_to_mock_double_template_method() {
+    public void should_able_to_mock_double_template_method() {
         String res = demoTemplate.doubleTemplateMethod();
         assertEquals("testable_mock_map", res);
     }
 
     @Test
-    void should_able_to_mock_new_template_method() {
+    public void should_able_to_mock_new_template_method() {
         Set<?> res = demoTemplate.newTemplateMethod();
         assertEquals(2, res.size());
         Iterator<?> iterator = res.stream().iterator();
