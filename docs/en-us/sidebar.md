@@ -1,8 +1,9 @@
 - Quick Start
   - [Use TestableMock](en-us/doc/setup.md)
-  - [Private Accessor](en-us/doc/private-accessor.md)
   - [Fast Mocking](en-us/doc/use-mock.md)
+  - [Private Accessor](en-us/doc/private-accessor.md)
   - [Test Void Method](en-us/doc/test-void-method.md)
+  - [Parameter constructor](en-us/doc/parameter-constructor.md)
 
 - Usage Guide
   - [Verify Mock Invocation](en-us/doc/invoke-matcher.md)
