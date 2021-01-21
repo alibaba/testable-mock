@@ -1,5 +1,9 @@
 # Release Note
 
+## 0.4.10
+- fix an issue of using mock in lambda expression
+- fix the NullPointerException when invoke private method with parameter value `null`
+
 ## 0.4.9
 - fix an issue cause by improperly bytecode processing while using `targetClass` parameter
 - auto validate access target of `PrivateAccessor`, improve resistance to code refactoring

@@ -175,10 +175,11 @@ public class SourceClassHandler extends BaseClassHandler {
             case Opcodes.INVOKESPECIAL:
             case Opcodes.INVOKEVIRTUAL:
             case Opcodes.INVOKEINTERFACE:
-                return stackEffectOfInvocation(instruction) + 1;
+                return stackEffectOfInvocation(((MethodInsnNode)instruction).desc) + 1;
             case Opcodes.INVOKESTATIC:
+                return stackEffectOfInvocation(((MethodInsnNode)instruction).desc);
             case Opcodes.INVOKEDYNAMIC:
-                return stackEffectOfInvocation(instruction);
+                return stackEffectOfInvocation(((InvokeDynamicInsnNode)instruction).desc);
             case -1:
                 // either LabelNode or LineNumberNode
                 return 0;
@@ -187,8 +188,7 @@ public class SourceClassHandler extends BaseClassHandler {
         }
     }
 
-    private int stackEffectOfInvocation(AbstractInsnNode instruction) {
-        String desc = ((MethodInsnNode)instruction).desc;
+    private int stackEffectOfInvocation(String desc) {
         return ClassUtil.getParameterTypes(desc).size() - (ClassUtil.getReturnType(desc).isEmpty() ? 0 : 1);
     }
 

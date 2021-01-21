@@ -1,5 +1,9 @@
 # Release Note
 
+## 0.4.10
+- 修复在Lambda函数中使用Mock出错的BUG（issue-44）
+- 修复调用私有方法时参数值不能为null的问题（issue-27）
+
 ## 0.4.9
 - 修复发起调用的对象不是局部或成员变量时Mock出错的BUG (issue-40)
 - 增加`PrivateAccessor`访问目标有效性检查，提高抗代码重构能力 (issue-21)
