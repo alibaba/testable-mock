@@ -32,7 +32,7 @@ public class DemoPrivateAccess {
      * private static method with arguments
      */
     private static String privateStaticFuncWithArgs(String str, int i) {
-        return str + " + " + i;
+        return (str == null ? "null" : str) + " + " + i;
     }
 
     /**
