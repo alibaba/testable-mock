@@ -3,9 +3,10 @@ Use TestableMock
 
 `TestableMock` is an assist tool for Java unit testing based on source code and bytecode enhancement, including the following functions:
 
+- [Quickly mock arbitrary call](en-us/doc/use-mock.md): quickly replace any method invocation in the class under test with a mock method, solve the cumbersome use of traditional mock tools problem
 - [Access private members of the class under test](en-us/doc/private-accessor.md): enable unit tests directly invoke or access private members of the class under test, solve the problems of private member initialization and private method testing
-- [Quick mock arbitrary call](en-us/doc/use-mock.md): quickly replace any method invocation in the class under test with a mock method, solve the cumbersome use of traditional mock tools problem
 - [Auxiliary test void method](en-us/doc/test-void-method.md): use the mock validator to check the internal logic of method, solve the problem that unit testing is difficult to implement to the method with no return value
+- [Quickly construct complicated parameter object](en-us/doc/parameter-constructor.md)：generate arbitrarily nested object instances, simplify their internal member assignment methods, solve the problem of long initialization codes for method parameters
 
 ## Use in Maven project
 
@@ -67,7 +68,7 @@ dependencies {
 }
 ```
 
-Then add javaagent to `test` configuration：
+Then add `javaagent` to "test" configuration：
 
 ```groovy
 test {
@@ -76,3 +77,19 @@ test {
 ```
 
 See the [build.gradle](https://github.com/alibaba/testable-mock/blob/master/demo/java-demo/build.gradle) file of project `java-demo` and the [build.gradle.kts](https://github.com/alibaba/testable-mock/blob/master/demo/kotlin-demo/build.gradle.kts) file of project `kotlin-demo`.
+
+> For Android project tested with `Robolectric` framework, please use the same method to add `TestableMock` dependency as above, and add `javaagent` configuration as follows:
+>
+> ```groovy
+> android {
+>     testOptions {
+>         unitTests {
+>             all {
+>                 jvmArgs "-javaagent:${classpath.find { it.name.contains("testable-agent") }.absolutePath}"
+>             }
+>         }
+>     }
+> }
+> ```
+>
+> See [issue-43](https://github.com/alibaba/testable-mock/issues/43) for a complete example.

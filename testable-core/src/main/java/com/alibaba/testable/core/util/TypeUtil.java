@@ -15,7 +15,8 @@ public class TypeUtil {
     public static Class<?>[] getClassesFromObjects(Object[] parameterObjects) {
         Class<?>[] cs = new Class[parameterObjects.length];
         for (int i = 0; i < cs.length; i++) {
-            cs[i] = parameterObjects[i].getClass();
+            Object pObj = parameterObjects[i];
+            cs[i] = (pObj == null) ? null : pObj.getClass();
         }
         return cs;
     }
@@ -41,7 +42,7 @@ public class TypeUtil {
     /**
      * type equals
      * @param classesLeft class to be compared
-     * @param classesRight class to compare
+     * @param classesRight class to compare (item can be null)
      * @return whether all class equals
      */
     private static boolean typeEquals(Class<?>[] classesLeft, Class<?>[] classesRight) {
@@ -49,6 +50,9 @@ public class TypeUtil {
             return false;
         }
         for (int i = 0; i < classesLeft.length; i++) {
+            if (classesRight[i] == null) {
+                return !classesLeft[i].isPrimitive();
+            }
             if (!classesLeft[i].isAssignableFrom(classesRight[i]) && !fuzzyEqual(classesLeft[i], classesRight[i])) {
                 return false;
             }
