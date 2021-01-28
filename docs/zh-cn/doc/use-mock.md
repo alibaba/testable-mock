@@ -120,9 +120,9 @@ private BlackBox createBlackBox(String text) {
 ```java
 @Test
 public void testDemo() {
-    MOCK_CONTEXT.set("case", "data-ready");
+    MOCK_CONTEXT.put("case", "data-ready");
     assertEquals(true, demo());
-    MOCK_CONTEXT.set("case", "has-error");
+    MOCK_CONTEXT.put("case", "has-error");
     assertEquals(false, demo());
     MOCK_CONTEXT.clear();
 }
