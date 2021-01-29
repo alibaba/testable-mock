@@ -162,6 +162,6 @@ For details, please refer to the [Check Mock Call](en-us/doc/matcher.md) documen
 
 > **Mock convention in version 0.4.x**:
 > - The name of the test class must be `<NameOfClassUnderTest> + Test` (and in the same package path), which is usually the by-default naming convention of Java project managed by `Maven` or `Gradle`.
-> - Do NOT access any non-`static` members in mock methods. Currently, methods that is decorated by `@MockMethod` or `@MockContructor` annotations will be automatically modified to `static` methods during runtime.
+> - Do NOT access any non-`static` members in mock methods. Currently, methods that is decorated by `@MockMethod` or `@MockContructor` annotations will be automatically modified to `static` methods during runtime. (When mock method contains some statement like _lambda function_, _anonymous class_ or _initiation block_, java compiler will generate additional method during compilation, these mock methods also have to be declared as `static` to avoid non-static dynamical method invoked.)
 >
 > These constraints will be removed in `0.5` versions of `TestableMock`.
