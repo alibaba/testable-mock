@@ -171,18 +171,18 @@ public class EnablePrivateAccessTranslator extends BaseTranslator {
             cls = Class.forName(sourceClassFullName);
         } catch (ClassNotFoundException e) {
             if (System.getProperty(IDEA_PATHS_SELECTOR) != null) {
-                // fit for intellij 2020.3+
+                // fit for intellij build
                 String sourceFileWrapperString = clazz.sourcefile.toString();
                 String sourceFilePath = sourceFileWrapperString.substring(
                     sourceFileWrapperString.lastIndexOf("[") + 1, sourceFileWrapperString.indexOf("]"));
                 int indexOfSrc = sourceFilePath.lastIndexOf(File.separator + "src" + File.separator);
                 String basePath = sourceFilePath.substring(0, indexOfSrc);
-                String targetFolderPath = PathUtil.fitPathString(basePath + MAVEN_CLASS_FOLDER);
                 try {
+                    String targetFolderPath = PathUtil.fitPathString(basePath + MAVEN_CLASS_FOLDER);
                     cls = loadClass(targetFolderPath, sourceClassFullName);
                 } catch (ClassNotFoundException e2) {
-                    targetFolderPath = PathUtil.fitPathString(basePath + GRADLE_CLASS_FOLDER);
-                    cls = loadClass(targetFolderPath, sourceClassFullName);
+                    String buildFolderPath = PathUtil.fitPathString(basePath + GRADLE_CLASS_FOLDER);
+                    cls = loadClass(buildFolderPath, sourceClassFullName);
                 }
             } else {
                 // fit for gradle build

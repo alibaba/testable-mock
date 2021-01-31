@@ -6,7 +6,7 @@ public class PathUtil {
     private static final String PROPERTY_OS_NAME = "os.name";
     private static final String PATH_SPLIT_UNIX = "/";
     private static final String PATH_SPLIT_WIN = "\\\\";
-    private static final String PROTOCOL_FILE = "file:/";
+    private static final String PROTOCOL_FILE = "file:";
 
     /**
      * Fit path according to operation system type
