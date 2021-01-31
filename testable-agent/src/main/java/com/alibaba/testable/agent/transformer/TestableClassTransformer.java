@@ -10,7 +10,6 @@ import com.alibaba.testable.agent.util.ClassUtil;
 import com.alibaba.testable.agent.util.GlobalConfig;
 import com.alibaba.testable.agent.util.StringUtil;
 import com.alibaba.testable.core.model.MockDiagnose;
-import com.alibaba.testable.core.model.NullType;
 import com.alibaba.testable.core.util.LogUtil;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.Type;
@@ -18,6 +17,7 @@ import org.objectweb.asm.tree.AnnotationNode;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.MethodNode;
 
+import javax.lang.model.type.NullType;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
