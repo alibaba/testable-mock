@@ -10,7 +10,7 @@
 阅读[这里](https://mp.weixin.qq.com/s/KyU6Eu7mDkZU8FspfSqfMw)了解更多故事。
 
 > 特别说明
-> 1. 如遇到"Attempt to access none-static member in mock method"错误，参见[常见问题](https://alibaba.github.io/testable-mock/#/zh-cn/doc/frequently-asked-questions)第8条
+> 1. 如遇到"Attempt to access non-static member in mock method"错误，参见[常见问题](https://alibaba.github.io/testable-mock/#/zh-cn/doc/frequently-asked-questions)第8条
 > 2. 如果有遇到其他任何使用问题和建议，请直接在[Issue](https://github.com/alibaba/testable-mock/issues)中提出，也可通过[Pull Request](https://github.com/alibaba/testable-mock/pulls)提交您的代码，我们将在24小时内回复并处理
 
 -----

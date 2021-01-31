@@ -47,7 +47,7 @@ It can be used in combination with [Roboelectric](https://github.com/robolectric
 
 The `Dalvik` and `ART` virtual machines of the Android system use a bytecode system different from the standard JVM, which will affect the normal functionality of `TestableMock`. The `Roboelectric` framework can run Android unit tests on a standard JVM virtual machine, which is much faster than running unit tests through the Android virtual machine. Recently, most Android App unit tests are written with the `Roboelectric` framework.
 
-#### 8. Meet "Attempt to access none-static member in mock method" error during mocking？
+#### 8. Meet "Attempt to access non-static member in mock method" error during mocking？
 
 The current design of `TestableMock` does not allow access to the non-`static` members of the test class in the mock method (because the mock method itself will be dynamically modified to the `static` type during runtime). However, some Java statements include building blocks (like `new ArrayList<String>() {{ append("data"); }}`), lambda expression (like `list.stream().map(i -> i. get)`) and so on, will generate additional member method invocations during compilation, causing mock method execution report above error.
 

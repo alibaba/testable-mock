@@ -13,8 +13,8 @@ public enum MemberType {
     STATIC_PRIVATE,
 
     /**
-     * None private member
+     * Non-private member
      */
-    NONE_PRIVATE
+    NON_PRIVATE
 
 }

@@ -2,6 +2,7 @@ package com.alibaba.testable.processor.translator;
 
 import com.alibaba.testable.processor.constant.ConstPool;
 import com.alibaba.testable.processor.generator.PrivateAccessStatementGenerator;
+import com.alibaba.testable.processor.model.MemberRecord;
 import com.alibaba.testable.processor.model.MemberType;
 import com.alibaba.testable.processor.model.TestableContext;
 import com.alibaba.testable.processor.util.PathUtil;
@@ -17,6 +18,9 @@ import java.lang.reflect.Modifier;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Travel AST
@@ -39,13 +43,9 @@ public class EnablePrivateAccessTranslator extends BaseTranslator {
      */
     private final ListBuffer<Name> sourceClassIns = new ListBuffer<Name>();
     /**
-     * Record private and final fields
+     * Member information of source class
      */
-    private final ListBuffer<String> privateOrFinalFields = new ListBuffer<String>();
-    /**
-     * Record private methods
-     */
-    private final ListBuffer<String> privateMethods = new ListBuffer<String>();
+    private final MemberRecord memberRecord = new MemberRecord();
 
     private final PrivateAccessStatementGenerator privateAccessStatementGenerator;
     private final PrivateAccessChecker privateAccessChecker;
@@ -67,8 +67,7 @@ public class EnablePrivateAccessTranslator extends BaseTranslator {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        this.privateAccessChecker = new PrivateAccessChecker(sourceClassName.toString(),
-            privateOrFinalFields.toList(), privateMethods.toList());
+        this.privateAccessChecker = new PrivateAccessChecker(cx, sourceClassName.toString(), memberRecord);
     }
 
     /**
@@ -202,38 +201,62 @@ public class EnablePrivateAccessTranslator extends BaseTranslator {
         Field[] fields = cls.getDeclaredFields();
         for (Field f : fields) {
             if (Modifier.isFinal(f.getModifiers()) || Modifier.isPrivate(f.getModifiers())) {
-                privateOrFinalFields.add(f.getName());
+                memberRecord.privateOrFinalFields.add(f.getName());
+            } else {
+                memberRecord.nonPrivateNorFinalFields.add(f.getName());
             }
         }
         Method[] methods = cls.getDeclaredMethods();
-        for (Method m : methods) {
+        for (final Method m : methods) {
             if (Modifier.isPrivate(m.getModifiers())) {
-                privateMethods.add(m.getName());
+                checkAndAdd(memberRecord.privateMethods, m.getName(), getParameterLength(m));
+            } else {
+                checkAndAdd(memberRecord.nonPrivateMethods, m.getName(), getParameterLength(m));
             }
+        }
+    }
+
+    private void checkAndAdd(Map<String, List<Integer>> map, String key, final int value) {
+        if (map.containsKey(key)) {
+            map.get(key).add(value);
+        } else {
+            map.put(key, new ArrayList<Integer>() {{ add(value); }});
+        }
+    }
+
+    private int getParameterLength(Method m) {
+        int length = m.getParameterTypes().length;
+        if (length == 0) {
+            return 0;
+        }
+        if (m.getParameterTypes()[length - 1].getName().startsWith("[")) {
+            return -(length - 1);
+        } else {
+            return length;
         }
     }
 
     private MemberType checkGetterType(JCFieldAccess access) {
-        if (access.selected instanceof JCIdent && privateOrFinalFields.contains(access.name.toString())) {
+        if (access.selected instanceof JCIdent && memberRecord.privateOrFinalFields.contains(access.name.toString())) {
             return checkSourceClassOrIns(((JCIdent)access.selected).name);
         }
-        return MemberType.NONE_PRIVATE;
+        return MemberType.NON_PRIVATE;
     }
 
     private MemberType checkSetterType(JCAssign assign) {
         if (assign.lhs instanceof JCFieldAccess && ((JCFieldAccess)(assign).lhs).selected instanceof JCIdent &&
-            privateOrFinalFields.contains(((JCFieldAccess)(assign).lhs).name.toString())) {
+            memberRecord.privateOrFinalFields.contains(((JCFieldAccess)(assign).lhs).name.toString())) {
             return checkSourceClassOrIns(((JCIdent)((JCFieldAccess)(assign).lhs).selected).name);
         }
-        return MemberType.NONE_PRIVATE;
+        return MemberType.NON_PRIVATE;
     }
 
     private MemberType checkInvokeType(JCMethodInvocation expr) {
         if (expr.meth instanceof JCFieldAccess && ((JCFieldAccess)(expr).meth).selected instanceof JCIdent &&
-            privateMethods.contains(((JCFieldAccess)(expr).meth).name.toString())) {
+            memberRecord.privateMethods.containsKey(((JCFieldAccess)(expr).meth).name.toString())) {
             return checkSourceClassOrIns(((JCIdent)((JCFieldAccess)(expr).meth).selected).name);
         }
-        return MemberType.NONE_PRIVATE;
+        return MemberType.NON_PRIVATE;
     }
 
     private MemberType checkSourceClassOrIns(Name name) {
@@ -242,7 +265,7 @@ public class EnablePrivateAccessTranslator extends BaseTranslator {
         } else if (sourceClassIns.contains(name)) {
             return MemberType.PRIVATE_OR_FINAL;
         }
-        return MemberType.NONE_PRIVATE;
+        return MemberType.NON_PRIVATE;
     }
 
 }
