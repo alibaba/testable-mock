@@ -22,7 +22,8 @@ public class TestableLogger {
     }
 
     public void warn(String msg) {
-        messager.printMessage(Diagnostic.Kind.WARNING, msg);
+        // Message level WARNING won't show, use MANDATORY_WARNING instead
+        messager.printMessage(Diagnostic.Kind.MANDATORY_WARNING, msg);
     }
 
     public void error(String msg) {

@@ -146,13 +146,13 @@ public class EnablePrivateAccessTranslator extends BaseTranslator {
         // check is invoking a private method of source class
         if (expr instanceof JCMethodInvocation) {
             JCMethodInvocation invocation = (JCMethodInvocation)expr;
-            privateAccessChecker.validate(invocation);
             MemberType memberType = checkInvokeType(invocation);
             if (memberType.equals(MemberType.PRIVATE_OR_FINAL)) {
                 expr = privateAccessStatementGenerator.fetchInvokeStatement(invocation);
             } else if (memberType.equals(MemberType.STATIC_PRIVATE)) {
                 expr = privateAccessStatementGenerator.fetchStaticInvokeStatement(invocation);
             }
+            privateAccessChecker.validate((JCMethodInvocation)expr);
         }
         // check the casted expression
         if (expr instanceof JCTypeCast) {

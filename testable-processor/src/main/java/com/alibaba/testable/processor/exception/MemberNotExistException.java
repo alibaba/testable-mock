@@ -6,7 +6,16 @@ package com.alibaba.testable.processor.exception;
 public class MemberNotExistException extends RuntimeException {
 
     public MemberNotExistException(String type, String className, String target) {
-        super(type + " \"" + target + "\" not exist in class \"" + className + "\"");
+        super(String.format("%s \"%s\" not exist in class \"%s\"", type, target, className));
+    }
+
+    public MemberNotExistException(String type, String className, String target, int count) {
+        super(String.format("%s \"%s\" with %d %s not exist in class \"%s\"",
+            type, target, count, parameters(count), className));
+    }
+
+    private static String parameters(int count) {
+        return count > 1 ? "parameters" : "parameter";
     }
 
 }

@@ -17,6 +17,7 @@ import java.util.Map;
 public class PrivateAccessChecker {
 
     private static final String CLASS_NAME_PRIVATE_ACCESSOR = "PrivateAccessor";
+    private static final String CLASS_NAME_PRIVATE_ACCESSOR_FULL = "com.alibaba.testable.core.accessor.PrivateAccessor";
     private static final List<String> FIELD_ACCESS_METHOD = Arrays.asList(new String[]
         { "get", "set", "getStatic", "setStatic" }.clone());
     private static final List<String> FIELD_INVOKE_METHOD = Arrays.asList(new String[]
@@ -37,8 +38,7 @@ public class PrivateAccessChecker {
     public void validate(JCTree.JCMethodInvocation invocation) {
         if (invocation.meth instanceof JCTree.JCFieldAccess && invocation.args.length() >= 2) {
             JCTree.JCFieldAccess fieldAccess = (JCTree.JCFieldAccess)invocation.meth;
-            if (fieldAccess.selected instanceof JCTree.JCIdent && invocation.args.get(1) instanceof JCTree.JCLiteral &&
-                ((JCTree.JCIdent)fieldAccess.selected).name.toString().equals(CLASS_NAME_PRIVATE_ACCESSOR)) {
+            if (invocation.args.get(1) instanceof JCTree.JCLiteral && isPrivateAccessor(fieldAccess)) {
                 Object target = ((JCTree.JCLiteral)invocation.args.get(1)).getValue();
                 if (target instanceof String) {
                     String methodName = fieldAccess.name.toString();
@@ -55,15 +55,29 @@ public class PrivateAccessChecker {
                             checkParameterCount(sourceMembers.privateMethods, (String)target, parameterCount)) {
                             // Let it go
                         } else if (sourceMembers.nonPrivateMethods.containsKey(target) &&
-                            checkParameterCount(sourceMembers.privateMethods, (String)target, parameterCount)) {
+                            checkParameterCount(sourceMembers.nonPrivateMethods, (String)target, parameterCount)) {
                             cx.logger.warn("Method " + className + "::" + target + " is not private.");
                         } else {
-                            throw new MemberNotExistException(TYPE_METHOD, className, (String)target);
+                            throw new MemberNotExistException(TYPE_METHOD, className, (String)target, parameterCount);
                         }
                     }
                 }
             }
         }
+    }
+
+    private boolean isPrivateAccessor(JCTree.JCFieldAccess fieldAccess) {
+        return isPrivateAccessorWithShortRef(fieldAccess) || isPrivateAccessorWithFullRef(fieldAccess);
+    }
+
+    private boolean isPrivateAccessorWithShortRef(JCTree.JCFieldAccess fieldAccess) {
+        return fieldAccess.selected instanceof JCTree.JCIdent &&
+            ((JCTree.JCIdent)fieldAccess.selected).name.toString().equals(CLASS_NAME_PRIVATE_ACCESSOR);
+    }
+
+    private boolean isPrivateAccessorWithFullRef(JCTree.JCFieldAccess fieldAccess) {
+        return fieldAccess.selected instanceof JCTree.JCFieldAccess &&
+            fieldAccess.selected.toString().equals(CLASS_NAME_PRIVATE_ACCESSOR_FULL);
     }
 
     private boolean checkParameterCount(Map<String, List<Integer>> methods, String target, int parameterCount) {
