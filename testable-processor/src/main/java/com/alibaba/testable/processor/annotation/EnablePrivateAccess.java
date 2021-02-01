@@ -1,5 +1,6 @@
 package com.alibaba.testable.processor.annotation;
 
+import javax.lang.model.type.NullType;
 import java.lang.annotation.*;
 
 /**
@@ -11,4 +12,11 @@ import java.lang.annotation.*;
 @Target(ElementType.TYPE)
 @Documented
 public @interface EnablePrivateAccess {
+
+    /**
+     * explicit specify the source class to be tested
+     * @return
+     */
+    Class<?> srcClass() default NullType.class;
+
 }

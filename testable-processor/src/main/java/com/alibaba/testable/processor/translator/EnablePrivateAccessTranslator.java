@@ -1,6 +1,5 @@
 package com.alibaba.testable.processor.translator;
 
-import com.alibaba.testable.processor.constant.ConstPool;
 import com.alibaba.testable.processor.generator.PrivateAccessStatementGenerator;
 import com.alibaba.testable.processor.model.MemberRecord;
 import com.alibaba.testable.processor.model.MemberType;
@@ -21,6 +20,8 @@ import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
+import static com.alibaba.testable.processor.constant.ConstPool.TEST_POSTFIX;
 
 /**
  * Travel AST
@@ -50,14 +51,18 @@ public class EnablePrivateAccessTranslator extends BaseTranslator {
     private final PrivateAccessStatementGenerator privateAccessStatementGenerator;
     private final PrivateAccessChecker privateAccessChecker;
 
-    public EnablePrivateAccessTranslator(Symbol.ClassSymbol clazz, TestableContext cx) {
-        String pkgName = ((Symbol.PackageSymbol)clazz.owner).fullname.toString();
-        String testClassName = clazz.getSimpleName().toString();
-        String sourceClass = testClassName.substring(0, testClassName.length() - ConstPool.TEST_POSTFIX.length());
+    public EnablePrivateAccessTranslator(TestableContext cx, Symbol.ClassSymbol clazz, String srcClassName) {
+        String sourceClassFullName;
+        if (srcClassName == null) {
+            String testClassFullName = clazz.fullname.toString();
+            sourceClassFullName = testClassFullName.substring(0, testClassFullName.length() - TEST_POSTFIX.length());
+        } else {
+            sourceClassFullName = srcClassName;
+        }
+        String sourceClassShortName = sourceClassFullName.substring(sourceClassFullName.lastIndexOf('.') + 1);
         this.privateAccessStatementGenerator = new PrivateAccessStatementGenerator(cx);
-        this.sourceClassName = cx.names.fromString(sourceClass);
+        this.sourceClassName = cx.names.fromString(sourceClassShortName);
         try {
-            String sourceClassFullName = pkgName + "." + sourceClass;
             Class<?> cls = getSourceClass(clazz, sourceClassFullName);
             if (cls == null) {
                 cx.logger.error("Failed to load source class: " + sourceClassFullName);
@@ -67,7 +72,7 @@ public class EnablePrivateAccessTranslator extends BaseTranslator {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        this.privateAccessChecker = new PrivateAccessChecker(cx, sourceClassName.toString(), memberRecord);
+        this.privateAccessChecker = new PrivateAccessChecker(cx, sourceClassShortName, memberRecord);
     }
 
     /**
