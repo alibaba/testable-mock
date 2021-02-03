@@ -5,10 +5,6 @@
 
 IntelliJ IDE对`TestableMock`所用到的`JSR-269`注释处理器以及`maven-surefire-plugin`插件的附加参数均支持良好。通常无需特殊配置，可开箱即用。
 
-> 在IntelliJ 2020.3及后续版本里，其内置的编译期注释处理器运行时参数类型与标准`Maven`编译过程不一致。在`TestableMock`低于`0.4.5`的版本中会遇到`@EnablePrivateAccess`注解未生效的问题，可通过在系统配置的"Build Tools > Maven > Runner"中开启"Delegate IDE build/run actions to maven"选项解决。
-> 
-> ![delegate-ide-build-to-maven](https://testable-code.oss-cn-beijing.aliyuncs.com/delegate-ide-build-to-maven.png)
-
 ## 使用Eclipse IDE
 
 由于`Eclipse`内置的自动编译功能基于三方编译器实现，与标准`javac`编译过程不兼容，会导致在IDE中运行测试用例时`@EnablePrivateAccess`注解无效。不过，通过`PrivateAccessor`工具类访问被测类私有成员的功能不会受编译器差异影响。
