@@ -54,8 +54,8 @@ public class LogUtil {
         System.err.println(String.format("[ERROR] " + msg, args));
     }
 
-    public static void enableDiagnose(boolean enable) {
-        currentLogLevel = enable ? LogLevel.LEVEL_DIAGNOSE : LogLevel.LEVEL_MUTE;
+    public static void setLevel(LogLevel level) {
+        currentLogLevel = level;
     }
 
     public static void setDefaultLevel(LogLevel level) {

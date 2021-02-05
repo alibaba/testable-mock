@@ -141,6 +141,16 @@ public class ClassUtil {
     }
 
     /**
+     * extract parameter part of method desc
+     * @param desc method description
+     * @return parameter value
+     */
+    public static String extractParameters(String desc) {
+        int returnTypeEdge = desc.lastIndexOf(PARAM_END);
+        return desc.substring(1, returnTypeEdge);
+    }
+
+    /**
      * parse method desc, fetch return value types
      * @param desc method description
      * @return types of return value

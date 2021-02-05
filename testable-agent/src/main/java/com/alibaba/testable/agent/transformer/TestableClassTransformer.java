@@ -57,8 +57,8 @@ public class TestableClassTransformer implements ClassFileTransformer {
         try {
             if (shouldTransformAsSourceClass(className)) {
                 // it's a source class with testable enabled
-                LogUtil.diagnose("Handling source class %s", className);
                 List<MethodInfo> injectMethods = getTestableMockMethods(ClassUtil.getTestClassName(className));
+                LogUtil.diagnose("Handling source class %s", className);
                 bytes = new SourceClassHandler(injectMethods).getBytes(classFileBuffer);
                 dumpByte(className, bytes);
                 resetMockContext();
@@ -140,9 +140,12 @@ public class TestableClassTransformer implements ClassFileTransformer {
         for (AnnotationNode an : mn.visibleAnnotations) {
             String fullClassName = toDotSeparateFullClassName(an.desc);
             if (fullClassName.equals(ConstPool.MOCK_CONSTRUCTOR)) {
+                LogUtil.verbose("   Mock constructor \"%s\" as \"(%s)V\" for \"%s\"", mn.name,
+                    ClassUtil.extractParameters(mn.desc), ClassUtil.getReturnType(mn.desc));
                 addMockConstructor(methodInfos, cn, mn);
             } else if (fullClassName.equals(ConstPool.MOCK_METHOD) ||
                        fullClassName.equals(ConstPool.TESTABLE_MOCK)) {
+                LogUtil.verbose("   Mock method \"%s\" as \"%s\"", mn.name, mn.desc);
                 String targetMethod = AnnotationUtil.getAnnotationParameter(
                     an, ConstPool.FIELD_TARGET_METHOD, mn.name, String.class);
                 if (ConstPool.CONSTRUCTOR.equals(targetMethod)) {
@@ -218,7 +221,8 @@ public class TestableClassTransformer implements ClassFileTransformer {
     private void setupMockContext(AnnotationNode an) {
         MockDiagnose diagnose = AnnotationUtil.getAnnotationParameter(an, FIELD_DIAGNOSE, null, MockDiagnose.class);
         if (diagnose != null) {
-            LogUtil.enableDiagnose(diagnose == MockDiagnose.ENABLE);
+            LogUtil.setLevel(diagnose == MockDiagnose.ENABLE ? LogUtil.LogLevel.LEVEL_DIAGNOSE :
+                (diagnose == MockDiagnose.VERBOSE ? LogUtil.LogLevel.LEVEL_VERBOSE : LogUtil.LogLevel.LEVEL_MUTE));
         }
     }
 
