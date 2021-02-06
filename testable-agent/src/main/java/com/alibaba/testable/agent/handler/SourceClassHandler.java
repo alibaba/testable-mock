@@ -60,6 +60,10 @@ public class SourceClassHandler extends BaseClassHandler {
                                  Set<MethodInfo> newOperatorInjectMethods) {
         LogUtil.diagnose("  Handling method %s", mn.name);
         AbstractInsnNode[] instructions = mn.instructions.toArray();
+        if (instructions.length == 0) {
+            // native method (issue-52)
+            return;
+        }
         int i = 0;
         int maxStackDiff = 0;
         do {

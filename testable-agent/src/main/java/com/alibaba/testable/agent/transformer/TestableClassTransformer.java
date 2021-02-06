@@ -61,17 +61,17 @@ public class TestableClassTransformer implements ClassFileTransformer {
                 LogUtil.diagnose("Handling source class %s", className);
                 bytes = new SourceClassHandler(injectMethods).getBytes(classFileBuffer);
                 dumpByte(className, bytes);
-                resetMockContext();
             } else if (shouldTransformAsTestClass(className)) {
                 // it's a test class with testable enabled
                 LogUtil.diagnose("Handling test class %s", className);
                 bytes = new TestClassHandler().getBytes(classFileBuffer);
                 dumpByte(className, bytes);
-                resetMockContext();
             }
         } catch (Throwable t) {
             LogUtil.warn("Failed to transform class " + className);
             LogUtil.diagnose(t.toString());
+        } finally {
+            LogUtil.resetLogLevel();
         }
         return bytes;
     }
@@ -224,10 +224,6 @@ public class TestableClassTransformer implements ClassFileTransformer {
             LogUtil.setLevel(diagnose == MockDiagnose.ENABLE ? LogUtil.LogLevel.LEVEL_DIAGNOSE :
                 (diagnose == MockDiagnose.VERBOSE ? LogUtil.LogLevel.LEVEL_VERBOSE : LogUtil.LogLevel.LEVEL_MUTE));
         }
-    }
-
-    private void resetMockContext() {
-        LogUtil.resetLogLevel();
     }
 
     /**
