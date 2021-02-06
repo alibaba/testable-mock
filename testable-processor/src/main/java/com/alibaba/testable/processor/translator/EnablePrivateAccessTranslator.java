@@ -3,6 +3,7 @@ package com.alibaba.testable.processor.translator;
 import com.alibaba.testable.processor.generator.PrivateAccessStatementGenerator;
 import com.alibaba.testable.processor.model.MemberRecord;
 import com.alibaba.testable.processor.model.MemberType;
+import com.alibaba.testable.processor.model.Parameters;
 import com.alibaba.testable.processor.model.TestableContext;
 import com.alibaba.testable.processor.util.PathUtil;
 import com.sun.tools.javac.code.Symbol;
@@ -51,13 +52,13 @@ public class EnablePrivateAccessTranslator extends BaseTranslator {
     private final PrivateAccessStatementGenerator privateAccessStatementGenerator;
     private final PrivateAccessChecker privateAccessChecker;
 
-    public EnablePrivateAccessTranslator(TestableContext cx, Symbol.ClassSymbol clazz, String srcClassName) {
+    public EnablePrivateAccessTranslator(TestableContext cx, Symbol.ClassSymbol clazz, Parameters p) {
         String sourceClassFullName;
-        if (srcClassName == null) {
+        if (p.sourceClassName == null) {
             String testClassFullName = clazz.fullname.toString();
             sourceClassFullName = testClassFullName.substring(0, testClassFullName.length() - TEST_POSTFIX.length());
         } else {
-            sourceClassFullName = srcClassName;
+            sourceClassFullName = p.sourceClassName;
         }
         String sourceClassShortName = sourceClassFullName.substring(sourceClassFullName.lastIndexOf('.') + 1);
         this.privateAccessStatementGenerator = new PrivateAccessStatementGenerator(cx);
@@ -72,7 +73,8 @@ public class EnablePrivateAccessTranslator extends BaseTranslator {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        this.privateAccessChecker = new PrivateAccessChecker(cx, sourceClassShortName, memberRecord);
+        this.privateAccessChecker = (p.verifyTargetExistence == null || p.verifyTargetExistence) ?
+            new PrivateAccessChecker(cx, sourceClassShortName, memberRecord) : null;
     }
 
     /**
@@ -157,7 +159,9 @@ public class EnablePrivateAccessTranslator extends BaseTranslator {
             } else if (memberType.equals(MemberType.STATIC_PRIVATE)) {
                 expr = privateAccessStatementGenerator.fetchStaticInvokeStatement(invocation);
             }
-            privateAccessChecker.validate((JCMethodInvocation)expr);
+            if (privateAccessChecker != null) {
+                privateAccessChecker.validate((JCMethodInvocation)expr);
+            }
         }
         // check the casted expression
         if (expr instanceof JCTypeCast) {

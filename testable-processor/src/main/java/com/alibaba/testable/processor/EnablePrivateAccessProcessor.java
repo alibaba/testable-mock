@@ -2,6 +2,7 @@ package com.alibaba.testable.processor;
 
 import com.alibaba.testable.processor.annotation.EnablePrivateAccess;
 import com.alibaba.testable.processor.constant.ConstPool;
+import com.alibaba.testable.processor.model.Parameters;
 import com.alibaba.testable.processor.model.TestableContext;
 import com.alibaba.testable.processor.translator.EnablePrivateAccessTranslator;
 import com.alibaba.testable.processor.util.JavacUtil;
@@ -31,6 +32,7 @@ import java.util.Set;
 public class EnablePrivateAccessProcessor extends AbstractProcessor {
 
     private static final String SRC_CLASS = "srcClass";
+    private static final String VERIFY_ON_COMPILE = "verifyTargetOnCompile";
 
     private TestableContext cx;
 
@@ -58,8 +60,8 @@ public class EnablePrivateAccessProcessor extends AbstractProcessor {
         for (Element element : elements) {
             if (element.getKind().isClass()) {
                 Symbol.ClassSymbol testClass = (Symbol.ClassSymbol)element;
-                String sourceClassName = getSourceClassName(testClass);
-                processClassElement(testClass, sourceClassName);
+                Parameters parameters = getAnnotationParameters(testClass);
+                processClassElement(testClass, parameters);
             }
         }
         return true;
@@ -71,17 +73,20 @@ public class EnablePrivateAccessProcessor extends AbstractProcessor {
         return SourceVersion.values()[SourceVersion.values().length - 1];
     }
 
-    private String getSourceClassName(Symbol.ClassSymbol testClass) {
+    private Parameters getAnnotationParameters(Symbol.ClassSymbol testClass) {
+        Parameters parameters = new Parameters();
         for (Attribute.Compound annotation : testClass.getMetadata().getDeclarationAttributes()) {
             if (ConstPool.ENABLE_PRIVATE_ACCESS.equals(annotation.type.tsym.toString())) {
                 for (Pair<Symbol.MethodSymbol, Attribute> p : annotation.values) {
                     if (SRC_CLASS.equals(p.fst.name.toString())) {
-                        return p.snd.getValue().toString();
+                        parameters.sourceClassName = p.snd.getValue().toString();
+                    } else if (VERIFY_ON_COMPILE.equals(p.fst.name.toString())) {
+                        parameters.verifyTargetExistence = (Boolean)p.snd.getValue();
                     }
                 }
             }
         }
-        return null;
+        return parameters;
     }
 
     private JavacProcessingEnvironment getJavacProcessingEnvironment(ProcessingEnvironment processingEnv) {
@@ -92,10 +97,10 @@ public class EnablePrivateAccessProcessor extends AbstractProcessor {
         }
     }
 
-    private void processClassElement(Symbol.ClassSymbol testClass, String sourceClassName) {
+    private void processClassElement(Symbol.ClassSymbol testClass, Parameters parameters) {
         if (cx.trees != null) {
             JCTree tree = cx.trees.getTree(testClass);
-            tree.accept(new EnablePrivateAccessTranslator(cx, testClass, sourceClassName));
+            tree.accept(new EnablePrivateAccessTranslator(cx, testClass, parameters));
         }
     }
 

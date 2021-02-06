@@ -19,4 +19,10 @@ public @interface EnablePrivateAccess {
      */
     Class<?> srcClass() default NullType.class;
 
+    /**
+     * whether enable compile-time existence verification for the private members accessed
+     * @return
+     */
+    boolean verifyTargetOnCompile() default true;
+
 }
