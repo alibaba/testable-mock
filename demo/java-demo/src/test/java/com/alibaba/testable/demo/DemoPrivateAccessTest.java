@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 /**
  * 演示私有成员访问功能
@@ -57,6 +58,20 @@ public class DemoPrivateAccessTest {
     public void should_able_to_update_final_field() {
         demoPrivateAccess.pi = 4.13;
         assertEquals(Double.valueOf(4.13), demoPrivateAccess.pi);
+
+        PrivateAccessor.set(demoPrivateAccess, "pi", 3.14);
+        assertEquals(Double.valueOf(3.14), PrivateAccessor.get(demoPrivateAccess, "pi"));
+    }
+
+    @Test
+    public void should_able_to_use_null_parameter() {
+        demoPrivateAccess.pi = null;
+        assertNull(demoPrivateAccess.pi);
+        assertEquals("null + 1", DemoPrivateAccess.privateStaticFuncWithArgs(null, 1));
+
+        PrivateAccessor.set(demoPrivateAccess, "pi", null);
+        assertNull(PrivateAccessor.get(demoPrivateAccess, "pi"));
+        assertEquals("null + 1", PrivateAccessor.invokeStatic(DemoPrivateAccess.class, "privateStaticFuncWithArgs", null, 1));
     }
 
 }

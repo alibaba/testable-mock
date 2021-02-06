@@ -16,6 +16,12 @@ class ClassUtilTest {
     }
 
     @Test
+    void should_able_to_extract_parameter() {
+        assertEquals("", ClassUtil.extractParameters("()I"));
+        assertEquals("Ljava/lang/String;", ClassUtil.extractParameters("(Ljava/lang/String;)I"));
+    }
+
+    @Test
     void should_able_to_get_return_type() {
         assertEquals("", ClassUtil.getReturnType("(Ljava/lang/String;)V"));
         assertEquals("java/lang/Integer", ClassUtil.getReturnType("(Ljava/lang/String;)I"));

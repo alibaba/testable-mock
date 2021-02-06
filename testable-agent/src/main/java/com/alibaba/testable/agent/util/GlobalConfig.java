@@ -12,6 +12,7 @@ public class GlobalConfig {
     private static final String VERBOSE = "verbose";
 
     private static String dumpPath = null;
+    private static String pkgPrefix = null;
 
     public static boolean setLogLevel(String level) {
         if (level.equals(MUTE)) {
@@ -35,4 +36,11 @@ public class GlobalConfig {
         return dumpPath;
     }
 
+    public static String getPkgPrefix() {
+        return pkgPrefix;
+    }
+
+    public static void setPkgPrefix(String pkgPrefix) {
+        GlobalConfig.pkgPrefix = pkgPrefix;
+    }
 }

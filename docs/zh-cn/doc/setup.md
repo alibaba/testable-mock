@@ -3,9 +3,10 @@
 
 `TestableMock`是基于源码和字节码增强的Java单元测试辅助工具，包含以下功能：
 
-- [访问被测类私有成员](zh-cn/doc/private-accessor.md)：使单元测试能直接调用和访问被测类的私有成员，解决私有成员初始化和私有方法测试的问题
 - [快速Mock任意调用](zh-cn/doc/use-mock.md)：使被测类的任意方法调用快速替换为Mock方法，实现"指哪换哪"，解决传统Mock工具使用繁琐的问题
+- [访问被测类私有成员](zh-cn/doc/private-accessor.md)：使单元测试能直接调用和访问被测类的私有成员，解决私有成员初始化和私有方法测试的问题
 - [辅助测试void方法](zh-cn/doc/test-void-method.md)：利用Mock校验器对方法的内部逻辑进行检查，解决无返回值方法难以实施单元测试的问题
+- [快速构造参数对象](zh-cn/doc/parameter-constructor.md)：生成任意多层嵌套的对象实例，并简化其内部成员赋值方式，解决被测方法参数初始化代码冗长的问题
 
 ## 在Maven项目中使用
 
@@ -15,7 +16,7 @@
 
 ```xml
 <properties>
-    <testable.version>0.4.9</testable.version>
+    <testable.version>0.4.11</testable.version>
 </properties>
 ```
 
@@ -58,12 +59,12 @@
 
 ## 在Gradle项目中使用
 
-在`build.gradle`文件中添加TestableMock依赖：
+在`build.gradle`文件中添加`TestableMock`依赖：
 
 ```groovy
 dependencies {
-    testImplementation('com.alibaba.testable:testable-all:0.4.9')
-    testAnnotationProcessor('com.alibaba.testable:testable-processor:0.4.9')
+    testImplementation('com.alibaba.testable:testable-all:0.4.11')
+    testAnnotationProcessor('com.alibaba.testable:testable-processor:0.4.11')
 }
 ```
 
@@ -76,3 +77,19 @@ test {
 ```
 
 参见项目`java-demo`的[build.gradle](https://github.com/alibaba/testable-mock/blob/master/demo/java-demo/build.gradle)和`kotlin-demo`的[build.gradle.kts](https://github.com/alibaba/testable-mock/blob/master/demo/kotlin-demo/build.gradle.kts)文件。
+
+> 若是基于`Robolectric`框架的Android项目，则添加`TestableMock`依赖方法同上，添加javaagent配置方法如下：
+>
+> ```groovy
+> android {
+>     testOptions {
+>         unitTests {
+>             all {
+>                 jvmArgs "-javaagent:${classpath.find { it.name.contains("testable-agent") }.absolutePath}"
+>             }
+>         }
+>     }
+> }
+> ```
+>
+> 完整示例参考[issue-43](https://github.com/alibaba/testable-mock/issues/43)

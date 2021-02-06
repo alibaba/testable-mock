@@ -14,6 +14,11 @@ public enum MockDiagnose {
     /**
      * Print diagnose logs
      */
-    ENABLE
+    ENABLE,
+
+    /**
+     * Print verbose log
+     */
+    VERBOSE
 
 }

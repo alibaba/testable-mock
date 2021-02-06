@@ -4,44 +4,52 @@ Fast Mocking
 Compared with the class-granularity mocking practices of existing mock tools, `TestableMock` allows developers to directly define a single method and use it for mocking. With the principle of convention over configuration, mock method replacement will automatically happen when the specified method in the test class match an invocation in the class under test.
 
 > In summary, there are two simple rules:
-> - Mock non-constructive method, copy the original method definition to the test class, add a parameter of the same type as the caller, and add a `@MockMethod` annotation
+> - Mock non-constructive method, copy the original method definition to the test class, add a `@MockMethod` annotation
 > - Mock construction method, copy the original method definition to the test class, replace the return value with the constructed type, the method name is arbitrary, and add a `@MockContructor` annotation
-
-> **Mock convention**: 
-> - The name of the test class should be `<NameOfClassUnderTest> + Test` (and in the same package path), which is usually the by-default naming convention of Java project managed by `Maven` or `Gradle`. This constraint may be relaxed or removed in future versions of `TestableMock`.
-> - Do NOT access any non-`static` members in mock methods. Currently, methods that is decorated by `@MockMethod` or `@MockContructor` annotations will be automatically modified to `static` methods during runtime. In future versions, this constraint will be removed.
 
 The detail mock method definition convention is as follows:
 
 #### 1. Mock method calls of any class
 
-Define an ordinary method annotated with `@MockMethod` in the test class with exactly the same signature (name, parameter, and return value type) as the method to be mocked, and then add an extra parameter as the first parameter of method, with the same type as the object that the method originally belongs to.
+Define an ordinary method annotated with `@MockMethod` in the test class with exactly the same signature (name, parameter, and return value type) as the method to be mocked, and then add the type of target object (which the method originally belongs to) as `targetMethod` parameter of `@MockMethod` annotation.
 
 At this time, all invocations to that original method in the class under test will be automatically replaced with invocations to the above-mentioned mock method when the unit test is running.
-
-**Note**: When several methods to be mocked have the same name, you can put the name of the method to be mocked in the `targetMethod` parameter of `@MockMethod` annotation, so that the mock method itself can be named at will.
 
 For example, there is a call to `"anything".substring(1, 2)` in the class under test, and we want to change it to a fixed string when running the test, we only need to define the following method in the test class:
 
 ```java
 // The original method signature is `String substring(int, int)`
 // The object `"anything"` that invokes this method is of type `String`
-// Adds a `String` type parameter to the first position the mock method parameter list (parameter name is arbitrary)
-// This parameter can be used to get the value and context of the actual invoker at runtime
-@MockMethod
-private String substring(String self, int i, int j) {
+@MockMethod(targetClass = String.class)
+private String substring(int i, int j) {
     return "sub_string";
 }
 ```
+
+When several methods to be mocked have the same name, you can put the name of the method to be mocked in the `targetMethod` parameter of `@MockMethod` annotation, so that the mock method itself can be named at will.
 
 The following example shows the usage of the `targetMethod` parameter, and its effect is the same as the above example:
 
 ```java
 // Use `targetMethod` to specify the name of the method that needs to be mocked
 // The method itself can now be named arbitrarily, but the method parameters still need to follow the same matching rules
-@MockMethod(targetMethod = "substring")
-private String use_any_mock_method_name(String self, int i, int j) {
+@MockMethod(targetClass = String.class, targetMethod = "substring")
+private String use_any_mock_method_name(int i, int j) {
     return "sub_string";
+}
+```
+
+Sometimes, the mock method need to access the member variables in the original object that initiated the invocation, or invoke other methods of the original object. At this point, you can remove the `targetClass` parameter in the `@MockMethod` annotation, and then add a extra parameter whose type is the original object type of the method to the first index of the method parameter list.
+
+The `TestableMock` convention is that when the `targetClass` parameter value of the `@MockMethod` annotation is empty, the first parameter of the mock method is the type of the target method, and the parameter name is arbitrary. In order to facilitate code reading, it is recommended to name this parameter as `self` or `src`. Example as follows:
+
+```java
+// Adds a `String` type parameter to the first position the mock method parameter list (parameter name is arbitrary)
+// This parameter can be used to get the value and context of the actual invoker at runtime
+@MockMethod
+private String substring(String self, int i, int j) {
+    // Call the original method is also allowed
+    return self.substring(i, j);
 }
 ```
 
@@ -51,33 +59,31 @@ For complete code examples, see the `should_able_to_mock_common_method()` test c
 
 Sometimes, when testing certain methods, it is desirable to mock out some other member methods of the class under test itself.
 
-The solution is the same as the previous case. The first parameter type of the mock method needs to be the same as that of the class under test.
+The solution is the same as the previous case. Just set `targetClass` parameter value to the type of class under test.
 
 For example, there is a private method with the signature `String innerFunc(String)` in the class under test. If we want to replace it during testing, we only need to define the following method in the test class:
 
 ```java
 // The type to test is `DemoMock`
-// So when defining the mock method, add a parameter of type `DemoMock` to the first position of parameter list (the name is arbitrary)
-@MockMethod
-private String innerFunc(DemoMock self, String text) {
+@MockMethod(targetClass = DemoMock.class)
+private String innerFunc(String text) {
     return "mock_" + text;
 }
 ```
+
+Similarly, if the method in the above example needs to access the original tested object that initiated the call, it may not use the `targetClass` parameter, but when defining the mock method, add a parameter of type `DemoMock` to the first index of the method parameter list.
 
 For complete code examples, see the `should_able_to_mock_member_method()` test case in the `java-demo` and `kotlin-demo` sample projects.
 
 #### 3. Mock static methods of any class
 
-Mock for static methods is the same as for any ordinary methods. But it should be noted that when the mock method of a static method is called, the actual value of the first parameter passed in is always `null`.
+Mock for static methods is the same as for any ordinary methods.
 
-For example, if the static method `secretBox()` of the `BlackBox` type is invoked in the class under test, and the method signature is changed to `BlackBox secretBox()`, the mock method is as follows:
+For example, if the static method `secretBox()` of the `BlackBox` type is invoked in the class under test, and the method signature is `BlackBox secretBox()`, then the mock method is as follows:
 
 ```java
-// The target static method is defined in the `BlackBox` type
-// When defining the mock method, add a parameter of type `BlackBox` to the first position parameter list (the name is arbitrary)
-// This parameter is only used to identify the target type, the actual incoming value will always be `null`
-@MockMethod
-private BlackBox secretBox(BlackBox ignore) {
+@MockMethod(targetClass = BlackBox.class)
+private BlackBox secretBox() {
     return new BlackBox("not_secret_box");
 }
 ```
@@ -151,3 +157,11 @@ For complete code examples, see the `should_able_to_get_source_method_name()` an
 In test cases, you can use the `TestableTool.verify()` method, and cooperate with `with()`, `withInOrder()`, `without()`, `withTimes()` and other methods to verify the mock call situation.
 
 For details, please refer to the [Check Mock Call](en-us/doc/matcher.md) document.
+
+#### Additional note
+
+> **Mock convention in version 0.4.x**:
+> - The name of the test class must be `<NameOfClassUnderTest> + Test` (and in the same package path), which is usually the by-default naming convention of Java project managed by `Maven` or `Gradle`.
+> - Do NOT access any non-`static` members in mock methods. Currently, methods that is decorated by `@MockMethod` or `@MockContructor` annotations will be automatically modified to `static` methods during runtime. (When mock method contains some statement like _lambda function_, _anonymous class_ or _initiation block_, java compiler will generate additional method during compilation, these mock methods also have to be declared as `static` to avoid non-static dynamical method invoked.)
+>
+> These constraints will change in `0.5` versions of `TestableMock`.

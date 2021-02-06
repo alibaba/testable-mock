@@ -10,7 +10,6 @@ import com.alibaba.testable.agent.util.ClassUtil;
 import com.alibaba.testable.agent.util.GlobalConfig;
 import com.alibaba.testable.agent.util.StringUtil;
 import com.alibaba.testable.core.model.MockDiagnose;
-import com.alibaba.testable.core.model.NullType;
 import com.alibaba.testable.core.util.LogUtil;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.Type;
@@ -18,6 +17,7 @@ import org.objectweb.asm.tree.AnnotationNode;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.MethodNode;
 
+import javax.lang.model.type.NullType;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -36,6 +36,7 @@ import static com.alibaba.testable.agent.util.ClassUtil.toDotSeparateFullClassNa
 public class TestableClassTransformer implements ClassFileTransformer {
 
     private static final String FIELD_DIAGNOSE = "diagnose";
+    private static final String COMMA = ",";
 
     /**
      * Just avoid spend time to scan those surely non-user classes
@@ -57,21 +58,21 @@ public class TestableClassTransformer implements ClassFileTransformer {
         try {
             if (shouldTransformAsSourceClass(className)) {
                 // it's a source class with testable enabled
-                LogUtil.diagnose("Handling source class %s", className);
                 List<MethodInfo> injectMethods = getTestableMockMethods(ClassUtil.getTestClassName(className));
+                LogUtil.diagnose("Handling source class %s", className);
                 bytes = new SourceClassHandler(injectMethods).getBytes(classFileBuffer);
                 dumpByte(className, bytes);
-                resetMockContext();
             } else if (shouldTransformAsTestClass(className)) {
                 // it's a test class with testable enabled
                 LogUtil.diagnose("Handling test class %s", className);
                 bytes = new TestClassHandler().getBytes(classFileBuffer);
                 dumpByte(className, bytes);
-                resetMockContext();
             }
         } catch (Throwable t) {
             LogUtil.warn("Failed to transform class " + className);
             LogUtil.diagnose(t.toString());
+        } finally {
+            LogUtil.resetLogLevel();
         }
         return bytes;
     }
@@ -105,14 +106,25 @@ public class TestableClassTransformer implements ClassFileTransformer {
         if (null == className) {
             return true;
         }
-        for (String prefix : WHITELIST_PREFIXES) {
-            if (className.startsWith(prefix)) {
-                return false;
+        String whitePrefix = GlobalConfig.getPkgPrefix();
+        if (whitePrefix != null) {
+            for (String prefix : whitePrefix.split(COMMA)) {
+                if (className.startsWith(prefix)) {
+                    // Only consider package in provided list as non-system class
+                    return false;
+                }
             }
-        }
-        for (String prefix : BLACKLIST_PREFIXES) {
-            if (className.startsWith(prefix)) {
-                return true;
+            return true;
+        } else {
+            for (String prefix : WHITELIST_PREFIXES) {
+                if (className.startsWith(prefix)) {
+                    return false;
+                }
+            }
+            for (String prefix : BLACKLIST_PREFIXES) {
+                if (className.startsWith(prefix)) {
+                    return true;
+                }
             }
         }
         return false;
@@ -140,9 +152,12 @@ public class TestableClassTransformer implements ClassFileTransformer {
         for (AnnotationNode an : mn.visibleAnnotations) {
             String fullClassName = toDotSeparateFullClassName(an.desc);
             if (fullClassName.equals(ConstPool.MOCK_CONSTRUCTOR)) {
+                LogUtil.verbose("   Mock constructor \"%s\" as \"(%s)V\" for \"%s\"", mn.name,
+                    ClassUtil.extractParameters(mn.desc), ClassUtil.getReturnType(mn.desc));
                 addMockConstructor(methodInfos, cn, mn);
             } else if (fullClassName.equals(ConstPool.MOCK_METHOD) ||
                        fullClassName.equals(ConstPool.TESTABLE_MOCK)) {
+                LogUtil.verbose("   Mock method \"%s\" as \"%s\"", mn.name, mn.desc);
                 String targetMethod = AnnotationUtil.getAnnotationParameter(
                     an, ConstPool.FIELD_TARGET_METHOD, mn.name, String.class);
                 if (ConstPool.CONSTRUCTOR.equals(targetMethod)) {
@@ -218,12 +233,9 @@ public class TestableClassTransformer implements ClassFileTransformer {
     private void setupMockContext(AnnotationNode an) {
         MockDiagnose diagnose = AnnotationUtil.getAnnotationParameter(an, FIELD_DIAGNOSE, null, MockDiagnose.class);
         if (diagnose != null) {
-            LogUtil.enableDiagnose(diagnose == MockDiagnose.ENABLE);
+            LogUtil.setLevel(diagnose == MockDiagnose.ENABLE ? LogUtil.LogLevel.LEVEL_DIAGNOSE :
+                (diagnose == MockDiagnose.VERBOSE ? LogUtil.LogLevel.LEVEL_VERBOSE : LogUtil.LogLevel.LEVEL_MUTE));
         }
-    }
-
-    private void resetMockContext() {
-        LogUtil.resetLogLevel();
     }
 
     /**

@@ -1,5 +1,15 @@
 # Release Note
 
+## 0.4.11
+- support accessing private members of class under test in different package path 
+- validate the number of private method parameters accessed by `PrivateAccessor`
+- fix a bug which may cause errors when the mock method contains array parameters
+- fix an issue which cause some private members not be found in the IntelliJ build
+
+## 0.4.10
+- fix an issue of using mock in lambda expression
+- fix the NullPointerException when invoke private method with parameter value `null`
+
 ## 0.4.9
 - fix an issue cause by improperly bytecode processing while using `targetClass` parameter
 - auto validate access target of `PrivateAccessor`, improve resistance to code refactoring

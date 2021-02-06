@@ -4,11 +4,11 @@ import com.alibaba.testable.agent.constant.ConstPool;
 import com.alibaba.testable.agent.tool.ImmutablePair;
 import com.alibaba.testable.agent.util.AnnotationUtil;
 import com.alibaba.testable.agent.util.ClassUtil;
-import com.alibaba.testable.core.model.NullType;
 import com.alibaba.testable.core.util.LogUtil;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.*;
 
+import javax.lang.model.type.NullType;
 import java.util.List;
 
 import static com.alibaba.testable.agent.util.ClassUtil.toDotSeparateFullClassName;

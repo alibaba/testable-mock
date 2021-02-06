@@ -38,3 +38,9 @@ class DemoTest {
 ```
 
 该日志展示了被测类中所有发生了Mock替换的调用和相应代码行号。
+
+简单排查方法：
+
+- 若没有任何输出，请检查`pom.xml`或`build.gradle`配置是否正确引入了TestableMock依赖
+- 若只输出了第一行`Handling test class`，请检查被测类与测试类是否包路径相同，且名称为"被测类+Test"（`0.4.x`版本要求）
+- 若输出了`Handling source class`以及`Handling method xxx`，但预期的代码行位置没有发生Mock替换，请检查Mock方法定义是否未与目标方法匹配

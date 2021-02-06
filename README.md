@@ -10,19 +10,19 @@
 阅读[这里](https://mp.weixin.qq.com/s/KyU6Eu7mDkZU8FspfSqfMw)了解更多故事。
 
 > 特别说明
-> 1. 如有遇到启动报空指针异常或"Operand stack overflow"错误，请升级`TestableMock`版本，这是BUG，已修复😛
-> 2. 如遇到"Attempt to access none-static member in mock method"错误，参见[常见问题](https://alibaba.github.io/testable-mock/#/zh-cn/doc/frequently-asked-questions)第8条
-> 3. 如果有遇到其他任何使用问题和建议，请直接在[Issue](https://github.com/alibaba/testable-mock/issues)中提出，也可通过[Pull Request](https://github.com/alibaba/testable-mock/pulls)提交您的代码，我们将在24小时内回复并处理
+> 1. 如遇到"Attempt to access non-static member in mock method"错误，参见[常见问题](https://alibaba.github.io/testable-mock/#/zh-cn/doc/frequently-asked-questions)第8条
+> 2. 如果有遇到其他任何使用问题和建议，请直接在[Issue](https://github.com/alibaba/testable-mock/issues)中提出，也可通过[Pull Request](https://github.com/alibaba/testable-mock/pulls)提交您的代码，我们将在24小时内回复并处理
 
 -----
 
 ## 版本计划
 
-`TestableMock`正在持续迭代演进，以下版本计划可能在开发过程中发生调整，请以最新内容为准
+`TestableMock`正在持续迭代演进，以下版本计划可能在开发过程中发生调整
 
-- `0.4.x` 当前版本，进行中的工作内容参考[Issue](https://github.com/alibaba/testable-mock/issues)清单
-- `0.5` 实现以"Mock方法集"为单元的Mock方法复用机制，让测试类之间可以方便复用相同的Mock方法
-- `0.6` 实现第四项单元测试增强能力"快速入参构造器"。不论被测方法所需的参数结构多么错综复杂、甚至没有合适的构造方法、甚至需要私有内部类对象... 呼唤TestableMock，马上递给您~
+- `0.4` 当前版本，进行中的工作内容参考[Issue](https://github.com/alibaba/testable-mock/issues)清单
+- `0.5` 实现以"独立Mock类"为单元的Mock方法复用机制，让测试类之间可以方便复用相同的Mock方法
+- `0.6` 实现将Mock方法的默认生效范围缩小至当前被测类，避免Mock方法在测试类之间相互影响
+- `1.0` 功能稳定，一个崭新的开始
 
 ## 目录结构
 

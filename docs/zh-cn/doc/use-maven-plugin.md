@@ -19,13 +19,15 @@
 </plugin>
 ```
 
-> 当使用`testable-maven-plugin`插件时，应该移除`maven-surefire-plugin`插件上的TestableMock相关配置
+**注意：**当使用`testable-maven-plugin`插件时，应该移除`maven-surefire-plugin`插件上的TestableMock相关配置。
 
 `testable-maven-plugin`插件能够与Jacoco插件直接同时使用，无需额外适配，因此能使`pom.xml`文件编写起来更简单且美观。
 
-但需要注意的是，当通过IDE运行单个测试用例时，Mock功能会失效。
+> 还有一种特殊情况，当`jacoco`插件是通过`maven`命令行参数引入的时候，若要使用`TestableMock`功能，则也必须通过命令行参数引入`testable-maven-plugin`插件。详见[issue-14](https://github.com/alibaba/testable-mock/issues/14)。
 
-这是由于IDE运行单个测试用例时通常都只会运行`maven-surefire-plugin`插件，跳过了`testable-maven-plugin`插件执行，导致Mock功能所需的JavaAgent没有随测试注入。
+但需要注意的是，使用`testable-maven-plugin`插件后，通过IntelliJ IDE运行单个测试用例时，Mock功能会失效。
+
+这是由于IntelliJ IDE运行单个测试用例时只会运行`maven-surefire-plugin`插件，跳过了`testable-maven-plugin`插件执行，导致Mock功能所需的JavaAgent未随测试注入。
 
 该问题可以通过额外配置IDE的测试参数绕过。以IntelliJ为例，打开运行菜单的"编辑配置..."选型，如图中位置①
 

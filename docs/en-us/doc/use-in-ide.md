@@ -5,10 +5,6 @@ Use TestableMock In IDE
 
 IntelliJ IDE supports the `JSR-269` annotation processor and the `maven-surefire-plugin` arguments very well (both are techniques back the `TestableMock`). Usually you don't need any special configuration to make everything work, it's all out of the box.
 
-> In IntelliJ 2020.3 and later versions, its built-in annotation processor had some parameter types changed, which no longer consistent with the standard `Maven` compilation process. In the version of `TestableMock` lower than `0.4.5`, you will encounter the problem that the `@EnablePrivateAccess` annotation does not take effect. You can turn on "Delegate IDE build/run actions to maven" option in "Build Tools > Maven > Runner" of the system configuration to solve the problem.
-> 
-> ![delegate-ide-build-to-maven](https://testable-code.oss-cn-beijing.aliyuncs.com/delegate-ide-build-to-maven.png)
-
 ## Use Eclipse IDE
 
 Since the built-in compilation feature of `Eclipse` is based on a self-made compiler, it is not compatible with the standard `javac` compilation process, which will cause the `@EnablePrivateAccess` annotation to be invalid when running test cases in the IDE. However, the function of accessing the private members of the class under test through the `PrivateAccessor` tool class will not be affected by differences in the compiler.

@@ -60,29 +60,21 @@ public class SourceClassHandler extends BaseClassHandler {
                                  Set<MethodInfo> newOperatorInjectMethods) {
         LogUtil.diagnose("  Handling method %s", mn.name);
         AbstractInsnNode[] instructions = mn.instructions.toArray();
+        if (instructions.length == 0) {
+            // native method (issue-52)
+            return;
+        }
         int i = 0;
         int maxStackDiff = 0;
         do {
             if (invokeOps.contains(instructions[i].getOpcode())) {
                 MethodInsnNode node = (MethodInsnNode)instructions[i];
-                MethodInfo mockMethod = getMemberInjectMethodName(memberInjectMethods, node);
-                if (mockMethod != null) {
-                    // it's a member or static method and an inject method for it exist
-                    int rangeStart = getMemberMethodStart(instructions, i);
-                    if (rangeStart >= 0) {
-                        ModifiedInsnNodes modifiedInsnNodes = replaceMemberCallOps(cn, mn, mockMethod,
-                            instructions, node.owner, node.getOpcode(), rangeStart, i);
-                        instructions = modifiedInsnNodes.nodes;
-                        maxStackDiff = Math.max(maxStackDiff, modifiedInsnNodes.stackDiff);
-                        i = rangeStart;
-                    } else {
-                        LogUtil.warn("Potential missed mocking at %s:%s", mn.name, getLineNum(instructions, i));
-                    }
-                } else if (ConstPool.CONSTRUCTOR.equals(node.name)) {
-                    // it's a new operation
+                if (ConstPool.CONSTRUCTOR.equals(node.name)) {
+                    LogUtil.verbose("     Line %d, constructing \"%s\" as \"%s\"", getLineNum(instructions, i),
+                        node.owner, node.desc);
                     String newOperatorInjectMethodName = getNewOperatorInjectMethodName(newOperatorInjectMethods, node);
                     if (newOperatorInjectMethodName != null) {
-                        // and an inject method for it exist
+                        // it's a new operation and an inject method for it exist
                         int rangeStart = getConstructorStart(instructions, node.owner, i);
                         if (rangeStart >= 0) {
                             ModifiedInsnNodes modifiedInsnNodes = replaceNewOps(cn, mn, newOperatorInjectMethodName,
@@ -90,6 +82,23 @@ public class SourceClassHandler extends BaseClassHandler {
                             instructions = modifiedInsnNodes.nodes;
                             maxStackDiff = Math.max(maxStackDiff, modifiedInsnNodes.stackDiff);
                             i = rangeStart;
+                        }
+                    }
+                } else {
+                    LogUtil.verbose("     Line %d, invoking \"%s\" as \"%s\"", getLineNum(instructions, i),
+                        node.name, node.desc);
+                    MethodInfo mockMethod = getMemberInjectMethodName(memberInjectMethods, node);
+                    if (mockMethod != null) {
+                        // it's a member or static method and an inject method for it exist
+                        int rangeStart = getMemberMethodStart(instructions, i);
+                        if (rangeStart >= 0) {
+                            ModifiedInsnNodes modifiedInsnNodes = replaceMemberCallOps(cn, mn, mockMethod,
+                                instructions, node.owner, node.getOpcode(), rangeStart, i);
+                            instructions = modifiedInsnNodes.nodes;
+                            maxStackDiff = Math.max(maxStackDiff, modifiedInsnNodes.stackDiff);
+                            i = rangeStart;
+                        } else {
+                            LogUtil.warn("Potential missed mocking at %s:%s", mn.name, getLineNum(instructions, i));
                         }
                     }
                 }
@@ -175,10 +184,11 @@ public class SourceClassHandler extends BaseClassHandler {
             case Opcodes.INVOKESPECIAL:
             case Opcodes.INVOKEVIRTUAL:
             case Opcodes.INVOKEINTERFACE:
-                return stackEffectOfInvocation(instruction) + 1;
+                return stackEffectOfInvocation(((MethodInsnNode)instruction).desc) + 1;
             case Opcodes.INVOKESTATIC:
+                return stackEffectOfInvocation(((MethodInsnNode)instruction).desc);
             case Opcodes.INVOKEDYNAMIC:
-                return stackEffectOfInvocation(instruction);
+                return stackEffectOfInvocation(((InvokeDynamicInsnNode)instruction).desc);
             case -1:
                 // either LabelNode or LineNumberNode
                 return 0;
@@ -187,14 +197,13 @@ public class SourceClassHandler extends BaseClassHandler {
         }
     }
 
-    private int stackEffectOfInvocation(AbstractInsnNode instruction) {
-        String desc = ((MethodInsnNode)instruction).desc;
+    private int stackEffectOfInvocation(String desc) {
         return ClassUtil.getParameterTypes(desc).size() - (ClassUtil.getReturnType(desc).isEmpty() ? 0 : 1);
     }
 
     private ModifiedInsnNodes replaceNewOps(ClassNode cn, MethodNode mn, String newOperatorInjectMethodName,
                                              AbstractInsnNode[] instructions, int start, int end) {
-        LogUtil.diagnose("    Line %d, mock method %s used", getLineNum(instructions, start),
+        LogUtil.diagnose("    Line %d, mock method \"%s\" used", getLineNum(instructions, start),
             newOperatorInjectMethodName);
         String classType = ((TypeInsnNode)instructions[start]).desc;
         String constructorDesc = ((MethodInsnNode)instructions[end]).desc;
@@ -224,7 +233,7 @@ public class SourceClassHandler extends BaseClassHandler {
     private ModifiedInsnNodes replaceMemberCallOps(ClassNode cn, MethodNode mn, MethodInfo mockMethod,
                                                    AbstractInsnNode[] instructions, String ownerClass,
                                                    int opcode, int start, int end) {
-        LogUtil.diagnose("    Line %d, mock method %s used", getLineNum(instructions, start),
+        LogUtil.diagnose("    Line %d, mock method \"%s\" used", getLineNum(instructions, start),
             mockMethod.getMockName());
         boolean shouldAppendTypeParameter = !mockMethod.getDesc().equals(mockMethod.getMockDesc());
         String testClassName = ClassUtil.getTestClassName(cn.name);

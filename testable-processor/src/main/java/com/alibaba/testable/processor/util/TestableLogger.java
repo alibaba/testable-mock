@@ -17,10 +17,12 @@ public class TestableLogger {
     }
 
     public void info(String msg) {
+        // Message level lower than warning is not shown by default, use stdout instead
         System.out.println("[INFO] " + msg);
     }
 
     public void warn(String msg) {
+        // Message level WARNING won't show, use MANDATORY_WARNING instead
         messager.printMessage(Diagnostic.Kind.MANDATORY_WARNING, msg);
     }
 

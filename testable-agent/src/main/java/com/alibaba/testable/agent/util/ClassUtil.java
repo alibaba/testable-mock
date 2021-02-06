@@ -115,23 +115,39 @@ public class ClassUtil {
     public static List<Byte> getParameterTypes(String desc) {
         List<Byte> parameterTypes = new ArrayList<Byte>();
         boolean travelingClass = false;
+        boolean travelingArray = false;
         for (byte b : desc.getBytes()) {
             if (travelingClass) {
                 if (b == CLASS_END) {
                     travelingClass = false;
+                    travelingArray = false;
                 }
             } else {
                 if (isPrimaryType(b)) {
-                    parameterTypes.add(b);
+                    // should treat primary array as class (issue-48)
+                    parameterTypes.add(travelingArray ? TYPE_CLASS : b);
+                    travelingArray = false;
                 } else if (b == TYPE_CLASS) {
                     travelingClass = true;
                     parameterTypes.add(b);
+                } else if (b == TYPE_ARRAY) {
+                    travelingArray = true;
                 } else if (b == PARAM_END) {
                     break;
                 }
             }
         }
         return parameterTypes;
+    }
+
+    /**
+     * extract parameter part of method desc
+     * @param desc method description
+     * @return parameter value
+     */
+    public static String extractParameters(String desc) {
+        int returnTypeEdge = desc.lastIndexOf(PARAM_END);
+        return desc.substring(1, returnTypeEdge);
     }
 
     /**

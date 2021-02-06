@@ -38,3 +38,9 @@ The output log example is as follows:
 ```
 
 The log shows all the mocked invocation and corresponding code line numbers in the class under test.
+
+- Self troubleshooting:
+
+- If there is no output, please check whether the `pom.xml` or `build.gradle` configuration correctly introduces `TestableMock` dependencies
+- If only the first line of `Handling test class` is output, please check whether the test class is in the same package of the class under test, and the name is "<ClassUnderTest>+Test" (required for `0.4.x` version)
+- If `Handling source class` and `Handling method xxx` are output, but there is no mock replacement happen at the expected code line, please check whether the mock method definition matches the target method

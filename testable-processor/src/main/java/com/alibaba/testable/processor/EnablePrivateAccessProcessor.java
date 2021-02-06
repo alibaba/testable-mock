@@ -7,11 +7,13 @@ import com.alibaba.testable.processor.translator.EnablePrivateAccessTranslator;
 import com.alibaba.testable.processor.util.JavacUtil;
 import com.alibaba.testable.processor.util.TestableLogger;
 import com.sun.tools.javac.api.JavacTrees;
+import com.sun.tools.javac.code.Attribute;
 import com.sun.tools.javac.code.Symbol;
 import com.sun.tools.javac.processing.JavacProcessingEnvironment;
 import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.tree.TreeMaker;
 import com.sun.tools.javac.util.Names;
+import com.sun.tools.javac.util.Pair;
 
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.ProcessingEnvironment;
@@ -19,7 +21,6 @@ import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
-import javax.lang.model.element.Name;
 import javax.lang.model.element.TypeElement;
 import java.util.Set;
 
@@ -28,6 +29,8 @@ import java.util.Set;
  */
 @SupportedAnnotationTypes("com.alibaba.testable.processor.annotation.EnablePrivateAccess")
 public class EnablePrivateAccessProcessor extends AbstractProcessor {
+
+    private static final String SRC_CLASS = "srcClass";
 
     private TestableContext cx;
 
@@ -53,8 +56,10 @@ public class EnablePrivateAccessProcessor extends AbstractProcessor {
         }
         Set<? extends Element> elements = roundEnv.getElementsAnnotatedWith(EnablePrivateAccess.class);
         for (Element element : elements) {
-            if (element.getKind().isClass() && isTestClass(element.getSimpleName())) {
-                processClassElement((Symbol.ClassSymbol)element);
+            if (element.getKind().isClass()) {
+                Symbol.ClassSymbol testClass = (Symbol.ClassSymbol)element;
+                String sourceClassName = getSourceClassName(testClass);
+                processClassElement(testClass, sourceClassName);
             }
         }
         return true;
@@ -66,6 +71,19 @@ public class EnablePrivateAccessProcessor extends AbstractProcessor {
         return SourceVersion.values()[SourceVersion.values().length - 1];
     }
 
+    private String getSourceClassName(Symbol.ClassSymbol testClass) {
+        for (Attribute.Compound annotation : testClass.getMetadata().getDeclarationAttributes()) {
+            if (ConstPool.ENABLE_PRIVATE_ACCESS.equals(annotation.type.tsym.toString())) {
+                for (Pair<Symbol.MethodSymbol, Attribute> p : annotation.values) {
+                    if (SRC_CLASS.equals(p.fst.name.toString())) {
+                        return p.snd.getValue().toString();
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
     private JavacProcessingEnvironment getJavacProcessingEnvironment(ProcessingEnvironment processingEnv) {
         try {
             return JavacUtil.getJavacProcessingEnvironment(processingEnv);
@@ -74,14 +92,10 @@ public class EnablePrivateAccessProcessor extends AbstractProcessor {
         }
     }
 
-    private boolean isTestClass(Name name) {
-        return name.toString().endsWith(ConstPool.TEST_POSTFIX);
-    }
-
-    private void processClassElement(Symbol.ClassSymbol clazz) {
+    private void processClassElement(Symbol.ClassSymbol testClass, String sourceClassName) {
         if (cx.trees != null) {
-            JCTree tree = cx.trees.getTree(clazz);
-            tree.accept(new EnablePrivateAccessTranslator(clazz, cx));
+            JCTree tree = cx.trees.getTree(testClass);
+            tree.accept(new EnablePrivateAccessTranslator(cx, testClass, sourceClassName));
         }
     }
 
