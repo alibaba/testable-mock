@@ -36,6 +36,7 @@ import static com.alibaba.testable.agent.util.ClassUtil.toDotSeparateFullClassNa
 public class TestableClassTransformer implements ClassFileTransformer {
 
     private static final String FIELD_DIAGNOSE = "diagnose";
+    private static final String COMMA = ",";
 
     /**
      * Just avoid spend time to scan those surely non-user classes
@@ -105,14 +106,25 @@ public class TestableClassTransformer implements ClassFileTransformer {
         if (null == className) {
             return true;
         }
-        for (String prefix : WHITELIST_PREFIXES) {
-            if (className.startsWith(prefix)) {
-                return false;
+        String whitePrefix = GlobalConfig.getPkgPrefix();
+        if (whitePrefix != null) {
+            for (String prefix : whitePrefix.split(COMMA)) {
+                if (className.startsWith(prefix)) {
+                    // Only consider package in provided list as non-system class
+                    return false;
+                }
             }
-        }
-        for (String prefix : BLACKLIST_PREFIXES) {
-            if (className.startsWith(prefix)) {
-                return true;
+            return true;
+        } else {
+            for (String prefix : WHITELIST_PREFIXES) {
+                if (className.startsWith(prefix)) {
+                    return false;
+                }
+            }
+            for (String prefix : BLACKLIST_PREFIXES) {
+                if (className.startsWith(prefix)) {
+                    return true;
+                }
             }
         }
         return false;

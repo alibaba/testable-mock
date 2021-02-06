@@ -1,5 +1,6 @@
 package com.alibaba.testable;
 
+import com.google.common.base.Strings;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -46,6 +47,12 @@ public class TestableMojo extends AbstractMojo
     private String dumpPath;
 
     /**
+     * Package prefixes of class need to be mocked (comma split)
+     */
+    @Parameter
+    private String pkgPrefix;
+
+    /**
      * Name of the Testable Agent artifact.
      */
     private static final String AGENT_ARTIFACT_NAME = "com.alibaba.testable:testable-agent";
@@ -71,12 +78,16 @@ public class TestableMojo extends AbstractMojo
             getLog().error("failed to fetch project properties");
             return;
         }
+
         String extraArgs = "";
-        if (logLevel != null && !logLevel.isEmpty()) {
+        if (!Strings.isNullOrEmpty(logLevel)) {
             extraArgs += "&logLevel=" + logLevel;
         }
-        if (dumpPath != null && !dumpPath.isEmpty()) {
+        if (!Strings.isNullOrEmpty(dumpPath)) {
             extraArgs += "&dumpPath=" + dumpPath;
+        }
+        if (!Strings.isNullOrEmpty(pkgPrefix)) {
+            extraArgs += "&pkgPrefix=" + pkgPrefix;
         }
         final String oldArgs = projectProperties.getProperty(testArgsPropertyKey);
         String newArgs = (oldArgs == null) ? getAgentJarArgs().trim() : (oldArgs + getAgentJarArgs());
@@ -91,6 +102,7 @@ public class TestableMojo extends AbstractMojo
         final Artifact testableAgentArtifact = pluginArtifactMap.get(AGENT_ARTIFACT_NAME);
         if (testableAgentArtifact == null) {
             getLog().error("failed to find testable agent jar");
+            return "";
         }
         return " -javaagent:" + testableAgentArtifact.getFile().getAbsolutePath();
     }
