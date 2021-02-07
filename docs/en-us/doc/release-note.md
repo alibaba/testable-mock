@@ -1,5 +1,11 @@
 # Release Note
 
+## 0.4.12
+- support verbose diagnose log for better self-troubleshooting
+- support disable private access target existence check
+- support specify mock scanning packages
+- fix an ArrayIndexOutOfBoundsException issue when transforming native method
+
 ## 0.4.11
 - support accessing private members of class under test in different package path 
 - validate the number of private method parameters accessed by `PrivateAccessor`

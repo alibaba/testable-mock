@@ -1,5 +1,11 @@
 # Release Note
 
+## 0.4.12
+- 支持`VERBOSE`级别的Mocking过程日志，增强错误自助排查能力
+- 支持使用`verifyTargetOnCompile`参数禁用编译期私有目标校验功能
+- 支持通过agent参数指定Mock目标的扫描包范围
+- 修复一处`ArrayIndexOutOfBoundsException`异常 (issue-52）
+
 ## 0.4.11
 - 支持测试类访问与自身包路径不同的被测类的私有成员
 - 增加`PrivateAccessor`访问的私有方法参数数目检查，提高抗代码重构能力
