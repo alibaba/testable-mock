@@ -16,25 +16,19 @@ The output log example is as follows:
 
 ```text
 [DIAGNOSE] Handling test class com/alibaba/testable/demo/DemoMockTest
+[DIAGNOSE]   Found 8 mock methods
 [DIAGNOSE] Handling source class com/alibaba/testable/demo/DemoMock
-[DIAGNOSE]   Found 7 mock methods
 [DIAGNOSE]   Handling method <init>
 [DIAGNOSE]   Handling method newFunc
-[DIAGNOSE]     Line 14, mock method createBlackBox used
+[DIAGNOSE]     Line 19, mock method "createBlackBox" used
 [DIAGNOSE]   Handling method outerFunc
-[DIAGNOSE]     Line 22, mock method innerFunc used
+[DIAGNOSE]     Line 27, mock method "innerFunc" used
+[DIAGNOSE]     Line 27, mock method "staticFunc" used
 [DIAGNOSE]   Handling method commonFunc
-[DIAGNOSE]     Line 29, mock method trim used
-[DIAGNOSE]     Line 29, mock method sub used
-[DIAGNOSE]     Line 29, mock method startsWith used
-[DIAGNOSE]   Handling method getBox
-[DIAGNOSE]     Line 36, mock method secretBox used
-[DIAGNOSE]   Handling method callerOne
-[DIAGNOSE]     Line 43, mock method callFromDifferentMethod used
-[DIAGNOSE]   Handling method callerTwo
-[DIAGNOSE]     Line 47, mock method callFromDifferentMethod used
-[DIAGNOSE]   Handling method innerFunc
-[DIAGNOSE]   Handling method callFromDifferentMethod
+[DIAGNOSE]     Line 34, mock method "trim" used
+[DIAGNOSE]     Line 34, mock method "sub" used
+[DIAGNOSE]     Line 34, mock method "startsWith" used
+... ...
 ```
 
 The log shows all the mocked invocation and corresponding code line numbers in the class under test.
@@ -44,3 +38,55 @@ The log shows all the mocked invocation and corresponding code line numbers in t
 - If there is no output, please check whether the `pom.xml` or `build.gradle` configuration correctly introduces `TestableMock` dependencies
 - If only the first line of `Handling test class` is output, please check whether the test class is in the same package of the class under test, and the name is "<ClassUnderTest>+Test" (required for `0.4.x` version)
 - If `Handling source class` and `Handling method xxx` are output, but there is no mock replacement happen at the expected code line, please check whether the mock method definition matches the target method
+
+For situations where expected mocking is not take effect, you could set the diagnosis level to `MockDiagnose.VERBOSE` for further investigation information.
+
+```java
+@MockWith(diagnose = MockDiagnose.VERBOSE)
+class DemoTest {
+    ...
+}
+```
+
+Executing the unit test again will print out the runtime-signatures of all mock methods, and the runtime-signatures of all invocations scanned in the class under test:
+
+```text
+[DIAGNOSE] Handling test class com/alibaba/testable/demo/DemoMockTest
+[VERBOSE]    Mock constructor "createBlackBox" as "(Ljava/lang/String;)V" for "com/alibaba/testable/demo/model/BlackBox"
+[VERBOSE]    Mock method "innerFunc" as "(Ljava/lang/String;)Ljava/lang/String;"
+[VERBOSE]    Mock method "staticFunc" as "()Ljava/lang/String;"
+[VERBOSE]    Mock method "trim" as "()Ljava/lang/String;"
+[VERBOSE]    Mock method "sub" as "(II)Ljava/lang/String;"
+[VERBOSE]    Mock method "startsWith" as "(Ljava/lang/String;)Z"
+[VERBOSE]    Mock method "secretBox" as "()Lcom/alibaba/testable/demo/model/BlackBox;"
+[VERBOSE]    Mock method "callFromDifferentMethod" as "()Ljava/lang/String;"
+[DIAGNOSE]   Found 8 mock methods
+[DIAGNOSE] Handling source class com/alibaba/testable/demo/DemoMock
+[DIAGNOSE]   Handling method <init>
+[VERBOSE]      Line 13, constructing "java/lang/Object" as "()V"
+[DIAGNOSE]   Handling method newFunc
+[VERBOSE]      Line 19, constructing "com/alibaba/testable/demo/model/BlackBox" as "(Ljava/lang/String;)V"
+[DIAGNOSE]     Line 19, mock method "createBlackBox" used
+[VERBOSE]      Line 19, invoking "createBlackBox" as "(Ljava/lang/String;)Lcom/alibaba/testable/demo/model/BlackBox;"
+[VERBOSE]      Line 20, invoking "get" as "()Ljava/lang/String;"
+[DIAGNOSE]   Handling method outerFunc
+[VERBOSE]      Line 27, constructing "java/lang/StringBuilder" as "()V"
+[VERBOSE]      Line 27, invoking "append" as "(Ljava/lang/String;)Ljava/lang/StringBuilder;"
+[VERBOSE]      Line 27, invoking "innerFunc" as "(Ljava/lang/String;)Ljava/lang/String;"
+[DIAGNOSE]     Line 27, mock method "innerFunc" used
+[VERBOSE]      Line 27, invoking "innerFunc" as "(Ljava/lang/String;)Ljava/lang/String;"
+[VERBOSE]      Line 27, invoking "append" as "(Ljava/lang/String;)Ljava/lang/StringBuilder;"
+[VERBOSE]      Line 27, invoking "staticFunc" as "()Ljava/lang/String;"
+[DIAGNOSE]     Line 27, mock method "staticFunc" used
+[VERBOSE]      Line 27, invoking "append" as "(Ljava/lang/String;)Ljava/lang/StringBuilder;"
+[VERBOSE]      Line 27, invoking "append" as "(Ljava/lang/String;)Ljava/lang/StringBuilder;"
+[VERBOSE]      Line 27, invoking "toString" as "()Ljava/lang/String;"
+... ...
+```
+
+The logs are formatted in follow pattern:
+
+- `Mock constructor "<MockMethodName>" as "<Signature>" for "<TypeName>"` Mock constructor found in test class
+- `Mock method "<MockMethodName>" as "<Signature>"` Mock method found in test class (the first parameter that identify the mock target class is currently kept)
+- `Line XX, constructing "<TypeName>" as "<Signature>"` Constructor invocation found in test under class
+- `Line XX, invoking "<MethodName>" as "<Signature>"` Member method invocation found in test under class

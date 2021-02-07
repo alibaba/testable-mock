@@ -18,6 +18,13 @@ When accessing and modifying private and constant members, the IDE may prompt so
 
 For the effect, see the use case in the test class of the `java-demo` sample project `DemoPrivateAccessTest`. (Using compile-time code enhancement, currently only the adaptation of the Java language is implemented)
 
+> This function assumes that the test class is in the same package as the class under test, and the name is `<ClassUnderTest>+Test`. When this convention is not met, you can use the `srcClass` parameter on the `@EnablePrivateAccess` annotation to specify the actual class under test. E.g:
+>
+> ```java
+> @EnablePrivateAccess(srcClass = DemoServiceImpl.class)
+> class DemoServiceTest() { ... }
+> ```
+
 ### Solution 2: Use the `PrivateAccessor` tool class
 
 If you don't want to see the IDE's syntax error reminder, or in a non-Java language JVM project (such as Kotlin language), you can also use the `PrivateAccessor` tool class to directly access private members.
@@ -31,4 +38,14 @@ This class provides 6 static methods:
 - `PrivateAccessor.setStatic(<ClassUnderTest>, "<private-static-field-name>", <new-value>)` ➜ modify the **static** private field (or **static** constant field) of the class under test
 - `PrivateAccessor.invokeStatic(<ClassUnderTest>, "<private-static-method-name>", <call-parameters>..)` ➜ call the **static** private method of the class under test
 
+Using the `PrivateAccessor` class does not require the test class to have `@EnablePrivateAccess` annotation, but adding this annotation will enable the compile-time verification for the private members of the class under test, and it is usually recommended to use together.
+
 For details, see the use cases in the test classes of the `java-demo` and `kotlin-demo` sample projects `DemoPrivateAccessTest`.
+
+### Compile-time verification of private members
+
+Both of the above two methods essentially use JVM reflection mechanism to achieve private member access, and the JVM compiler does not check the existence of the reflection target. Thus, if the private method names or parameters are modified duration future refactor, it may cause unintuitive errors when the unit test is running. To this end, `TestableMock` provides additional compile-time checks for the private targets accessed.
+
+The compile-time verification function is enabled by the `@EnablePrivateAccess` annotation, which takes effect by default for the case of private members accessed using `Solution 1`, and is disabled by default for the case of accessing private members via `Solution 2` (To enable it, give the test class an `@EnablePrivateAccess` annotation).
+
+> The compile-time verification function of `@EnablePrivateAccess` can be turned off manually, just set the `verifyTargetOnCompile` parameter of the annotation to `false`.

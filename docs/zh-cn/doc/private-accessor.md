@@ -18,6 +18,13 @@
 
 效果见`java-demo`示例项目`DemoPrivateAccessTest`测试类中的用例。
 
+> 此功能默认假设测试类与被测类同包，且名称为`被测类+Test`。当不符合此约定时，可在测试类的`@EnablePrivateAccess`注解上使用`srcClass`参数指定实际的被测类。例如：
+> 
+> ```java
+> @EnablePrivateAccess(srcClass = DemoServiceImpl.class)
+> class DemoServiceTest() { ... }
+> ```
+
 ### 方法二：使用`PrivateAccessor`工具类
 
 若不希望看到IDE的语法错误提醒，或是在非Java语言的JVM工程（譬如Kotlin语言）里，也可以借助`PrivateAccessor`工具类来直接访问私有成员。
@@ -31,4 +38,14 @@
 - `PrivateAccessor.setStatic(被测类型, "私有静态字段名", 新的值)` ➜ 修改被测类的**静态**私有字段（或**静态**常量字段）
 - `PrivateAccessor.invokeStatic(被测类型, "私有静态方法名", 调用参数..)` ➜ 调用被测类的**静态**私有方法
 
+使用`PrivateAccessor`工具类并不需要测试类具有`@EnablePrivateAccess`注解，但加上此注解将开启被测类私有成员的编译期校验功能，通常建议搭配使用。
+
 详见`java-demo`和`kotlin-demo`示例项目`DemoPrivateAccessTest`测试类中的用例。
+
+### 私有成员编译期校验
+
+以上两种方式本质上都是利用JVM的反射机制实现了私有成员访问，JVM编译器不会检查反射目标的存在性。当代码重构时，如果对源类型中的私有方法名称、参数进行了修改，可能导致在单元测试运行时出现较不直观的异常错误。为此，`TestableMock`对访问的私有目标提供了额外的编译期校验。
+
+编译期校验功能通过`@EnablePrivateAccess`注解开启，对使用`方法一`访问的私有成员的情况默认生效，而对通过`方法二`访问私有成员的情况默认关闭（若要启用，给测试类加上`@EnablePrivateAccess`注解即可）。
+
+> `@EnablePrivateAccess`注解的编译期校验功能可以手工关闭，只需将注释的`verifyTargetOnCompile`参数设为`false`。
