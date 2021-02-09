@@ -119,7 +119,6 @@ public class TestClassHandler extends BaseClassHandler {
         }
         for (AnnotationNode an : mn.visibleAnnotations) {
             if (ClassUtil.toByteCodeClassName(ConstPool.MOCK_METHOD).equals(an.desc) ||
-                ClassUtil.toByteCodeClassName(ConstPool.TESTABLE_MOCK).equals(an.desc) ||
                 ClassUtil.toByteCodeClassName(ConstPool.MOCK_CONSTRUCTOR).equals(an.desc)) {
                 return true;
             }

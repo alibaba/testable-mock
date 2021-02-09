@@ -155,8 +155,7 @@ public class TestableClassTransformer implements ClassFileTransformer {
                 LogUtil.verbose("   Mock constructor \"%s\" as \"(%s)V\" for \"%s\"", mn.name,
                     ClassUtil.extractParameters(mn.desc), ClassUtil.getReturnType(mn.desc));
                 addMockConstructor(methodInfos, cn, mn);
-            } else if (fullClassName.equals(ConstPool.MOCK_METHOD) ||
-                       fullClassName.equals(ConstPool.TESTABLE_MOCK)) {
+            } else if (fullClassName.equals(ConstPool.MOCK_METHOD)) {
                 LogUtil.verbose("   Mock method \"%s\" as \"%s\"", mn.name, mn.desc);
                 String targetMethod = AnnotationUtil.getAnnotationParameter(
                     an, ConstPool.FIELD_TARGET_METHOD, mn.name, String.class);
@@ -216,7 +215,6 @@ public class TestableClassTransformer implements ClassFileTransformer {
                     for (AnnotationNode an : mn.visibleAnnotations) {
                         String fullClassName = toDotSeparateFullClassName(an.desc);
                         if (fullClassName.equals(ConstPool.MOCK_METHOD) ||
-                            fullClassName.equals(ConstPool.TESTABLE_MOCK) ||
                             fullClassName.equals(ConstPool.MOCK_CONSTRUCTOR)) {
                             return true;
                         }
