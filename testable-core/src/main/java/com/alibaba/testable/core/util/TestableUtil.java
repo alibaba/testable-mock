@@ -15,10 +15,6 @@ public class TestableUtil {
      * [0]Thread.getStackTrace() → [1]previousStackLocation() → [2]Invoker -> [3]Caller of invoker
      */
     private static final int INDEX_OF_CALLER_METHOD = 3;
-    /**
-     * Just a special number to identify test worker thread
-     */
-    private static final int TEST_WORKER_THREAD_PRIORITY = 55555;
 
     /**
      * Get the last visit method in source file
@@ -38,19 +34,10 @@ public class TestableUtil {
         String testCaseName = findFirstMethodFromTestClass(testClassName, Thread.currentThread().getStackTrace());
         if (testCaseName.isEmpty()) {
             Set<Thread> threads = Thread.getAllStackTraces().keySet();
-            // try find previously marked thread
-            Thread testWorkerThread = findTestWorkerThread(threads);
-            if (testWorkerThread != null) {
-                testCaseName = findFirstMethodFromTestClass(testClassName, testWorkerThread.getStackTrace());
-                if (!testCaseName.isEmpty()) {
-                    return testCaseName;
-                }
-            }
             // travel all possible threads
             for (Thread t : threads) {
                 testCaseName = findFirstMethodFromTestClass(testClassName, t.getStackTrace());
                 if (!testCaseName.isEmpty()) {
-                    t.setPriority(TEST_WORKER_THREAD_PRIORITY);
                     return testCaseName;
                 }
             }
@@ -65,15 +52,6 @@ public class TestableUtil {
     public static String previousStackLocation() {
         StackTraceElement stack = Thread.currentThread().getStackTrace()[INDEX_OF_CALLER_METHOD];
         return stack.getFileName() + ":" + stack.getLineNumber();
-    }
-
-    private static Thread findTestWorkerThread(Set<Thread> threads) {
-        for (Thread t : threads) {
-            if (t.getPriority() == TEST_WORKER_THREAD_PRIORITY) {
-                return t;
-            }
-        }
-        return null;
     }
 
     private static String findFirstMethodFromTestClass(String testClassName, StackTraceElement[] stack) {
