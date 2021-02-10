@@ -2,6 +2,7 @@ package com.alibaba.testable.core.annotation;
 
 import com.alibaba.testable.core.model.MockDiagnose;
 
+import javax.lang.model.type.NullType;
 import java.lang.annotation.*;
 
 /**
@@ -13,6 +14,18 @@ import java.lang.annotation.*;
 @Target(ElementType.TYPE)
 @Documented
 public @interface MockWith {
+
+    /**
+     * explicitly specify mock class
+     * @return type of mock class
+     */
+    Class<?> value() default NullType.class;
+
+    /**
+     * treat current class as a source class
+     * @return true - source file, false - test file
+     */
+    boolean isSrc() default false;
 
     /**
      * switch of mock diagnose information of current test class
