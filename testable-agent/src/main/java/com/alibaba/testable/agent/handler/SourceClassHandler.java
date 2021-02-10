@@ -29,8 +29,9 @@ public class SourceClassHandler extends BaseClassHandler {
         add(Opcodes.INVOKEINTERFACE);
     }};
 
-    public SourceClassHandler(List<MethodInfo> injectMethods) {
+    public SourceClassHandler(List<MethodInfo> injectMethods, String mockClassName) {
         this.injectMethods = injectMethods;
+        this.mockClassName = mockClassName;
     }
 
     /**

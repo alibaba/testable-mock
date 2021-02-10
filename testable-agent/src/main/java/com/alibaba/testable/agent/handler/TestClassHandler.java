@@ -11,6 +11,7 @@ import org.objectweb.asm.tree.*;
 import javax.lang.model.type.NullType;
 import java.util.List;
 
+import static com.alibaba.testable.agent.constant.ConstPool.CONSTRUCTOR;
 import static com.alibaba.testable.agent.util.ClassUtil.toDotSeparateFullClassName;
 
 /**
@@ -35,13 +36,17 @@ public class TestClassHandler extends BaseClassHandler {
     private static final String SIGNATURE_INVOKE_RECORDER_METHOD = "([Ljava/lang/Object;ZZ)V";
     private static final String SIGNATURE_PARAMETERS = "Ljava/util/Map;";
 
+    public TestClassHandler(String mockClassName) {
+        this.mockClassName = mockClassName;
+    }
+
     /**
      * Handle bytecode of test class
      * @param cn original class node
      */
     @Override
     protected void transform(ClassNode cn) {
-        if (wasTransformed(cn, REF_TESTABLE_CONTEXT, ClassUtil.toByteCodeClassName(CLASS_MOCK_CONTEXT))) {
+        if (wasTransformed(cn, REF_TESTABLE_CONTEXT, ClassUtil.toByteCodeClassName(mockClassName))) {
             return;
         }
         for (MethodNode mn : cn.methods) {
@@ -58,7 +63,7 @@ public class TestClassHandler extends BaseClassHandler {
         InsnList il = new InsnList();
         il.add(new TypeInsnNode(NEW, CLASS_MOCK_CONTEXT));
         il.add(new InsnNode(DUP));
-        il.add(new MethodInsnNode(INVOKESPECIAL, CLASS_MOCK_CONTEXT, "<init>", "()V", false));
+        il.add(new MethodInsnNode(INVOKESPECIAL, CLASS_MOCK_CONTEXT, CONSTRUCTOR, "()V", false));
         il.add(new FieldInsnNode(PUTSTATIC, cn.name, REF_TESTABLE_CONTEXT,
             ClassUtil.toByteCodeClassName(CLASS_MOCK_CONTEXT)));
         mn.instructions.insertBefore(mn.instructions.get(0), il);

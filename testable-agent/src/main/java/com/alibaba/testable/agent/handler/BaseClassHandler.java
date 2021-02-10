@@ -15,6 +15,8 @@ import java.util.Iterator;
  */
 abstract public class BaseClassHandler implements Opcodes {
 
+    protected String mockClassName;
+
     protected boolean wasTransformed(ClassNode cn, String refName, String refDescriptor) {
         Iterator<FieldNode> iterator = cn.fields.iterator();
         if (iterator.hasNext()) {
@@ -24,7 +26,6 @@ abstract public class BaseClassHandler implements Opcodes {
                 return true;
             }
         }
-        // TODO: `ACC_STATIC` should be removed in v0.5 to shorten the life cycle of this variable
         cn.fields.add(new FieldNode(ACC_PRIVATE | ACC_STATIC, refName, refDescriptor, null, null));
         return false;
     }

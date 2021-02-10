@@ -15,7 +15,7 @@ import static org.objectweb.asm.Opcodes.*;
 
 class SourceClassHandlerTest {
 
-    private final SourceClassHandler handler = new SourceClassHandler(new ArrayList<MethodInfo>());
+    private final SourceClassHandler handler = new SourceClassHandler(new ArrayList<MethodInfo>(), "");
 
     @Test
     void should_get_member_method_start() {

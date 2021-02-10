@@ -28,8 +28,7 @@ import java.security.ProtectionDomain;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.alibaba.testable.agent.constant.ConstPool.DOT;
-import static com.alibaba.testable.agent.constant.ConstPool.SLASH;
+import static com.alibaba.testable.agent.constant.ConstPool.*;
 import static com.alibaba.testable.agent.util.ClassUtil.toDotSeparateFullClassName;
 import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
 import static org.objectweb.asm.Opcodes.ACC_STATIC;
@@ -68,25 +67,27 @@ public class TestableClassTransformer implements ClassFileTransformer {
         LogUtil.verbose("Handle class: " + className);
         byte[] bytes = null;
         try {
-            String mockClass = foundMockForSourceClass(className);
-            if (mockClass != null) {
-                // it's a source class with testable enabled
-                List<MethodInfo> injectMethods = getTestableMockMethods(mockClass);
-                LogUtil.diagnose("Handling source class %s", className);
-                bytes = new SourceClassHandler(injectMethods).getBytes(classFileBuffer);
+            if (isMockClass(className)) {
+                // it's a mock class
+                LogUtil.diagnose("Handling mock class %s", className);
+                bytes = new MockClassHandler(className).getBytes(classFileBuffer);
                 dumpByte(className, bytes);
             } else {
-                mockClass = foundMockForTestClass(className);
+                String mockClass = foundMockForTestClass(className);
                 if (mockClass != null) {
                     // it's a test class with testable enabled
                     LogUtil.diagnose("Handling test class %s", className);
-                    bytes = new TestClassHandler().getBytes(classFileBuffer);
+                    bytes = new TestClassHandler(mockClass).getBytes(classFileBuffer);
                     dumpByte(className, bytes);
-                } else if (isMockClass(className)) {
-                    // it's a mock class
-                    LogUtil.diagnose("Handling mock class %s", className);
-                    bytes = new MockClassHandler().getBytes(classFileBuffer);
-                    dumpByte(className, bytes);
+                } else {
+                    mockClass = foundMockForSourceClass(className);
+                    if (mockClass != null) {
+                        // it's a source class with testable enabled
+                        List<MethodInfo> injectMethods = getTestableMockMethods(mockClass);
+                        LogUtil.diagnose("Handling source class %s", className);
+                        bytes = new SourceClassHandler(injectMethods, mockClass).getBytes(classFileBuffer);
+                        dumpByte(className, bytes);
+                    }
                 }
             }
         } catch (Throwable t) {
@@ -104,7 +105,7 @@ public class TestableClassTransformer implements ClassFileTransformer {
             return;
         }
         try {
-            String dumpFile = StringUtil.joinPath(dumpDir, className.replaceAll(SLASH, DOT) + ".class");
+            String dumpFile = StringUtil.joinPath(dumpDir, className.replace(SLASH, DOT).replace(DOLLAR, UNDERLINE) + ".class");
             LogUtil.verbose("Dump class: " + dumpFile);
             FileOutputStream stream = new FileOutputStream(dumpFile);
             stream.write(bytes);
@@ -125,6 +126,10 @@ public class TestableClassTransformer implements ClassFileTransformer {
     private String foundMockForTestClass(String className) {
         String mockClass = readMockWithAnnotationAndInnerClassAsTestClass(className);
         if (mockClass != null) {
+            return mockClass;
+        }
+        mockClass = ClassUtil.getInnerMockClassName(className);
+        if (isMockClass(mockClass)) {
             return mockClass;
         }
         mockClass = ClassUtil.getMockClassName(ClassUtil.getSourceClassName(className));
