@@ -1,6 +1,5 @@
 package com.alibaba.testable.agent.handler;
 
-import com.alibaba.testable.agent.constant.ConstPool;
 import com.alibaba.testable.agent.model.MethodInfo;
 import com.alibaba.testable.agent.model.ModifiedInsnNodes;
 import com.alibaba.testable.agent.tool.ImmutablePair;
@@ -13,6 +12,8 @@ import org.objectweb.asm.tree.*;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import static com.alibaba.testable.agent.constant.ConstPool.CONSTRUCTOR;
 
 /**
  * @author flin
@@ -40,13 +41,13 @@ public class SourceClassHandler extends BaseClassHandler {
      */
     @Override
     protected void transform(ClassNode cn) {
-        if (wasTransformed(cn, TESTABLE_MARK_FIELD, "I")) {
+        if (wasTransformed(cn, TESTABLE_MARK_FIELD, ClassUtil.toByteCodeClassName(mockClassName))) {
             return;
         }
         Set<MethodInfo> memberInjectMethods = new HashSet<MethodInfo>();
         Set<MethodInfo> newOperatorInjectMethods = new HashSet<MethodInfo>();
         for (MethodInfo im : injectMethods) {
-            if (im.getName().equals(ConstPool.CONSTRUCTOR)) {
+            if (im.getName().equals(CONSTRUCTOR)) {
                 newOperatorInjectMethods.add(im);
             } else {
                 memberInjectMethods.add(im);
@@ -70,7 +71,7 @@ public class SourceClassHandler extends BaseClassHandler {
         do {
             if (invokeOps.contains(instructions[i].getOpcode())) {
                 MethodInsnNode node = (MethodInsnNode)instructions[i];
-                if (ConstPool.CONSTRUCTOR.equals(node.name)) {
+                if (CONSTRUCTOR.equals(node.name)) {
                     LogUtil.verbose("     Line %d, constructing \"%s\" as \"%s\"", getLineNum(instructions, i),
                         node.owner, node.desc);
                     String newOperatorInjectMethodName = getNewOperatorInjectMethodName(newOperatorInjectMethods, node);
@@ -209,7 +210,9 @@ public class SourceClassHandler extends BaseClassHandler {
         String classType = ((TypeInsnNode)instructions[start]).desc;
         String constructorDesc = ((MethodInsnNode)instructions[end]).desc;
         String testClassName = ClassUtil.getTestClassName(cn.name);
-        mn.instructions.insertBefore(instructions[end], new MethodInsnNode(INVOKESTATIC, testClassName,
+        mn.instructions.insertBefore(instructions[start], new MethodInsnNode(INVOKESTATIC, mockClassName,
+            REF_GET_INSTANCE, VOID_ARGS + ClassUtil.toByteCodeClassName(mockClassName), false));
+        mn.instructions.insertBefore(instructions[end], new MethodInsnNode(INVOKEVIRTUAL, testClassName,
             newOperatorInjectMethodName, getConstructorInjectDesc(constructorDesc, classType), false));
         mn.instructions.remove(instructions[start]);
         mn.instructions.remove(instructions[start + 1]);
@@ -238,6 +241,8 @@ public class SourceClassHandler extends BaseClassHandler {
             mockMethod.getMockName());
         boolean shouldAppendTypeParameter = !mockMethod.getDesc().equals(mockMethod.getMockDesc());
         String testClassName = ClassUtil.getTestClassName(cn.name);
+        mn.instructions.insertBefore(instructions[start], new MethodInsnNode(INVOKESTATIC, mockClassName,
+            REF_GET_INSTANCE, VOID_ARGS + ClassUtil.toByteCodeClassName(mockClassName), false));
         if (Opcodes.INVOKESTATIC == opcode || isCompanionMethod(ownerClass, opcode)) {
             if (shouldAppendTypeParameter) {
                 // append a null value if it was a static invoke or in kotlin companion class
@@ -254,8 +259,8 @@ public class SourceClassHandler extends BaseClassHandler {
                 mn.instructions.remove(instructions[i]);
             }
         }
-        // method with @MockMethod will be modified as public static access, so INVOKESTATIC is used
-        mn.instructions.insertBefore(instructions[end], new MethodInsnNode(INVOKESTATIC, testClassName,
+        // method with @MockMethod will be modified as public access, so INVOKEVIRTUAL is used
+        mn.instructions.insertBefore(instructions[end], new MethodInsnNode(INVOKEVIRTUAL, testClassName,
             mockMethod.getMockName(), mockMethod.getMockDesc(), false));
         mn.instructions.remove(instructions[end]);
         return new ModifiedInsnNodes(mn.instructions.toArray(), 1);

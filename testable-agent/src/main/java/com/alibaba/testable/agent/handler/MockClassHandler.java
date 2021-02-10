@@ -11,9 +11,6 @@ import static com.alibaba.testable.agent.constant.ConstPool.CONSTRUCTOR;
 public class MockClassHandler extends BaseClassHandler {
 
     private static final String REF_INSTANCE = "_instance";
-    private static final String REF_GET_INSTANCE = "getInstance";
-    private static final String VOID_ARGS = "()";
-    private static final String VOID_RES = "V";
 
     public MockClassHandler(String className) {
         this.mockClassName = className;

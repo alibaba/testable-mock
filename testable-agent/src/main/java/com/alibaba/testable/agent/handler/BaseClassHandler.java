@@ -15,6 +15,10 @@ import java.util.Iterator;
  */
 abstract public class BaseClassHandler implements Opcodes {
 
+    protected static final String REF_GET_INSTANCE = "getInstance";
+    protected static final String VOID_ARGS = "()";
+    protected static final String VOID_RES = "V";
+
     protected String mockClassName;
 
     protected boolean wasTransformed(ClassNode cn, String refName, String refDescriptor) {
