@@ -11,6 +11,6 @@ public class MockContext {
     /**
      * Mock method name → ( key → value )
      */
-    public static final Map<String, Map<String, Object>> parameters = new HashMap<String, Map<String, Object>>();
+    public static final Map<String, HashMap<String, Object>> parameters = UnnullableMap.of(new HashMap<String, Object>());
 
 }

@@ -30,7 +30,9 @@ public class InvokeRecordUtil {
     public static void recordMockInvoke(Object[] args, boolean isConstructor, boolean isTargetClassInParameter) {
         StackTraceElement mockMethodTraceElement = Thread.currentThread().getStackTrace()[INDEX_OF_TEST_CLASS];
         String mockMethodName = mockMethodTraceElement.getMethodName();
-        String testClass = mockMethodTraceElement.getClassName();
+        String mockClass = mockMethodTraceElement.getClassName();
+        // TODO: temporary used
+        String testClass = mockClass.substring(0, mockClass.length() - 5);
         String testCaseName = TestableUtil.currentTestCaseName(testClass);
         String identify = getInvokeIdentify(mockMethodName, testClass, testCaseName);
         List<Object[]> records = getInvokeRecord(identify);

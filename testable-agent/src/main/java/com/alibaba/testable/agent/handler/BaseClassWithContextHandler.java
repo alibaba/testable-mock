@@ -1,6 +1,8 @@
 package com.alibaba.testable.agent.handler;
 
 import com.alibaba.testable.agent.util.ClassUtil;
+import com.alibaba.testable.core.util.InvokeRecordUtil;
+import com.alibaba.testable.core.util.TestableUtil;
 import org.objectweb.asm.tree.*;
 
 /**
@@ -25,6 +27,8 @@ abstract public class BaseClassWithContextHandler extends BaseClassHandler {
     private static final String CLASS_MAP = "java/util/Map";
     private static final String METHOD_MAP_GET = "get";
     private static final String SIGNATURE_MAP_GET = "(Ljava/lang/Object;)Ljava/lang/Object;";
+    private static final String CLASS_BASE_CLASS_WITH_CONTEXT_HANDLER
+        = "com/alibaba/testable/agent/handler/BaseClassWithContextHandler";
 
     protected AbstractInsnNode[] handleTestableUtil(ClassNode cn, MethodNode mn, AbstractInsnNode[] instructions, int i) {
         if (instructions[i].getOpcode() == GETSTATIC) {
@@ -54,8 +58,7 @@ abstract public class BaseClassWithContextHandler extends BaseClassHandler {
                 SIGNATURE_CURRENT_SOURCE_METHOD_NAME, false));
         } else if (FIELD_MOCK_CONTEXT.equals(fieldName)) {
             il.add(new FieldInsnNode(GETSTATIC, CLASS_MOCK_CONTEXT, FIELD_PARAMETERS, SIGNATURE_PARAMETERS));
-            il.add(new VarInsnNode(ALOAD, 0));
-            il.add(new MethodInsnNode(INVOKESPECIAL, cn.name, METHOD_GET_TEST_CASE_MARK,
+            il.add(new MethodInsnNode(INVOKESTATIC, CLASS_BASE_CLASS_WITH_CONTEXT_HANDLER, METHOD_GET_TEST_CASE_MARK,
                 SIGNATURE_GET_TEST_CASE_MARK, false));
             il.add(new MethodInsnNode(INVOKEINTERFACE, CLASS_MAP, METHOD_MAP_GET,
                 SIGNATURE_MAP_GET, true));
@@ -67,10 +70,12 @@ abstract public class BaseClassWithContextHandler extends BaseClassHandler {
         return mn.instructions.toArray();
     }
 
-    /**
-     * get mark compose by TestClass and TestCase
-     * @return test case mark
-     */
-    abstract protected String getTestCaseMark();
+    public static String getTestCaseMark() {
+        String clazz = Thread.currentThread().getStackTrace()[InvokeRecordUtil.INDEX_OF_TEST_CLASS].getClassName();
+        // TODO: temporary used
+        String testClass = clazz.endsWith("Mock") ? clazz.substring(0, clazz.length() - 5) : clazz;
+        String testCaseName = TestableUtil.currentTestCaseName(testClass);
+        return testClass + "::" + testCaseName;
+    }
 
 }

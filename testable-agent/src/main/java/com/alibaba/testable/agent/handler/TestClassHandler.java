@@ -26,13 +26,6 @@ public class TestClassHandler extends BaseClassWithContextHandler {
         }
     }
 
-    @Override
-    protected String getTestCaseMark() {
-        String testClass = Thread.currentThread().getStackTrace()[InvokeRecordUtil.INDEX_OF_TEST_CLASS].getClassName();
-        String testCaseName = TestableUtil.currentTestCaseName(testClass);
-        return testClass + "::" + testCaseName;
-    }
-
     private void handleInstruction(ClassNode cn, MethodNode mn) {
         AbstractInsnNode[] instructions = mn.instructions.toArray();
         for (int i = 0; i < instructions.length; i++) {

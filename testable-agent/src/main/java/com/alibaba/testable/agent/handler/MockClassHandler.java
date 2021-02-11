@@ -42,15 +42,6 @@ public class MockClassHandler extends BaseClassWithContextHandler {
         }
     }
 
-    @Override
-    protected String getTestCaseMark() {
-        String mockClass = Thread.currentThread().getStackTrace()[InvokeRecordUtil.INDEX_OF_TEST_CLASS].getClassName();
-        // TODO: temporary used
-        String testClass = mockClass.substring(0, mockClass.length() - 5);
-        String testCaseName = TestableUtil.currentTestCaseName(testClass);
-        return testClass + "::" + testCaseName;
-    }
-
     private void handleInstruction(ClassNode cn, MethodNode mn) {
         AbstractInsnNode[] instructions = mn.instructions.toArray();
         for (int i = 0; i < instructions.length; i++) {
