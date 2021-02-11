@@ -8,6 +8,9 @@ import java.util.Map;
  */
 public class MockContext {
 
-    public Map<String, Object> parameters = new HashMap<String, Object>();
+    /**
+     * Mock method name → ( key → value )
+     */
+    public static final Map<String, Map<String, Object>> parameters = new HashMap<String, Map<String, Object>>();
 
 }

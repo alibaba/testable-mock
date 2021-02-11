@@ -20,8 +20,6 @@ import static com.alibaba.testable.agent.constant.ConstPool.CONSTRUCTOR;
  */
 public class SourceClassHandler extends BaseClassHandler {
 
-    private static final String TESTABLE_MARK_FIELD = "__testable";
-
     private final List<MethodInfo> injectMethods;
     private final Set<Integer> invokeOps = new HashSet<Integer>() {{
         add(Opcodes.INVOKEVIRTUAL);
@@ -41,9 +39,6 @@ public class SourceClassHandler extends BaseClassHandler {
      */
     @Override
     protected void transform(ClassNode cn) {
-        if (wasTransformed(cn, TESTABLE_MARK_FIELD, ClassUtil.toByteCodeClassName(mockClassName))) {
-            return;
-        }
         Set<MethodInfo> memberInjectMethods = new HashSet<MethodInfo>();
         Set<MethodInfo> newOperatorInjectMethods = new HashSet<MethodInfo>();
         for (MethodInfo im : injectMethods) {
@@ -209,10 +204,9 @@ public class SourceClassHandler extends BaseClassHandler {
             newOperatorInjectMethodName);
         String classType = ((TypeInsnNode)instructions[start]).desc;
         String constructorDesc = ((MethodInsnNode)instructions[end]).desc;
-        String testClassName = ClassUtil.getTestClassName(cn.name);
         mn.instructions.insertBefore(instructions[start], new MethodInsnNode(INVOKESTATIC, mockClassName,
-            REF_GET_INSTANCE, VOID_ARGS + ClassUtil.toByteCodeClassName(mockClassName), false));
-        mn.instructions.insertBefore(instructions[end], new MethodInsnNode(INVOKEVIRTUAL, testClassName,
+            GET_TESTABLE_REF, VOID_ARGS + ClassUtil.toByteCodeClassName(mockClassName), false));
+        mn.instructions.insertBefore(instructions[end], new MethodInsnNode(INVOKEVIRTUAL, mockClassName,
             newOperatorInjectMethodName, getConstructorInjectDesc(constructorDesc, classType), false));
         mn.instructions.remove(instructions[start]);
         mn.instructions.remove(instructions[start + 1]);
@@ -240,9 +234,8 @@ public class SourceClassHandler extends BaseClassHandler {
         LogUtil.diagnose("    Line %d, mock method \"%s\" used", getLineNum(instructions, start),
             mockMethod.getMockName());
         boolean shouldAppendTypeParameter = !mockMethod.getDesc().equals(mockMethod.getMockDesc());
-        String testClassName = ClassUtil.getTestClassName(cn.name);
         mn.instructions.insertBefore(instructions[start], new MethodInsnNode(INVOKESTATIC, mockClassName,
-            REF_GET_INSTANCE, VOID_ARGS + ClassUtil.toByteCodeClassName(mockClassName), false));
+            GET_TESTABLE_REF, VOID_ARGS + ClassUtil.toByteCodeClassName(mockClassName), false));
         if (Opcodes.INVOKESTATIC == opcode || isCompanionMethod(ownerClass, opcode)) {
             if (shouldAppendTypeParameter) {
                 // append a null value if it was a static invoke or in kotlin companion class
@@ -260,7 +253,7 @@ public class SourceClassHandler extends BaseClassHandler {
             }
         }
         // method with @MockMethod will be modified as public access, so INVOKEVIRTUAL is used
-        mn.instructions.insertBefore(instructions[end], new MethodInsnNode(INVOKEVIRTUAL, testClassName,
+        mn.instructions.insertBefore(instructions[end], new MethodInsnNode(INVOKEVIRTUAL, mockClassName,
             mockMethod.getMockName(), mockMethod.getMockDesc(), false));
         mn.instructions.remove(instructions[end]);
         return new ModifiedInsnNodes(mn.instructions.toArray(), 1);

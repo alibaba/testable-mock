@@ -4,6 +4,8 @@ import com.alibaba.testable.agent.constant.ConstPool;
 import com.alibaba.testable.agent.tool.ImmutablePair;
 import com.alibaba.testable.agent.util.AnnotationUtil;
 import com.alibaba.testable.agent.util.ClassUtil;
+import com.alibaba.testable.core.util.InvokeRecordUtil;
+import com.alibaba.testable.core.util.TestableUtil;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.*;
 
@@ -16,9 +18,8 @@ import static com.alibaba.testable.agent.util.ClassUtil.toDotSeparateFullClassNa
 /**
  * @author flin
  */
-public class MockClassHandler extends BaseClassHandler {
+public class MockClassHandler extends BaseClassWithContextHandler {
 
-    private static final String REF_INSTANCE = "_instance";
     private static final String CLASS_INVOKE_RECORD_UTIL = "com/alibaba/testable/core/util/InvokeRecordUtil";
     private static final String METHOD_RECORD_MOCK_INVOKE = "recordMockInvoke";
     private static final String SIGNATURE_INVOKE_RECORDER_METHOD = "([Ljava/lang/Object;ZZ)V";
@@ -29,9 +30,6 @@ public class MockClassHandler extends BaseClassHandler {
 
     @Override
     protected void transform(ClassNode cn) {
-        if (wasTransformed(cn, REF_INSTANCE, ClassUtil.toByteCodeClassName(mockClassName))) {
-            return;
-        }
         addGetInstanceMethod(cn);
         for (MethodNode mn : cn.methods) {
             if (isMockMethod(mn)) {
@@ -39,25 +37,41 @@ public class MockClassHandler extends BaseClassHandler {
                 mn.access &= ~ACC_PROTECTED;
                 mn.access |= ACC_PUBLIC;
                 injectInvokeRecorder(mn);
+                handleInstruction(cn, mn);
             }
         }
     }
 
+    @Override
+    protected String getTestCaseMark() {
+        String mockClass = Thread.currentThread().getStackTrace()[InvokeRecordUtil.INDEX_OF_TEST_CLASS].getClassName();
+        // TODO: temporary used
+        String testClass = mockClass.substring(0, mockClass.length() - 5);
+        String testCaseName = TestableUtil.currentTestCaseName(testClass);
+        return testClass + "::" + testCaseName;
+    }
+
+    private void handleInstruction(ClassNode cn, MethodNode mn) {
+        AbstractInsnNode[] instructions = mn.instructions.toArray();
+        for (int i = 0; i < instructions.length; i++) {
+            instructions = handleTestableUtil(cn, mn, instructions, i);
+        }
+    }
+
     private void addGetInstanceMethod(ClassNode cn) {
-        MethodNode getInstanceMethod = new MethodNode(ACC_PUBLIC | ACC_STATIC, REF_GET_INSTANCE,
+        MethodNode getInstanceMethod = new MethodNode(ACC_PUBLIC | ACC_STATIC, GET_TESTABLE_REF,
             VOID_ARGS + ClassUtil.toByteCodeClassName(mockClassName), null, null);
         InsnList il = new InsnList();
-        il.add(new FieldInsnNode(GETSTATIC, mockClassName, REF_INSTANCE,
-            ClassUtil.toByteCodeClassName(mockClassName)));
+        il.add(new FieldInsnNode(GETSTATIC, mockClassName, TESTABLE_REF, ClassUtil.toByteCodeClassName(mockClassName)));
         LabelNode label = new LabelNode();
         il.add(new JumpInsnNode(IFNONNULL, label));
         il.add(new TypeInsnNode(NEW, mockClassName));
         il.add(new InsnNode(DUP));
         il.add(new MethodInsnNode(INVOKESPECIAL, mockClassName, CONSTRUCTOR, VOID_ARGS + VOID_RES, false));
-        il.add(new FieldInsnNode(PUTSTATIC, mockClassName, REF_INSTANCE, ClassUtil.toByteCodeClassName(mockClassName)));
+        il.add(new FieldInsnNode(PUTSTATIC, mockClassName, TESTABLE_REF, ClassUtil.toByteCodeClassName(mockClassName)));
         il.add(label);
         il.add(new FrameNode(F_SAME, 0, null, 0, null));
-        il.add(new FieldInsnNode(GETSTATIC, mockClassName, REF_INSTANCE, ClassUtil.toByteCodeClassName(mockClassName)));
+        il.add(new FieldInsnNode(GETSTATIC, mockClassName, TESTABLE_REF, ClassUtil.toByteCodeClassName(mockClassName)));
         il.add(new InsnNode(ARETURN));
         getInstanceMethod.instructions = il;
         getInstanceMethod.maxStack = 2;
