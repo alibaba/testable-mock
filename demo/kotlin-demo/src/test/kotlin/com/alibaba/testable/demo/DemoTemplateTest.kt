@@ -14,29 +14,30 @@ internal class DemoTemplateTest {
 
     private val demoTemplate = DemoTemplate()
 
-    @MockMethod
-    private fun <T> getList(self: DemoTemplate, value: T): List<T> {
-        return mutableListOf((value.toString() + "_mock_list") as T)
-    }
+    class Mock {
+        @MockMethod
+        private fun <T> getList(self: DemoTemplate, value: T): List<T> {
+            return mutableListOf((value.toString() + "_mock_list") as T)
+        }
 
-    @MockMethod
-    private fun <K, V> getMap(self: DemoTemplate, key: K, value: V): Map<K, V> {
-        return mutableMapOf(key to (value.toString() + "_mock_map") as V)
-    }
+        @MockMethod
+        private fun <K, V> getMap(self: DemoTemplate, key: K, value: V): Map<K, V> {
+            return mutableMapOf(key to (value.toString() + "_mock_map") as V)
+        }
 
-    @MockConstructor
-    private fun newHashSet(): HashSet<*> {
-        val set = HashSet<Any>()
-        set.add("insert_mock")
-        return set
-    }
+        @MockConstructor
+        private fun newHashSet(): HashSet<*> {
+            val set = HashSet<Any>()
+            set.add("insert_mock")
+            return set
+        }
 
-    @MockMethod
-    private fun <E> add(s: MutableSet<E>, e: E): Boolean {
-        s.add((e.toString() + "_mocked") as E)
-        return true
+        @MockMethod
+        private fun <E> add(s: MutableSet<E>, e: E): Boolean {
+            s.add((e.toString() + "_mocked") as E)
+            return true
+        }
     }
-
 
     @Test
     fun should_able_to_mock_single_template_method() {

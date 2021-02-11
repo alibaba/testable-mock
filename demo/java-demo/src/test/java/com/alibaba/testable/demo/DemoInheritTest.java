@@ -17,36 +17,37 @@ class DemoInheritTest {
 
     private DemoInherit demoInherit = new DemoInherit();
 
-    @MockMethod(targetMethod = "put")
-    private void put_into_box(Box self, String something) {
-        self.put("put_" + something + "_into_box");
-    }
+    public static class Mock {
+        @MockMethod(targetMethod = "put")
+        private void put_into_box(Box self, String something) {
+            self.put("put_" + something + "_into_box");
+        }
 
-    @MockMethod(targetMethod = "put")
-    private void put_into_blackbox(BlackBox self, String something) {
-        self.put("put_" + something + "_into_blackbox");
-    }
+        @MockMethod(targetMethod = "put")
+        private void put_into_blackbox(BlackBox self, String something) {
+            self.put("put_" + something + "_into_blackbox");
+        }
 
-    @MockMethod(targetMethod = "get")
-    private String get_from_box(Box self) {
-        return "get_from_box";
-    }
+        @MockMethod(targetMethod = "get")
+        private String get_from_box(Box self) {
+            return "get_from_box";
+        }
 
-    @MockMethod(targetMethod = "get")
-    private String get_from_blackbox(BlackBox self) {
-        return "get_from_blackbox";
-    }
+        @MockMethod(targetMethod = "get")
+        private String get_from_blackbox(BlackBox self) {
+            return "get_from_blackbox";
+        }
 
-    @MockMethod(targetMethod = "getColor")
-    private String get_color_from_color(Color self) {
-        return "color_from_color";
-    }
+        @MockMethod(targetMethod = "getColor")
+        private String get_color_from_color(Color self) {
+            return "color_from_color";
+        }
 
-    @MockMethod(targetMethod = "getColor")
-    private String get_color_from_blackbox(BlackBox self) {
+        @MockMethod(targetMethod = "getColor")
+        private String get_color_from_blackbox(BlackBox self) {
         return "color_from_blackbox";
     }
-
+    }
 
     @Test
     void should_able_to_mock_call_sub_object_method_by_parent_object() {

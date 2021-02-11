@@ -17,15 +17,16 @@ class DemoMatcherTest {
 
     private DemoMatcher demoMatcher = new DemoMatcher();
 
-    @MockMethod(targetMethod = "methodToBeMocked")
-    private void methodWithoutArgument(DemoMatcher self) {}
+    public static class Mock {
+        @MockMethod(targetMethod = "methodToBeMocked")
+        private void methodWithoutArgument(DemoMatcher self) {}
 
-    @MockMethod(targetMethod = "methodToBeMocked")
-    private void methodWithArguments(DemoMatcher self, Object a1, Object a2) {}
+        @MockMethod(targetMethod = "methodToBeMocked")
+        private void methodWithArguments(DemoMatcher self, Object a1, Object a2) {}
 
-    @MockMethod(targetMethod = "methodToBeMocked")
-    private void methodWithArrayArgument(DemoMatcher self, Object[] a) {}
-
+        @MockMethod(targetMethod = "methodToBeMocked")
+        private void methodWithArrayArgument(DemoMatcher self, Object[] a) {}
+    }
 
     @Test
     void should_match_no_argument() {

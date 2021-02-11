@@ -7,34 +7,36 @@ import java.io.File
 
 class PathUtilTest {
 
-    @MockMethod
-    fun exists(f: File): Boolean {
-        return when (f.absolutePath) {
-            "/a/b" -> true
-            "/a/b/c" -> true
-            else -> f.exists()
+    class Mock {
+        @MockMethod
+        fun exists(f: File): Boolean {
+            return when (f.absolutePath) {
+                "/a/b" -> true
+                "/a/b/c" -> true
+                else -> f.exists()
+            }
         }
-    }
 
-    @MockMethod
-    fun isDirectory(f: File): Boolean {
-        return when (f.absolutePath) {
-            "/a/b/c" -> true
-            else -> f.isDirectory
+        @MockMethod
+        fun isDirectory(f: File): Boolean {
+            return when (f.absolutePath) {
+                "/a/b/c" -> true
+                else -> f.isDirectory
+            }
         }
-    }
 
-    @MockMethod
-    fun delete(f: File): Boolean {
-        return true
-    }
+        @MockMethod
+        fun delete(f: File): Boolean {
+            return true
+        }
 
-    @MockMethod
-    fun listFiles(f: File): Array<File>? {
-        return when (f.absolutePath) {
-            "/a/b" -> arrayOf(File("/a/b/c"), File("/a/b/d"))
-            "/a/b/c" -> arrayOf(File("/a/b/c/e"))
-            else -> f.listFiles()
+        @MockMethod
+        fun listFiles(f: File): Array<File>? {
+            return when (f.absolutePath) {
+                "/a/b" -> arrayOf(File("/a/b/c"), File("/a/b/d"))
+                "/a/b/c" -> arrayOf(File("/a/b/c/e"))
+                else -> f.listFiles()
+            }
         }
     }
 

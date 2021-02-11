@@ -16,36 +16,37 @@ internal class DemoInheritTest {
 
     private val demoInherit = DemoInherit()
 
-    @MockMethod(targetMethod = "put")
-    private fun put_into_box(self: Box, something: String) {
-        self.put("put_" + something + "_into_box")
-    }
+    class Mock {
+        @MockMethod(targetMethod = "put")
+        private fun put_into_box(self: Box, something: String) {
+            self.put("put_" + something + "_into_box")
+        }
 
-    @MockMethod(targetMethod = "put")
-    private fun put_into_blackbox(self: BlackBox, something: String) {
-        self.put("put_" + something + "_into_blackbox")
-    }
+        @MockMethod(targetMethod = "put")
+        private fun put_into_blackbox(self: BlackBox, something: String) {
+            self.put("put_" + something + "_into_blackbox")
+        }
 
-    @MockMethod(targetMethod = "get")
-    private fun get_from_box(self: Box): String {
-        return "get_from_box"
-    }
+        @MockMethod(targetMethod = "get")
+        private fun get_from_box(self: Box): String {
+            return "get_from_box"
+        }
 
-    @MockMethod(targetMethod = "get")
-    private fun get_from_blackbox(self: BlackBox): String {
-        return "get_from_blackbox"
-    }
+        @MockMethod(targetMethod = "get")
+        private fun get_from_blackbox(self: BlackBox): String {
+            return "get_from_blackbox"
+        }
 
-    @MockMethod(targetMethod = "getColor")
-    private fun get_color_from_color(self: Color): String {
-        return "color_from_color"
-    }
+        @MockMethod(targetMethod = "getColor")
+        private fun get_color_from_color(self: Color): String {
+            return "color_from_color"
+        }
 
-    @MockMethod(targetMethod = "getColor")
-    private fun get_color_from_blackbox(self: BlackBox): String {
-        return "color_from_blackbox"
+        @MockMethod(targetMethod = "getColor")
+        private fun get_color_from_blackbox(self: BlackBox): String {
+            return "color_from_blackbox"
+        }
     }
-
 
     @Test
     fun should_able_to_mock_call_sub_object_method_by_parent_object() {

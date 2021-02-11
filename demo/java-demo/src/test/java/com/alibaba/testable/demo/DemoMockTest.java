@@ -20,52 +20,55 @@ class DemoMockTest {
 
     private DemoMock demoMock = new DemoMock();
 
-    @MockConstructor
-    private BlackBox createBlackBox(String text) {
-        return new BlackBox("mock_" + text);
-    }
-
-    @MockMethod(targetClass = DemoMock.class)
-    private String innerFunc(String text) {
-        return "mock_" + text;
-    }
-
-    @MockMethod(targetClass = DemoMock.class)
-    private String staticFunc() {
-        return "_MOCK_TAIL";
-    }
-
-    @MockMethod(targetClass = String.class)
-    private String trim() {
-        return "trim_string";
-    }
-
-    @MockMethod(targetClass = String.class, targetMethod = "substring")
-    private String sub(int i, int j) {
-        return "sub_string";
-    }
-
-    @MockMethod(targetClass = String.class)
-    private boolean startsWith(String s) {
-        return false;
-    }
-
-    @MockMethod(targetClass = BlackBox.class)
-    private BlackBox secretBox() {
-        return new BlackBox("not_secret_box");
-    }
-
-    @MockMethod(targetClass = DemoMock.class)
-    private String callFromDifferentMethod() {
-        if ("special_case".equals(MOCK_CONTEXT.get("case"))) {
-            return "mock_special";
+    public static class Mock {
+        @MockConstructor
+        private BlackBox createBlackBox(String text) {
+            return new BlackBox("mock_" + text);
         }
-        switch (SOURCE_METHOD) {
-            case "callerOne": return "mock_one";
-            default: return "mock_others";
+
+        @MockMethod(targetClass = DemoMock.class)
+        private String innerFunc(String text) {
+            return "mock_" + text;
+        }
+
+        @MockMethod(targetClass = DemoMock.class)
+        private String staticFunc() {
+            return "_MOCK_TAIL";
+        }
+
+        @MockMethod(targetClass = String.class)
+        private String trim() {
+            return "trim_string";
+        }
+
+        @MockMethod(targetClass = String.class, targetMethod = "substring")
+        private String sub(int i, int j) {
+            return "sub_string";
+        }
+
+        @MockMethod(targetClass = String.class)
+        private boolean startsWith(String s) {
+            return false;
+        }
+
+        @MockMethod(targetClass = BlackBox.class)
+        private BlackBox secretBox() {
+            return new BlackBox("not_secret_box");
+        }
+
+        @MockMethod(targetClass = DemoMock.class)
+        private String callFromDifferentMethod() {
+            if ("special_case".equals(MOCK_CONTEXT.get("case"))) {
+                return "mock_special";
+            }
+            switch (SOURCE_METHOD) {
+                case "callerOne":
+                    return "mock_one";
+                default:
+                    return "mock_others";
+            }
         }
     }
-
 
     @Test
     void should_able_to_mock_new_object() {

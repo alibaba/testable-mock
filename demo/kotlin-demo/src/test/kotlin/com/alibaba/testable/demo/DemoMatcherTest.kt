@@ -16,18 +16,19 @@ internal class DemoMatcherTest {
 
     private val demoMatcher = DemoMatcher()
 
-    @MockMethod(targetMethod = "methodToBeMocked")
-    private fun methodWithoutArgument(self: DemoMatcher) {
-    }
+    class Mock {
+        @MockMethod(targetMethod = "methodToBeMocked")
+        private fun methodWithoutArgument(self: DemoMatcher) {
+        }
 
-    @MockMethod(targetMethod = "methodToBeMocked")
-    private fun methodWithArguments(self: DemoMatcher, a1: Any, a2: Any) {
-    }
+        @MockMethod(targetMethod = "methodToBeMocked")
+        private fun methodWithArguments(self: DemoMatcher, a1: Any, a2: Any) {
+        }
 
-    @MockMethod(targetMethod = "methodToBeMocked")
-    private fun methodWithArrayArgument(self: DemoMatcher, a: Array<Any>) {
+        @MockMethod(targetMethod = "methodToBeMocked")
+        private fun methodWithArrayArgument(self: DemoMatcher, a: Array<Any>) {
+        }
     }
-
 
     @Test
     fun should_match_no_argument() {

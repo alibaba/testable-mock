@@ -19,48 +19,49 @@ internal class DemoMockTest {
 
     private val demoMock = DemoMock()
 
-    @MockConstructor
-    private fun createBlackBox(text: String) = BlackBox("mock_$text")
+    class Mock {
+        @MockConstructor
+        private fun createBlackBox(text: String) = BlackBox("mock_$text")
 
-    @MockMethod(targetClass = DemoMock::class)
-    private fun innerFunc(text: String) = "mock_$text"
+        @MockMethod(targetClass = DemoMock::class)
+        private fun innerFunc(text: String) = "mock_$text"
 
-    @MockMethod(targetClass = DemoMock::class)
-    private fun staticFunc(): String {
-        return "_MOCK_TAIL";
-    }
+        @MockMethod(targetClass = DemoMock::class)
+        private fun staticFunc(): String {
+            return "_MOCK_TAIL";
+        }
 
-    @MockMethod(targetClass = BlackBox::class)
-    private fun trim() = "trim_string"
+        @MockMethod(targetClass = BlackBox::class)
+        private fun trim() = "trim_string"
 
-    @MockMethod(targetClass = BlackBox::class, targetMethod = "substring")
-    private fun sub(i: Int, j: Int) = "sub_string"
+        @MockMethod(targetClass = BlackBox::class, targetMethod = "substring")
+        private fun sub(i: Int, j: Int) = "sub_string"
 
-    @MockMethod(targetClass = BlackBox::class)
-    private fun startsWith(s: String) = false
+        @MockMethod(targetClass = BlackBox::class)
+        private fun startsWith(s: String) = false
 
-    @MockMethod(targetClass = BlackBox::class)
-    private fun secretBox(): BlackBox {
-        return BlackBox("not_secret_box")
-    }
+        @MockMethod(targetClass = BlackBox::class)
+        private fun secretBox(): BlackBox {
+            return BlackBox("not_secret_box")
+        }
 
-    @MockMethod(targetClass = ColorBox::class)
-    private fun createBox(color: String, box: BlackBox): BlackBox {
-        return BlackBox("White_${box.get()}")
-    }
+        @MockMethod(targetClass = ColorBox::class)
+        private fun createBox(color: String, box: BlackBox): BlackBox {
+            return BlackBox("White_${box.get()}")
+        }
 
-    @MockMethod(targetClass = DemoMock::class)
-    private fun callFromDifferentMethod(): String {
-        return if (MOCK_CONTEXT["case"] == "special_case") {
-            "mock_special"
-        } else {
-            when (SOURCE_METHOD) {
-                "callerOne" -> "mock_one"
-                else -> "mock_others"
+        @MockMethod(targetClass = DemoMock::class)
+        private fun callFromDifferentMethod(): String {
+            return if (MOCK_CONTEXT["case"] == "special_case") {
+                "mock_special"
+            } else {
+                when (SOURCE_METHOD) {
+                    "callerOne" -> "mock_one"
+                    else -> "mock_others"
+                }
             }
         }
     }
-
 
     @Test
     fun should_able_to_mock_new_object() {

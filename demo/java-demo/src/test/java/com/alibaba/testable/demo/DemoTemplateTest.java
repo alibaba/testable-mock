@@ -16,58 +16,59 @@ class DemoTemplateTest {
 
     private DemoTemplate demoTemplate = new DemoTemplate();
 
-    /* 第一种写法：使用泛型定义 */
-    /* First solution: use generics type */
+    public static class Mock {
+        /* 第一种写法：使用泛型定义 */
+        /* First solution: use generics type */
 
-    @MockMethod
-    private static <T> List<T> getList(DemoTemplate self, T value) {
-        return new ArrayList<T>() {{ add((T)(value.toString() + "_mock_list")); }};
+        @MockMethod
+        private <T> List<T> getList(DemoTemplate self, T value) {
+            return new ArrayList<T>() {{ add((T)(value.toString() + "_mock_list")); }};
+        }
+
+        @MockMethod
+        private <K, V> Map<K, V> getMap(DemoTemplate self, K key, V value) {
+            return new HashMap<K, V>() {{ put(key, (V)(value.toString() + "_mock_map")); }};
+        }
+
+        @MockConstructor
+        private <T> HashSet<T> newHashSet() {
+            HashSet<T> set = new HashSet<>();
+            set.add((T)"insert_mock");
+            return set;
+        }
+
+        @MockMethod
+        private <E> boolean add(Set s, E e) {
+            s.add(e.toString() + "_mocked");
+            return true;
+        }
+
+        /* 第二种写法：使用Object类型 */
+        /* Second solution: use object type */
+
+        //@MockMethod
+        //private List<Object> getList(DemoTemplate self, Object value) {
+        //    return new ArrayList<Object>() {{ add(value.toString() + "_mock_list"); }};
+        //}
+        //
+        //@MockMethod
+        //private Map<Object, Object> getMap(DemoTemplate self, Object key, Object value) {
+        //    return new HashMap<Object, Object>() {{ put(key, value.toString() + "_mock_map"); }};
+        //}
+        //
+        //@MockConstructor
+        //private HashSet newHashSet() {
+        //    HashSet<Object> set = new HashSet<>();
+        //    set.add("insert_mock");
+        //    return set;
+        //}
+        //
+        //@MockMethod
+        //private boolean add(Set s, Object e) {
+        //    s.add(e.toString() + "_mocked");
+        //    return true;
+        //}
     }
-
-    @MockMethod
-    private static <K, V> Map<K, V> getMap(DemoTemplate self, K key, V value) {
-        return new HashMap<K, V>() {{ put(key, (V)(value.toString() + "_mock_map")); }};
-    }
-
-    @MockConstructor
-    private <T> HashSet<T> newHashSet() {
-        HashSet<T> set = new HashSet<>();
-        set.add((T)"insert_mock");
-        return set;
-    }
-
-    @MockMethod
-    private <E> boolean add(Set s, E e) {
-        s.add(e.toString() + "_mocked");
-        return true;
-    }
-
-    /* 第二种写法：使用Object类型 */
-    /* Second solution: use object type */
-
-    //@MockMethod
-    //private static List<Object> getList(DemoTemplate self, Object value) {
-    //    return new ArrayList<Object>() {{ add(value.toString() + "_mock_list"); }};
-    //}
-    //
-    //@MockMethod
-    //private static Map<Object, Object> getMap(DemoTemplate self, Object key, Object value) {
-    //    return new HashMap<Object, Object>() {{ put(key, value.toString() + "_mock_map"); }};
-    //}
-    //
-    //@MockConstructor
-    //private HashSet newHashSet() {
-    //    HashSet<Object> set = new HashSet<>();
-    //    set.add("insert_mock");
-    //    return set;
-    //}
-    //
-    //@MockMethod
-    //private boolean add(Set s, Object e) {
-    //    s.add(e.toString() + "_mocked");
-    //    return true;
-    //}
-
 
     @Test
     void should_able_to_mock_single_template_method() {
