@@ -12,7 +12,7 @@ abstract public class BaseClassWithContextHandler extends BaseClassHandler {
 
     private static final String CLASS_TESTABLE_TOOL = "com/alibaba/testable/core/tool/TestableTool";
     private static final String CLASS_TESTABLE_UTIL = "com/alibaba/testable/core/util/TestableUtil";
-    private static final String CLASS_MOCK_CONTEXT = "com/alibaba/testable/agent/model/MockContext";
+    private static final String CLASS_MOCK_CONTEXT_HOLDER = "com/alibaba/testable/agent/model/MockContextHolder";
     private static final String FIELD_TEST_CASE = "TEST_CASE";
     private static final String FIELD_SOURCE_METHOD = "SOURCE_METHOD";
     private static final String FIELD_MOCK_CONTEXT = "MOCK_CONTEXT";
@@ -57,7 +57,7 @@ abstract public class BaseClassWithContextHandler extends BaseClassHandler {
             il.add(new MethodInsnNode(INVOKESTATIC, CLASS_TESTABLE_UTIL, METHOD_CURRENT_SOURCE_METHOD_NAME,
                 SIGNATURE_CURRENT_SOURCE_METHOD_NAME, false));
         } else if (FIELD_MOCK_CONTEXT.equals(fieldName)) {
-            il.add(new FieldInsnNode(GETSTATIC, CLASS_MOCK_CONTEXT, FIELD_PARAMETERS, SIGNATURE_PARAMETERS));
+            il.add(new FieldInsnNode(GETSTATIC, CLASS_MOCK_CONTEXT_HOLDER, FIELD_PARAMETERS, SIGNATURE_PARAMETERS));
             il.add(new MethodInsnNode(INVOKESTATIC, CLASS_BASE_CLASS_WITH_CONTEXT_HANDLER, METHOD_GET_TEST_CASE_MARK,
                 SIGNATURE_GET_TEST_CASE_MARK, false));
             il.add(new MethodInsnNode(INVOKEINTERFACE, CLASS_MAP, METHOD_MAP_GET,

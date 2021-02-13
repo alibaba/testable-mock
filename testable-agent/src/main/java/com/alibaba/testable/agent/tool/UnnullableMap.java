@@ -1,4 +1,4 @@
-package com.alibaba.testable.agent.model;
+package com.alibaba.testable.agent.tool;
 
 import com.alibaba.testable.core.accessor.PrivateAccessor;
 

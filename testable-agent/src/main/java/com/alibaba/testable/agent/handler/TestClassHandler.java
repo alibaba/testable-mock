@@ -1,15 +1,25 @@
 package com.alibaba.testable.agent.handler;
 
-import com.alibaba.testable.core.util.InvokeRecordUtil;
-import com.alibaba.testable.core.util.TestableUtil;
-import org.objectweb.asm.tree.AbstractInsnNode;
-import org.objectweb.asm.tree.ClassNode;
-import org.objectweb.asm.tree.MethodNode;
+import com.alibaba.testable.agent.util.ClassUtil;
+import org.objectweb.asm.tree.*;
+
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * @author flin
  */
 public class TestClassHandler extends BaseClassWithContextHandler {
+
+    private static final String CLASS_MOCK_CONTEXT_UTIL = "com/alibaba/testable/core/util/MockContextUtil";
+    private static final String METHOD_INIT = "init";
+    private static final String DESC_METHOD_INIT = "(Ljava/lang/String;Ljava/lang/String;)V";
+    private final List<String> testAnnotations = Arrays.asList(
+        // JUnit 4
+        "org.junit.Test",
+        // JUnit 5
+        "org.junit.jupiter.api.Test"
+    );
 
     public TestClassHandler(String mockClassName) {
         this.mockClassName = mockClassName;
@@ -23,11 +33,32 @@ public class TestClassHandler extends BaseClassWithContextHandler {
     protected void transform(ClassNode cn) {
         for (MethodNode mn : cn.methods) {
             handleInstruction(cn, mn);
+            handleTestCaseMethod(cn, mn);
         }
+    }
+
+    private void handleTestCaseMethod(ClassNode cn, MethodNode mn) {
+        if (mn.visibleAnnotations == null) {
+            return;
+        }
+        for (AnnotationNode an : mn.visibleAnnotations) {
+            if (testAnnotations.contains(ClassUtil.toDotSeparateFullClassName(an.desc))) {
+                injectMockContextInit(cn.name, mn);
+            }
+        }
+    }
+
+    private void injectMockContextInit(String testClassName, MethodNode mn) {
+        InsnList il = new InsnList();
+        il.add(new LdcInsnNode(testClassName));
+        il.add(new LdcInsnNode(mn.name));
+        il.add(new MethodInsnNode(INVOKESTATIC, CLASS_MOCK_CONTEXT_UTIL, METHOD_INIT, DESC_METHOD_INIT, false));
+        mn.instructions.insertBefore(mn.instructions.getFirst(), il);
     }
 
     private void handleInstruction(ClassNode cn, MethodNode mn) {
         AbstractInsnNode[] instructions = mn.instructions.toArray();
+        // Note: instructions.length will change when instructions updated
         for (int i = 0; i < instructions.length; i++) {
             instructions = handleTestableUtil(cn, mn, instructions, i);
         }

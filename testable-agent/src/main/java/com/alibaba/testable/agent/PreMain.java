@@ -2,6 +2,7 @@ package com.alibaba.testable.agent;
 
 import com.alibaba.testable.agent.transformer.TestableClassTransformer;
 import com.alibaba.testable.agent.util.GlobalConfig;
+import com.alibaba.ttl.threadpool.agent.TtlAgent;
 
 import java.lang.instrument.Instrumentation;
 
@@ -20,6 +21,8 @@ public class PreMain {
     public static void premain(String agentArgs, Instrumentation inst) {
         parseArgs(agentArgs);
         inst.addTransformer(new TestableClassTransformer());
+        // add TTL Transformer
+        TtlAgent.premain(agentArgs, inst);
     }
 
     private static void parseArgs(String args) {

@@ -15,9 +15,15 @@
 
     <properties>
         <junit.version>5.6.2</junit.version>
+        <transmittable.thread.local.version>2.12.1</transmittable.thread.local.version>
     </properties>
 
     <dependencies>
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>transmittable-thread-local</artifactId>
+            <version>${transmittable.thread.local.version}</version>
+        </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>

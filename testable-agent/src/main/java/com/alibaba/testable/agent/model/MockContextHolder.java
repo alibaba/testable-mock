@@ -1,12 +1,14 @@
 package com.alibaba.testable.agent.model;
 
+import com.alibaba.testable.agent.tool.UnnullableMap;
+
 import java.util.HashMap;
 import java.util.Map;
 
 /**
  * @author flin
  */
-public class MockContext {
+public class MockContextHolder {
 
     /**
      * Mock method name → ( key → value )
