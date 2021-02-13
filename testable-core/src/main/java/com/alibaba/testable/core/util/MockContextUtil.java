@@ -3,9 +3,12 @@ package com.alibaba.testable.core.util;
 import com.alibaba.testable.core.model.MockContext;
 import com.alibaba.ttl.TransmittableThreadLocal;
 
+import java.util.List;
+import java.util.Map;
+
 public class MockContextUtil {
 
-    public static TransmittableThreadLocal<MockContext> context = new TransmittableThreadLocal<MockContext>();
+    public static InheritableThreadLocal<MockContext> context = new TransmittableThreadLocal<MockContext>();
 
     /**
      * Should be invoked at the beginning of each test case method
@@ -21,8 +24,11 @@ public class MockContextUtil {
         context.remove();
     }
 
-    public static String testCaseMark() {
-        MockContext context = MockContextUtil.context.get();
-        return context.testClassName + "::" + context.testCaseName;
+    public static Map<String, Object> parameters() {
+        return MockContextUtil.context.get().parameters;
+    }
+
+    public static Map<String, List<Object[]>> invokeRecord() {
+        return MockContextUtil.context.get().invokeRecord;
     }
 }

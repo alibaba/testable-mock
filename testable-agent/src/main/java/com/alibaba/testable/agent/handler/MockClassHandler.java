@@ -4,8 +4,6 @@ import com.alibaba.testable.agent.constant.ConstPool;
 import com.alibaba.testable.agent.tool.ImmutablePair;
 import com.alibaba.testable.agent.util.AnnotationUtil;
 import com.alibaba.testable.agent.util.ClassUtil;
-import com.alibaba.testable.core.util.InvokeRecordUtil;
-import com.alibaba.testable.core.util.TestableUtil;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.*;
 

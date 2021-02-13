@@ -1,4 +1,4 @@
-package com.alibaba.testable.agent.tool;
+package com.alibaba.testable.core.util;
 
 import com.alibaba.testable.core.accessor.PrivateAccessor;
 
@@ -15,7 +15,7 @@ public class UnnullableMap<K, V> extends HashMap<K, V> {
         this.defaultValue = defaultValue;
     }
 
-    public static <K, V> UnnullableMap<K, V> of(V defaultValue) {
+    public static <K, V, T extends V> UnnullableMap<K, V> of(T defaultValue) {
         return new UnnullableMap<K, V>(defaultValue);
     }
 

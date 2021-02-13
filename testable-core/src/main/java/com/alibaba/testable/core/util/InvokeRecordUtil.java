@@ -1,20 +1,9 @@
 package com.alibaba.testable.core.util;
 
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-
 /**
  * @author flin
  */
 public class InvokeRecordUtil {
-
-    /**
-     * Mock method name → List of invoke parameters
-     */
-    private static final Map<String, List<Object[]>> INVOKE_RECORDS = new HashMap<String, List<Object[]>>();
-    private final static String JOINER = "::";
 
     /**
      * [0]Thread → [1]TestableUtil/TestableTool → [2]TestClass
@@ -32,37 +21,13 @@ public class InvokeRecordUtil {
         String mockMethodName = mockMethodTraceElement.getMethodName();
         String testClass = MockContextUtil.context.get().testClassName;
         String testCaseName = MockContextUtil.context.get().testCaseName;
-        String identify = getInvokeIdentify(mockMethodName, testClass, testCaseName);
-        List<Object[]> records = getInvokeRecord(identify);
         if (isConstructor) {
-            records.add(args);
-            LogUtil.verbose("  Mock constructor invoked \"%s\"", identify);
+            MockContextUtil.invokeRecord().get(mockMethodName).add(args);
+            LogUtil.verbose("  Mock constructor \"%s\" invoked in %s::%s", mockMethodName, testClass, testCaseName);
         } else {
-            records.add(isTargetClassInParameter ? slice(args, 1) : args);
-            LogUtil.verbose("  Mock method invoked \"%s\"", identify);
+            MockContextUtil.invokeRecord().get(mockMethodName).add(isTargetClassInParameter ? slice(args, 1) : args);
+            LogUtil.verbose("  Mock method \"%s\" invoked in %s::%s\"", mockMethodName, testClass, testCaseName);
         }
-        INVOKE_RECORDS.put(identify, records);
-    }
-
-    /**
-     * Get identify key for mock invocation record
-     * @param mockMethodName mock method name
-     * @param testClass test class name
-     * @param testCaseName test case name
-     * @return identify key
-     */
-    public static String getInvokeIdentify(String mockMethodName, String testClass, String testCaseName) {
-        return testClass + JOINER + testCaseName + JOINER + mockMethodName;
-    }
-
-    /**
-     * Get mock method invoke count
-     * @param identify key of invocation record
-     * @return parameters used when specified method invoked in specified test case
-     */
-    public static List<Object[]> getInvokeRecord(String identify) {
-        List<Object[]> records = INVOKE_RECORDS.get(identify);
-        return (records == null) ? new LinkedList<Object[]>() : records;
     }
 
     private static Object[] slice(Object[] args, int firstIndex) {

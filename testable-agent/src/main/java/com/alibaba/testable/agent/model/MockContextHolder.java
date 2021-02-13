@@ -1,6 +1,6 @@
 package com.alibaba.testable.agent.model;
 
-import com.alibaba.testable.agent.tool.UnnullableMap;
+import com.alibaba.testable.core.util.UnnullableMap;
 
 import java.util.HashMap;
 import java.util.Map;
