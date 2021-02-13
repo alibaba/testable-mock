@@ -18,7 +18,9 @@ public class TestClassHandler extends BaseClassWithContextHandler {
         // JUnit 4
         "org.junit.Test",
         // JUnit 5
-        "org.junit.jupiter.api.Test"
+        "org.junit.jupiter.api.Test",
+        // TestNG
+        "org.testng.annotations.Test"
     );
 
     public TestClassHandler(String mockClassName) {
@@ -32,7 +34,7 @@ public class TestClassHandler extends BaseClassWithContextHandler {
     @Override
     protected void transform(ClassNode cn) {
         for (MethodNode mn : cn.methods) {
-            handleInstruction(cn, mn);
+            handleTestableUtil(mn);
             handleTestCaseMethod(cn, mn);
         }
     }
@@ -54,14 +56,6 @@ public class TestClassHandler extends BaseClassWithContextHandler {
         il.add(new LdcInsnNode(mn.name));
         il.add(new MethodInsnNode(INVOKESTATIC, CLASS_MOCK_CONTEXT_UTIL, METHOD_INIT, DESC_METHOD_INIT, false));
         mn.instructions.insertBefore(mn.instructions.getFirst(), il);
-    }
-
-    private void handleInstruction(ClassNode cn, MethodNode mn) {
-        AbstractInsnNode[] instructions = mn.instructions.toArray();
-        // Note: instructions.length will change when instructions updated
-        for (int i = 0; i < instructions.length; i++) {
-            instructions = handleTestableUtil(cn, mn, instructions, i);
-        }
     }
 
 }

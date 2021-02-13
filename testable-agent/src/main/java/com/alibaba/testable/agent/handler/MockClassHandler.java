@@ -35,15 +35,8 @@ public class MockClassHandler extends BaseClassWithContextHandler {
                 mn.access &= ~ACC_PROTECTED;
                 mn.access |= ACC_PUBLIC;
                 injectInvokeRecorder(mn);
-                handleInstruction(cn, mn);
+                handleTestableUtil(mn);
             }
-        }
-    }
-
-    private void handleInstruction(ClassNode cn, MethodNode mn) {
-        AbstractInsnNode[] instructions = mn.instructions.toArray();
-        for (int i = 0; i < instructions.length; i++) {
-            instructions = handleTestableUtil(cn, mn, instructions, i);
         }
     }
 
