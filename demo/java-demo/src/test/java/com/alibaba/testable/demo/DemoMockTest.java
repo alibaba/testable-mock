@@ -108,14 +108,13 @@ class DemoMockTest {
     }
 
     @Test
-    void should_able_to_get_test_case_name() throws Exception {
+    void should_able_to_set_mock_context() throws Exception {
         MOCK_CONTEXT.put("case", "special_case");
         // synchronous
         assertEquals("mock_special", demoMock.callerOne());
         // asynchronous
         assertEquals("mock_special", Executors.newSingleThreadExecutor().submit(() -> demoMock.callerOne()).get());
         verify("callFromDifferentMethod").withTimes(2);
-        MOCK_CONTEXT.clear();
     }
 
 }

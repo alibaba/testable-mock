@@ -1,8 +1,6 @@
 package com.alibaba.testable.agent.handler;
 
-import com.alibaba.testable.agent.util.ClassUtil;
-import com.alibaba.testable.core.util.InvokeRecordUtil;
-import com.alibaba.testable.core.util.TestableUtil;
+import com.alibaba.testable.core.util.MockContextUtil;
 import org.objectweb.asm.tree.*;
 
 /**
@@ -13,14 +11,11 @@ abstract public class BaseClassWithContextHandler extends BaseClassHandler {
     private static final String CLASS_TESTABLE_TOOL = "com/alibaba/testable/core/tool/TestableTool";
     private static final String CLASS_TESTABLE_UTIL = "com/alibaba/testable/core/util/TestableUtil";
     private static final String CLASS_MOCK_CONTEXT_HOLDER = "com/alibaba/testable/agent/model/MockContextHolder";
-    private static final String FIELD_TEST_CASE = "TEST_CASE";
     private static final String FIELD_SOURCE_METHOD = "SOURCE_METHOD";
     private static final String FIELD_MOCK_CONTEXT = "MOCK_CONTEXT";
     private static final String FIELD_PARAMETERS = "parameters";
-    private static final String METHOD_CURRENT_TEST_CASE_NAME = "currentTestCaseName";
     private static final String METHOD_CURRENT_SOURCE_METHOD_NAME = "currentSourceMethodName";
     private static final String METHOD_GET_TEST_CASE_MARK = "getTestCaseMark";
-    private static final String SIGNATURE_CURRENT_TEST_CASE_NAME = "(Ljava/lang/String;)Ljava/lang/String;";
     private static final String SIGNATURE_CURRENT_SOURCE_METHOD_NAME = "()Ljava/lang/String;";
     private static final String SIGNATURE_GET_TEST_CASE_MARK = "()Ljava/lang/String;";
     private static final String SIGNATURE_PARAMETERS = "Ljava/util/Map;";
@@ -42,18 +37,13 @@ abstract public class BaseClassWithContextHandler extends BaseClassHandler {
 
     private boolean isTestableUtilField(FieldInsnNode fieldInsnNode) {
         return fieldInsnNode.owner.equals(CLASS_TESTABLE_TOOL) &&
-            (fieldInsnNode.name.equals(FIELD_TEST_CASE) || fieldInsnNode.name.equals(FIELD_SOURCE_METHOD) ||
-                fieldInsnNode.name.equals(FIELD_MOCK_CONTEXT));
+            (fieldInsnNode.name.equals(FIELD_SOURCE_METHOD) || fieldInsnNode.name.equals(FIELD_MOCK_CONTEXT));
     }
 
     private AbstractInsnNode[] replaceTestableUtilField(ClassNode cn, MethodNode mn, AbstractInsnNode[] instructions,
                                                         String fieldName, int pos) {
         InsnList il = new InsnList();
-        if (FIELD_TEST_CASE.equals(fieldName)) {
-            il.add(new LdcInsnNode(ClassUtil.toDotSeparatedName(cn.name)));
-            il.add(new MethodInsnNode(INVOKESTATIC, CLASS_TESTABLE_UTIL, METHOD_CURRENT_TEST_CASE_NAME,
-                SIGNATURE_CURRENT_TEST_CASE_NAME, false));
-        } else if (FIELD_SOURCE_METHOD.equals(fieldName)) {
+        if (FIELD_SOURCE_METHOD.equals(fieldName)) {
             il.add(new MethodInsnNode(INVOKESTATIC, CLASS_TESTABLE_UTIL, METHOD_CURRENT_SOURCE_METHOD_NAME,
                 SIGNATURE_CURRENT_SOURCE_METHOD_NAME, false));
         } else if (FIELD_MOCK_CONTEXT.equals(fieldName)) {
@@ -71,10 +61,8 @@ abstract public class BaseClassWithContextHandler extends BaseClassHandler {
     }
 
     public static String getTestCaseMark() {
-        String clazz = Thread.currentThread().getStackTrace()[InvokeRecordUtil.INDEX_OF_TEST_CLASS].getClassName();
-        // TODO: temporary used
-        String testClass = clazz.endsWith("Mock") ? clazz.substring(0, clazz.length() - 5) : clazz;
-        String testCaseName = TestableUtil.currentTestCaseName(testClass);
+        String testClass = MockContextUtil.context.get().testClassName;
+        String testCaseName = MockContextUtil.context.get().testCaseName;
         return testClass + "::" + testCaseName;
     }
 

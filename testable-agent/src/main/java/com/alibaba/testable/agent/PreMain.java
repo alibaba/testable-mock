@@ -19,10 +19,11 @@ public class PreMain {
     private static final String EQUAL = "=";
 
     public static void premain(String agentArgs, Instrumentation inst) {
+        // add transmittable thread local transformer
+        TtlAgent.premain(agentArgs, inst);
+        // add testable mock transformer
         parseArgs(agentArgs);
         inst.addTransformer(new TestableClassTransformer());
-        // add TTL Transformer
-        TtlAgent.premain(agentArgs, inst);
     }
 
     private static void parseArgs(String args) {
