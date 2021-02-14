@@ -12,7 +12,6 @@ public class ConstPool {
 
     public static final String TEST_POSTFIX = "Test";
     public static final String MOCK_POSTFIX = "Mock";
-    public static final String INNER_MOCK_CLASS = "$Mock";
 
     public static final String FIELD_TARGET_METHOD = "targetMethod";
     public static final String FIELD_TARGET_CLASS = "targetClass";

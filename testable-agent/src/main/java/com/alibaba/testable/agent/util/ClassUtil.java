@@ -85,15 +85,6 @@ public class ClassUtil {
     }
 
     /**
-     * get inner mock class name from test class name
-     * @param testClassName test class name
-     * @return mock class name
-     */
-    public static String getInnerMockClassName(String testClassName) {
-        return testClassName + ConstPool.INNER_MOCK_CLASS;
-    }
-
-    /**
      * get mock class name from source class name
      * @param sourceClassName source class name
      * @return mock class name

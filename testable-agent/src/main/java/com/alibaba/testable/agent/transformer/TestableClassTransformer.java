@@ -12,6 +12,7 @@ import com.alibaba.testable.agent.util.GlobalConfig;
 import com.alibaba.testable.agent.util.StringUtil;
 import com.alibaba.testable.core.model.MockDiagnose;
 import com.alibaba.testable.core.util.LogUtil;
+import com.alibaba.testable.core.util.MockContextUtil;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AnnotationNode;
@@ -43,10 +44,6 @@ public class TestableClassTransformer implements ClassFileTransformer {
     private static final String FIELD_DIAGNOSE = "diagnose";
     private static final String COMMA = ",";
 
-    /**
-     * mock class referred by @MockWith annotation from test or source class
-     */
-    private static final List<String> mockClassesReferred = new ArrayList<String>();
     private static final String CLASS_NAME_MOCK = "Mock";
 
     /**
@@ -128,10 +125,6 @@ public class TestableClassTransformer implements ClassFileTransformer {
         if (mockClass != null) {
             return mockClass;
         }
-        mockClass = ClassUtil.getInnerMockClassName(className);
-        if (isMockClass(mockClass)) {
-            return mockClass;
-        }
         mockClass = ClassUtil.getMockClassName(ClassUtil.getSourceClassName(className));
         if (isMockClass(mockClass)) {
             return mockClass;
@@ -140,7 +133,7 @@ public class TestableClassTransformer implements ClassFileTransformer {
     }
 
     private boolean isMockClass(String className) {
-        return mockClassesReferred.contains(className) || hasMockMethod(className);
+        return MockContextUtil.mockToTests.containsKey(className) || hasMockMethod(className);
     }
 
     private boolean isSystemClass(String className) {
@@ -173,18 +166,16 @@ public class TestableClassTransformer implements ClassFileTransformer {
     }
 
     private List<MethodInfo> getTestableMockMethods(String className) {
-        try {
-            List<MethodInfo> methodInfos = new ArrayList<MethodInfo>();
-            ClassNode cn = new ClassNode();
-            new ClassReader(className).accept(cn, 0);
-            for (MethodNode mn : cn.methods) {
-                checkMethodAnnotation(cn, methodInfos, mn);
-            }
-            LogUtil.diagnose("  Found %d mock methods", methodInfos.size());
-            return methodInfos;
-        } catch (Exception e) {
+        List<MethodInfo> methodInfos = new ArrayList<MethodInfo>();
+        ClassNode cn = getClassNode(className);
+        if (cn == null) {
             return new ArrayList<MethodInfo>();
         }
+        for (MethodNode mn : cn.methods) {
+            checkMethodAnnotation(cn, methodInfos, mn);
+        }
+        LogUtil.diagnose("  Found %d mock methods", methodInfos.size());
+        return methodInfos;
     }
 
     private void checkMethodAnnotation(ClassNode cn, List<MethodInfo> methodInfos, MethodNode mn) {
@@ -241,28 +232,11 @@ public class TestableClassTransformer implements ClassFileTransformer {
      * @return name of mock class, null for not found
      */
     private String readMockWithAnnotationAsSourceClass(String className) {
-        try {
-            ClassNode cn = new ClassNode();
-            new ClassReader(className).accept(cn, 0);
-            if (cn.visibleAnnotations != null) {
-                for (AnnotationNode an : cn.visibleAnnotations) {
-                    if (toDotSeparateFullClassName(an.desc).equals(ConstPool.MOCK_WITH)) {
-                        setupDiagnose(an);
-                        if (AnnotationUtil.getAnnotationParameter(an, FIELD_IS_SRC, false, boolean.class)) {
-                            Class<?> value = AnnotationUtil.getAnnotationParameter(an, FIELD_VALUE, null, Class.class);
-                            if (value != null && !NullType.class.equals(value)) {
-                                mockClassesReferred.add(value.getName());
-                                return value.getName();
-                            }
-                        }
-                    }
-                }
-            }
-        } catch (Exception e) {
-            // Usually class not found, return without record
+        ClassNode cn = getClassNode(className);
+        if (cn == null) {
             return null;
         }
-        return null;
+        return parseMockWithAnnotation(cn, true);
     }
 
     /**
@@ -271,31 +245,43 @@ public class TestableClassTransformer implements ClassFileTransformer {
      * @return name of mock class, null for not found
      */
     private String readMockWithAnnotationAndInnerClassAsTestClass(String className) {
-        try {
-            ClassNode cn = new ClassNode();
-            new ClassReader(className).accept(cn, 0);
-            if (cn.visibleAnnotations != null) {
-                for (AnnotationNode an : cn.visibleAnnotations) {
-                    if (toDotSeparateFullClassName(an.desc).equals(ConstPool.MOCK_WITH)) {
-                        setupDiagnose(an);
-                        if (!AnnotationUtil.getAnnotationParameter(an, FIELD_IS_SRC, false, boolean.class)) {
-                            Class<?> value = AnnotationUtil.getAnnotationParameter(an, FIELD_VALUE, null, Class.class);
-                            if (value != null && !NullType.class.equals(value)) {
-                                mockClassesReferred.add(value.getName());
-                                return value.getName();
-                            }
+        ClassNode cn = getClassNode(className);
+        if (cn == null) {
+            return null;
+        }
+        String mockClassName = parseMockWithAnnotation(cn, false);
+        if (mockClassName != null) {
+            MockContextUtil.mockToTests.get(mockClassName).add(className);
+            return ClassUtil.toSlashSeparatedName(mockClassName);
+        }
+        for (InnerClassNode ic : cn.innerClasses) {
+            if ((ic.access & ACC_PUBLIC) != 0 && (ic.access & ACC_STATIC) != 0 &&
+                ic.name.equals(getInnerMockClassName(className))) {
+                return ic.name;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Get mock class from @MockWith annotation
+     * @param cn class that may have @MockWith annotation
+     * @return mock class name
+     */
+    private String parseMockWithAnnotation(ClassNode cn, boolean isSrc) {
+        if (cn.visibleAnnotations != null) {
+            for (AnnotationNode an : cn.visibleAnnotations) {
+                if (toDotSeparateFullClassName(an.desc).equals(ConstPool.MOCK_WITH)) {
+                    setupDiagnose(an);
+                    if (AnnotationUtil.getAnnotationParameter(an, FIELD_IS_SRC, false, boolean.class) == isSrc) {
+                        Type clazz = AnnotationUtil.getAnnotationParameter(an, FIELD_VALUE, null, Type.class);
+                        if (clazz == null || NullType.class.getName().equals(clazz.getClassName())) {
+                            return null;
                         }
+                        return clazz.getClassName();
                     }
                 }
             }
-            for (InnerClassNode ic : cn.innerClasses) {
-                if ((ic.access & ACC_PUBLIC) != 0 && (ic.access & ACC_STATIC) != 0 && ic.name.equals(CLASS_NAME_MOCK)) {
-                    return ic.name;
-                }
-            }
-        } catch (Exception e) {
-            // Usually class not found, return without record
-            return null;
         }
         return null;
     }
@@ -306,25 +292,36 @@ public class TestableClassTransformer implements ClassFileTransformer {
      * @return found annotation or not
      */
     private boolean hasMockMethod(String className) {
-        try {
-            ClassNode cn = new ClassNode();
-            new ClassReader(className).accept(cn, 0);
-            for (MethodNode mn : cn.methods) {
-                if (mn.visibleAnnotations != null) {
-                    for (AnnotationNode an : mn.visibleAnnotations) {
-                        String fullClassName = toDotSeparateFullClassName(an.desc);
-                        if (fullClassName.equals(ConstPool.MOCK_METHOD) ||
-                            fullClassName.equals(ConstPool.MOCK_CONSTRUCTOR)) {
-                            return true;
-                        }
+        ClassNode cn = getClassNode(className);
+        if (cn == null) {
+            return false;
+        }
+        for (MethodNode mn : cn.methods) {
+            if (mn.visibleAnnotations != null) {
+                for (AnnotationNode an : mn.visibleAnnotations) {
+                    String fullClassName = toDotSeparateFullClassName(an.desc);
+                    if (fullClassName.equals(ConstPool.MOCK_METHOD) ||
+                        fullClassName.equals(ConstPool.MOCK_CONSTRUCTOR)) {
+                        return true;
                     }
                 }
             }
-        } catch (Exception e) {
-            // Usually class not found, return without record
-            return false;
         }
         return false;
+    }
+
+    private String getInnerMockClassName(String className) {
+        return className + DOLLAR + CLASS_NAME_MOCK;
+    }
+
+    private ClassNode getClassNode(String className) {
+        ClassNode cn = new ClassNode();
+        try {
+            new ClassReader(className).accept(cn, 0);
+        } catch (IOException e) {
+            return null;
+        }
+        return cn;
     }
 
     private void setupDiagnose(AnnotationNode an) {

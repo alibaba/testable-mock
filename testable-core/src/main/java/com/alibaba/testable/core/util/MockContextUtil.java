@@ -3,11 +3,16 @@ package com.alibaba.testable.core.util;
 import com.alibaba.testable.core.model.MockContext;
 import com.alibaba.ttl.TransmittableThreadLocal;
 
-import java.util.Map;
+import java.util.*;
 
 public class MockContextUtil {
 
     public static InheritableThreadLocal<MockContext> context = new TransmittableThreadLocal<MockContext>();
+
+    /**
+     * mock class referred by @MockWith annotation to list of its test classes
+     */
+    public static Map<String, Set<String>> mockToTests = UnnullableMap.of(new HashSet<String>());
 
     /**
      * [0]Thread → [1]MockContextUtil → [2]TestClass
