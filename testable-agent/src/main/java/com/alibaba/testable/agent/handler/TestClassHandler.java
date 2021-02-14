@@ -18,7 +18,7 @@ public class TestClassHandler extends BaseClassWithContextHandler {
 
     private static final String CLASS_MOCK_CONTEXT_UTIL = "com/alibaba/testable/core/util/MockContextUtil";
     private static final String METHOD_INIT = "init";
-    private static final String DESC_METHOD_INIT = "(Ljava/lang/String;Ljava/lang/String;)V";
+    private static final String DESC_METHOD_INIT = "()V";
     private static final String METHOD_CLEAN = "clean";
     private static final String DESC_METHOD_CLEAN = "()V";
     private static final String THIS = "this";
@@ -50,7 +50,7 @@ public class TestClassHandler extends BaseClassWithContextHandler {
         }
         for (MethodNode mn : cn.methods) {
             handleTestableUtil(mn);
-            handleTestCaseMethod(cn, mn, framework);
+            handleTestCaseMethod(mn, framework);
         }
     }
 
@@ -94,19 +94,17 @@ public class TestClassHandler extends BaseClassWithContextHandler {
         cn.methods.add(afterTestMethod);
     }
 
-    private void handleTestCaseMethod(ClassNode cn, MethodNode mn, Framework framework) {
+    private void handleTestCaseMethod(MethodNode mn, Framework framework) {
         TestCaseMethodType type = framework.checkMethodType(mn);
         if (type.equals(TestCaseMethodType.TEST)) {
-            injectMockContextInit(cn.name, mn);
+            injectMockContextInit(mn);
         } else if (type.equals(TestCaseMethodType.AFTER_TEST)) {
             injectMockContextClean(mn);
         }
     }
 
-    private void injectMockContextInit(String testClassName, MethodNode mn) {
+    private void injectMockContextInit(MethodNode mn) {
         InsnList il = new InsnList();
-        il.add(new LdcInsnNode(testClassName));
-        il.add(new LdcInsnNode(mn.name));
         il.add(new MethodInsnNode(INVOKESTATIC, CLASS_MOCK_CONTEXT_UTIL, METHOD_INIT, DESC_METHOD_INIT, false));
         mn.instructions.insertBefore(mn.instructions.getFirst(), il);
     }

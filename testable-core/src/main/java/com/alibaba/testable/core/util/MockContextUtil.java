@@ -10,9 +10,16 @@ public class MockContextUtil {
     public static InheritableThreadLocal<MockContext> context = new TransmittableThreadLocal<MockContext>();
 
     /**
+     * [0]Thread → [1]MockContextUtil → [2]TestClass
+     */
+    public static final int INDEX_OF_TEST_CLASS = 2;
+
+    /**
      * Should be invoked at the beginning of each test case method
      */
-    public static void init(String testClassName, String testCaseName) {
+    public static void init() {
+        String testClassName = Thread.currentThread().getStackTrace()[INDEX_OF_TEST_CLASS].getClassName();
+        String testCaseName = Thread.currentThread().getStackTrace()[INDEX_OF_TEST_CLASS].getMethodName();
         context.set(new MockContext(testClassName, testCaseName));
     }
 
