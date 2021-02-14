@@ -3,7 +3,6 @@ package com.alibaba.testable.core.util;
 import com.alibaba.testable.core.model.MockContext;
 import com.alibaba.ttl.TransmittableThreadLocal;
 
-import java.util.List;
 import java.util.Map;
 
 public class MockContextUtil {
@@ -28,7 +27,4 @@ public class MockContextUtil {
         return MockContextUtil.context.get().parameters;
     }
 
-    public static Map<String, List<Object[]>> invokeRecord() {
-        return MockContextUtil.context.get().invokeRecord;
-    }
 }

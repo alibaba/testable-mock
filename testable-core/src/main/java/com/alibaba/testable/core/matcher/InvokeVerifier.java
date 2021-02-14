@@ -26,7 +26,7 @@ public class InvokeVerifier {
      * @return the verifier object
      */
     public static InvokeVerifier verify(String mockMethodName) {
-        return new InvokeVerifier(MockContextUtil.invokeRecord().get(mockMethodName));
+        return new InvokeVerifier(MockContextUtil.context.get().invokeRecord.get(mockMethodName));
     }
 
     /**

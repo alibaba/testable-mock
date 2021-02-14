@@ -1,5 +1,7 @@
 package com.alibaba.testable.core.util;
 
+import com.alibaba.testable.core.model.MockContext;
+
 /**
  * @author flin
  */
@@ -19,13 +21,14 @@ public class InvokeRecordUtil {
     public static void recordMockInvoke(Object[] args, boolean isConstructor, boolean isTargetClassInParameter) {
         StackTraceElement mockMethodTraceElement = Thread.currentThread().getStackTrace()[INDEX_OF_TEST_CLASS];
         String mockMethodName = mockMethodTraceElement.getMethodName();
-        String testClass = MockContextUtil.context.get().testClassName;
-        String testCaseName = MockContextUtil.context.get().testCaseName;
+        MockContext mockContext = MockContextUtil.context.get();
+        String testClass = mockContext.testClassName;
+        String testCaseName = mockContext.testCaseName;
         if (isConstructor) {
-            MockContextUtil.invokeRecord().get(mockMethodName).add(args);
+            mockContext.invokeRecord.get(mockMethodName).add(args);
             LogUtil.verbose("  Mock constructor \"%s\" invoked in %s::%s", mockMethodName, testClass, testCaseName);
         } else {
-            MockContextUtil.invokeRecord().get(mockMethodName).add(isTargetClassInParameter ? slice(args, 1) : args);
+            mockContext.invokeRecord.get(mockMethodName).add(isTargetClassInParameter ? slice(args, 1) : args);
             LogUtil.verbose("  Mock method \"%s\" invoked in %s::%s\"", mockMethodName, testClass, testCaseName);
         }
     }
