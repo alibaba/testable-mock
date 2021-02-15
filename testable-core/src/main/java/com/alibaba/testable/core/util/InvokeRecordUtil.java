@@ -22,6 +22,10 @@ public class InvokeRecordUtil {
         StackTraceElement mockMethodTraceElement = Thread.currentThread().getStackTrace()[INDEX_OF_TEST_CLASS];
         String mockMethodName = mockMethodTraceElement.getMethodName();
         MockContext mockContext = MockContextUtil.context.get();
+        if (mockContext == null) {
+            // mock method not invoked from test case, e.g. in static block
+            return;
+        }
         String testClass = mockContext.testClassName;
         String testCaseName = mockContext.testCaseName;
         if (isConstructor) {

@@ -36,7 +36,8 @@ public class MockContextUtil {
     }
 
     public static Map<String, Object> parameters() {
-        return MockContextUtil.context.get().parameters;
+        MockContext mockContext = MockContextUtil.context.get();
+        return mockContext == null ? new HashMap<String, Object>() : mockContext.parameters;
     }
 
 }
