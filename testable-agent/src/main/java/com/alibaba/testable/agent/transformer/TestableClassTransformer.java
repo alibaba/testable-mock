@@ -134,7 +134,8 @@ public class TestableClassTransformer implements ClassFileTransformer {
     }
 
     private boolean isMockClass(String className) {
-        return MockContextUtil.mockToTests.containsKey(className) || hasMockMethod(className);
+        return MockContextUtil.mockToTests.containsKey(ClassUtil.toDotSeparatedName(className)) ||
+            hasMockMethod(className);
     }
 
     private boolean isSystemClass(String className) {
