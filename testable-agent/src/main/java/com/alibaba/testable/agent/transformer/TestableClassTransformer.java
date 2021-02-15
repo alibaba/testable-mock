@@ -270,9 +270,12 @@ public class TestableClassTransformer implements ClassFileTransformer {
         }
         // look for Mock inner class
         for (InnerClassNode ic : cn.innerClasses) {
-            if ((ic.access & ACC_PUBLIC) != 0 && (ic.access & ACC_STATIC) != 0 &&
-                ic.name.equals(getInnerMockClassName(className))) {
-                return ic.name;
+            if ((ic.access & ACC_PUBLIC) != 0 && ic.name.equals(getInnerMockClassName(className))) {
+                if ((ic.access & ACC_STATIC) != 0) {
+                    return ic.name;
+                } else {
+                    LogUtil.warn(String.format("Mock class in \"%s\" is not static", className));
+                }
             }
         }
         return null;
