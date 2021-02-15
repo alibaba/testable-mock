@@ -44,8 +44,8 @@ public class TestableClassTransformer implements ClassFileTransformer {
     private static final String FIELD_TREAT_AS = "treatAs";
     private static final String FIELD_DIAGNOSE = "diagnose";
     private static final String COMMA = ",";
-
     private static final String CLASS_NAME_MOCK = "Mock";
+    private static final String CLASS_OBJECT = "java/lang/Object";
 
     /**
      * Just avoid spend time to scan those surely non-user classes
@@ -172,11 +172,22 @@ public class TestableClassTransformer implements ClassFileTransformer {
         if (cn == null) {
             return new ArrayList<MethodInfo>();
         }
-        for (MethodNode mn : cn.methods) {
+        for (MethodNode mn : getAllMethods(cn)) {
             checkMethodAnnotation(cn, methodInfos, mn);
         }
         LogUtil.diagnose("  Found %d mock methods", methodInfos.size());
         return methodInfos;
+    }
+
+    private List<MethodNode> getAllMethods(ClassNode cn) {
+        List<MethodNode> mns = new ArrayList<MethodNode>(cn.methods);
+        if (cn.superName != null && !cn.superName.equals(CLASS_OBJECT)) {
+            ClassNode scn = getClassNode(cn.superName);
+            if (scn != null) {
+                mns.addAll(getAllMethods(scn));
+            }
+        }
+        return mns;
     }
 
     private void checkMethodAnnotation(ClassNode cn, List<MethodInfo> methodInfos, MethodNode mn) {
