@@ -1,5 +1,6 @@
 package com.alibaba.testable.core.annotation;
 
+import com.alibaba.testable.core.model.ClassType;
 import com.alibaba.testable.core.model.MockDiagnose;
 
 import javax.lang.model.type.NullType;
@@ -22,10 +23,10 @@ public @interface MockWith {
     Class<?> value() default NullType.class;
 
     /**
-     * treat current class as a source class
-     * @return true - source file, false - test file
+     * treat current class as a source class or test class
+     * @return type of current class
      */
-    boolean isSrc() default false;
+    ClassType treatAs() default ClassType.GuessByName;
 
     /**
      * switch of mock diagnose information of current test class

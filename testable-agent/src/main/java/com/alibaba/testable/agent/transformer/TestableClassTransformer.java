@@ -10,6 +10,7 @@ import com.alibaba.testable.agent.util.AnnotationUtil;
 import com.alibaba.testable.agent.util.ClassUtil;
 import com.alibaba.testable.agent.util.GlobalConfig;
 import com.alibaba.testable.agent.util.StringUtil;
+import com.alibaba.testable.core.model.ClassType;
 import com.alibaba.testable.core.model.MockDiagnose;
 import com.alibaba.testable.core.util.LogUtil;
 import com.alibaba.testable.core.util.MockContextUtil;
@@ -40,7 +41,7 @@ import static org.objectweb.asm.Opcodes.ACC_STATIC;
 public class TestableClassTransformer implements ClassFileTransformer {
 
     private static final String FIELD_VALUE = "value";
-    private static final String FIELD_IS_SRC = "isSrc";
+    private static final String FIELD_TREAT_AS = "treatAs";
     private static final String FIELD_DIAGNOSE = "diagnose";
     private static final String COMMA = ",";
 
@@ -236,7 +237,7 @@ public class TestableClassTransformer implements ClassFileTransformer {
         if (cn == null) {
             return null;
         }
-        return parseMockWithAnnotation(cn, true);
+        return parseMockWithAnnotation(cn, ClassType.SourceClass);
     }
 
     /**
@@ -249,11 +250,13 @@ public class TestableClassTransformer implements ClassFileTransformer {
         if (cn == null) {
             return null;
         }
-        String mockClassName = parseMockWithAnnotation(cn, false);
+        // look for MockWith annotation
+        String mockClassName = parseMockWithAnnotation(cn, ClassType.TestClass);
         if (mockClassName != null) {
             MockContextUtil.mockToTests.get(mockClassName).add(className);
             return ClassUtil.toSlashSeparatedName(mockClassName);
         }
+        // look for Mock inner class
         for (InnerClassNode ic : cn.innerClasses) {
             if ((ic.access & ACC_PUBLIC) != 0 && (ic.access & ACC_STATIC) != 0 &&
                 ic.name.equals(getInnerMockClassName(className))) {
@@ -268,12 +271,14 @@ public class TestableClassTransformer implements ClassFileTransformer {
      * @param cn class that may have @MockWith annotation
      * @return mock class name
      */
-    private String parseMockWithAnnotation(ClassNode cn, boolean isSrc) {
+    private String parseMockWithAnnotation(ClassNode cn, ClassType expectedType) {
         if (cn.visibleAnnotations != null) {
             for (AnnotationNode an : cn.visibleAnnotations) {
                 if (toDotSeparateFullClassName(an.desc).equals(ConstPool.MOCK_WITH)) {
                     setupDiagnose(an);
-                    if (AnnotationUtil.getAnnotationParameter(an, FIELD_IS_SRC, false, boolean.class) == isSrc) {
+                    ClassType type = AnnotationUtil.getAnnotationParameter(an, FIELD_TREAT_AS, ClassType.GuessByName,
+                        ClassType.class);
+                    if (isExpectedType(cn.name, type, expectedType)) {
                         Type clazz = AnnotationUtil.getAnnotationParameter(an, FIELD_VALUE, null, Type.class);
                         if (clazz == null || NullType.class.getName().equals(clazz.getClassName())) {
                             return null;
@@ -284,6 +289,14 @@ public class TestableClassTransformer implements ClassFileTransformer {
             }
         }
         return null;
+    }
+
+    private boolean isExpectedType(String className, ClassType type, ClassType expectedType) {
+        if (type.equals(ClassType.GuessByName)) {
+            return expectedType.equals(ClassType.TestClass) == className.endsWith(TEST_POSTFIX);
+        } else {
+            return type.equals(expectedType);
+        }
     }
 
     /**
