@@ -1,7 +1,7 @@
 package com.alibaba.testable.core.annotation;
 
 import com.alibaba.testable.core.model.ClassType;
-import com.alibaba.testable.core.model.MockDiagnose;
+import com.alibaba.testable.core.model.LogLevel;
 
 import javax.lang.model.type.NullType;
 import java.lang.annotation.*;
@@ -30,8 +30,9 @@ public @interface MockWith {
 
     /**
      * switch of mock diagnose information of current test class
+     * @deprecated to be removed in v0.6, use @MockDiagnose annotation instead
      * @return enable or disable
      */
-    MockDiagnose diagnose() default MockDiagnose.DISABLE;
+    LogLevel diagnose() default LogLevel.DISABLE;
 
 }

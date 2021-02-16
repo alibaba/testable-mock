@@ -4,7 +4,7 @@ package com.alibaba.testable.core.model;
  * @author flin
  */
 
-public enum MockDiagnose {
+public enum LogLevel {
 
     /**
      * Be quiet

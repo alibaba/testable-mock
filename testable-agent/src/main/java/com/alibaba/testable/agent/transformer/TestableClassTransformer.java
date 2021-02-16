@@ -11,7 +11,7 @@ import com.alibaba.testable.agent.util.ClassUtil;
 import com.alibaba.testable.agent.util.GlobalConfig;
 import com.alibaba.testable.agent.util.StringUtil;
 import com.alibaba.testable.core.model.ClassType;
-import com.alibaba.testable.core.model.MockDiagnose;
+import com.alibaba.testable.core.model.LogLevel;
 import com.alibaba.testable.core.util.LogUtil;
 import com.alibaba.testable.core.util.MockContextUtil;
 import org.objectweb.asm.ClassReader;
@@ -48,12 +48,11 @@ public class TestableClassTransformer implements ClassFileTransformer {
     private static final String CLASS_OBJECT = "java/lang/Object";
 
     /**
-     * Just avoid spend time to scan those surely non-user classes
-     * Should keep these lists as tiny as possible
+     * Just avoid spend time to scan those surely non-user classes Should keep these lists as tiny as possible
      */
-    private final String[] WHITELIST_PREFIXES = new String[] { "com/alibaba/testable/demo/" };
-    private final String[] BLACKLIST_PREFIXES = new String[] { "jdk/", "java/", "javax/", "com/sun/",
-        "org/apache/maven/", "com/alibaba/testable/", "junit/", "org/junit/", "org/testng/" };
+    private final String[] WHITELIST_PREFIXES = new String[] {"com/alibaba/testable/demo/"};
+    private final String[] BLACKLIST_PREFIXES = new String[] {"jdk/", "java/", "javax/", "com/sun/",
+        "org/apache/maven/", "com/alibaba/testable/", "junit/", "org/junit/", "org/testng/"};
 
     @Override
     public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined,
@@ -103,7 +102,8 @@ public class TestableClassTransformer implements ClassFileTransformer {
             return;
         }
         try {
-            String dumpFile = StringUtil.joinPath(dumpDir, className.replace(SLASH, DOT).replace(DOLLAR, UNDERLINE) + ".class");
+            String dumpFile = StringUtil.joinPath(dumpDir,
+                className.replace(SLASH, DOT).replace(DOLLAR, UNDERLINE) + ".class");
             LogUtil.verbose("Dump class: " + dumpFile);
             FileOutputStream stream = new FileOutputStream(dumpFile);
             stream.write(bytes);
@@ -241,6 +241,7 @@ public class TestableClassTransformer implements ClassFileTransformer {
 
     /**
      * Read @MockWith annotation upon class to fetch mock class
+     *
      * @param className class that need to explore
      * @return name of mock class, null for not found
      */
@@ -254,6 +255,7 @@ public class TestableClassTransformer implements ClassFileTransformer {
 
     /**
      * Read @MockWith annotation upon class and inner class "Mock" to fetch mock class
+     *
      * @param className class that need to explore
      * @return name of mock class, null for not found
      */
@@ -283,14 +285,15 @@ public class TestableClassTransformer implements ClassFileTransformer {
 
     /**
      * Get mock class from @MockWith annotation
+     *
      * @param cn class that may have @MockWith annotation
      * @return mock class name
      */
     private String parseMockWithAnnotation(ClassNode cn, ClassType expectedType) {
         if (cn.visibleAnnotations != null) {
             for (AnnotationNode an : cn.visibleAnnotations) {
+                setupDiagnose(an);
                 if (toDotSeparateFullClassName(an.desc).equals(ConstPool.MOCK_WITH)) {
-                    setupDiagnose(an);
                     ClassType type = AnnotationUtil.getAnnotationParameter(an, FIELD_TREAT_AS, ClassType.GuessByName,
                         ClassType.class);
                     if (isExpectedType(cn.name, type, expectedType)) {
@@ -316,6 +319,7 @@ public class TestableClassTransformer implements ClassFileTransformer {
 
     /**
      * Check whether any method in specified class has mock-related annotation
+     *
      * @param className class that need to explore
      * @return found annotation or not
      */
@@ -324,6 +328,7 @@ public class TestableClassTransformer implements ClassFileTransformer {
         if (cn == null) {
             return false;
         }
+        setupDiagnose(cn);
         for (MethodNode mn : cn.methods) {
             if (mn.visibleAnnotations != null) {
                 for (AnnotationNode an : mn.visibleAnnotations) {
@@ -352,11 +357,29 @@ public class TestableClassTransformer implements ClassFileTransformer {
         return cn;
     }
 
+    private void setupDiagnose(ClassNode cn) {
+        if (cn.visibleAnnotations == null) {
+            return;
+        }
+        for (AnnotationNode an : cn.visibleAnnotations) {
+            setupDiagnose(an);
+        }
+    }
+
     private void setupDiagnose(AnnotationNode an) {
-        MockDiagnose diagnose = AnnotationUtil.getAnnotationParameter(an, FIELD_DIAGNOSE, null, MockDiagnose.class);
-        if (diagnose != null) {
-            LogUtil.setLevel(diagnose == MockDiagnose.ENABLE ? LogUtil.LogLevel.LEVEL_DIAGNOSE :
-                (diagnose == MockDiagnose.VERBOSE ? LogUtil.LogLevel.LEVEL_VERBOSE : LogUtil.LogLevel.LEVEL_MUTE));
+        if (toDotSeparateFullClassName(an.desc).equals(MOCK_WITH)) {
+            setupDianose(an, FIELD_DIAGNOSE);
+        }
+        if (toDotSeparateFullClassName(an.desc).equals(ConstPool.MOCK_DIAGNOSE)) {
+            setupDianose(an, FIELD_VALUE);
+        }
+    }
+
+    private void setupDianose(AnnotationNode an, String fieldDiagnose) {
+        LogLevel level = AnnotationUtil.getAnnotationParameter(an, fieldDiagnose, null, LogLevel.class);
+        if (level != null) {
+            LogUtil.setLevel(level == LogLevel.ENABLE ? LogUtil.LogLevel.LEVEL_DIAGNOSE :
+                (level == LogLevel.VERBOSE ? LogUtil.LogLevel.LEVEL_VERBOSE : LogUtil.LogLevel.LEVEL_MUTE));
         }
     }
 
