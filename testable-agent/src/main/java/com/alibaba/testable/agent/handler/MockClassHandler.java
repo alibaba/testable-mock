@@ -66,7 +66,7 @@ public class MockClassHandler extends BaseClassWithContextHandler {
             for (AbstractInsnNode in : mn.instructions) {
                 if (in instanceof IincInsnNode) {
                     ((IincInsnNode)in).var++;
-                } else if (in instanceof VarInsnNode) {
+                } else if (in instanceof VarInsnNode && ((VarInsnNode)in).var > 0) {
                     ((VarInsnNode)in).var++;
                 }
             }
