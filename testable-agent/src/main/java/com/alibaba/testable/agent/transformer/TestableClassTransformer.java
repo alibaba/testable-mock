@@ -230,7 +230,8 @@ public class TestableClassTransformer implements ClassFileTransformer {
         } else {
             // "targetClass" found, use it as target class type
             String slashSeparatedName = ClassUtil.toSlashSeparatedName(targetType.getClassName());
-            return new MethodInfo(slashSeparatedName, targetMethod, mn.desc, mn.name, mn.desc);
+            return new MethodInfo(slashSeparatedName, targetMethod, mn.desc, mn.name,
+                ClassUtil.addParameterAtBegin(mn.desc, ClassUtil.toByteCodeClassName(slashSeparatedName)));
         }
     }
 

@@ -40,4 +40,23 @@ public class AnnotationUtil {
         return defaultValue;
     }
 
+    /**
+     * Remove specified parameter from annotation
+     * @param an annotation node
+     * @param key name of parameter to remove
+     * @return true - success, false - not found
+     */
+    public static boolean removeAnnotationParameter(AnnotationNode an, String key) {
+        if (an.values == null) {
+            return false;
+        }
+        for (int i = 0; i < an.values.size(); i += 2) {
+            if (an.values.get(i).equals(key)) {
+                an.values.remove(i + 1);
+                an.values.remove(i);
+                return true;
+            }
+        }
+        return false;
+    }
 }

@@ -238,6 +238,16 @@ public class ClassUtil {
         return "(" + desc.substring(desc.indexOf(";") + 1);
     }
 
+    /**
+     * add extra parameter to the beginning of method descriptor
+     * @param desc original descriptor
+     * @param type byte code class name
+     * @return descriptor with specified parameter at begin
+     */
+    public static String addParameterAtBegin(String desc, String type) {
+        return "(" + type + desc.substring(1);
+    }
+
     private static String toDescriptor(Byte type, String objectType) {
         return "(" + (char)type.byteValue() + ")L" + objectType + ";";
     }

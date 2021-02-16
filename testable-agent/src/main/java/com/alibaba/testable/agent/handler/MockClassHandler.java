@@ -34,9 +34,43 @@ public class MockClassHandler extends BaseClassWithContextHandler {
                 mn.access &= ~ACC_PRIVATE;
                 mn.access &= ~ACC_PROTECTED;
                 mn.access |= ACC_PUBLIC;
+                unfoldTargetClass(mn);
                 injectInvokeRecorder(mn);
                 handleTestableUtil(mn);
             }
+        }
+    }
+
+    /**
+     * put targetClass parameter in @MockMethod to first parameter of the mock method
+     */
+    private void unfoldTargetClass(MethodNode mn) {
+        String targetClassName = null;
+        for (AnnotationNode an : mn.visibleAnnotations) {
+            if (ClassUtil.toByteCodeClassName(ConstPool.MOCK_METHOD).equals(an.desc)) {
+                Type type = AnnotationUtil.getAnnotationParameter(an, ConstPool.FIELD_TARGET_CLASS, null, Type.class);
+                if (type != null && !type.getClassName().equals(NullType.class.getName())) {
+                    targetClassName = ClassUtil.toByteCodeClassName(type.getClassName());
+                }
+                AnnotationUtil.removeAnnotationParameter(an, ConstPool.FIELD_TARGET_CLASS);
+            }
+        }
+        if (targetClassName != null) {
+            mn.desc = ClassUtil.addParameterAtBegin(mn.desc, targetClassName);
+            LocalVariableNode thisRef = mn.localVariables.get(0);
+            mn.localVariables.add(1, new LocalVariableNode("__self", targetClassName, null,
+                thisRef.start, thisRef.end, 1));
+            for (int i = 2; i < mn.localVariables.size(); i++) {
+                mn.localVariables.get(i).index++;
+            }
+            for (AbstractInsnNode in : mn.instructions) {
+                if (in instanceof IincInsnNode) {
+                    ((IincInsnNode)in).var++;
+                } else if (in instanceof VarInsnNode) {
+                    ((VarInsnNode)in).var++;
+                }
+            }
+            mn.maxLocals++;
         }
     }
 
@@ -100,11 +134,7 @@ public class MockClassHandler extends BaseClassWithContextHandler {
         } else {
             il.add(new InsnNode(ICONST_0));
         }
-        if (isTargetClassInParameter(mn)) {
-            il.add(new InsnNode(ICONST_1));
-        } else {
-            il.add(new InsnNode(ICONST_0));
-        }
+        il.add(new InsnNode(ICONST_1));
         il.add(new MethodInsnNode(INVOKESTATIC, CLASS_INVOKE_RECORD_UTIL, METHOD_RECORD_MOCK_INVOKE,
             SIGNATURE_INVOKE_RECORDER_METHOD, false));
         mn.instructions.insertBefore(mn.instructions.get(0), il);
@@ -124,18 +154,6 @@ public class MockClassHandler extends BaseClassWithContextHandler {
             }
         }
         return false;
-    }
-
-    private boolean isTargetClassInParameter(MethodNode mn) {
-        for (AnnotationNode an : mn.visibleAnnotations) {
-            if (ConstPool.MOCK_METHOD.equals(toDotSeparateFullClassName(an.desc))) {
-                Type type = AnnotationUtil.getAnnotationParameter(an, ConstPool.FIELD_TARGET_CLASS, null, Type.class);
-                if (type != null && !type.getClassName().equals(NullType.class.getName())) {
-                    return false;
-                }
-            }
-        }
-        return true;
     }
 
     private static ImmutablePair<Integer, Integer> getLoadParameterByteCode(Byte type) {

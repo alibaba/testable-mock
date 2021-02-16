@@ -233,23 +233,14 @@ public class SourceClassHandler extends BaseClassHandler {
                                                    int opcode, int start, int end) {
         LogUtil.diagnose("    Line %d, mock method \"%s\" used", getLineNum(instructions, start),
             mockMethod.getMockName());
-        boolean shouldAppendTypeParameter = !mockMethod.getDesc().equals(mockMethod.getMockDesc());
         mn.instructions.insertBefore(instructions[start], new MethodInsnNode(INVOKESTATIC, mockClassName,
             GET_TESTABLE_REF, VOID_ARGS + ClassUtil.toByteCodeClassName(mockClassName), false));
         if (Opcodes.INVOKESTATIC == opcode || isCompanionMethod(ownerClass, opcode)) {
-            if (shouldAppendTypeParameter) {
-                // append a null value if it was a static invoke or in kotlin companion class
-                mn.instructions.insertBefore(instructions[start], new InsnNode(ACONST_NULL));
-            }
+            // append a null value if it was a static invoke or in kotlin companion class
+            mn.instructions.insertBefore(instructions[start], new InsnNode(ACONST_NULL));
             if (ClassUtil.isCompanionClassName(ownerClass)) {
                 // for kotlin companion class, remove the byte code of reference to "companion" static field
                 mn.instructions.remove(instructions[end - 1]);
-            }
-        } else if (!shouldAppendTypeParameter) {
-            // remove extra ops code of the mocked instance, which was used as first parameter of mock method
-            ImmutablePair<Integer, Integer> range = findRangeOfInvokerInstance(instructions, start, end);
-            for (int i = range.left; i <= range.right; i++) {
-                mn.instructions.remove(instructions[i]);
             }
         }
         // method with @MockMethod will be modified as public access, so INVOKEVIRTUAL is used
