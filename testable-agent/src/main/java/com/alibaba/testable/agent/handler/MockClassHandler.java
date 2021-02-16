@@ -49,7 +49,7 @@ public class MockClassHandler extends BaseClassWithContextHandler {
         for (AnnotationNode an : mn.visibleAnnotations) {
             if (ClassUtil.toByteCodeClassName(ConstPool.MOCK_METHOD).equals(an.desc)) {
                 Type type = AnnotationUtil.getAnnotationParameter(an, ConstPool.FIELD_TARGET_CLASS, null, Type.class);
-                if (type != null && !type.getClassName().equals(NullType.class.getName())) {
+                if (type != null) {
                     targetClassName = ClassUtil.toByteCodeClassName(type.getClassName());
                 }
                 AnnotationUtil.removeAnnotationParameter(an, ConstPool.FIELD_TARGET_CLASS);

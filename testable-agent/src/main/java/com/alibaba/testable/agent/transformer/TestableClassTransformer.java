@@ -202,7 +202,7 @@ public class TestableClassTransformer implements ClassFileTransformer {
                     ClassUtil.extractParameters(mn.desc), ClassUtil.getReturnType(mn.desc));
                 addMockConstructor(methodInfos, cn, mn);
             } else if (fullClassName.equals(ConstPool.MOCK_METHOD)) {
-                LogUtil.verbose("   Mock method \"%s\" as \"%s\"", mn.name, mn.desc);
+                LogUtil.verbose("   Mock method \"%s\" as \"%s\"", mn.name, getTargetMethodDesc(mn, an));
                 String targetMethod = AnnotationUtil.getAnnotationParameter(
                     an, ConstPool.FIELD_TARGET_METHOD, mn.name, String.class);
                 if (ConstPool.CONSTRUCTOR.equals(targetMethod)) {
@@ -218,9 +218,15 @@ public class TestableClassTransformer implements ClassFileTransformer {
         }
     }
 
+    private String getTargetMethodDesc(MethodNode mn, AnnotationNode mockMethodAnnotation) {
+        Type type = AnnotationUtil.getAnnotationParameter(mockMethodAnnotation, ConstPool.FIELD_TARGET_CLASS,
+            null, Type.class);
+        return type == null ? ClassUtil.removeFirstParameter(mn.desc) : mn.desc;
+    }
+
     private MethodInfo getMethodInfo(MethodNode mn, AnnotationNode an, String targetMethod) {
         Type targetType = AnnotationUtil.getAnnotationParameter(an, ConstPool.FIELD_TARGET_CLASS, null, Type.class);
-        if (targetType == null || targetType.getClassName().equals(NullType.class.getName())) {
+        if (targetType == null) {
             // "targetClass" unset, use first parameter as target class type
             ImmutablePair<String, String> methodDescPair = extractFirstParameter(mn.desc);
             if (methodDescPair == null) {
@@ -299,7 +305,7 @@ public class TestableClassTransformer implements ClassFileTransformer {
                         ClassType.class);
                     if (isExpectedType(cn.name, type, expectedType)) {
                         Type clazz = AnnotationUtil.getAnnotationParameter(an, FIELD_VALUE, null, Type.class);
-                        if (clazz == null || NullType.class.getName().equals(clazz.getClassName())) {
+                        if (clazz == null) {
                             return null;
                         }
                         return clazz.getClassName();
