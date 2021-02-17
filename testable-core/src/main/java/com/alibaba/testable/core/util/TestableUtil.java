@@ -7,11 +7,11 @@ package com.alibaba.testable.core.util;
 public class TestableUtil {
 
     /**
-     * [0]Thread.getStackTrace() → [1]currentSourceMethodName() → [2]MockMethod -> [3]SourceMethod
+     * [0]Thread.getStackTrace() → [1]currentSourceMethodName() → [2]MockMethod → [3]SourceMethod
      */
     private static final int INDEX_OF_SOURCE_METHOD = 3;
     /**
-     * [0]Thread.getStackTrace() → [1]previousStackLocation() → [2]Invoker -> [3]Caller of invoker
+     * [0]Thread.getStackTrace() → [1]previousStackLocation() → [2]Invoker → [3]Caller of invoker
      */
     private static final int INDEX_OF_CALLER_METHOD = 3;
 

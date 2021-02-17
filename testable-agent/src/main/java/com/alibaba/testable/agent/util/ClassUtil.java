@@ -11,6 +11,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.alibaba.testable.core.constant.ConstPool.MOCK_POSTFIX;
+import static com.alibaba.testable.core.constant.ConstPool.TEST_POSTFIX;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 
 /**
@@ -93,7 +95,7 @@ public class ClassUtil {
      * @return mock class name
      */
     public static String getMockClassName(String sourceClassName) {
-        return sourceClassName + ConstPool.MOCK_POSTFIX;
+        return sourceClassName + MOCK_POSTFIX;
     }
 
     /**
@@ -102,7 +104,7 @@ public class ClassUtil {
      * @return test class name
      */
     public static String getTestClassName(String sourceClassName) {
-        return sourceClassName + ConstPool.TEST_POSTFIX;
+        return sourceClassName + TEST_POSTFIX;
     }
 
     /**
@@ -111,7 +113,7 @@ public class ClassUtil {
      * @return source class name
      */
     public static String getSourceClassName(String testClassName) {
-        return testClassName.substring(0, testClassName.length() - ConstPool.TEST_POSTFIX.length());
+        return testClassName.substring(0, testClassName.length() - TEST_POSTFIX.length());
     }
 
     /**

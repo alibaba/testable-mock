@@ -10,9 +10,6 @@ public class ConstPool {
     public static final String DOLLAR = "$";
     public static final String UNDERLINE = "_";
 
-    public static final String TEST_POSTFIX = "Test";
-    public static final String MOCK_POSTFIX = "Mock";
-
     public static final String FIELD_TARGET_METHOD = "targetMethod";
     public static final String FIELD_TARGET_CLASS = "targetClass";
 

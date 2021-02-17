@@ -9,6 +9,9 @@ import java.util.Map;
 
 public class MockContext {
 
+    /**
+     * dot separated class name
+     */
     public final String testClassName;
 
     public final String testCaseName;
