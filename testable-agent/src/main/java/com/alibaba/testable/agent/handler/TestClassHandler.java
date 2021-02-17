@@ -16,7 +16,6 @@ import java.util.Set;
  */
 public class TestClassHandler extends BaseClassWithContextHandler {
 
-    private static final String CLASS_MOCK_CONTEXT_UTIL = "com/alibaba/testable/core/util/MockContextUtil";
     private static final String METHOD_INIT = "init";
     private static final String DESC_METHOD_INIT = "()V";
     private static final String METHOD_CLEAN = "clean";

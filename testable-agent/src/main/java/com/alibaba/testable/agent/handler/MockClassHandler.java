@@ -4,10 +4,11 @@ import com.alibaba.testable.agent.constant.ConstPool;
 import com.alibaba.testable.agent.tool.ImmutablePair;
 import com.alibaba.testable.agent.util.AnnotationUtil;
 import com.alibaba.testable.agent.util.ClassUtil;
+import com.alibaba.testable.core.model.MockScope;
+import org.objectweb.asm.Label;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.*;
 
-import javax.lang.model.type.NullType;
 import java.util.List;
 
 import static com.alibaba.testable.agent.constant.ConstPool.CONSTRUCTOR;
@@ -18,9 +19,10 @@ import static com.alibaba.testable.agent.util.ClassUtil.toDotSeparateFullClassNa
  */
 public class MockClassHandler extends BaseClassWithContextHandler {
 
-    private static final String CLASS_INVOKE_RECORD_UTIL = "com/alibaba/testable/core/util/InvokeRecordUtil";
     private static final String METHOD_RECORD_MOCK_INVOKE = "recordMockInvoke";
     private static final String SIGNATURE_INVOKE_RECORDER_METHOD = "([Ljava/lang/Object;ZZ)V";
+    private static final String METHOD_IS_ASSOCIATED = "isAssociated";
+    private static final String SIGNATURE_IS_ASSOCIATED = "()Z";
 
     public MockClassHandler(String className) {
         this.mockClassName = className;
@@ -28,7 +30,7 @@ public class MockClassHandler extends BaseClassWithContextHandler {
 
     @Override
     protected void transform(ClassNode cn) {
-        addGetInstanceMethod(cn);
+        injectGetInstanceMethod(cn);
         for (MethodNode mn : cn.methods) {
             if (isMockMethod(mn)) {
                 mn.access &= ~ACC_PRIVATE;
@@ -36,9 +38,34 @@ public class MockClassHandler extends BaseClassWithContextHandler {
                 mn.access |= ACC_PUBLIC;
                 unfoldTargetClass(mn);
                 injectInvokeRecorder(mn);
+                injectAssociationChecker(mn);
                 handleTestableUtil(mn);
             }
         }
+    }
+
+    /**
+     * add method to fetch singleton instance of this mock class
+     */
+    private void injectGetInstanceMethod(ClassNode cn) {
+        MethodNode getInstanceMethod = new MethodNode(ACC_PUBLIC | ACC_STATIC, GET_TESTABLE_REF,
+            VOID_ARGS + ClassUtil.toByteCodeClassName(mockClassName), null, null);
+        InsnList il = new InsnList();
+        il.add(new FieldInsnNode(GETSTATIC, mockClassName, TESTABLE_REF, ClassUtil.toByteCodeClassName(mockClassName)));
+        LabelNode label = new LabelNode();
+        il.add(new JumpInsnNode(IFNONNULL, label));
+        il.add(new TypeInsnNode(NEW, mockClassName));
+        il.add(new InsnNode(DUP));
+        il.add(new MethodInsnNode(INVOKESPECIAL, mockClassName, CONSTRUCTOR, VOID_ARGS + VOID_RES, false));
+        il.add(new FieldInsnNode(PUTSTATIC, mockClassName, TESTABLE_REF, ClassUtil.toByteCodeClassName(mockClassName)));
+        il.add(label);
+        il.add(new FrameNode(F_SAME, 0, null, 0, null));
+        il.add(new FieldInsnNode(GETSTATIC, mockClassName, TESTABLE_REF, ClassUtil.toByteCodeClassName(mockClassName)));
+        il.add(new InsnNode(ARETURN));
+        getInstanceMethod.instructions = il;
+        getInstanceMethod.maxStack = 2;
+        getInstanceMethod.maxLocals = 0;
+        cn.methods.add(getInstanceMethod);
     }
 
     /**
@@ -74,25 +101,41 @@ public class MockClassHandler extends BaseClassWithContextHandler {
         }
     }
 
-    private void addGetInstanceMethod(ClassNode cn) {
-        MethodNode getInstanceMethod = new MethodNode(ACC_PUBLIC | ACC_STATIC, GET_TESTABLE_REF,
-            VOID_ARGS + ClassUtil.toByteCodeClassName(mockClassName), null, null);
+    private void injectAssociationChecker(MethodNode mn) {
+        if (isGlobalScope(mn)) {
+            return;
+        }
+        LabelNode firstLine = new LabelNode(new Label());
         InsnList il = new InsnList();
-        il.add(new FieldInsnNode(GETSTATIC, mockClassName, TESTABLE_REF, ClassUtil.toByteCodeClassName(mockClassName)));
-        LabelNode label = new LabelNode();
-        il.add(new JumpInsnNode(IFNONNULL, label));
-        il.add(new TypeInsnNode(NEW, mockClassName));
-        il.add(new InsnNode(DUP));
-        il.add(new MethodInsnNode(INVOKESPECIAL, mockClassName, CONSTRUCTOR, VOID_ARGS + VOID_RES, false));
-        il.add(new FieldInsnNode(PUTSTATIC, mockClassName, TESTABLE_REF, ClassUtil.toByteCodeClassName(mockClassName)));
-        il.add(label);
-        il.add(new FrameNode(F_SAME, 0, null, 0, null));
-        il.add(new FieldInsnNode(GETSTATIC, mockClassName, TESTABLE_REF, ClassUtil.toByteCodeClassName(mockClassName)));
-        il.add(new InsnNode(ARETURN));
-        getInstanceMethod.instructions = il;
-        getInstanceMethod.maxStack = 2;
-        getInstanceMethod.maxLocals = 0;
-        cn.methods.add(getInstanceMethod);
+        il.add(new MethodInsnNode(INVOKESTATIC, CLASS_MOCK_CONTEXT_UTIL, METHOD_IS_ASSOCIATED,
+            SIGNATURE_IS_ASSOCIATED, false));
+        il.add(new JumpInsnNode(IFNE, firstLine));
+        il.add(firstLine);
+        il.add( new FrameNode(F_SAME, 0, null, 0, null));
+        mn.instructions.insertBefore(mn.instructions.getFirst(), il);
+    }
+
+    private boolean isGlobalScope(MethodNode mn) {
+        for (AnnotationNode an : mn.visibleAnnotations) {
+            if (ClassUtil.toByteCodeClassName(ConstPool.MOCK_METHOD).equals(an.desc) ||
+                ClassUtil.toByteCodeClassName(ConstPool.MOCK_CONSTRUCTOR).equals(an.desc)) {
+                MockScope scope = AnnotationUtil.getAnnotationParameter(an, ConstPool.FIELD_SCOPE,
+                    MockScope.ASSOCIATED, MockScope.class);
+                if (scope.equals(MockScope.GLOBAL)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    private LabelNode getFirstLabel(MethodNode mn) {
+        for (AbstractInsnNode n : mn.instructions) {
+            if (n instanceof LabelNode) {
+                return (LabelNode)n;
+            }
+        }
+        return null;
     }
 
     private boolean isMockMethod(MethodNode mn) {
@@ -137,7 +180,7 @@ public class MockClassHandler extends BaseClassWithContextHandler {
         il.add(new InsnNode(ICONST_1));
         il.add(new MethodInsnNode(INVOKESTATIC, CLASS_INVOKE_RECORD_UTIL, METHOD_RECORD_MOCK_INVOKE,
             SIGNATURE_INVOKE_RECORDER_METHOD, false));
-        mn.instructions.insertBefore(mn.instructions.get(0), il);
+        mn.instructions.insertBefore(mn.instructions.getFirst(), il);
     }
 
     private boolean isMockForConstructor(MethodNode mn) {
