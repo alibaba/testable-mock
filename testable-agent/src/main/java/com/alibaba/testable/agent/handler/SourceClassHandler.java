@@ -195,7 +195,7 @@ public class SourceClassHandler extends BaseClassHandler {
     }
 
     private int stackEffectOfInvocation(String desc) {
-        return ClassUtil.getParameterTypes(desc).size() - (ClassUtil.getReturnType(desc).isEmpty() ? 0 : 1);
+        return ClassUtil.getParameterTypes(desc).size() - (ClassUtil.getReturnType(desc).equals(VOID_RES) ? 0 : 1);
     }
 
     private ModifiedInsnNodes replaceNewOps(ClassNode cn, MethodNode mn, String newOperatorInjectMethodName,

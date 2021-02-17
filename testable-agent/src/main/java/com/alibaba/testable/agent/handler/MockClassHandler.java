@@ -11,7 +11,6 @@ import org.objectweb.asm.tree.*;
 
 import java.util.List;
 
-import static com.alibaba.testable.agent.constant.ConstPool.CONSTRUCTOR;
 import static com.alibaba.testable.agent.util.ClassUtil.toDotSeparateFullClassName;
 
 /**
@@ -23,7 +22,7 @@ public class MockClassHandler extends BaseClassWithContextHandler {
     private static final String CLASS_MOCK_ASSOCIATION_UTIL = "com/alibaba/testable/core/util/MockAssociationUtil";
     private static final String METHOD_INVOKE_ORIGIN = "invokeOrigin";
     private static final String SIGNATURE_INVOKE_ORIGIN =
-        "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/Object;[Ljava/lang/Object;)Ljava/lang/Object;";
+        "(Ljava/lang/Class;Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/Object;";
     private static final String METHOD_RECORD_MOCK_INVOKE = "recordMockInvoke";
     private static final String SIGNATURE_RECORDER_METHOD_INVOKE = "([Ljava/lang/Object;Z)V";
     private static final String METHOD_IS_ASSOCIATED = "isAssociated";
@@ -61,7 +60,7 @@ public class MockClassHandler extends BaseClassWithContextHandler {
         il.add(new JumpInsnNode(IFNONNULL, label));
         il.add(new TypeInsnNode(NEW, mockClassName));
         il.add(new InsnNode(DUP));
-        il.add(new MethodInsnNode(INVOKESPECIAL, mockClassName, CONSTRUCTOR, VOID_ARGS + VOID_RES, false));
+        il.add(new MethodInsnNode(INVOKESPECIAL, mockClassName, ConstPool.CONSTRUCTOR, VOID_ARGS + VOID_RES, false));
         il.add(new FieldInsnNode(PUTSTATIC, mockClassName, TESTABLE_REF, ClassUtil.toByteCodeClassName(mockClassName)));
         il.add(label);
         il.add(new FrameNode(F_SAME, 0, null, 0, null));
@@ -123,7 +122,50 @@ public class MockClassHandler extends BaseClassWithContextHandler {
 
     private InsnList invokeOriginalMethod(MethodNode mn) {
         InsnList il = new InsnList();
+        mn.maxStack += 3;
+        ImmutablePair<Type, String> target = getTargetClassAndMethodName(mn);
+        il.add(new LdcInsnNode(target.left));
+        il.add(new LdcInsnNode(target.right));
+        il.add(duplicateParameters(mn));
+        il.add(new MethodInsnNode(INVOKESTATIC, CLASS_MOCK_ASSOCIATION_UTIL, METHOD_INVOKE_ORIGIN,
+            SIGNATURE_INVOKE_ORIGIN, false));
+        String returnType = ClassUtil.getReturnType(mn.desc);
+        if (VOID_RES.equals(returnType)) {
+            il.add(new InsnNode(POP));
+            il.add(new InsnNode(RETURN));
+        } else if (returnType.startsWith("[") || returnType.startsWith("L")) {
+            il.add(new TypeInsnNode(CHECKCAST, returnType));
+            il.add(new InsnNode(ARETURN));
+        } else {
+            String wrapperClass = ClassUtil.toWrapperClass(returnType.getBytes()[0]);
+            il.add(new TypeInsnNode(CHECKCAST, wrapperClass));
+            ImmutablePair<String, String> convertMethod = ClassUtil.getWrapperTypeConvertMethod(returnType.getBytes()[0]);
+            il.add(new MethodInsnNode(INVOKEVIRTUAL, wrapperClass, convertMethod.left, convertMethod.right, false));
+            il.add(new InsnNode(ClassUtil.getReturnOpsCode(returnType)));
+        }
         return il;
+    }
+
+    private ImmutablePair<Type, String> getTargetClassAndMethodName(MethodNode mn) {
+        Type className;
+        String methodName = mn.name;
+        for (AnnotationNode an : mn.visibleAnnotations) {
+            if (ClassUtil.toByteCodeClassName(ConstPool.MOCK_METHOD).equals(an.desc)) {
+                String name = AnnotationUtil.getAnnotationParameter(an, ConstPool.FIELD_TARGET_METHOD,
+                    null, String.class);
+                if (name != null) {
+                    methodName = name;
+                }
+            } else if (ClassUtil.toByteCodeClassName(ConstPool.MOCK_CONSTRUCTOR).equals(an.desc)) {
+                methodName = ConstPool.CONSTRUCTOR;
+            }
+        }
+        if (methodName.equals(ConstPool.CONSTRUCTOR)) {
+            className = Type.getType(ClassUtil.getReturnType(mn.desc));
+        } else {
+            className = Type.getType(ClassUtil.getFirstParameter(mn.desc));
+        }
+        return ImmutablePair.of(className, methodName);
     }
 
     private boolean isGlobalScope(MethodNode mn) {
@@ -138,15 +180,6 @@ public class MockClassHandler extends BaseClassWithContextHandler {
             }
         }
         return false;
-    }
-
-    private LabelNode getFirstLabel(MethodNode mn) {
-        for (AbstractInsnNode n : mn.instructions) {
-            if (n instanceof LabelNode) {
-                return (LabelNode)n;
-            }
-        }
-        return null;
     }
 
     private boolean isMockMethod(MethodNode mn) {
@@ -164,12 +197,25 @@ public class MockClassHandler extends BaseClassWithContextHandler {
 
     private void injectInvokeRecorder(MethodNode mn) {
         InsnList il = new InsnList();
+        mn.maxStack += 2;
+        il.add(duplicateParameters(mn));
+        if (isMockForConstructor(mn)) {
+            il.add(new InsnNode(ICONST_1));
+        } else {
+            il.add(new InsnNode(ICONST_0));
+        }
+        il.add(new MethodInsnNode(INVOKESTATIC, CLASS_INVOKE_RECORD_UTIL, METHOD_RECORD_MOCK_INVOKE,
+            SIGNATURE_RECORDER_METHOD_INVOKE, false));
+        mn.instructions.insertBefore(mn.instructions.getFirst(), il);
+    }
+
+    private InsnList duplicateParameters(MethodNode mn) {
+        InsnList il = new InsnList();
         List<Byte> types = ClassUtil.getParameterTypes(mn.desc);
         int size = types.size();
-        int parameterOffset = 1;
-        mn.maxStack += 2;
         il.add(getIntInsn(size));
         il.add(new TypeInsnNode(ANEWARRAY, ClassUtil.CLASS_OBJECT));
+        int parameterOffset = 1;
         for (int i = 0; i < size; i++) {
             mn.maxStack += 3;
             il.add(new InsnNode(DUP));
@@ -183,14 +229,7 @@ public class MockClassHandler extends BaseClassWithContextHandler {
             }
             il.add(new InsnNode(AASTORE));
         }
-        if (isMockForConstructor(mn)) {
-            il.add(new InsnNode(ICONST_1));
-        } else {
-            il.add(new InsnNode(ICONST_0));
-        }
-        il.add(new MethodInsnNode(INVOKESTATIC, CLASS_INVOKE_RECORD_UTIL, METHOD_RECORD_MOCK_INVOKE,
-            SIGNATURE_RECORDER_METHOD_INVOKE, false));
-        mn.instructions.insertBefore(mn.instructions.getFirst(), il);
+        return il;
     }
 
     private boolean isMockForConstructor(MethodNode mn) {

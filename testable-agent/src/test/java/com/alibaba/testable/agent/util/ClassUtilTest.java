@@ -23,11 +23,16 @@ class ClassUtilTest {
 
     @Test
     void should_able_to_get_return_type() {
-        assertEquals("", ClassUtil.getReturnType("(Ljava/lang/String;)V"));
-        assertEquals("java/lang/Integer", ClassUtil.getReturnType("(Ljava/lang/String;)I"));
+        assertEquals("V", ClassUtil.getReturnType("(Ljava/lang/String;)V"));
+        assertEquals("I", ClassUtil.getReturnType("(Ljava/lang/String;)I"));
         assertEquals("[I", ClassUtil.getReturnType("(Ljava/lang/String;)[I"));
-        assertEquals("java/lang/String", ClassUtil.getReturnType("(Ljava/lang/String;)Ljava/lang/String;"));
+        assertEquals("Ljava/lang/String;", ClassUtil.getReturnType("(Ljava/lang/String;)Ljava/lang/String;"));
         assertEquals("[Ljava/lang/String;", ClassUtil.getReturnType("(Ljava/lang/String;)[Ljava/lang/String;"));
+    }
+
+    @Test
+    void should_able_to_get_first_parameter() {
+        assertEquals("Ljava/lang/String;", ClassUtil.getFirstParameter("(Ljava/lang/String;Ljava/lang/Object;I)V"));
     }
 
     @Test

@@ -28,14 +28,19 @@ public class MockAssociationUtil {
      */
     public static boolean isAssociated() {
         MockContext mockContext = MockContextUtil.context.get();
-        String testClassName = (mockContext == null) ? "" : mockContext.testClassName;
+        if (mockContext == null) {
+            // skip the association check
+            LogUtil.warn("Mock association check is invoked without test context");
+            return true;
+        }
+        String testClassName = mockContext.testClassName;
         String mockClassName = Thread.currentThread().getStackTrace()[INDEX_OF_MOCK_CLASS].getClassName();
         return isAssociatedByInnerMockClass(testClassName, mockClassName) ||
             isAssociatedByOuterMockClass(testClassName, mockClassName) ||
             isAssociatedByMockWithAnnotation(testClassName, mockClassName);
     }
 
-    public static Object invokeOrigin(String originClass, String originMethod, Object originObj, Object... args) {
+    public static Object invokeOrigin(Class<?> originClass, String originMethod, Object... args) {
         return null;
     }
 
