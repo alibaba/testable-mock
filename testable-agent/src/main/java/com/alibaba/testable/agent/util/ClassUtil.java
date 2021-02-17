@@ -1,8 +1,11 @@
 package com.alibaba.testable.agent.util;
 
 import com.alibaba.testable.agent.constant.ConstPool;
+import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.MethodInsnNode;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -221,15 +224,6 @@ public class ClassUtil {
     }
 
     /**
-     * convert byte code class name to slash separated human readable name
-     * @param className original name
-     * @return converted name
-     */
-    public static String toSlashSeparateFullClassName(String className) {
-        return toSlashSeparatedName(className).substring(1, className.length() - 1);
-    }
-
-    /**
      * remove first parameter from method descriptor
      * @param desc original descriptor
      * @return descriptor without first parameter
@@ -246,6 +240,21 @@ public class ClassUtil {
      */
     public static String addParameterAtBegin(String desc, String type) {
         return "(" + type + desc.substring(1);
+    }
+
+    /**
+     * Read class from current context
+     * @param className class name
+     * @return loaded class
+     */
+    public static ClassNode getClassNode(String className) {
+        ClassNode cn = new ClassNode();
+        try {
+            new ClassReader(className).accept(cn, 0);
+        } catch (IOException e) {
+            return null;
+        }
+        return cn;
     }
 
     private static String toDescriptor(Byte type, String objectType) {
