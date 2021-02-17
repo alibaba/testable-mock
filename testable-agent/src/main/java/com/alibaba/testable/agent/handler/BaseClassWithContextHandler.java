@@ -7,10 +7,9 @@ import org.objectweb.asm.tree.*;
  */
 abstract public class BaseClassWithContextHandler extends BaseClassHandler {
 
-    protected static final String CLASS_TESTABLE_TOOL = "com/alibaba/testable/core/tool/TestableTool";
-    protected static final String CLASS_TESTABLE_UTIL = "com/alibaba/testable/core/util/TestableUtil";
     protected static final String CLASS_MOCK_CONTEXT_UTIL = "com/alibaba/testable/core/util/MockContextUtil";
-    protected static final String CLASS_INVOKE_RECORD_UTIL = "com/alibaba/testable/core/util/InvokeRecordUtil";
+    private static final String CLASS_TESTABLE_TOOL = "com/alibaba/testable/core/tool/TestableTool";
+    private static final String CLASS_TESTABLE_UTIL = "com/alibaba/testable/core/util/TestableUtil";
     private static final String FIELD_SOURCE_METHOD = "SOURCE_METHOD";
     private static final String FIELD_MOCK_CONTEXT = "MOCK_CONTEXT";
     private static final String METHOD_PARAMETERS = "parameters";

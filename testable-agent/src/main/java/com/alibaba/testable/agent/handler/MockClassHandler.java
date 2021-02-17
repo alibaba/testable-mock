@@ -19,8 +19,13 @@ import static com.alibaba.testable.agent.util.ClassUtil.toDotSeparateFullClassNa
  */
 public class MockClassHandler extends BaseClassWithContextHandler {
 
+    private static final String CLASS_INVOKE_RECORD_UTIL = "com/alibaba/testable/core/util/InvokeRecordUtil";
+    private static final String CLASS_MOCK_ASSOCIATION_UTIL = "com/alibaba/testable/core/util/MockAssociationUtil";
+    private static final String METHOD_INVOKE_ORIGIN = "invokeOrigin";
+    private static final String SIGNATURE_INVOKE_ORIGIN =
+        "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/Object;[Ljava/lang/Object;)Ljava/lang/Object;";
     private static final String METHOD_RECORD_MOCK_INVOKE = "recordMockInvoke";
-    private static final String SIGNATURE_INVOKE_RECORDER_METHOD = "([Ljava/lang/Object;ZZ)V";
+    private static final String SIGNATURE_RECORDER_METHOD_INVOKE = "([Ljava/lang/Object;ZZ)V";
     private static final String METHOD_IS_ASSOCIATED = "isAssociated";
     private static final String SIGNATURE_IS_ASSOCIATED = "()Z";
 
@@ -107,12 +112,18 @@ public class MockClassHandler extends BaseClassWithContextHandler {
         }
         LabelNode firstLine = new LabelNode(new Label());
         InsnList il = new InsnList();
-        il.add(new MethodInsnNode(INVOKESTATIC, CLASS_MOCK_CONTEXT_UTIL, METHOD_IS_ASSOCIATED,
+        il.add(new MethodInsnNode(INVOKESTATIC, CLASS_MOCK_ASSOCIATION_UTIL, METHOD_IS_ASSOCIATED,
             SIGNATURE_IS_ASSOCIATED, false));
         il.add(new JumpInsnNode(IFNE, firstLine));
+        il.add(invokeOriginalMethod(mn));
         il.add(firstLine);
         il.add( new FrameNode(F_SAME, 0, null, 0, null));
         mn.instructions.insertBefore(mn.instructions.getFirst(), il);
+    }
+
+    private InsnList invokeOriginalMethod(MethodNode mn) {
+        InsnList il = new InsnList();
+        return il;
     }
 
     private boolean isGlobalScope(MethodNode mn) {
@@ -179,7 +190,7 @@ public class MockClassHandler extends BaseClassWithContextHandler {
         }
         il.add(new InsnNode(ICONST_1));
         il.add(new MethodInsnNode(INVOKESTATIC, CLASS_INVOKE_RECORD_UTIL, METHOD_RECORD_MOCK_INVOKE,
-            SIGNATURE_INVOKE_RECORDER_METHOD, false));
+            SIGNATURE_RECORDER_METHOD_INVOKE, false));
         mn.instructions.insertBefore(mn.instructions.getFirst(), il);
     }
 

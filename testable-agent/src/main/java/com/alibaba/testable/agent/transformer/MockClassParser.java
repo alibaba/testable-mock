@@ -7,7 +7,7 @@ import com.alibaba.testable.agent.util.AnnotationUtil;
 import com.alibaba.testable.agent.util.ClassUtil;
 import com.alibaba.testable.agent.util.DiagnoseUtil;
 import com.alibaba.testable.core.util.LogUtil;
-import com.alibaba.testable.core.util.MockContextUtil;
+import com.alibaba.testable.core.util.MockAssociationUtil;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AnnotationNode;
 import org.objectweb.asm.tree.ClassNode;
@@ -47,7 +47,7 @@ public class MockClassParser {
      * @return found annotation or not
      */
     public boolean isMockClass(String className) {
-        return MockContextUtil.mockToTests.containsKey(ClassUtil.toDotSeparatedName(className)) ||
+        return MockAssociationUtil.mockToTests.containsKey(ClassUtil.toDotSeparatedName(className)) ||
             hasMockMethod(className);
     }
 

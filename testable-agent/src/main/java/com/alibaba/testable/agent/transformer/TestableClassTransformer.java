@@ -8,7 +8,7 @@ import com.alibaba.testable.agent.model.MethodInfo;
 import com.alibaba.testable.agent.util.*;
 import com.alibaba.testable.core.model.ClassType;
 import com.alibaba.testable.core.util.LogUtil;
-import com.alibaba.testable.core.util.MockContextUtil;
+import com.alibaba.testable.core.util.MockAssociationUtil;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AnnotationNode;
 import org.objectweb.asm.tree.ClassNode;
@@ -182,7 +182,7 @@ public class TestableClassTransformer implements ClassFileTransformer {
         // look for MockWith annotation
         String mockClassName = parseMockWithAnnotation(cn, ClassType.TestClass);
         if (mockClassName != null) {
-            MockContextUtil.mockToTests.get(mockClassName).add(ClassUtil.toDotSeparateFullClassName(className));
+            MockAssociationUtil.mockToTests.get(mockClassName).add(ClassUtil.toDotSeparateFullClassName(className));
             return ClassUtil.toSlashSeparatedName(mockClassName);
         }
         // look for Mock inner class
