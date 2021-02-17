@@ -29,9 +29,8 @@ public class MockAssociationUtil {
     public static boolean isAssociated() {
         MockContext mockContext = MockContextUtil.context.get();
         if (mockContext == null) {
-            // skip the association check
-            LogUtil.warn("Mock association check is invoked without test context");
-            return true;
+            // invoked from test case not transformed by testable
+            return false;
         }
         String testClassName = mockContext.testClassName;
         String mockClassName = Thread.currentThread().getStackTrace()[INDEX_OF_MOCK_CLASS].getClassName();
