@@ -25,7 +25,7 @@ public class MockClassHandler extends BaseClassWithContextHandler {
     private static final String SIGNATURE_INVOKE_ORIGIN =
         "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/Object;[Ljava/lang/Object;)Ljava/lang/Object;";
     private static final String METHOD_RECORD_MOCK_INVOKE = "recordMockInvoke";
-    private static final String SIGNATURE_RECORDER_METHOD_INVOKE = "([Ljava/lang/Object;ZZ)V";
+    private static final String SIGNATURE_RECORDER_METHOD_INVOKE = "([Ljava/lang/Object;Z)V";
     private static final String METHOD_IS_ASSOCIATED = "isAssociated";
     private static final String SIGNATURE_IS_ASSOCIATED = "()Z";
 
@@ -188,7 +188,6 @@ public class MockClassHandler extends BaseClassWithContextHandler {
         } else {
             il.add(new InsnNode(ICONST_0));
         }
-        il.add(new InsnNode(ICONST_1));
         il.add(new MethodInsnNode(INVOKESTATIC, CLASS_INVOKE_RECORD_UTIL, METHOD_RECORD_MOCK_INVOKE,
             SIGNATURE_RECORDER_METHOD_INVOKE, false));
         mn.instructions.insertBefore(mn.instructions.getFirst(), il);
