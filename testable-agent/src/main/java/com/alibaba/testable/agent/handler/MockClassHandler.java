@@ -99,6 +99,8 @@ public class MockClassHandler extends BaseClassWithContextHandler {
                     ((IincInsnNode)in).var++;
                 } else if (in instanceof VarInsnNode && ((VarInsnNode)in).var > 0) {
                     ((VarInsnNode)in).var++;
+                } else if (in instanceof FrameNode && ((FrameNode)in).type == F_FULL) {
+                    ((FrameNode)in).local.add(1, targetClassName);
                 }
             }
             mn.maxLocals++;
