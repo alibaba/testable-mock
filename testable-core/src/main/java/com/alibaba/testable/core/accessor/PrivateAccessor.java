@@ -3,6 +3,7 @@ package com.alibaba.testable.core.accessor;
 import com.alibaba.testable.core.exception.MemberAccessException;
 import com.alibaba.testable.core.util.TypeUtil;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
@@ -125,6 +126,20 @@ public class PrivateAccessor {
         } catch (Exception e) {
             throw new MemberAccessException("Failed to set private static field \"" + field + "\"", e);
         }
+    }
+
+    public static <T> T construct(Class<?> clazz, Object... args) {
+        try {
+            Constructor<?> constructor = TypeUtil.getConstructorByNameAndParameterTypes(clazz.getDeclaredConstructors(),
+                TypeUtil.getClassesFromObjects(args));
+            if (constructor != null) {
+                constructor.setAccessible(true);
+                return (T)constructor.newInstance(args);
+            }
+        } catch (Exception e) {
+            throw new MemberAccessException("Failed to invoke private constructor of \"" + clazz.getSimpleName() + "\"", e);
+        }
+        throw new MemberAccessException("Private static constructor of \"" + clazz.getSimpleName() + "\" not found");
     }
 
     public static <T> T invokeStatic(Class<?> clazz, String method, Object... args) {

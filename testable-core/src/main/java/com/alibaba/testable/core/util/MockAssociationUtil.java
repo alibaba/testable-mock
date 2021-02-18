@@ -1,5 +1,6 @@
 package com.alibaba.testable.core.util;
 
+import com.alibaba.testable.core.accessor.PrivateAccessor;
 import com.alibaba.testable.core.model.MockContext;
 
 import java.util.HashSet;
@@ -40,7 +41,13 @@ public class MockAssociationUtil {
     }
 
     public static Object invokeOrigin(Class<?> originClass, String originMethod, Object... args) {
-        return null;
+        if (originMethod.equals("<init>")) {
+            return PrivateAccessor.construct(originClass, args);
+        } else if (args[0] == null) {
+            return PrivateAccessor.invokeStatic(originClass, originMethod, CollectionUtil.slice(args, 1));
+        } else {
+            return PrivateAccessor.invoke(args[0], originMethod, CollectionUtil.slice(args, 1));
+        }
     }
 
     private static boolean isAssociatedByInnerMockClass(String testClassName, String mockClassName) {

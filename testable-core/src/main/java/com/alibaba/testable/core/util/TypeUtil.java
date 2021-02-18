@@ -1,5 +1,6 @@
 package com.alibaba.testable.core.util;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 
 /**
@@ -19,6 +20,22 @@ public class TypeUtil {
             cs[i] = (pObj == null) ? null : pObj.getClass();
         }
         return cs;
+    }
+
+    /**
+     * get constructor by parameter matching
+     * @param availableConstructors available constructors
+     * @param parameterTypes class to look for
+     * @return constructor which match the parameter classes
+     */
+    public static Constructor<?> getConstructorByNameAndParameterTypes(Constructor<?>[] availableConstructors,
+                                                          Class<?>[] parameterTypes) {
+        for (Constructor<?> c : availableConstructors) {
+            if (typeEquals(c.getParameterTypes(), parameterTypes)) {
+                return c;
+            }
+        }
+        return null;
     }
 
     /**

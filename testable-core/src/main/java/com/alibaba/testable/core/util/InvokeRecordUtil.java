@@ -31,19 +31,9 @@ public class InvokeRecordUtil {
             mockContext.invokeRecord.get(mockMethodName).add(args);
             LogUtil.verbose("  Mock constructor \"%s\" invoked in %s::%s", mockMethodName, testClass, testCaseName);
         } else {
-            mockContext.invokeRecord.get(mockMethodName).add(slice(args, 1));
+            mockContext.invokeRecord.get(mockMethodName).add(CollectionUtil.slice(args, 1));
             LogUtil.verbose("  Mock method \"%s\" invoked in %s::%s\"", mockMethodName, testClass, testCaseName);
         }
-    }
-
-    private static Object[] slice(Object[] args, int firstIndex) {
-        int size = args.length - firstIndex;
-        if (size <= 0) {
-            return new Object[0];
-        }
-        Object[] slicedArgs = new Object[size];
-        System.arraycopy(args, firstIndex, slicedArgs, 0, size);
-        return slicedArgs;
     }
 
 }
