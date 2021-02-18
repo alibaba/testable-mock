@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.alibaba.testable.agent.util.ClassUtil.toDotSeparateFullClassName;
+import static com.alibaba.testable.core.constant.ConstPool.CONSTRUCTOR;
 
 public class MockClassParser {
 
@@ -96,7 +97,7 @@ public class MockClassParser {
                 LogUtil.verbose("   Mock method \"%s\" as \"%s\"", mn.name, getTargetMethodDesc(mn, an));
                 String targetMethod = AnnotationUtil.getAnnotationParameter(
                     an, ConstPool.FIELD_TARGET_METHOD, mn.name, String.class);
-                if (ConstPool.CONSTRUCTOR.equals(targetMethod)) {
+                if (CONSTRUCTOR.equals(targetMethod)) {
                     addMockConstructor(methodInfos, cn, mn);
                 } else {
                     MethodInfo mi = getMethodInfo(mn, an, targetMethod);
@@ -134,7 +135,7 @@ public class MockClassParser {
 
     private void addMockConstructor(List<MethodInfo> methodInfos, ClassNode cn, MethodNode mn) {
         String sourceClassName = ClassUtil.getSourceClassName(cn.name);
-        methodInfos.add(new MethodInfo(sourceClassName, ConstPool.CONSTRUCTOR, mn.desc, mn.name, mn.desc));
+        methodInfos.add(new MethodInfo(sourceClassName, CONSTRUCTOR, mn.desc, mn.name, mn.desc));
     }
 
     /**

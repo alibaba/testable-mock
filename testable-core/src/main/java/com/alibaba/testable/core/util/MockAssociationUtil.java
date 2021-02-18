@@ -7,8 +7,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import static com.alibaba.testable.core.constant.ConstPool.MOCK_POSTFIX;
-import static com.alibaba.testable.core.constant.ConstPool.TEST_POSTFIX;
+import static com.alibaba.testable.core.constant.ConstPool.*;
 
 public class MockAssociationUtil {
 
@@ -41,7 +40,7 @@ public class MockAssociationUtil {
     }
 
     public static Object invokeOrigin(Class<?> originClass, String originMethod, Object... args) {
-        if (originMethod.equals("<init>")) {
+        if (originMethod.equals(CONSTRUCTOR)) {
             return PrivateAccessor.construct(originClass, args);
         } else if (args[0] == null) {
             return PrivateAccessor.invokeStatic(originClass, originMethod, CollectionUtil.slice(args, 1));

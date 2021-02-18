@@ -12,6 +12,7 @@ import org.objectweb.asm.tree.*;
 import java.util.List;
 
 import static com.alibaba.testable.agent.util.ClassUtil.toDotSeparateFullClassName;
+import static com.alibaba.testable.core.constant.ConstPool.CONSTRUCTOR;
 
 /**
  * @author flin
@@ -60,7 +61,7 @@ public class MockClassHandler extends BaseClassWithContextHandler {
         il.add(new JumpInsnNode(IFNONNULL, label));
         il.add(new TypeInsnNode(NEW, mockClassName));
         il.add(new InsnNode(DUP));
-        il.add(new MethodInsnNode(INVOKESPECIAL, mockClassName, ConstPool.CONSTRUCTOR, VOID_ARGS + VOID_RES, false));
+        il.add(new MethodInsnNode(INVOKESPECIAL, mockClassName, CONSTRUCTOR, VOID_ARGS + VOID_RES, false));
         il.add(new FieldInsnNode(PUTSTATIC, mockClassName, TESTABLE_REF, ClassUtil.toByteCodeClassName(mockClassName)));
         il.add(label);
         il.add(new FrameNode(F_SAME, 0, null, 0, null));
@@ -159,10 +160,10 @@ public class MockClassHandler extends BaseClassWithContextHandler {
                     methodName = name;
                 }
             } else if (ClassUtil.toByteCodeClassName(ConstPool.MOCK_CONSTRUCTOR).equals(an.desc)) {
-                methodName = ConstPool.CONSTRUCTOR;
+                methodName = CONSTRUCTOR;
             }
         }
-        if (methodName.equals(ConstPool.CONSTRUCTOR)) {
+        if (methodName.equals(CONSTRUCTOR)) {
             className = Type.getType(ClassUtil.getReturnType(mn.desc));
         } else {
             className = Type.getType(ClassUtil.getFirstParameter(mn.desc));
@@ -242,7 +243,7 @@ public class MockClassHandler extends BaseClassWithContextHandler {
             } else if (ConstPool.MOCK_METHOD.equals(annotationName)) {
                 String method = AnnotationUtil.getAnnotationParameter
                     (an, ConstPool.FIELD_TARGET_METHOD, null, String.class);
-                if (ConstPool.CONSTRUCTOR.equals(method)) {
+                if (CONSTRUCTOR.equals(method)) {
                     return true;
                 }
             }

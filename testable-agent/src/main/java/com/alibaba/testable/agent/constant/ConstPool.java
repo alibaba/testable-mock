@@ -22,9 +22,4 @@ public class ConstPool {
     public static final String KOTLIN_POSTFIX_COMPANION = "$Companion";
     public static final String KOTLIN_PREFIX_ACCESS = "access$";
 
-    /**
-     * Name of the constructor method
-     */
-    public static final String CONSTRUCTOR = "<init>";
-
 }

@@ -13,7 +13,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static com.alibaba.testable.agent.constant.ConstPool.CONSTRUCTOR;
+import static com.alibaba.testable.core.constant.ConstPool.CONSTRUCTOR;
 
 /**
  * @author flin
