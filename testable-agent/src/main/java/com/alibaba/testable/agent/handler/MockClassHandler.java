@@ -1,5 +1,6 @@
 package com.alibaba.testable.agent.handler;
 
+import com.alibaba.testable.agent.constant.ByteCodeConst;
 import com.alibaba.testable.agent.constant.ConstPool;
 import com.alibaba.testable.agent.tool.ImmutablePair;
 import com.alibaba.testable.agent.util.AnnotationUtil;
@@ -92,7 +93,7 @@ public class MockClassHandler extends BaseClassWithContextHandler {
         if (targetClassName != null) {
             // must get label before method description changed
             ImmutablePair<LabelNode, LabelNode> labels = getStartAndEndLabel(mn);
-            mn.desc = ClassUtil.addParameterAtBegin(mn.desc, targetClassName);
+            mn.desc = MethodUtil.addParameterAtBegin(mn.desc, targetClassName);
             int parameterOffset = MethodUtil.isStaticMethod(mn) ? 0 : 1;
             mn.localVariables.add(parameterOffset, new LocalVariableNode("__self", targetClassName, null,
                 labels.left, labels.right, parameterOffset));
@@ -121,7 +122,7 @@ public class MockClassHandler extends BaseClassWithContextHandler {
                     break;
                 }
             }
-            if (ClassUtil.extractParameters(mn.desc).isEmpty()) {
+            if (MethodUtil.extractParameters(mn.desc).isEmpty()) {
                 // for method without parameter, should manually add a ending label
                 endLabel = new LabelNode(new Label());
                 mn.instructions.add(endLabel);
@@ -158,14 +159,13 @@ public class MockClassHandler extends BaseClassWithContextHandler {
 
     private InsnList invokeOriginalMethod(MethodNode mn) {
         InsnList il = new InsnList();
-        mn.maxStack += 3;
         ImmutablePair<Type, String> target = getTargetClassAndMethodName(mn);
         il.add(new LdcInsnNode(target.left));
         il.add(new LdcInsnNode(target.right));
         il.add(duplicateParameters(mn));
         il.add(new MethodInsnNode(INVOKESTATIC, CLASS_MOCK_ASSOCIATION_UTIL, METHOD_INVOKE_ORIGIN,
             SIGNATURE_INVOKE_ORIGIN, false));
-        String returnType = ClassUtil.getReturnType(mn.desc);
+        String returnType = MethodUtil.getReturnType(mn.desc);
         if (VOID_RES.equals(returnType)) {
             il.add(new InsnNode(POP));
             il.add(new InsnNode(RETURN));
@@ -197,9 +197,9 @@ public class MockClassHandler extends BaseClassWithContextHandler {
             }
         }
         if (methodName.equals(CONSTRUCTOR)) {
-            className = Type.getType(ClassUtil.getReturnType(mn.desc));
+            className = Type.getType(MethodUtil.getReturnType(mn.desc));
         } else {
-            className = Type.getType(ClassUtil.getFirstParameter(mn.desc));
+            className = Type.getType(MethodUtil.getFirstParameter(mn.desc));
         }
         return ImmutablePair.of(className, methodName);
     }
@@ -233,7 +233,6 @@ public class MockClassHandler extends BaseClassWithContextHandler {
 
     private void injectInvokeRecorder(MethodNode mn) {
         InsnList il = new InsnList();
-        mn.maxStack += 2;
         il.add(duplicateParameters(mn));
         if (isMockForConstructor(mn)) {
             il.add(new InsnNode(ICONST_1));
@@ -243,17 +242,17 @@ public class MockClassHandler extends BaseClassWithContextHandler {
         il.add(new MethodInsnNode(INVOKESTATIC, CLASS_INVOKE_RECORD_UTIL, METHOD_RECORD_MOCK_INVOKE,
             SIGNATURE_RECORDER_METHOD_INVOKE, false));
         mn.instructions.insertBefore(mn.instructions.getFirst(), il);
+        mn.maxStack += (2 + MethodUtil.getParameterTypes(mn.desc).size() * 3);
     }
 
     private InsnList duplicateParameters(MethodNode mn) {
         InsnList il = new InsnList();
-        List<Byte> types = ClassUtil.getParameterTypes(mn.desc);
+        List<Byte> types = MethodUtil.getParameterTypes(mn.desc);
         int size = types.size();
         il.add(getIntInsn(size));
         il.add(new TypeInsnNode(ANEWARRAY, ClassUtil.CLASS_OBJECT));
         int parameterOffset = MethodUtil.isStaticMethod(mn) ? 0 : 1;
         for (int i = 0; i < size; i++) {
-            mn.maxStack += 3;
             il.add(new InsnNode(DUP));
             il.add(getIntInsn(i));
             ImmutablePair<Integer, Integer> code = getLoadParameterByteCode(types.get(i));
@@ -286,17 +285,17 @@ public class MockClassHandler extends BaseClassWithContextHandler {
 
     private static ImmutablePair<Integer, Integer> getLoadParameterByteCode(Byte type) {
         switch (type) {
-            case ClassUtil.TYPE_BYTE:
-            case ClassUtil.TYPE_CHAR:
-            case ClassUtil.TYPE_SHORT:
-            case ClassUtil.TYPE_INT:
-            case ClassUtil.TYPE_BOOL:
+            case ByteCodeConst.TYPE_BYTE:
+            case ByteCodeConst.TYPE_CHAR:
+            case ByteCodeConst.TYPE_SHORT:
+            case ByteCodeConst.TYPE_INT:
+            case ByteCodeConst.TYPE_BOOL:
                 return ImmutablePair.of(ILOAD, 1);
-            case ClassUtil.TYPE_DOUBLE:
+            case ByteCodeConst.TYPE_DOUBLE:
                 return ImmutablePair.of(DLOAD, 2);
-            case ClassUtil.TYPE_FLOAT:
+            case ByteCodeConst.TYPE_FLOAT:
                 return ImmutablePair.of(FLOAD, 1);
-            case ClassUtil.TYPE_LONG:
+            case ByteCodeConst.TYPE_LONG:
                 return ImmutablePair.of(LLOAD, 2);
             default:
                 return ImmutablePair.of(ALOAD, 1);

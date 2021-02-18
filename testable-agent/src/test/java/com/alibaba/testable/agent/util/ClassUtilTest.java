@@ -2,38 +2,9 @@ package com.alibaba.testable.agent.util;
 
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class ClassUtilTest {
-
-    @Test
-    void should_able_to_get_parameter_count() {
-        assertEquals(0, ClassUtil.getParameterTypes("()V").size());
-        assertEquals(1, ClassUtil.getParameterTypes("(Ljava/lang/String;)V").size());
-        assertEquals(6, ClassUtil.getParameterTypes("(Ljava/lang/String;IDLjava/lang/String;ZLjava/net/URL;)V").size());
-        assertEquals(10, ClassUtil.getParameterTypes("(ZLjava/lang/String;IJFDCSBZ)V").size());
-        assertEquals(3, ClassUtil.getParameterTypes("(Ljava/lang/String;[I[Ljava/lang/String;)V").size());
-    }
-
-    @Test
-    void should_able_to_extract_parameter() {
-        assertEquals("", ClassUtil.extractParameters("()I"));
-        assertEquals("Ljava/lang/String;", ClassUtil.extractParameters("(Ljava/lang/String;)I"));
-    }
-
-    @Test
-    void should_able_to_get_return_type() {
-        assertEquals("V", ClassUtil.getReturnType("(Ljava/lang/String;)V"));
-        assertEquals("I", ClassUtil.getReturnType("(Ljava/lang/String;)I"));
-        assertEquals("[I", ClassUtil.getReturnType("(Ljava/lang/String;)[I"));
-        assertEquals("Ljava/lang/String;", ClassUtil.getReturnType("(Ljava/lang/String;)Ljava/lang/String;"));
-        assertEquals("[Ljava/lang/String;", ClassUtil.getReturnType("(Ljava/lang/String;)[Ljava/lang/String;"));
-    }
-
-    @Test
-    void should_able_to_get_first_parameter() {
-        assertEquals("Ljava/lang/String;", ClassUtil.getFirstParameter("(Ljava/lang/String;Ljava/lang/Object;I)V"));
-    }
 
     @Test
     void should_able_to_convert_class_name() {

@@ -6,6 +6,7 @@ import com.alibaba.testable.agent.tool.ImmutablePair;
 import com.alibaba.testable.agent.util.AnnotationUtil;
 import com.alibaba.testable.agent.util.ClassUtil;
 import com.alibaba.testable.agent.util.DiagnoseUtil;
+import com.alibaba.testable.agent.util.MethodUtil;
 import com.alibaba.testable.core.util.LogUtil;
 import com.alibaba.testable.core.util.MockAssociationUtil;
 import org.objectweb.asm.Type;
@@ -92,7 +93,7 @@ public class MockClassParser {
             String fullClassName = toDotSeparateFullClassName(an.desc);
             if (fullClassName.equals(ConstPool.MOCK_CONSTRUCTOR)) {
                 LogUtil.verbose("   Mock constructor \"%s\" as \"(%s)V\" for \"%s\"", mn.name,
-                    ClassUtil.extractParameters(mn.desc), ClassUtil.getReturnType(mn.desc));
+                    MethodUtil.extractParameters(mn.desc), MethodUtil.getReturnType(mn.desc));
                 addMockConstructor(methodInfos, cn, mn);
             } else if (fullClassName.equals(ConstPool.MOCK_METHOD)) {
                 LogUtil.verbose("   Mock method \"%s\" as \"%s\"", mn.name, getTargetMethodDesc(mn, an));
@@ -114,7 +115,7 @@ public class MockClassParser {
     private String getTargetMethodDesc(MethodNode mn, AnnotationNode mockMethodAnnotation) {
         Type type = AnnotationUtil.getAnnotationParameter(mockMethodAnnotation, ConstPool.FIELD_TARGET_CLASS,
             null, Type.class);
-        return type == null ? ClassUtil.removeFirstParameter(mn.desc) : mn.desc;
+        return type == null ? MethodUtil.removeFirstParameter(mn.desc) : mn.desc;
     }
 
     private MethodInfo getMethodInfo(MethodNode mn, AnnotationNode an, String targetMethod) {
@@ -131,7 +132,7 @@ public class MockClassParser {
             // "targetClass" found, use it as target class type
             String slashSeparatedName = ClassUtil.toSlashSeparatedName(targetType.getClassName());
             return new MethodInfo(slashSeparatedName, targetMethod, mn.desc, mn.name,
-                ClassUtil.addParameterAtBegin(mn.desc, ClassUtil.toByteCodeClassName(slashSeparatedName)), isStatic);
+                MethodUtil.addParameterAtBegin(mn.desc, ClassUtil.toByteCodeClassName(slashSeparatedName)), isStatic);
         }
     }
 

@@ -4,6 +4,7 @@ import com.alibaba.testable.agent.model.MethodInfo;
 import com.alibaba.testable.agent.model.ModifiedInsnNodes;
 import com.alibaba.testable.agent.util.BytecodeUtil;
 import com.alibaba.testable.agent.util.ClassUtil;
+import com.alibaba.testable.agent.util.MethodUtil;
 import com.alibaba.testable.core.util.LogUtil;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.*;
@@ -115,7 +116,7 @@ public class SourceClassHandler extends BaseClassHandler {
             String nodeOwner = ClassUtil.fitCompanionClassName(node.owner);
             String nodeName = ClassUtil.fitKotlinAccessorName(node.name);
             // Kotlin accessor method will append a extra type parameter
-            String nodeDesc = nodeName.equals(node.name) ? node.desc : ClassUtil.removeFirstParameter(node.desc);
+            String nodeDesc = nodeName.equals(node.name) ? node.desc : MethodUtil.removeFirstParameter(node.desc);
             if (m.getClazz().equals(nodeOwner) && m.getName().equals(nodeName) && m.getDesc().equals(nodeDesc)) {
                 return m;
             }
@@ -161,7 +162,7 @@ public class SourceClassHandler extends BaseClassHandler {
     }
 
     private int getInitialStackLevel(MethodInsnNode instruction) {
-        int stackLevel = ClassUtil.getParameterTypes((instruction).desc).size();
+        int stackLevel = MethodUtil.getParameterTypes((instruction).desc).size();
         switch (instruction.getOpcode()) {
             case Opcodes.INVOKESPECIAL:
             case Opcodes.INVOKEVIRTUAL:
@@ -194,7 +195,7 @@ public class SourceClassHandler extends BaseClassHandler {
     }
 
     private int stackEffectOfInvocation(String desc) {
-        return ClassUtil.getParameterTypes(desc).size() - (ClassUtil.getReturnType(desc).equals(VOID_RES) ? 0 : 1);
+        return MethodUtil.getParameterTypes(desc).size() - (MethodUtil.getReturnType(desc).equals(VOID_RES) ? 0 : 1);
     }
 
     private ModifiedInsnNodes replaceNewOps(MethodNode mn, MethodInfo newOperatorInjectMethod,
