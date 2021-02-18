@@ -4,6 +4,7 @@ import com.alibaba.testable.agent.constant.ConstPool;
 import com.alibaba.testable.agent.tool.ImmutablePair;
 import com.alibaba.testable.agent.util.AnnotationUtil;
 import com.alibaba.testable.agent.util.ClassUtil;
+import com.alibaba.testable.agent.util.MethodUtil;
 import com.alibaba.testable.core.model.MockScope;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.Type;
@@ -41,6 +42,7 @@ public class MockClassHandler extends BaseClassWithContextHandler {
                 mn.access &= ~ACC_PRIVATE;
                 mn.access &= ~ACC_PROTECTED;
                 mn.access |= ACC_PUBLIC;
+                // below transform order is important
                 unfoldTargetClass(mn);
                 injectInvokeRecorder(mn);
                 injectAssociationChecker(mn);
@@ -88,23 +90,54 @@ public class MockClassHandler extends BaseClassWithContextHandler {
             }
         }
         if (targetClassName != null) {
+            // must get label before method description changed
+            ImmutablePair<LabelNode, LabelNode> labels = getStartAndEndLabel(mn);
             mn.desc = ClassUtil.addParameterAtBegin(mn.desc, targetClassName);
-            LocalVariableNode thisRef = mn.localVariables.get(0);
-            mn.localVariables.add(1, new LocalVariableNode("__self", targetClassName, null,
-                thisRef.start, thisRef.end, 1));
-            for (int i = 2; i < mn.localVariables.size(); i++) {
+            int parameterOffset = MethodUtil.isStaticMethod(mn) ? 0 : 1;
+            mn.localVariables.add(parameterOffset, new LocalVariableNode("__self", targetClassName, null,
+                labels.left, labels.right, parameterOffset));
+            for (int i = parameterOffset + 1; i < mn.localVariables.size(); i++) {
                 mn.localVariables.get(i).index++;
             }
             for (AbstractInsnNode in : mn.instructions) {
                 if (in instanceof IincInsnNode) {
                     ((IincInsnNode)in).var++;
-                } else if (in instanceof VarInsnNode && ((VarInsnNode)in).var > 0) {
+                } else if (in instanceof VarInsnNode && ((VarInsnNode)in).var >= parameterOffset) {
                     ((VarInsnNode)in).var++;
                 } else if (in instanceof FrameNode && ((FrameNode)in).type == F_FULL) {
-                    ((FrameNode)in).local.add(1, targetClassName);
+                    ((FrameNode)in).local.add(parameterOffset, targetClassName);
                 }
             }
             mn.maxLocals++;
+        }
+    }
+
+    private ImmutablePair<LabelNode, LabelNode> getStartAndEndLabel(MethodNode mn) {
+        if (MethodUtil.isStaticMethod(mn)) {
+            LabelNode startLabel = null, endLabel = null;
+            for (AbstractInsnNode n = mn.instructions.getFirst(); n != null; n = n.getNext()) {
+                if (n instanceof LabelNode) {
+                    startLabel = (LabelNode)n;
+                    break;
+                }
+            }
+            if (ClassUtil.extractParameters(mn.desc).isEmpty()) {
+                // for method without parameter, should manually add a ending label
+                endLabel = new LabelNode(new Label());
+                mn.instructions.add(endLabel);
+            } else {
+                // for method with parameters, find the existing ending label
+                for (AbstractInsnNode n = mn.instructions.getLast(); n != null; n = n.getPrevious()) {
+                    if (n instanceof LabelNode) {
+                        endLabel = (LabelNode)n;
+                        break;
+                    }
+                }
+            }
+            return ImmutablePair.of(startLabel, endLabel);
+        } else {
+            LocalVariableNode thisRef = mn.localVariables.get(0);
+            return ImmutablePair.of(thisRef.start, thisRef.end);
         }
     }
 
@@ -218,7 +251,7 @@ public class MockClassHandler extends BaseClassWithContextHandler {
         int size = types.size();
         il.add(getIntInsn(size));
         il.add(new TypeInsnNode(ANEWARRAY, ClassUtil.CLASS_OBJECT));
-        int parameterOffset = 1;
+        int parameterOffset = MethodUtil.isStaticMethod(mn) ? 0 : 1;
         for (int i = 0; i < size; i++) {
             mn.maxStack += 3;
             il.add(new InsnNode(DUP));

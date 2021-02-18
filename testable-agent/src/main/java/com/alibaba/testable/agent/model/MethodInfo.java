@@ -25,13 +25,18 @@ public class MethodInfo {
      * parameter and return value of the mock method
      */
     private final String mockDesc;
+    /**
+     * whether mock method is defined as static
+     */
+    private final boolean isStatic;
 
-    public MethodInfo(String clazz, String name, String desc, String mockName, String mockDesc) {
+    public MethodInfo(String clazz, String name, String desc, String mockName, String mockDesc, boolean isStatic) {
         this.clazz = clazz;
         this.name = name;
         this.desc = desc;
         this.mockName = mockName;
         this.mockDesc = mockDesc;
+        this.isStatic = isStatic;
     }
 
     public String getClazz() {
@@ -54,6 +59,10 @@ public class MethodInfo {
         return mockDesc;
     }
 
+    public boolean isStatic() {
+        return isStatic;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) { return true; }
@@ -61,6 +70,7 @@ public class MethodInfo {
 
         MethodInfo that = (MethodInfo)o;
 
+        if (isStatic != that.isStatic) { return false; }
         if (!clazz.equals(that.clazz)) { return false; }
         if (!name.equals(that.name)) { return false; }
         if (!desc.equals(that.desc)) { return false; }
@@ -75,6 +85,7 @@ public class MethodInfo {
         result = 31 * result + desc.hashCode();
         result = 31 * result + mockName.hashCode();
         result = 31 * result + mockDesc.hashCode();
+        result = 31 * result + (isStatic ? 1 : 0);
         return result;
     }
 }

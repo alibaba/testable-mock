@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.alibaba.testable.agent.util.ClassUtil.toDotSeparateFullClassName;
+import static com.alibaba.testable.agent.util.MethodUtil.isStaticMethod;
 import static com.alibaba.testable.core.constant.ConstPool.CONSTRUCTOR;
 
 public class MockClassParser {
@@ -118,24 +119,25 @@ public class MockClassParser {
 
     private MethodInfo getMethodInfo(MethodNode mn, AnnotationNode an, String targetMethod) {
         Type targetType = AnnotationUtil.getAnnotationParameter(an, ConstPool.FIELD_TARGET_CLASS, null, Type.class);
+        boolean isStatic = isStaticMethod(mn);
         if (targetType == null) {
             // "targetClass" unset, use first parameter as target class type
             ImmutablePair<String, String> methodDescPair = extractFirstParameter(mn.desc);
             if (methodDescPair == null) {
                 return null;
             }
-            return new MethodInfo(methodDescPair.left, targetMethod, methodDescPair.right, mn.name, mn.desc);
+            return new MethodInfo(methodDescPair.left, targetMethod, methodDescPair.right, mn.name, mn.desc, isStatic);
         } else {
             // "targetClass" found, use it as target class type
             String slashSeparatedName = ClassUtil.toSlashSeparatedName(targetType.getClassName());
             return new MethodInfo(slashSeparatedName, targetMethod, mn.desc, mn.name,
-                ClassUtil.addParameterAtBegin(mn.desc, ClassUtil.toByteCodeClassName(slashSeparatedName)));
+                ClassUtil.addParameterAtBegin(mn.desc, ClassUtil.toByteCodeClassName(slashSeparatedName)), isStatic);
         }
     }
 
     private void addMockConstructor(List<MethodInfo> methodInfos, ClassNode cn, MethodNode mn) {
         String sourceClassName = ClassUtil.getSourceClassName(cn.name);
-        methodInfos.add(new MethodInfo(sourceClassName, CONSTRUCTOR, mn.desc, mn.name, mn.desc));
+        methodInfos.add(new MethodInfo(sourceClassName, CONSTRUCTOR, mn.desc, mn.name, mn.desc, isStaticMethod(mn)));
     }
 
     /**
