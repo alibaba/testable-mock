@@ -46,7 +46,7 @@ public class LogUtil {
 
     public static void warn(String msg, Object... args) {
         if (currentLogLevel.level >= LogLevel.LEVEL_WARN.level) {
-            System.out.println(String.format("[WARN] " + msg, args));
+            System.err.println(String.format("[WARN] " + msg, args));
         }
     }
 

@@ -106,7 +106,7 @@ public class TestableClassTransformer implements ClassFileTransformer {
     }
 
     private String foundMockForSourceClass(String className) {
-        String mockClass = readMockWithAnnotationAsSourceClass(className);
+        String mockClass = lookForMockWithAnnotationAsSourceClass(className);
         if (mockClass != null) {
             return mockClass;
         }
@@ -114,10 +114,23 @@ public class TestableClassTransformer implements ClassFileTransformer {
     }
 
     private String foundMockForTestClass(String className) {
-        String mockClass = readMockWithAnnotationAndInnerClassAsTestClass(className);
+        ClassNode cn = ClassUtil.getClassNode(className);
+        if (cn == null) {
+            return null;
+        }
+        String mockClass = lookForMockWithAnnotationAsTestClass(cn);
         if (mockClass != null) {
             return mockClass;
         }
+        mockClass = lookForInnerMockClass(cn);
+        if (mockClass != null) {
+            return mockClass;
+        }
+        return lookForOuterMockClass(className);
+    }
+
+    private String lookForOuterMockClass(String className) {
+        String mockClass;
         mockClass = ClassUtil.getMockClassName(ClassUtil.getSourceClassName(className));
         if (mockClassParser.isMockClass(mockClass)) {
             return mockClass;
@@ -160,7 +173,7 @@ public class TestableClassTransformer implements ClassFileTransformer {
      * @param className class that need to explore
      * @return name of mock class, null for not found
      */
-    private String readMockWithAnnotationAsSourceClass(String className) {
+    private String lookForMockWithAnnotationAsSourceClass(String className) {
         ClassNode cn = ClassUtil.getClassNode(className);
         if (cn == null) {
             return null;
@@ -169,31 +182,36 @@ public class TestableClassTransformer implements ClassFileTransformer {
     }
 
     /**
-     * Read @MockWith annotation upon class and inner class "Mock" to fetch mock class
+     * Read inner class "Mock" to fetch mock class
      *
-     * @param className class that need to explore
+     * @param cn class that need to explore
      * @return name of mock class, null for not found
      */
-    private String readMockWithAnnotationAndInnerClassAsTestClass(String className) {
-        ClassNode cn = ClassUtil.getClassNode(className);
-        if (cn == null) {
-            return null;
-        }
-        // look for MockWith annotation
-        String mockClassName = parseMockWithAnnotation(cn, ClassType.TestClass);
-        if (mockClassName != null) {
-            MockAssociationUtil.mockToTests.get(mockClassName).add(ClassUtil.toDotSeparateFullClassName(className));
-            return ClassUtil.toSlashSeparatedName(mockClassName);
-        }
-        // look for Mock inner class
+    private String lookForInnerMockClass(ClassNode cn) {
         for (InnerClassNode ic : cn.innerClasses) {
-            if ((ic.access & ACC_PUBLIC) != 0 && ic.name.equals(getInnerMockClassName(className))) {
+            if ((ic.access & ACC_PUBLIC) != 0 && ic.name.equals(getInnerMockClassName(cn.name)) &&
+                mockClassParser.isMockClass(ic.name)) {
                 if ((ic.access & ACC_STATIC) != 0) {
                     return ic.name;
                 } else {
-                    LogUtil.warn(String.format("Mock class in \"%s\" is not static", className));
+                    LogUtil.warn(String.format("Mock class in \"%s\" is not declared as static", cn.name));
                 }
             }
+        }
+        return null;
+    }
+
+    /**
+     * Read @MockWith annotation upon class to fetch mock class
+     *
+     * @param cn class that need to explore
+     * @return name of mock class, null for not found
+     */
+    private String lookForMockWithAnnotationAsTestClass(ClassNode cn) {
+        String mockClassName = parseMockWithAnnotation(cn, ClassType.TestClass);
+        if (mockClassName != null) {
+            MockAssociationUtil.mockToTests.get(mockClassName).add(ClassUtil.toDotSeparateFullClassName(cn.name));
+            return ClassUtil.toSlashSeparatedName(mockClassName);
         }
         return null;
     }

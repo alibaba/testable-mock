@@ -94,7 +94,7 @@ public class MockClassHandler extends BaseClassWithContextHandler {
             // must get label before method description changed
             ImmutablePair<LabelNode, LabelNode> labels = getStartAndEndLabel(mn);
             mn.desc = MethodUtil.addParameterAtBegin(mn.desc, targetClassName);
-            int parameterOffset = MethodUtil.isStaticMethod(mn) ? 0 : 1;
+            int parameterOffset = MethodUtil.isStatic(mn) ? 0 : 1;
             mn.localVariables.add(parameterOffset, new LocalVariableNode("__self", targetClassName, null,
                 labels.left, labels.right, parameterOffset));
             for (int i = parameterOffset + 1; i < mn.localVariables.size(); i++) {
@@ -114,7 +114,7 @@ public class MockClassHandler extends BaseClassWithContextHandler {
     }
 
     private ImmutablePair<LabelNode, LabelNode> getStartAndEndLabel(MethodNode mn) {
-        if (MethodUtil.isStaticMethod(mn)) {
+        if (MethodUtil.isStatic(mn)) {
             LabelNode startLabel = null, endLabel = null;
             for (AbstractInsnNode n = mn.instructions.getFirst(); n != null; n = n.getNext()) {
                 if (n instanceof LabelNode) {
@@ -251,7 +251,7 @@ public class MockClassHandler extends BaseClassWithContextHandler {
         int size = types.size();
         il.add(getIntInsn(size));
         il.add(new TypeInsnNode(ANEWARRAY, ClassUtil.CLASS_OBJECT));
-        int parameterOffset = MethodUtil.isStaticMethod(mn) ? 0 : 1;
+        int parameterOffset = MethodUtil.isStatic(mn) ? 0 : 1;
         for (int i = 0; i < size; i++) {
             il.add(new InsnNode(DUP));
             il.add(getIntInsn(i));

@@ -18,6 +18,7 @@ public @interface MockWith {
 
     /**
      * explicitly specify mock class
+     * @note this parameter will become mandatory in v0.6
      * @return type of mock class
      */
     Class<?> value() default NullType.class;

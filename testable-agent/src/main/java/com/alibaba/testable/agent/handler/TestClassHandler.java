@@ -22,6 +22,8 @@ public class TestClassHandler extends BaseClassWithContextHandler {
     private static final String DESC_METHOD_CLEAN = "()V";
     private static final String THIS = "this";
 
+    private int testCaseCount = 0;
+
     private final Framework[] frameworkClasses = new Framework[] {
         new JUnit4Framework(),
         new JUnit5Framework(),
@@ -51,6 +53,7 @@ public class TestClassHandler extends BaseClassWithContextHandler {
             handleTestableUtil(mn);
             handleTestCaseMethod(mn, framework);
         }
+        LogUtil.diagnose(String.format("  Found %d test cases", testCaseCount));
     }
 
     private Framework checkFramework(ClassNode cn) {
@@ -96,7 +99,9 @@ public class TestClassHandler extends BaseClassWithContextHandler {
     private void handleTestCaseMethod(MethodNode mn, Framework framework) {
         TestCaseMethodType type = framework.checkMethodType(mn);
         if (type.equals(TestCaseMethodType.TEST)) {
+            LogUtil.verbose(String.format("   Test case \"%s\"", mn.name));
             injectMockContextInit(mn);
+            testCaseCount++;
         } else if (type.equals(TestCaseMethodType.AFTER_TEST)) {
             injectMockContextClean(mn);
         }

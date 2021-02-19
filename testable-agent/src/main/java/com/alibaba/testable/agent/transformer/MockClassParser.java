@@ -8,7 +8,6 @@ import com.alibaba.testable.agent.util.ClassUtil;
 import com.alibaba.testable.agent.util.DiagnoseUtil;
 import com.alibaba.testable.agent.util.MethodUtil;
 import com.alibaba.testable.core.util.LogUtil;
-import com.alibaba.testable.core.util.MockAssociationUtil;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AnnotationNode;
 import org.objectweb.asm.tree.ClassNode;
@@ -18,7 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.alibaba.testable.agent.util.ClassUtil.toDotSeparateFullClassName;
-import static com.alibaba.testable.agent.util.MethodUtil.isStaticMethod;
+import static com.alibaba.testable.agent.util.MethodUtil.isStatic;
 import static com.alibaba.testable.core.constant.ConstPool.CONSTRUCTOR;
 
 public class MockClassParser {
@@ -50,11 +49,6 @@ public class MockClassParser {
      * @return found annotation or not
      */
     public boolean isMockClass(String className) {
-        return MockAssociationUtil.mockToTests.containsKey(ClassUtil.toDotSeparatedName(className)) ||
-            hasMockMethod(className);
-    }
-
-    private boolean hasMockMethod(String className) {
         ClassNode cn = ClassUtil.getClassNode(className);
         if (cn == null) {
             return false;
@@ -120,7 +114,7 @@ public class MockClassParser {
 
     private MethodInfo getMethodInfo(MethodNode mn, AnnotationNode an, String targetMethod) {
         Type targetType = AnnotationUtil.getAnnotationParameter(an, ConstPool.FIELD_TARGET_CLASS, null, Type.class);
-        boolean isStatic = isStaticMethod(mn);
+        boolean isStatic = isStatic(mn);
         if (targetType == null) {
             // "targetClass" unset, use first parameter as target class type
             ImmutablePair<String, String> methodDescPair = extractFirstParameter(mn.desc);
@@ -138,7 +132,7 @@ public class MockClassParser {
 
     private void addMockConstructor(List<MethodInfo> methodInfos, ClassNode cn, MethodNode mn) {
         String sourceClassName = ClassUtil.getSourceClassName(cn.name);
-        methodInfos.add(new MethodInfo(sourceClassName, CONSTRUCTOR, mn.desc, mn.name, mn.desc, isStaticMethod(mn)));
+        methodInfos.add(new MethodInfo(sourceClassName, CONSTRUCTOR, mn.desc, mn.name, mn.desc, isStatic(mn)));
     }
 
     /**

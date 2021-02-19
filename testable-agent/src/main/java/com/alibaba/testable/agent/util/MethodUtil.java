@@ -15,7 +15,7 @@ public class MethodUtil {
      * @param mn method to check
      * @return is static or not
      */
-    public static boolean isStaticMethod(MethodNode mn) {
+    public static boolean isStatic(MethodNode mn) {
         return (mn.access & ACC_STATIC) != 0;
     }
 
