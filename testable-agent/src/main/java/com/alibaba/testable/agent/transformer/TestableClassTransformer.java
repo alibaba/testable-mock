@@ -115,16 +115,15 @@ public class TestableClassTransformer implements ClassFileTransformer {
 
     private String foundMockForTestClass(String className) {
         ClassNode cn = ClassUtil.getClassNode(className);
-        if (cn == null) {
-            return null;
-        }
-        String mockClass = lookForMockWithAnnotationAsTestClass(cn);
-        if (mockClass != null) {
-            return mockClass;
-        }
-        mockClass = lookForInnerMockClass(cn);
-        if (mockClass != null) {
-            return mockClass;
+        if (cn != null) {
+            String mockClass = lookForMockWithAnnotationAsTestClass(cn);
+            if (mockClass != null) {
+                return mockClass;
+            }
+            mockClass = lookForInnerMockClass(cn);
+            if (mockClass != null) {
+                return mockClass;
+            }
         }
         return lookForOuterMockClass(className);
     }
