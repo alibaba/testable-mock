@@ -1,7 +1,6 @@
 package com.alibaba.testable.agent.handler;
 
 import com.alibaba.testable.agent.model.MethodInfo;
-import com.alibaba.testable.agent.model.ModifiedInsnNodes;
 import com.alibaba.testable.agent.util.BytecodeUtil;
 import com.alibaba.testable.agent.util.ClassUtil;
 import com.alibaba.testable.agent.util.MethodUtil;
@@ -62,7 +61,6 @@ public class SourceClassHandler extends BaseClassHandler {
             return;
         }
         int i = 0;
-        int maxStackDiff = 0;
         do {
             if (invokeOps.contains(instructions[i].getOpcode())) {
                 MethodInsnNode node = (MethodInsnNode)instructions[i];
@@ -74,10 +72,7 @@ public class SourceClassHandler extends BaseClassHandler {
                         // it's a new operation and an inject method for it exist
                         int rangeStart = getConstructorStart(instructions, node.owner, i);
                         if (rangeStart >= 0) {
-                            ModifiedInsnNodes modifiedInsnNodes = replaceNewOps(mn, newOperatorInjectMethod,
-                                instructions, rangeStart, i);
-                            instructions = modifiedInsnNodes.nodes;
-                            maxStackDiff = Math.max(maxStackDiff, modifiedInsnNodes.stackDiff);
+                            instructions = replaceNewOps(mn, newOperatorInjectMethod, instructions, rangeStart, i);
                             i = rangeStart;
                         }
                     }
@@ -89,10 +84,8 @@ public class SourceClassHandler extends BaseClassHandler {
                         // it's a member or static method and an inject method for it exist
                         int rangeStart = getMemberMethodStart(instructions, i);
                         if (rangeStart >= 0) {
-                            ModifiedInsnNodes modifiedInsnNodes = replaceMemberCallOps(mn, mockMethod,
+                            instructions = replaceMemberCallOps(mn, mockMethod,
                                 instructions, node.owner, node.getOpcode(), rangeStart, i);
-                            instructions = modifiedInsnNodes.nodes;
-                            maxStackDiff = Math.max(maxStackDiff, modifiedInsnNodes.stackDiff);
                             i = rangeStart;
                         } else {
                             LogUtil.warn("Potential missed mocking at %s:%s", mn.name, getLineNum(instructions, i));
@@ -102,7 +95,6 @@ public class SourceClassHandler extends BaseClassHandler {
             }
             i++;
         } while (i < instructions.length);
-        mn.maxStack += maxStackDiff;
     }
 
     /**
@@ -198,7 +190,7 @@ public class SourceClassHandler extends BaseClassHandler {
         return MethodUtil.getParameterTypes(desc).size() - (MethodUtil.getReturnType(desc).equals(VOID_RES) ? 0 : 1);
     }
 
-    private ModifiedInsnNodes replaceNewOps(MethodNode mn, MethodInfo newOperatorInjectMethod,
+    private AbstractInsnNode[] replaceNewOps(MethodNode mn, MethodInfo newOperatorInjectMethod,
                                             AbstractInsnNode[] instructions, int start, int end) {
         String mockMethodName = newOperatorInjectMethod.getMockName();
         int invokeOpcode = newOperatorInjectMethod.isStatic() ? INVOKESTATIC : INVOKEVIRTUAL;
@@ -214,7 +206,7 @@ public class SourceClassHandler extends BaseClassHandler {
         mn.instructions.remove(instructions[start]);
         mn.instructions.remove(instructions[start + 1]);
         mn.instructions.remove(instructions[end]);
-        return new ModifiedInsnNodes(mn.instructions.toArray(), 0);
+        return mn.instructions.toArray();
     }
 
     private int getLineNum(AbstractInsnNode[] instructions, int start) {
@@ -231,7 +223,7 @@ public class SourceClassHandler extends BaseClassHandler {
             ClassUtil.toByteCodeClassName(classType);
     }
 
-    private ModifiedInsnNodes replaceMemberCallOps(MethodNode mn, MethodInfo mockMethod, AbstractInsnNode[] instructions,
+    private AbstractInsnNode[] replaceMemberCallOps(MethodNode mn, MethodInfo mockMethod, AbstractInsnNode[] instructions,
                                                    String ownerClass, int opcode, int start, int end) {
         LogUtil.diagnose("    Line %d, mock method \"%s\" used", getLineNum(instructions, start),
             mockMethod.getMockName());
@@ -242,6 +234,7 @@ public class SourceClassHandler extends BaseClassHandler {
         if (Opcodes.INVOKESTATIC == opcode || isCompanionMethod(ownerClass, opcode)) {
             // append a null value if it was a static invoke or in kotlin companion class
             mn.instructions.insertBefore(instructions[start], new InsnNode(ACONST_NULL));
+            mn.maxStack++;
             if (ClassUtil.isCompanionClassName(ownerClass)) {
                 // for kotlin companion class, remove the byte code of reference to "companion" static field
                 mn.instructions.remove(instructions[end - 1]);
@@ -252,7 +245,8 @@ public class SourceClassHandler extends BaseClassHandler {
         mn.instructions.insertBefore(instructions[end], new MethodInsnNode(invokeOpcode, mockClassName,
             mockMethod.getMockName(), mockMethod.getMockDesc(), false));
         mn.instructions.remove(instructions[end]);
-        return new ModifiedInsnNodes(mn.instructions.toArray(), 1);
+        mn.maxStack++;
+        return mn.instructions.toArray();
     }
 
     private boolean isCompanionMethod(String ownerClass, int opcode) {
