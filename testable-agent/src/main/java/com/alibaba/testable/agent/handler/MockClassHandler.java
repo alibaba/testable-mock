@@ -5,6 +5,7 @@ import com.alibaba.testable.agent.constant.ConstPool;
 import com.alibaba.testable.agent.tool.ImmutablePair;
 import com.alibaba.testable.agent.util.AnnotationUtil;
 import com.alibaba.testable.agent.util.ClassUtil;
+import com.alibaba.testable.agent.util.GlobalConfig;
 import com.alibaba.testable.agent.util.MethodUtil;
 import com.alibaba.testable.core.model.MockScope;
 import org.objectweb.asm.Label;
@@ -209,7 +210,7 @@ public class MockClassHandler extends BaseClassWithContextHandler {
             if (ClassUtil.toByteCodeClassName(ConstPool.MOCK_METHOD).equals(an.desc) ||
                 ClassUtil.toByteCodeClassName(ConstPool.MOCK_CONSTRUCTOR).equals(an.desc)) {
                 MockScope scope = AnnotationUtil.getAnnotationParameter(an, ConstPool.FIELD_SCOPE,
-                    MockScope.ASSOCIATED, MockScope.class);
+                    GlobalConfig.getDefaultMockScope(), MockScope.class);
                 if (scope.equals(MockScope.GLOBAL)) {
                     return true;
                 }

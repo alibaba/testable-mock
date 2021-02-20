@@ -10,6 +10,13 @@ public enum MockScope {
     /**
      * Mock method available for any test cases
      */
-    GLOBAL
+    GLOBAL;
 
+    public static MockScope of(String scope) {
+        try {
+            return valueOf(scope);
+        } catch (IllegalArgumentException e) {
+            return GLOBAL;
+        }
+    }
 }

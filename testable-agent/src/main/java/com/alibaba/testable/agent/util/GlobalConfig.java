@@ -1,5 +1,6 @@
 package com.alibaba.testable.agent.util;
 
+import com.alibaba.testable.core.model.MockScope;
 import com.alibaba.testable.core.util.LogUtil;
 
 /**
@@ -13,6 +14,7 @@ public class GlobalConfig {
 
     private static String dumpPath = null;
     private static String pkgPrefix = null;
+    private static MockScope defaultMockScope = MockScope.GLOBAL;
 
     public static boolean setLogLevel(String level) {
         if (level.equals(MUTE)) {
@@ -28,19 +30,27 @@ public class GlobalConfig {
         return false;
     }
 
-    public static void setDumpPath(String path) {
-        dumpPath = path;
-    }
-
     public static String getDumpPath() {
         return dumpPath;
+    }
+
+    public static void setDumpPath(String path) {
+        dumpPath = path;
     }
 
     public static String getPkgPrefix() {
         return pkgPrefix;
     }
 
-    public static void setPkgPrefix(String pkgPrefix) {
-        GlobalConfig.pkgPrefix = pkgPrefix;
+    public static void setPkgPrefix(String prefix) {
+        pkgPrefix = prefix;
+    }
+
+    public static MockScope getDefaultMockScope() {
+        return defaultMockScope;
+    }
+
+    public static void setDefaultMockScope(MockScope scope) {
+        defaultMockScope = scope;
     }
 }

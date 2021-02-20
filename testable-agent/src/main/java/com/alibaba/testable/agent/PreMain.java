@@ -2,6 +2,7 @@ package com.alibaba.testable.agent;
 
 import com.alibaba.testable.agent.transformer.TestableClassTransformer;
 import com.alibaba.testable.agent.util.GlobalConfig;
+import com.alibaba.testable.core.model.MockScope;
 import com.alibaba.ttl.threadpool.agent.TtlAgent;
 
 import java.lang.instrument.Instrumentation;
@@ -17,6 +18,7 @@ public class PreMain {
     private static final String LOG_LEVEL = "logLevel";
     private static final String DUMP_PATH = "dumpPath";
     private static final String PKG_PREFIX = "pkgPrefix";
+    private static final String MOCK_SCOPE = "mockScope";
     private static final String EQUAL = "=";
     private static boolean enhanceThreadLocal = false;
 
@@ -46,6 +48,8 @@ public class PreMain {
                     GlobalConfig.setDumpPath(v);
                 } else if (k.equals(PKG_PREFIX)) {
                     GlobalConfig.setPkgPrefix(v);
+                } else if (k.equals(MOCK_SCOPE)) {
+                    GlobalConfig.setDefaultMockScope(MockScope.of(v));
                 }
             } else {
                 // parameter with single value

@@ -18,6 +18,6 @@ public @interface MockConstructor {
      * specify the effective scope of the mock method
      * @return global or associated
      */
-    MockScope scope() default MockScope.ASSOCIATED;
+    MockScope scope() default MockScope.GLOBAL;
 
 }
