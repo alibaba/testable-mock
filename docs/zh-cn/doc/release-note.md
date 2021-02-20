@@ -1,5 +1,12 @@
 # Release Note
 
+## 0.5.0
+- 分离测试类与Mock类，实现Mock类和Mock方法的复用机制
+- 支持测试类与被测类在不同包路径的情况下实施Mock
+- 支持将Mock方法生效范围缩小为所属测试类的测试用例
+- 使用`TransmittableThreadLocal`替换基于线程堆栈的Mock上下文识别机制
+- 增加专用于输出诊断信息的`@MockDiagnose`注解
+
 ## 0.4.12
 - 支持`VERBOSE`级别的Mocking过程日志，增强错误自助排查能力
 - 支持使用`verifyTargetOnCompile`参数禁用编译期私有目标校验功能

@@ -77,18 +77,20 @@ class Demo {
 class DemoTest {
     private Demo demo = new Demo();
 
-    // 拦截`System.out.println`调用
-    @MockMethod
-    public void println(PrintStream ps, String msg) {
-        // 执行原调用
-        ps.println(msg);
+    public static class Mock {
+        // 拦截System.out.println调用
+        @MockMethod
+        public void println(PrintStream ps, String msg) {
+            // 执行原调用
+            ps.println(msg);
+        }
     }
 
     @Test
     public void testRecordAction() {
         Action action = new Action("click", ":download");
         demo.recordAction();
-        // 验证Mock方法`println`被调用，且传入参数符合预期
+        // 验证Mock方法println被调用，且传入参数格式符合预期
         verify("println").with(matches("\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2} \\[click\\] :download"));
     }
 }

@@ -2,16 +2,16 @@
 
 换种思路写Mock，让单元测试更简单。
 
-无需初始化，不挑测试框架，甭管要换的是私有方法、静态方法、构造方法还是其他任何类的任何方法，也甭管要换的对象是怎么创建的。写好Mock定义，加个`@MockMethod`注解，一切统统搞定。
+无需初始化，不挑服务框架，甭管要换的是私有方法、静态方法、构造方法还是其他任何类的任何方法，也甭管要换的对象是怎么创建的。写好Mock定义，加个`@MockMethod`注解，一切统统搞定。
 
 - 文档：https://alibaba.github.io/testable-mock/
 - 国内文档镜像：http://freyrlin.gitee.io/testable-mock/
 
 阅读[这里](https://mp.weixin.qq.com/s/KyU6Eu7mDkZU8FspfSqfMw)了解更多故事。
 
-> 特别说明
-> 1. 如遇到"Attempt to access non-static member in mock method"错误，参见[常见问题](https://alibaba.github.io/testable-mock/#/zh-cn/doc/frequently-asked-questions)第8条
-> 2. 如果有遇到其他任何使用问题和建议，请直接在[Issue](https://github.com/alibaba/testable-mock/issues)中提出，也可通过[Pull Request](https://github.com/alibaba/testable-mock/pulls)提交您的代码，我们将在24小时内回复并处理
+<font size="5">**0.5版本已发布**</font>，从`0.4.x`升级到`0.5.x`版本请参考[0.5版本升级指南](https://alibaba.github.io/testable-mock/#/zh-cn/doc/upgrade-to-v05)
+
+如果有遇到其他任何使用问题和建议，请直接在[Issue](https://github.com/alibaba/testable-mock/issues)中提出，也可通过[Pull Request](https://github.com/alibaba/testable-mock/pulls)提交您的代码，我们将在24小时内回复并处理
 
 -----
 
@@ -19,9 +19,8 @@
 
 `TestableMock`正在持续迭代演进，以下版本计划可能在开发过程中发生调整
 
-- `0.4` 当前版本，进行中的工作内容参考[Issue](https://github.com/alibaba/testable-mock/issues)清单
-- `0.5` 实现以"独立Mock类"为单元的Mock方法复用机制，让测试类之间可以方便复用相同的Mock方法
-- `0.6` 实现将Mock方法的默认生效范围缩小至当前被测类，避免Mock方法在测试类之间相互影响
+- `0.5` 当前版本，进行中的工作内容参考[Issue](https://github.com/alibaba/testable-mock/issues)清单
+- `0.6` 实现第四项单元测试增强能力"[快速入参构造器](https://alibaba.github.io/testable-mock/#/zh-cn/doc/parameter-constructor)"
 - `1.0` 功能稳定，一个崭新的开始
 
 ## 目录结构

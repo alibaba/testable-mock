@@ -4,14 +4,28 @@
 相比以往Mock工具以类为粒度的Mock方式，`TestableMock`允许用户直接定义需要Mock的单个方法，并遵循约定优于配置的原则，按照规则自动在测试运行时替换被测方法中的指定方法调用。
 
 > 归纳起来就两条：
-> - Mock非构造方法，拷贝原方法定义到测试类，加`@MockMethod`注解
-> - Mock构造方法，拷贝原方法定义到测试类，返回值换成构造的类型，方法名随意，加`@MockContructor`注解
+> - Mock非构造方法，拷贝原方法定义到Mock容器类，加`@MockMethod`注解
+> - Mock构造方法，拷贝原方法定义到Mock容器类，返回值换成构造的类型，方法名随意，加`@MockContructor`注解
 
-具体的Mock方法定义约定如下：
+具体的Mock方法定义约定如下。
+
+#### 0. 前置步骤，准备Mock容器
+
+首先为测试类添加一个关联的Mock类型，作为承载其Mock方法的容器，最简单的做法是在测试类里添加一个名称为`Mock`的静态内部类。例如：
+
+```java
+public class DemoTest {
+
+    public static class Mock {
+        // 放置Mock方法的地方
+    }
+
+}
+```
 
 #### 1. 覆写任意类的方法调用
 
-在测试类里定义一个有`@MockMethod`注解的普通方法，使它与需覆写的方法名称、参数、返回值类型完全一致，并在注解的`targetClass`参数指定该方法原本所属对象类型。
+在Mock类中定义一个有`@MockMethod`注解的普通方法，使它与需覆写的方法名称、参数、返回值类型完全一致，并在注解的`targetClass`参数指定该方法原本所属对象类型。
 
 此时被测类中所有对该需覆写方法的调用，将在单元测试运行时，将自动被替换为对上述自定义Mock方法的调用。
 
@@ -111,7 +125,7 @@ private BlackBox createBlackBox(String text) {
 
 完整代码示例见`java-demo`和`kotlin-demo`示例项目中的`should_able_to_mock_new_object()`测试用例。
 
-#### 5. 识别当前测试用例和调用来源
+#### 5. 在Mock方法中区分调用来源
 
 在Mock方法中通过`TestableTool.SOURCE_METHOD`变量可以识别**进入该Mock方法前的被测类方法名称**；此外，还可以借助`TestableTool.MOCK_CONTEXT`变量为Mock方法注入“**额外的上下文参数**”，从而区分处理不同的调用场景。
 
@@ -124,7 +138,6 @@ public void testDemo() {
     assertEquals(true, demo());
     MOCK_CONTEXT.put("case", "has-error");
     assertEquals(false, demo());
-    MOCK_CONTEXT.clear();
 }
 ```
 
@@ -144,12 +157,6 @@ private Data mockDemo() {
 }
 ```
 
-注意，由于`TestableMock`并不依赖（也不希望依赖）任何特定测试框架，因而无法自动识别单个测试用例的结束位置，这使得设置到`TestableTool.MOCK_CONTEXT`变量的参数可能会在同测试类中跨测试用例存在。建议总是在使用后及时使用`MOCK_CONTEXT.clear()`清空上下文，也可将这行语句添加到单元测试框架特定的测试用例结束的统一位置，比如JUnit 5的`@AfterEach`方法。
-
-在当前版本中，此变量在运行期的效果类似于一个在测试类中的普通`Map`类型成员对象，但请尽量使用此变量而非自定义对象传递附加的Mock参数，以便在将来升级至`v0.5`版本时获得更好的兼容性。
-
-> `TestableTool.MOCK_CONTEXT`变量的值是在测试类内共享的，当单元测试并行运行时，建议请选择`parallel`类型为`classes`
-
 完整代码示例见`java-demo`和`kotlin-demo`示例项目中的`should_able_to_get_source_method_name()`和`should_able_to_get_test_case_name()`测试用例。
 
 #### 6. 验证Mock方法被调用的顺序和参数
@@ -160,10 +167,15 @@ private Data mockDemo() {
 
 #### 特别说明
 
-> **0.4.x 版本的Mock约定**：
-> - 测试类与被测类的包路径应相同，且名称为`被测类名+Test`（通常采用`Maven`或`Gradle`构建的Java项目均符合这种惯例）
-> - Mock方法（即包含`@MockMethod`或`@MockContructor`注解的方法）会在运行期被自动修改为`static`方法，请勿在Mock方法的定义中访问任何非静态成员。
+> **Mock只对被测类的代码有效**
 >
-> 这两项约束会在`0.5`版本中去除
+> 在`TestableMock`的[Issues](https://github.com/alibaba/testable-mock/issues)列表中，最常见的一类问题是“Mock为什么没生效”，其中最多的一种情况是“在测试用例里直接调用了Mock的方法，发现没有替换”。这是因为<u>Mock替换只会作用在**被测类**的代码里</u>哦(～￣▽￣)～。知道大家是想快速验证一下`TestableMock`的功能，不过测试用例的代码真滴无需被Mock（这心意我们领了👻）。
 >
-> 当Mock方法内容较复杂（包含Lambda语句、构造块、匿名类等）时，编译器会在构建期生成额外的非静态临时方法，导致"Bad type in operand stack"错误。如果有遇到此类错误，请将Mock方法显式加上`static`修饰即可解决。这个问题会在`0.5`版本中彻底解决。
+> 除去这种情况，若Mock未生效，请参考[自助问题排查](zh-cn/doc/troubleshooting.md)提供的方法对比<u>Mock方法签名</u>和<u>目标位置的调用方法签名</u>。若依然无法定位原因，欢迎提交Issues告诉我们。
+
+> **测试类和Mock容器的命名约定**：
+>
+> 默认情况下，`TestableMock`假设测试类与被测类的<u>包路径相同，且名称为`被测类名+Test`</u>（通常采用`Maven`或`Gradle`构建的Java项目均符合这种惯例）。
+> 同时约定测试类关联的Mock容器为<u>在其内部且名为`Mock`的静态类</u>，或<u>相同包路径下名为`被测类名+Mock`的独立类</u>。
+> 
+> 当测试类或Mock容器路径不符合此约定时，可使用`@MockWith`注解显式指定，详见[使用MockWith注解](zh-cn/doc/use-mock-with.md)。

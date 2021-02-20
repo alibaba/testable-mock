@@ -1,14 +1,16 @@
 自助问题排查
 ---
 
-相比`Mockito`等由开发者手工放置Mock类的做法，`TestableMock`使用方法名和参数类型匹配自动寻找需Mock的调用。这种机制在带来方便的同时也有可能发生预料之外的Mock替换。
+相比`Mockito`等由开发者手工放置Mock类的做法，`TestableMock`使用方法名和参数类型匹配自动寻找需Mock的调用。这种机制在带来方便的同时也容易导致对“Mock究竟有没生效”的疑问。
 
-若要排查Mock相关的问题，只需在测试类上添加`@MockWith`注解，并配置参数`diagnose`值为`MockDiagnose.ENABLE`，在运行测试时就会打印出详细的Mock方法替换过程。
+若要排查Mock相关的问题，只需在相应的**Mock容器类**上添加`@MockDiagnose`注解，并配置参数值为`LogLevel.ENABLE`，在运行测试时就会打印出详细的Mock方法替换过程。例如：
 
 ```java
-@MockWith(diagnose = MockDiagnose.ENABLE)
 class DemoTest {
-    ...
+    @MockDiagnose(LogLevel.ENABLE)
+    public static class Mock {
+        ...
+    }
 }
 ```
 
@@ -16,6 +18,8 @@ class DemoTest {
 
 ```text
 [DIAGNOSE] Handling test class com/alibaba/testable/demo/DemoMockTest
+[DIAGNOSE]   Found 6 test cases
+[DIAGNOSE] Handling mock class com/alibaba/testable/demo/DemoMockTest$Mock
 [DIAGNOSE]   Found 8 mock methods
 [DIAGNOSE] Handling source class com/alibaba/testable/demo/DemoMock
 [DIAGNOSE]   Handling method <init>
@@ -31,34 +35,38 @@ class DemoTest {
 ... ...
 ```
 
-该日志展示了被测类中所有发生了Mock替换的调用和相应代码行号。
+其中`Line XX, mock method "XXX" used`日志展示了被测类中所有发生了Mock替换的调用和相应代码行号。
 
 简单排查方法：
 
-- 若没有任何输出，请检查`pom.xml`或`build.gradle`配置是否正确引入了TestableMock依赖
-- 若只输出了`Handling test class`，请检查被测类与测试类是否包路径相同，且名称为"被测类+Test"（`0.4.x`版本要求）
-- 若输出了`Handling source class`以及`Handling method xxx`，但预期的代码行位置没有发生Mock替换，请检查Mock方法定义是否未与目标方法匹配
+- 若没有任何输出，请检查`pom.xml`或`build.gradle`配置是否正确引入了`TestableMock`依赖
+- 若只输出了`Handling mock class`，请检查Mock容器类的名称和位置是否符合规范
+- 若只输出了`Handling mock class`和`Handling test class`，请检查被测类与测试类是否包路径相同，且名称为"被测类+Test"，或者是否正确的使用了`@MockWith`注解
+- 若输出了`Handling source class`以及`Handling method xxx`，但预期的代码行位置没有发生Mock替换，请继续检查Mock方法定义是否未与目标方法匹配
 
-对于预期Mock未生效的情况，如需进一步排查，可将日志级别提升到`MockDiagnose.VERBOSE`。
+对于上述的最后一种情况（预期Mock未生效），可将日志级别提升到`LogLevel.VERBOSE`做进一步排查。例如：
 
 ```java
-@MockWith(diagnose = MockDiagnose.VERBOSE)
 class DemoTest {
-    ...
+    @MockDiagnose(LogLevel.VERBOSE)
+    public static class Mock {
+        ...
+    }
 }
 ```
 
-再次执行单元测试，将会打印出所有Mock方法的运行期签名，以及被测类中扫描到所有调用的运行期签名：
+再次执行单元测试，此时将会打印出所有Mock方法的运行期签名，以及被测类中扫描到所有调用的运行期签名：
 
 ```text
 [DIAGNOSE] Handling test class com/alibaba/testable/demo/DemoMockTest
+[VERBOSE]    Test case "should_able_to_mock_new_object"
+... ...
+[VERBOSE]    Test case "should_able_to_set_mock_context"
+[DIAGNOSE]   Found 6 test cases
+[DIAGNOSE] Handling mock class com/alibaba/testable/demo/DemoMockTest$Mock
 [VERBOSE]    Mock constructor "createBlackBox" as "(Ljava/lang/String;)V" for "com/alibaba/testable/demo/model/BlackBox"
 [VERBOSE]    Mock method "innerFunc" as "(Ljava/lang/String;)Ljava/lang/String;"
-[VERBOSE]    Mock method "staticFunc" as "()Ljava/lang/String;"
-[VERBOSE]    Mock method "trim" as "()Ljava/lang/String;"
-[VERBOSE]    Mock method "sub" as "(II)Ljava/lang/String;"
-[VERBOSE]    Mock method "startsWith" as "(Ljava/lang/String;)Z"
-[VERBOSE]    Mock method "secretBox" as "()Lcom/alibaba/testable/demo/model/BlackBox;"
+... ...
 [VERBOSE]    Mock method "callFromDifferentMethod" as "()Ljava/lang/String;"
 [DIAGNOSE]   Found 8 mock methods
 [DIAGNOSE] Handling source class com/alibaba/testable/demo/DemoMock
@@ -74,19 +82,16 @@ class DemoTest {
 [VERBOSE]      Line 27, invoking "append" as "(Ljava/lang/String;)Ljava/lang/StringBuilder;"
 [VERBOSE]      Line 27, invoking "innerFunc" as "(Ljava/lang/String;)Ljava/lang/String;"
 [DIAGNOSE]     Line 27, mock method "innerFunc" used
-[VERBOSE]      Line 27, invoking "innerFunc" as "(Ljava/lang/String;)Ljava/lang/String;"
-[VERBOSE]      Line 27, invoking "append" as "(Ljava/lang/String;)Ljava/lang/StringBuilder;"
-[VERBOSE]      Line 27, invoking "staticFunc" as "()Ljava/lang/String;"
-[DIAGNOSE]     Line 27, mock method "staticFunc" used
-[VERBOSE]      Line 27, invoking "append" as "(Ljava/lang/String;)Ljava/lang/StringBuilder;"
-[VERBOSE]      Line 27, invoking "append" as "(Ljava/lang/String;)Ljava/lang/StringBuilder;"
-[VERBOSE]      Line 27, invoking "toString" as "()Ljava/lang/String;"
 ... ...
 ```
 
 输出日志结构参考如下：
 
-- `Mock constructor "<Mock方法名>" as "<方法签名>" for "<类型>"` 在测试类中扫描到的**Mock构造方法**及其运行时签名
-- `Mock method "<Mock方法名>" as "<方法签名>"` 在测试类中扫描到的**普通Mock方法**及其运行时签名（打印时暂未自动排除用于指定Mock目标类的首位参数）
-- `Line XX, constructing "<类型>" as "<方法签名>"` 在被测类中扫描掉的**构造方法调用**及其运行时签名
-- `Line XX, invoking "<方法名>" as "<方法签名>"` 在被测类中扫描到的**成员方法调用**及其运行时签名
+- `Mock constructor "<Mock方法名>" as "<方法签名>" for "<类型>"` 在测试类中扫描到的**Mock构造方法**及其运行期签名
+- `Mock method "<Mock方法名>" as "<方法签名>"` 在测试类中扫描到的**普通Mock方法**及其运行期签名
+- `Line XX, constructing "<类型>" as "<方法签名>"` 在被测类中扫描掉的**构造方法调用**及其运行期签名
+- `Line XX, invoking "<方法名>" as "<方法签名>"` 在被测类中扫描到的**成员方法调用**及其运行期签名
+
+"运行期签名"是目标方法参数和返回值类型的在字节码中的表示形式，其结构相比方法的原始Java签名更紧凑精炼，通过对比相应代码行调用时的方法签名与Mock方法的实际签名，通常能够快速定位出Mock未匹配的原因。
+
+> 在`0.4.x`版本使用测试类添加`@MockWith`注解的`diagnose`参数来启用诊断信息的方法在`0.5`版本中依然可用，但将在未来版本中移除，请优先使用`@MockDiagnose`注解替代。

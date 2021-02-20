@@ -7,12 +7,18 @@
 
 - 使用指南
   - [校验Mock调用](zh-cn/doc/invoke-matcher.md)
+  - [Mock的生效范围](zh-cn/doc/scope-of-mock.md)
+  - [复用Mock类与方法](zh-cn/doc/mock-method-reusing.md)
+  - [使用MockWith注解](zh-cn/doc/use-mock-with.md)
   - [常见使用问题](zh-cn/doc/frequently-asked-questions.md)
   - [在IDE运行单元测试](zh-cn/doc/use-in-ide.md)
   - [自助问题排查](zh-cn/doc/troubleshooting.md)
   - [使用Maven插件](zh-cn/doc/use-maven-plugin.md)
 
 - 技术参考
+  - [升级到0.5版本](zh-cn/doc/upgrade-to-v05.md)
+  - [全局运行参数](zh-cn/doc/javaagent-args.md)
+  - [注解参数清单](zh-cn/doc/annotations.md)
   - [主流Mock工具对比](zh-cn/doc/comparation.md)
   - [版本更新](zh-cn/doc/release-note.md)
   - [关于我们](zh-cn/doc/about-us.md)
