@@ -14,65 +14,11 @@ public class PrivateAccessor {
 
     private static final String KOTLIN_COMPANION_FIELD = "Companion";
 
-    public static class NoVerify {
-        public static <T> T get(Object ref, String field) {
-            try {
-                return PrivateAccessor.get(ref, field);
-            } catch (MemberAccessException e) {
-                printError(e);
-                return null;
-            }
-        }
-
-        public static <T> void set(Object ref, String field, T value) {
-            try {
-                PrivateAccessor.set(ref, field, value);
-            } catch (MemberAccessException e) {
-                printError(e);
-            }
-        }
-
-        public static <T> T invoke(Object ref, String method, Object... args) {
-            try {
-                return PrivateAccessor.invoke(ref, method, args);
-            } catch (MemberAccessException e) {
-                printError(e);
-                return null;
-            }
-        }
-
-        public static <T> T getStatic(Class<?> clazz, String field) {
-            try {
-                return PrivateAccessor.getStatic(clazz, field);
-            } catch (MemberAccessException e) {
-                printError(e);
-                return null;
-            }
-        }
-
-        public static <T> void setStatic(Class<?> clazz, String field, T value) {
-            try {
-                PrivateAccessor.setStatic(clazz, field, value);
-            } catch (MemberAccessException e) {
-                printError(e);
-            }
-        }
-
-        public static <T> T invokeStatic(Class<?> clazz, String method, Object... args) {
-            try {
-                return PrivateAccessor.invokeStatic(clazz, method, args);
-            } catch (MemberAccessException e) {
-                printError(e);
-                return null;
-            }
-        }
-
-        private static void printError(MemberAccessException e) {
-            Throwable cause = e.getCause() == null ? e : e.getCause();
-            System.err.println(cause.toString());
-        }
-    }
-
+    /**
+     * 读取任意类的私有字段
+     * @param ref 目标对象
+     * @param field 目标字段名
+     */
     public static <T> T get(Object ref, String field) {
         try {
             Field declaredField = ref.getClass().getDeclaredField(field);
@@ -83,6 +29,12 @@ public class PrivateAccessor {
         }
     }
 
+    /**
+     * 修改任意类的私有字段（或常量字段）
+     * @param ref 目标对象
+     * @param field 目标字段名
+     * @param value 目标值
+     */
     public static <T> void set(Object ref, String field, T value) {
         try {
             Field declaredField = ref.getClass().getDeclaredField(field);
@@ -93,6 +45,12 @@ public class PrivateAccessor {
         }
     }
 
+    /**
+     * 调用任意类的私有方法
+     * @param ref 目标对象
+     * @param method 目标方法名
+     * @param args 方法参数
+     */
     public static <T> T invoke(Object ref, String method, Object... args) {
         try {
             Class<?>[] cls = TypeUtil.getClassesFromObjects(args);
@@ -108,6 +66,11 @@ public class PrivateAccessor {
         throw new MemberAccessException("Private method \"" + method + "\" not found");
     }
 
+    /**
+     * 读取任意类的静态私有字段
+     * @param clazz 目标类型
+     * @param field 目标字段名
+     */
     public static <T> T getStatic(Class<?> clazz, String field) {
         try {
             Field declaredField = clazz.getDeclaredField(field);
@@ -118,6 +81,12 @@ public class PrivateAccessor {
         }
     }
 
+    /**
+     * 修改任意类的静态私有字段（或静态常量字段）
+     * @param clazz 目标类型
+     * @param field 目标字段名
+     * @param value 目标值
+     */
     public static <T> void setStatic(Class<?> clazz, String field, T value) {
         try {
             Field declaredField = clazz.getDeclaredField(field);
@@ -128,20 +97,12 @@ public class PrivateAccessor {
         }
     }
 
-    public static <T> T construct(Class<?> clazz, Object... args) {
-        try {
-            Constructor<?> constructor = TypeUtil.getConstructorByNameAndParameterTypes(clazz.getDeclaredConstructors(),
-                TypeUtil.getClassesFromObjects(args));
-            if (constructor != null) {
-                constructor.setAccessible(true);
-                return (T)constructor.newInstance(args);
-            }
-        } catch (Exception e) {
-            throw new MemberAccessException("Failed to invoke private constructor of \"" + clazz.getSimpleName() + "\"", e);
-        }
-        throw new MemberAccessException("Private static constructor of \"" + clazz.getSimpleName() + "\" not found");
-    }
-
+    /**
+     * 调用任意类的静态私有方法
+     * @param clazz 目标类型
+     * @param method 目标方法名
+     * @param args 方法参数
+     */
     public static <T> T invokeStatic(Class<?> clazz, String method, Object... args) {
         try {
             Class<?>[] cls = TypeUtil.getClassesFromObjects(args);
@@ -163,5 +124,24 @@ public class PrivateAccessor {
             throw new MemberAccessException("Failed to invoke private static method \"" + method + "\"", e);
         }
         throw new MemberAccessException("Private static method \"" + method + "\" not found");
+    }
+
+    /**
+     * 访问任意类的私有构造方法
+     * @param clazz 目标类型
+     * @param args 构造方法参数
+     */
+    public static <T> T construct(Class<?> clazz, Object... args) {
+        try {
+            Constructor<?> constructor = TypeUtil.getConstructorByNameAndParameterTypes(clazz.getDeclaredConstructors(),
+                TypeUtil.getClassesFromObjects(args));
+            if (constructor != null) {
+                constructor.setAccessible(true);
+                return (T)constructor.newInstance(args);
+            }
+        } catch (Exception e) {
+            throw new MemberAccessException("Failed to invoke private constructor of \"" + clazz.getSimpleName() + "\"", e);
+        }
+        throw new MemberAccessException("Private static constructor of \"" + clazz.getSimpleName() + "\" not found");
     }
 }
