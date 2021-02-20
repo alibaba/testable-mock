@@ -14,7 +14,7 @@ public enum MockScope {
 
     public static MockScope of(String scope) {
         try {
-            return valueOf(scope);
+            return valueOf(scope.toUpperCase());
         } catch (IllegalArgumentException e) {
             return GLOBAL;
         }
