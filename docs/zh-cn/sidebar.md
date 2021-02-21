@@ -19,6 +19,7 @@
   - [升级到0.5版本](zh-cn/doc/upgrade-to-v05.md)
   - [全局运行参数](zh-cn/doc/javaagent-args.md)
   - [注解参数清单](zh-cn/doc/annotations.md)
+  - [Mock的设计和原理](zh-cn/doc/design-and-mechanism.md)
   - [主流Mock工具对比](zh-cn/doc/comparation.md)
   - [版本更新](zh-cn/doc/release-note.md)
   - [关于我们](zh-cn/doc/about-us.md)
