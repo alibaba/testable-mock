@@ -46,4 +46,4 @@ public class DemoMockTest {
 }
 ```
 
-然后将`pom.xml`或`build.gradle`文件中的TestableMock依赖升级到`0.5`或以上版本即可。
+然后将`pom.xml`或`build.gradle`文件中的TestableMock依赖升级到`0.5.0`或以上版本即可。

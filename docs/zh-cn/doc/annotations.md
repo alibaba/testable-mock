@@ -45,7 +45,7 @@
 
 | 参数（`N/A`为默认参数） | 类型       | 是否必须 | 默认值                 | 作用 |
 | ---                  | ---       | ---     | ----                  | ---  |
-| N/A                  | Class     | 是      | N/A                   | 指定使用的Mock容器类 |
+| N/A                  | Class     | 否      | NullType.class        | 指定使用的Mock容器类 |
 | treatAs              | ClassType | 否      | ClassType.GuessByName | 指定当前类是测试类或被测类 | 
 | diagnose             | LogLevel  | 否      | N/A                   | (**deprecated**)指定Mock诊断日志级别 |
 
