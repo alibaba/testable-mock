@@ -14,6 +14,7 @@ import org.objectweb.asm.tree.AnnotationNode;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.InnerClassNode;
 
+import javax.lang.model.type.NullType;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -229,10 +230,8 @@ public class TestableClassTransformer implements ClassFileTransformer {
                     ClassType type = AnnotationUtil.getAnnotationParameter(an, FIELD_TREAT_AS, ClassType.GuessByName,
                         ClassType.class);
                     if (isExpectedType(cn.name, type, expectedType)) {
-                        Type clazz = AnnotationUtil.getAnnotationParameter(an, FIELD_VALUE, null, Type.class);
-                        if (clazz == null) {
-                            return null;
-                        }
+                        Type clazz = AnnotationUtil.getAnnotationParameter(an, FIELD_VALUE,
+                            Type.getType(NullType.class), Type.class);
                         return clazz.getClassName();
                     }
                 }
