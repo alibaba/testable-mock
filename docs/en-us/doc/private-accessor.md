@@ -9,10 +9,10 @@ In addition, before unit testing begin, it is often necessary to initialize spec
 
 Just add `@EnablePrivateAccess` annotation to the test class, then you have got the following enhancements in the test case:
 
-- Invoke private methods (including static methods) of the class under test
-- Read private fields (including static fields) of the class under test
-- Modify private fields (including static fields) of the class under test
-- Modify the constant fields of the class under test (fields modified with final, including static fields)
+- Invoke private methods (including static methods) of the **class under test**
+- Read private fields (including static fields) of the **class under test**
+- Modify private fields (including static fields) of the **class under test**
+- Modify the constant fields of the **class under test** (fields modified with final, including static fields)
 
 When accessing and modifying private and constant members, the IDE may prompt some syntax errors, but the compiler will be able to run the test normally.
 
@@ -29,23 +29,22 @@ For the effect, see the use case in the test class of the `java-demo` sample pro
 
 If you don't want to see the IDE's syntax error reminder, or in a non-Java language JVM project (such as Kotlin language), you can also use the `PrivateAccessor` tool class to directly access private members.
 
-This class provides 6 static methods:
+This class provides 7 static methods:
 
-- `PrivateAccessor.get(<ObjectUnderTest>, "<private-field-name>")` ➜ read the private field of the class under test
-- `PrivateAccessor.set(<ObjectUnderTest>, "<private-field-name>", <new-value>)` ➜ modify the private field (or constant field) of the class under test
-- `PrivateAccessor.invoke(<ObjectUnderTest>, "<private-method-name>", <call-parameters>..)` ➜ call the private method of the class under test
-- `PrivateAccessor.getStatic(<ClassUnderTest>, "<private-static-field-name>")` ➜ read the **static** private field of the class under test
-- `PrivateAccessor.setStatic(<ClassUnderTest>, "<private-static-field-name>", <new-value>)` ➜ modify the **static** private field (or **static** constant field) of the class under test
-- `PrivateAccessor.invokeStatic(<ClassUnderTest>, "<private-static-method-name>", <call-parameters>..)` ➜ call the **static** private method of the class under test
+- `PrivateAccessor.get(<AnyObject>, "<private-field-name>")` ➜ read the private field of any object
+- `PrivateAccessor.set(<AnyObject>, "<private-field-name>", <new-value>)` ➜ modify the private field (or constant field) of any object
+- `PrivateAccessor.invoke(<AnyObject>, "<private-method-name>", <call-parameters>...)` ➜ call the private method of any object
+- `PrivateAccessor.getStatic(<AnyClass>, "<private-static-field-name>")` ➜ read the **static** private field of any class
+- `PrivateAccessor.setStatic(<AnyClass>, "<private-static-field-name>", <new-value>)` ➜ modify the **static** private field (or **static** constant field) of any class
+- `PrivateAccessor.invokeStatic(<AnyClass>, "<private-static-method-name>", <call-parameters>...)` ➜ call the **static** private method of any class
+- `PrivateAccessor.construct(<AnyClass>, <constructor-parameters>...)` ➜ create a new object by the private constructor of any class
 
-Using the `PrivateAccessor` class does not require the test class to have `@EnablePrivateAccess` annotation, but adding this annotation will enable the compile-time verification for the private members of the class under test, and it is usually recommended to use together.
+> Using the `PrivateAccessor` class does not require the test class to have `@EnablePrivateAccess` annotation, but adding this annotation will enable the compile-time verification for the private members of the class under test.
 
 For details, see the use cases in the test classes of the `java-demo` and `kotlin-demo` sample projects `DemoPrivateAccessTest`.
 
 ### Compile-time verification of private members
 
-Both of the above two methods essentially use JVM reflection mechanism to achieve private member access, and the JVM compiler does not check the existence of the reflection target. Thus, if the private method names or parameters are modified duration future refactor, it may cause unintuitive errors when the unit test is running. To this end, `TestableMock` provides additional compile-time checks for the private targets accessed.
+Both of the above two methods essentially use JVM reflection mechanism to achieve private member access, but the JVM compiler will not check the existence of the reflection target. When the code is refactored, if the private method names and parameters in the source class are modified, it would cause exceptions to be discovered only when the unit test is triggered. For this reason, another function of the `@EnablePrivateAccess` annotation is to perform additional compile-time checks for existence of private member of the **class under test**.
 
-The compile-time verification function is enabled by the `@EnablePrivateAccess` annotation, which takes effect by default for the case of private members accessed using `Solution 1`, and is disabled by default for the case of accessing private members via `Solution 2` (To enable it, give the test class an `@EnablePrivateAccess` annotation).
-
-> The compile-time verification function of `@EnablePrivateAccess` can be turned off manually, just set the `verifyTargetOnCompile` parameter of the annotation to `false`.
+**Note**: When the private member verification function is enabled, the `PrivateAccessor` class can only be used to access the private members of the **class under test**, which will help limit the using of the `PrivateAccessor` tool class for "unauthorized" operations unrelated to the current test. If you really need to access private members of other classes, you can remove the `@EnablePrivateAccess` annotation, or set the `verifyTargetOnCompile` parameter of the annotation to `false` to manually turn off the verification function.

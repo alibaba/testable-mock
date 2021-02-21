@@ -13,6 +13,7 @@
   - [Testable Maven Plugin](en-us/doc/use-maven-plugin.md)
 
 - Technical Reference
+  - [Upgrade To 0.5 Version](en-us/doc/upgrade-to-v05.md)
   - [Mock Tools Comparison](en-us/doc/comparation.md)
   - [Release Note](en-us/doc/release-note.md)
   - [About Us](en-us/doc/about-us.md)

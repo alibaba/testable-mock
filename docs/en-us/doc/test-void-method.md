@@ -76,11 +76,13 @@ After executing the void type method under test, use `InvokeVerifier.verify()` t
 class DemoTest {
     private Demo demo = new Demo();
 
-    // Intercept `System.out.println` invocation
-    @MockMethod
-    public void println(PrintStream ps, String msg) {
-        // Execute the original call
-        ps.println(msg);
+    public static class Mock {
+        // Intercept `System.out.println` invocation
+        @MockMethod
+        public void println(PrintStream ps, String msg) {
+            // Execute the original call
+            ps.println(msg);
+        }
     }
 
     @Test
