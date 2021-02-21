@@ -147,7 +147,7 @@ public class ClassUtil {
     /**
      * get method name and descriptor to convert wrapper type to primary type
      * @param primaryType byte code of private type
-     * @return pair of <method-name, method-descriptor>
+     * @return pair of [method-name, method-descriptor]
      */
     public static ImmutablePair<String, String> getWrapperTypeConvertMethod(byte primaryType) {
         return WRAPPER_METHOD_MAPPING.get(primaryType);

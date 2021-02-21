@@ -27,6 +27,7 @@ public class CollectionUtil {
     /**
      * Generate a list of item
      * @param items elements to add
+     * @param <T> type of element
      * @return a ArrayList of provided elements
      */
     public static <T> List<T> listOf(T... items) {
