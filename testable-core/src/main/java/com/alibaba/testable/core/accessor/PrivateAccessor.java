@@ -5,6 +5,7 @@ import com.alibaba.testable.core.util.TypeUtil;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 /**
@@ -24,8 +25,10 @@ public class PrivateAccessor {
             Field declaredField = ref.getClass().getDeclaredField(field);
             declaredField.setAccessible(true);
             return (T)declaredField.get(ref);
-        } catch (Exception e) {
-            throw new MemberAccessException("Failed to get private field \"" + field + "\"", e);
+        } catch (IllegalAccessException e) {
+            throw new MemberAccessException("Failed to access private field \"" + field + "\"", e);
+        } catch (NoSuchFieldException e) {
+            throw new MemberAccessException("Private field \"" + field + "\" not exist", e);
         }
     }
 
@@ -40,8 +43,10 @@ public class PrivateAccessor {
             Field declaredField = ref.getClass().getDeclaredField(field);
             declaredField.setAccessible(true);
             declaredField.set(ref, value);
-        } catch (Exception e) {
-            throw new MemberAccessException("Failed to set private field \"" + field + "\"", e);
+        } catch (IllegalAccessException e) {
+            throw new MemberAccessException("Failed to access private field \"" + field + "\"", e);
+        } catch (NoSuchFieldException e) {
+            throw new MemberAccessException("Private field \"" + field + "\" not exist", e);
         }
     }
 
@@ -60,10 +65,15 @@ public class PrivateAccessor {
                 declaredMethod.setAccessible(true);
                 return (T)declaredMethod.invoke(ref, args);
             }
-        } catch (Exception e) {
-            throw new MemberAccessException("Failed to invoke private method \"" + method + "\"", e);
+        } catch (IllegalAccessException e) {
+            throw new MemberAccessException("Failed to access private method \"" + method + "\"", e);
+        } catch (InvocationTargetException e) {
+            if (e.getTargetException() instanceof RuntimeException) {
+                throw (RuntimeException)e.getTargetException();
+            }
+            throw new MemberAccessException("Invoke private method \"" + method + "\" failed with exception", e);
         }
-        throw new MemberAccessException("Private method \"" + method + "\" not found");
+        throw new MemberAccessException("Private method \"" + method + "\" not exist");
     }
 
     /**
@@ -76,8 +86,10 @@ public class PrivateAccessor {
             Field declaredField = clazz.getDeclaredField(field);
             declaredField.setAccessible(true);
             return (T)declaredField.get(null);
-        } catch (Exception e) {
-            throw new MemberAccessException("Failed to get private static field \"" + field + "\"", e);
+        } catch (IllegalAccessException e) {
+            throw new MemberAccessException("Failed to access private static field \"" + field + "\"", e);
+        } catch (NoSuchFieldException e) {
+            throw new MemberAccessException("Private static field \"" + field + "\" not exist", e);
         }
     }
 
@@ -92,8 +104,10 @@ public class PrivateAccessor {
             Field declaredField = clazz.getDeclaredField(field);
             declaredField.setAccessible(true);
             declaredField.set(null, value);
-        } catch (Exception e) {
-            throw new MemberAccessException("Failed to set private static field \"" + field + "\"", e);
+        } catch (IllegalAccessException e) {
+            throw new MemberAccessException("Failed to access private static field \"" + field + "\"", e);
+        } catch (NoSuchFieldException e) {
+            throw new MemberAccessException("Private static field \"" + field + "\" not exist", e);
         }
     }
 
@@ -120,10 +134,17 @@ public class PrivateAccessor {
                 declaredMethod.setAccessible(true);
                 return (T)declaredMethod.invoke(companionInstance, args);
             }
-        } catch (Exception e) {
-            throw new MemberAccessException("Failed to invoke private static method \"" + method + "\"", e);
+        } catch (IllegalAccessException e) {
+            throw new MemberAccessException("Failed to access private static method \"" + method + "\"", e);
+        } catch (NoSuchFieldException e) {
+            throw new MemberAccessException("Private static method \"" + method + "\" not exist");
+        } catch (InvocationTargetException e) {
+            if (e.getTargetException() instanceof RuntimeException) {
+                throw (RuntimeException)e.getTargetException();
+            }
+            throw new MemberAccessException("Invoke private static method \"" + method + "\" failed with exception", e);
         }
-        throw new MemberAccessException("Private static method \"" + method + "\" not found");
+        throw new MemberAccessException("Neither Private static method nor companion method \"" + method + "\" exist");
     }
 
     /**
@@ -139,9 +160,16 @@ public class PrivateAccessor {
                 constructor.setAccessible(true);
                 return (T)constructor.newInstance(args);
             }
-        } catch (Exception e) {
-            throw new MemberAccessException("Failed to invoke private constructor of \"" + clazz.getSimpleName() + "\"", e);
+        } catch (IllegalAccessException e) {
+            throw new MemberAccessException("Failed to access private constructor of \"" + clazz.getSimpleName() + "\"", e);
+        } catch (InvocationTargetException e) {
+            if (e.getTargetException() instanceof RuntimeException) {
+                throw (RuntimeException)e.getTargetException();
+            }
+            throw new MemberAccessException("Invoke private constructor of \"" + clazz.getSimpleName() + "\" failed with exception", e);
+        } catch (InstantiationException e) {
+            throw new MemberAccessException("Failed to instantiate object of \"" + clazz.getSimpleName() + "\"", e);
         }
-        throw new MemberAccessException("Private static constructor of \"" + clazz.getSimpleName() + "\" not found");
+        throw new MemberAccessException("Private constructor of \"" + clazz.getSimpleName() + "\" not exist");
     }
 }

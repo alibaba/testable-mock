@@ -66,12 +66,13 @@ public class EnablePrivateAccessTranslator extends BaseTranslator {
         try {
             Class<?> cls = getSourceClass(clazz, sourceClassFullName);
             if (cls == null) {
-                cx.logger.error("Failed to load source class: " + sourceClassFullName);
+                cx.logger.fatal("Failed to load source class \"" + sourceClassFullName + "\"");
             } else {
                 findAllPrivateMembers(cls);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            // for any reason, interrupt the compile process
+            cx.logger.fatal("Failed to load source class \"" + sourceClassFullName + "\": " + e);
         }
         this.privateAccessChecker = (p.verifyTargetExistence == null || p.verifyTargetExistence) ?
             new PrivateAccessChecker(cx, sourceClassShortName, memberRecord) : null;
