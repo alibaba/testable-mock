@@ -88,7 +88,7 @@ public class ServiceTest {
 
 完整代码示例见`java-demo`和`kotlin-demo`示例项目中`OneToMultiSvcTest`测试类的用例。
 
-> 由于当前版本里，测试类无法通过`@MockWith`与多个Mock容器关联，对生效范围为`MockScope.ASSOCIATED`的Mock方法会遇到Mock无效的情况，为已知BUG，将在未来版本中修复。
+> 由于当前版本里，测试类无法通过`@MockWith`与多个Mock容器关联，目前这种用法仅支持生效范围为`MockScope.GLOBAL`的Mock方法，这是已知BUG，将在未来版本中修复。
 
 ### 4. 使用不包含Mock方法的Mock容器类
 

@@ -7,13 +7,19 @@
 
 - Usage Guide
   - [Verify Mock Invocation](en-us/doc/invoke-matcher.md)
+  - [Effective Scope Of Mocking](zh-cn/doc/scope-of-mock.md)
+  - [Reusing Mock Methods](zh-cn/doc/mock-method-reusing.md)
+  - [Use MockWith Annotation](zh-cn/doc/use-mock-with.md)
   - [Frequently Asked Questions](en-us/doc/frequently-asked-questions.md)
   - [Use TestableMock In IDE](en-us/doc/use-in-ide.md)
   - [Self-Help Troubleshooting](en-us/doc/troubleshooting.md)
   - [Testable Maven Plugin](en-us/doc/use-maven-plugin.md)
 
 - Technical Reference
-  - [Upgrade To 0.5 Version](en-us/doc/upgrade-to-v05.md)
+  - [Upgrade To Version 0.5](en-us/doc/upgrade-to-v05.md)
+  - [Available Global Arguments](zh-cn/doc/javaagent-args.md)
+  - [Available Annotations](zh-cn/doc/annotations.md)
+  - [How Mock Works](zh-cn/doc/design-and-mechanism.md)
   - [Mock Tools Comparison](en-us/doc/comparation.md)
   - [Release Note](en-us/doc/release-note.md)
   - [About Us](en-us/doc/about-us.md)

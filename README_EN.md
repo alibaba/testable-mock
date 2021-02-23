@@ -11,9 +11,8 @@ Usage Document: https://alibaba.github.io/testable-mock/#/en-us/
 
 `TestableMock` is still under heavy development, the following version plans may be adjusted during the iteration
 
-- `v0.4` it's the current version, refer to the [issue](https://github.com/alibaba/testable-mock/issues) list for the work in progress
-- `v0.5` implementation mock class inherit mechanism, so that the same mock method can be reused between test classes conveniently
-- `v0.6` narrows the default effective scope of mock methods to the class under test, to avoid interaction of mocking cross classes
+- `v0.5` it's the current version, refer to the [issue](https://github.com/alibaba/testable-mock/issues) list for the work in progress
+- `v0.6` implement the functionality of "parameter constructor"
 - `v1.0` all functions are stable, a brand-new start
 
 ## Directory Structure

@@ -1,9 +1,13 @@
 常见使用问题
 ---
 
-#### 1. 如何Mock被测类中通过`@Autowired`初始化的字段？
+#### 1. 如何初始化被测类中通过`@Autowired`或`@Resource`注入的私有字段？
 
-直接创建被测类对象，然后利用`TestableMock`访问私有成员的能力直接给这些字段赋值即可。
+若该对象的方法在测试时需要被Mock，则无需初始化。
+
+若测试运行时需用到该对象的真实调用，则可以在测试类的构造方法内直接创建对象，然后利用`TestableMock`访问私有成员的能力给这些字段赋值。
+
+对于JUnit框架，还可以使用`@RunWith(SpringRunner.class)`注解将Spring上下文启动起来，然后在测试类里用`@Resource`把需要依赖对象注入进来，再利用`PrivateAccessor`赋值给被测类的私有字段。
 
 #### 2. `TestableMock`是否能够与其他Mock工具一起使用？
 

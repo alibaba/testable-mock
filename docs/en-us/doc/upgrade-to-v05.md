@@ -1,4 +1,4 @@
-Upgrade to version 0.5
+Upgrade To Version 0.5
 ---
 
 After nearly a month of design and development, the `0.5` version of TestableMock has finally come out. Compared with the `0.4` version, the new version solves the three historical problems left over before:
