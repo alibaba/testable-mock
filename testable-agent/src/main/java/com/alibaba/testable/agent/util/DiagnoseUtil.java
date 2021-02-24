@@ -15,20 +15,20 @@ public class DiagnoseUtil {
     private static final String FIELD_DIAGNOSE = "diagnose";
 
     public static void setupByClass(ClassNode cn) {
-        if (cn.visibleAnnotations == null) {
+        if (cn == null || cn.visibleAnnotations == null) {
             return;
         }
         for (AnnotationNode an : cn.visibleAnnotations) {
-            setupByAnnotation(an);
+            if (toDotSeparateFullClassName(an.desc).equals(ConstPool.MOCK_DIAGNOSE)) {
+                setupDiagnose(an, FIELD_VALUE);
+            }
         }
     }
 
     public static void setupByAnnotation(AnnotationNode an) {
+        // to be remove in v0.6
         if (toDotSeparateFullClassName(an.desc).equals(MOCK_WITH)) {
             setupDiagnose(an, FIELD_DIAGNOSE);
-        }
-        if (toDotSeparateFullClassName(an.desc).equals(ConstPool.MOCK_DIAGNOSE)) {
-            setupDiagnose(an, FIELD_VALUE);
         }
     }
 

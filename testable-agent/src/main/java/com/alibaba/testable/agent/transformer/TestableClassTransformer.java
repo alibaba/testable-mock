@@ -232,6 +232,7 @@ public class TestableClassTransformer implements ClassFileTransformer {
                     if (isExpectedType(cn.name, type, expectedType)) {
                         Type clazz = AnnotationUtil.getAnnotationParameter(an, FIELD_VALUE,
                             Type.getType(NullType.class), Type.class);
+                        DiagnoseUtil.setupByClass(ClassUtil.getClassNode(clazz.getClassName()));
                         return clazz.getClassName();
                     }
                 }
