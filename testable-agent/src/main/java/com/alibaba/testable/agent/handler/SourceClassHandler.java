@@ -84,6 +84,7 @@ public class SourceClassHandler extends BaseClassHandler {
                         // it's a member or static method and an inject method for it exist
                         int rangeStart = getMemberMethodStart(instructions, i);
                         if (rangeStart >= 0) {
+                            handleFrameStackChange(mn, mockMethod, rangeStart, i);
                             instructions = replaceMemberCallOps(mn, mockMethod,
                                 instructions, node.owner, node.getOpcode(), rangeStart, i);
                             i = rangeStart;
@@ -247,6 +248,17 @@ public class SourceClassHandler extends BaseClassHandler {
         mn.instructions.remove(instructions[end]);
         mn.maxStack++;
         return mn.instructions.toArray();
+    }
+
+    private void handleFrameStackChange(MethodNode mn, MethodInfo mockMethod, int start, int end) {
+        AbstractInsnNode curInsn = mn.instructions.get(start);
+        AbstractInsnNode endInsn = mn.instructions.get(end);
+        do {
+            if (curInsn instanceof FrameNode && ((FrameNode)curInsn).type == F_FULL) {
+                ((FrameNode)curInsn).stack.add(0, mockMethod.getMockClass());
+            }
+            curInsn = curInsn.getNext();
+        } while (!curInsn.equals(endInsn));
     }
 
     private boolean isCompanionMethod(String ownerClass, int opcode) {

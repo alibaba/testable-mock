@@ -96,7 +96,7 @@ public class MockClassParser {
                 if (CONSTRUCTOR.equals(targetMethod)) {
                     addMockConstructor(methodInfos, cn, mn);
                 } else {
-                    MethodInfo mi = getMethodInfo(mn, an, targetMethod);
+                    MethodInfo mi = getMethodInfo(cn, mn, an, targetMethod);
                     if (mi != null) {
                         methodInfos.add(mi);
                     }
@@ -112,7 +112,7 @@ public class MockClassParser {
         return type == null ? MethodUtil.removeFirstParameter(mn.desc) : mn.desc;
     }
 
-    private MethodInfo getMethodInfo(MethodNode mn, AnnotationNode an, String targetMethod) {
+    private MethodInfo getMethodInfo(ClassNode cn, MethodNode mn, AnnotationNode an, String targetMethod) {
         Type targetType = AnnotationUtil.getAnnotationParameter(an, ConstPool.FIELD_TARGET_CLASS, null, Type.class);
         boolean isStatic = isStatic(mn);
         if (targetType == null) {
@@ -121,18 +121,19 @@ public class MockClassParser {
             if (methodDescPair == null) {
                 return null;
             }
-            return new MethodInfo(methodDescPair.left, targetMethod, methodDescPair.right, mn.name, mn.desc, isStatic);
+            return new MethodInfo(methodDescPair.left, targetMethod, methodDescPair.right, cn.name, mn.name, mn.desc,
+                isStatic);
         } else {
             // "targetClass" found, use it as target class type
             String slashSeparatedName = ClassUtil.toSlashSeparatedName(targetType.getClassName());
-            return new MethodInfo(slashSeparatedName, targetMethod, mn.desc, mn.name,
+            return new MethodInfo(slashSeparatedName, targetMethod, mn.desc, cn.name, mn.name,
                 MethodUtil.addParameterAtBegin(mn.desc, ClassUtil.toByteCodeClassName(slashSeparatedName)), isStatic);
         }
     }
 
     private void addMockConstructor(List<MethodInfo> methodInfos, ClassNode cn, MethodNode mn) {
         String sourceClassName = ClassUtil.getSourceClassName(cn.name);
-        methodInfos.add(new MethodInfo(sourceClassName, CONSTRUCTOR, mn.desc, mn.name, mn.desc, isStatic(mn)));
+        methodInfos.add(new MethodInfo(sourceClassName, CONSTRUCTOR, mn.desc, cn.name, mn.name, mn.desc, isStatic(mn)));
     }
 
     /**
