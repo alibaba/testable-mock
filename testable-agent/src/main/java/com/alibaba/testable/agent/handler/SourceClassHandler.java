@@ -1,10 +1,12 @@
 package com.alibaba.testable.agent.handler;
 
 import com.alibaba.testable.agent.model.MethodInfo;
+import com.alibaba.testable.agent.model.TravelStatus;
 import com.alibaba.testable.agent.util.BytecodeUtil;
 import com.alibaba.testable.agent.util.ClassUtil;
 import com.alibaba.testable.agent.util.MethodUtil;
 import com.alibaba.testable.core.util.LogUtil;
+import org.objectweb.asm.Label;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.*;
 
@@ -145,10 +147,36 @@ public class SourceClassHandler extends BaseClassHandler {
         if (stackLevel < 0) {
             return rangeEnd;
         }
+        Label labelToJump = null;
+        TravelStatus status = TravelStatus.Normal;
         for (int i = rangeEnd - 1; i >= 0; i--) {
-            stackLevel += getStackLevelChange(instructions[i]);
-            if (stackLevel < 0) {
-                return i;
+            switch (status) {
+                case Normal:
+                    if (instructions[i] instanceof FrameNode) {
+                        status = TravelStatus.LookingForLabel;
+                    } else {
+                        stackLevel += getStackLevelChange(instructions[i]);
+                        if (stackLevel < 0) {
+                            return i;
+                        }
+                    }
+                    break;
+                case LookingForLabel:
+                    if (instructions[i] instanceof LabelNode) {
+                        labelToJump = ((LabelNode)instructions[i]).getLabel();
+                        status = TravelStatus.LookingForJump;
+                    }
+                    break;
+                case LookingForJump:
+                    if (instructions[i] instanceof JumpInsnNode &&
+                        ((JumpInsnNode)instructions[i]).label.getLabel().equals(labelToJump)) {
+                        stackLevel += getStackLevelChange(instructions[i]);
+                        labelToJump = null;
+                        status = TravelStatus.Normal;
+                    }
+                    break;
+                default:
+                    break;
             }
         }
         return -1;
