@@ -73,13 +73,13 @@ public class MethodUtil {
     }
 
     /**
-     * parse method desc, fetch first parameter type
+     * parse method desc, fetch first parameter type (assume first parameter is an object type)
      * @param desc method description
      * @return types of first parameter
      */
     public static String getFirstParameter(String desc) {
         int typeEdge = desc.indexOf(CLASS_END);
-        return desc.substring(1, typeEdge + 1);
+        return typeEdge > 0 ? desc.substring(1, typeEdge + 1) : "";
     }
 
     /**

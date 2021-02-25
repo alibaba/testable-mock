@@ -33,6 +33,8 @@ class MethodUtilTest {
     @Test
     void should_able_to_get_first_parameter() {
         assertEquals("Ljava/lang/String;", MethodUtil.getFirstParameter("(Ljava/lang/String;Ljava/lang/Object;I)V"));
+        assertEquals("Ljava/lang/String;", MethodUtil.getFirstParameter("(Ljava/lang/String;)V"));
+        assertEquals("", MethodUtil.getFirstParameter("()V"));
     }
 
 }

@@ -14,6 +14,8 @@ import org.objectweb.asm.tree.*;
 
 import java.util.List;
 
+import static com.alibaba.testable.agent.constant.ByteCodeConst.TYPE_ARRAY;
+import static com.alibaba.testable.agent.constant.ByteCodeConst.TYPE_CLASS;
 import static com.alibaba.testable.agent.util.ClassUtil.toDotSeparateFullClassName;
 import static com.alibaba.testable.core.constant.ConstPool.CONSTRUCTOR;
 
@@ -44,10 +46,13 @@ public class MockClassHandler extends BaseClassWithContextHandler {
                 mn.access &= ~ACC_PRIVATE;
                 mn.access &= ~ACC_PROTECTED;
                 mn.access |= ACC_PUBLIC;
-                // below transform order is important
+                // firstly, unfold target class from annotation to parameter
                 unfoldTargetClass(mn);
+                // secondly, add invoke recorder at the beginning of mock method
                 injectInvokeRecorder(mn);
+                // thirdly, add association checker before invoke recorder
                 injectAssociationChecker(mn);
+                // finally, handle testable util variables
                 handleTestableUtil(mn);
             }
         }
@@ -170,7 +175,8 @@ public class MockClassHandler extends BaseClassWithContextHandler {
         if (VOID_RES.equals(returnType)) {
             il.add(new InsnNode(POP));
             il.add(new InsnNode(RETURN));
-        } else if (returnType.startsWith("[") || returnType.startsWith("L")) {
+        } else if (returnType.startsWith(String.valueOf(TYPE_ARRAY)) ||
+            returnType.startsWith(String.valueOf(TYPE_CLASS))) {
             il.add(new TypeInsnNode(CHECKCAST, returnType));
             il.add(new InsnNode(ARETURN));
         } else {
@@ -187,13 +193,12 @@ public class MockClassHandler extends BaseClassWithContextHandler {
         Type className;
         String methodName = mn.name;
         for (AnnotationNode an : mn.visibleAnnotations) {
-            if (ClassUtil.toByteCodeClassName(ConstPool.MOCK_METHOD).equals(an.desc)) {
-                String name = AnnotationUtil.getAnnotationParameter(an, ConstPool.FIELD_TARGET_METHOD,
-                    null, String.class);
+            if (isMockMethodAnnotation(an)) {
+                String name = AnnotationUtil.getAnnotationParameter(an, ConstPool.FIELD_TARGET_METHOD, null, String.class);
                 if (name != null) {
                     methodName = name;
                 }
-            } else if (ClassUtil.toByteCodeClassName(ConstPool.MOCK_CONSTRUCTOR).equals(an.desc)) {
+            } else if (isMockConstructorAnnotation(an)) {
                 methodName = CONSTRUCTOR;
             }
         }
@@ -207,8 +212,7 @@ public class MockClassHandler extends BaseClassWithContextHandler {
 
     private boolean isGlobalScope(MethodNode mn) {
         for (AnnotationNode an : mn.visibleAnnotations) {
-            if (ClassUtil.toByteCodeClassName(ConstPool.MOCK_METHOD).equals(an.desc) ||
-                ClassUtil.toByteCodeClassName(ConstPool.MOCK_CONSTRUCTOR).equals(an.desc)) {
+            if (isMockMethodAnnotation(an) || isMockConstructorAnnotation(an)) {
                 MockScope scope = AnnotationUtil.getAnnotationParameter(an, ConstPool.FIELD_SCOPE,
                     GlobalConfig.getDefaultMockScope(), MockScope.class);
                 if (scope.equals(MockScope.GLOBAL)) {
@@ -224,12 +228,21 @@ public class MockClassHandler extends BaseClassWithContextHandler {
             return false;
         }
         for (AnnotationNode an : mn.visibleAnnotations) {
-            if (ClassUtil.toByteCodeClassName(ConstPool.MOCK_METHOD).equals(an.desc) ||
-                ClassUtil.toByteCodeClassName(ConstPool.MOCK_CONSTRUCTOR).equals(an.desc)) {
+            if (isMockMethodAnnotation(an) && AnnotationUtil.isValidMockMethod(mn, an)) {
+                return true;
+            } else if (isMockConstructorAnnotation(an)) {
                 return true;
             }
         }
         return false;
+    }
+
+    private boolean isMockConstructorAnnotation(AnnotationNode an) {
+        return ClassUtil.toByteCodeClassName(ConstPool.MOCK_CONSTRUCTOR).equals(an.desc);
+    }
+
+    private boolean isMockMethodAnnotation(AnnotationNode an) {
+        return ClassUtil.toByteCodeClassName(ConstPool.MOCK_METHOD).equals(an.desc);
     }
 
     private void injectInvokeRecorder(MethodNode mn) {
