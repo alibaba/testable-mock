@@ -87,11 +87,12 @@ public class MockClassParser {
         for (AnnotationNode an : mn.visibleAnnotations) {
             String fullClassName = toDotSeparateFullClassName(an.desc);
             if (fullClassName.equals(ConstPool.MOCK_CONSTRUCTOR)) {
-                LogUtil.verbose("   Mock constructor \"%s\" as \"(%s)V\" for \"%s\"", mn.name,
-                    MethodUtil.extractParameters(mn.desc), MethodUtil.getReturnType(mn.desc));
+                LogUtil.verbose("   Mock constructor \"%s\" as \"%s\"", mn.name,
+                    MethodUtil.toJavaDesc(MethodUtil.getReturnType(mn.desc), mn.desc));
                 addMockConstructor(methodInfos, cn, mn);
             } else if (fullClassName.equals(ConstPool.MOCK_METHOD) && AnnotationUtil.isValidMockMethod(mn, an)) {
-                LogUtil.verbose("   Mock method \"%s\" as \"%s\"", mn.name, getTargetMethodDesc(mn, an));
+                LogUtil.verbose("   Mock method \"%s\" as \"%s\"", mn.name, MethodUtil.toJavaDesc(
+                    getTargetMethodOwner(mn, an), getTargetMethodName(mn, an), getTargetMethodDesc(mn, an)));
                 String targetMethod = AnnotationUtil.getAnnotationParameter(
                     an, ConstPool.FIELD_TARGET_METHOD, mn.name, String.class);
                 if (CONSTRUCTOR.equals(targetMethod)) {
@@ -105,6 +106,18 @@ public class MockClassParser {
                 break;
             }
         }
+    }
+
+    private String getTargetMethodOwner(MethodNode mn, AnnotationNode mockMethodAnnotation) {
+        Type type = AnnotationUtil.getAnnotationParameter(mockMethodAnnotation, ConstPool.FIELD_TARGET_CLASS,
+            null, Type.class);
+        return type == null ? MethodUtil.getFirstParameter(mn.desc) : type.getClassName();
+    }
+
+    private String getTargetMethodName(MethodNode mn, AnnotationNode mockMethodAnnotation) {
+        String name = AnnotationUtil.getAnnotationParameter(mockMethodAnnotation, ConstPool.FIELD_TARGET_METHOD,
+            null, String.class);
+        return name == null ? mn.name : name;
     }
 
     private String getTargetMethodDesc(MethodNode mn, AnnotationNode mockMethodAnnotation) {

@@ -74,6 +74,6 @@ public class AnnotationUtil {
     public static boolean isValidMockMethod(MethodNode mn, AnnotationNode an) {
         Type targetClass = AnnotationUtil.getAnnotationParameter(an, ConstPool.FIELD_TARGET_CLASS, null, Type.class);
         String firstParameter = MethodUtil.getFirstParameter(mn.desc);
-        return targetClass != null || firstParameter.startsWith(String.valueOf(TYPE_CLASS));
+        return targetClass != null || firstParameter.charAt(0) == TYPE_CLASS;
     }
 }

@@ -105,4 +105,28 @@ public class MethodUtil {
         return b == TYPE_BYTE || b == TYPE_CHAR || b == TYPE_DOUBLE || b == TYPE_FLOAT
             || b == TYPE_INT || b == TYPE_LONG || b == TYPE_SHORT || b == TYPE_BOOL;
     }
+
+    /**
+     * format to java style constructor descriptor
+     * @param owner class of method belongs to
+     * @param desc method constructor in bytecode format
+     * @return java style constructor descriptor
+     */
+    public static String toJavaDesc(String owner, String desc) {
+        String parameters = MethodUtil.extractParameters(desc);
+        return String.format("%s(%s)", owner, parameters);
+    }
+
+    /**
+     * format to java style method descriptor
+     * @param owner class of method belongs to
+     * @param name method name
+     * @param desc method descriptor in bytecode format
+     * @return java style method descriptor
+     */
+    public static String toJavaDesc(String owner, String name, String desc) {
+        String returnType = MethodUtil.getReturnType(desc);
+        String parameters = MethodUtil.extractParameters(desc);
+        return String.format("%s %s::%s(%s)", returnType, owner, name, parameters);
+    }
 }
