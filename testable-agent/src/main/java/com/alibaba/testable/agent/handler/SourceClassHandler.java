@@ -74,6 +74,9 @@ public class SourceClassHandler extends BaseClassHandler {
                         // it's a new operation and an inject method for it exist
                         int rangeStart = getConstructorStart(instructions, node.owner, i);
                         if (rangeStart >= 0) {
+                            if (rangeStart < i) {
+                                handleFrameStackChange(mn, newOperatorInjectMethod, rangeStart, i);
+                            }
                             instructions = replaceNewOps(mn, newOperatorInjectMethod, instructions, rangeStart, i);
                             i = rangeStart;
                         }
@@ -284,8 +287,17 @@ public class SourceClassHandler extends BaseClassHandler {
         AbstractInsnNode curInsn = mn.instructions.get(start);
         AbstractInsnNode endInsn = mn.instructions.get(end);
         do {
-            if (curInsn instanceof FrameNode && ((FrameNode)curInsn).type == F_FULL) {
-                ((FrameNode)curInsn).stack.add(0, mockMethod.getMockClass());
+            if (curInsn instanceof FrameNode) {
+                FrameNode fn = (FrameNode)curInsn;
+                if (fn.type == F_FULL) {
+                    fn.stack.add(0, mockMethod.getMockClass());
+                    // remove label reference in stack of frame node
+                    for (int i = fn.stack.size() - 1; i >= 0; i--) {
+                        if (fn.stack.get(i) instanceof LabelNode) {
+                            fn.stack.remove(i);
+                        }
+                    }
+                }
             }
             curInsn = curInsn.getNext();
         } while (!curInsn.equals(endInsn));
