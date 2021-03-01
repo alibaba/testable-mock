@@ -112,8 +112,8 @@ public class MethodUtil {
      * @param desc method constructor in bytecode format
      * @return java style constructor descriptor
      */
-    public static String toJavaDesc(String owner, String desc) {
-        String parameters = MethodUtil.extractParameters(desc);
+    public static String toJavaMethodDesc(String owner, String desc) {
+        String parameters = toJavaParameterDesc(extractParameters(desc));
         return String.format("%s(%s)", owner, parameters);
     }
 
@@ -124,9 +124,19 @@ public class MethodUtil {
      * @param desc method descriptor in bytecode format
      * @return java style method descriptor
      */
-    public static String toJavaDesc(String owner, String name, String desc) {
-        String returnType = MethodUtil.getReturnType(desc);
-        String parameters = MethodUtil.extractParameters(desc);
-        return String.format("%s %s::%s(%s)", returnType, owner, name, parameters);
+    public static String toJavaMethodDesc(String owner, String name, String desc) {
+        String ownerInDotFormat = ClassUtil.toDotSeparatedName(owner);
+        String returnType = toJavaParameterDesc(getReturnType(desc));
+        String parameters = toJavaParameterDesc(extractParameters(desc));
+        return String.format("%s %s::%s(%s)", returnType, ownerInDotFormat, name, parameters);
+    }
+
+    /**
+     * convert bytecode style parameter descriptor to java style descriptor
+     * @param desc bytecode style descriptor
+     * @return java style descriptor
+     */
+    private static String toJavaParameterDesc(String desc) {
+        return desc;
     }
 }

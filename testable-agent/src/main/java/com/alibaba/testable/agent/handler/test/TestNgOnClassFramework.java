@@ -1,6 +1,7 @@
 package com.alibaba.testable.agent.handler.test;
 
 import com.alibaba.testable.agent.model.TestCaseMethodType;
+import com.alibaba.testable.agent.util.CollectionUtil;
 import org.objectweb.asm.tree.AnnotationNode;
 import org.objectweb.asm.tree.MethodNode;
 
@@ -12,7 +13,7 @@ public class TestNgOnClassFramework extends TestNgFramework {
 
     @Override
     public boolean fit(Set<String> classAnnotations, Set<String> methodAnnotations) {
-        if (classAnnotations.contains(getTestAnnotation())) {
+        if (CollectionUtil.containsAny(classAnnotations, getTestAnnotations())) {
             if (methodAnnotations.contains(getTestAfterAnnotation())) {
                 hasTestAfterMethod = true;
             }

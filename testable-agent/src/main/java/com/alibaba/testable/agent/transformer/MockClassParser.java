@@ -16,7 +16,6 @@ import org.objectweb.asm.tree.MethodNode;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.alibaba.testable.agent.constant.ByteCodeConst.TYPE_CLASS;
 import static com.alibaba.testable.agent.util.ClassUtil.toDotSeparateFullClassName;
 import static com.alibaba.testable.agent.util.MethodUtil.isStatic;
 import static com.alibaba.testable.core.constant.ConstPool.CONSTRUCTOR;
@@ -88,10 +87,10 @@ public class MockClassParser {
             String fullClassName = toDotSeparateFullClassName(an.desc);
             if (fullClassName.equals(ConstPool.MOCK_CONSTRUCTOR)) {
                 LogUtil.verbose("   Mock constructor \"%s\" as \"%s\"", mn.name,
-                    MethodUtil.toJavaDesc(MethodUtil.getReturnType(mn.desc), mn.desc));
+                    MethodUtil.toJavaMethodDesc(MethodUtil.getReturnType(mn.desc), mn.desc));
                 addMockConstructor(methodInfos, cn, mn);
             } else if (fullClassName.equals(ConstPool.MOCK_METHOD) && AnnotationUtil.isValidMockMethod(mn, an)) {
-                LogUtil.verbose("   Mock method \"%s\" as \"%s\"", mn.name, MethodUtil.toJavaDesc(
+                LogUtil.verbose("   Mock method \"%s\" as \"%s\"", mn.name, MethodUtil.toJavaMethodDesc(
                     getTargetMethodOwner(mn, an), getTargetMethodName(mn, an), getTargetMethodDesc(mn, an)));
                 String targetMethod = AnnotationUtil.getAnnotationParameter(
                     an, ConstPool.FIELD_TARGET_METHOD, mn.name, String.class);

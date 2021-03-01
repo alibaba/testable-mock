@@ -1,10 +1,11 @@
 package com.alibaba.testable.agent.handler.test;
 
-
 import com.alibaba.testable.agent.model.TestCaseMethodType;
+import com.alibaba.testable.agent.util.CollectionUtil;
 import org.objectweb.asm.tree.AnnotationNode;
 import org.objectweb.asm.tree.MethodNode;
 
+import java.util.List;
 import java.util.Set;
 
 abstract public class Framework {
@@ -22,7 +23,7 @@ abstract public class Framework {
             hasTestAfterMethod = true;
             return true;
         } else {
-            return methodAnnotations.contains(getTestAnnotation());
+            return CollectionUtil.containsAny(methodAnnotations, getTestAnnotations());
         }
     }
 
@@ -31,7 +32,7 @@ abstract public class Framework {
             return TestCaseMethodType.OTHERS;
         }
         for (AnnotationNode an : mn.visibleAnnotations) {
-            if (an.desc.equals(getTestAnnotation())) {
+            if (getTestAnnotations().contains(an.desc)) {
                 return TestCaseMethodType.TEST;
             } else if (an.desc.equals(getTestAfterAnnotation())) {
                 return TestCaseMethodType.AFTER_TEST;
@@ -40,7 +41,7 @@ abstract public class Framework {
         return TestCaseMethodType.OTHERS;
     }
 
-    public abstract String getTestAnnotation();
+    public abstract List<String> getTestAnnotations();
 
     public abstract String getTestAfterAnnotation();
 

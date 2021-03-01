@@ -68,7 +68,7 @@ public class SourceClassHandler extends BaseClassHandler {
                 MethodInsnNode node = (MethodInsnNode)instructions[i];
                 if (CONSTRUCTOR.equals(node.name)) {
                     LogUtil.verbose("     Line %d, constructing \"%s\"", getLineNum(instructions, i),
-                        MethodUtil.toJavaDesc(node.owner, node.desc));
+                        MethodUtil.toJavaMethodDesc(node.owner, node.desc));
                     MethodInfo newOperatorInjectMethod = getNewOperatorInjectMethod(newOperatorInjectMethods, node);
                     if (newOperatorInjectMethod != null) {
                         // it's a new operation and an inject method for it exist
@@ -83,7 +83,7 @@ public class SourceClassHandler extends BaseClassHandler {
                     }
                 } else {
                     LogUtil.verbose("     Line %d, invoking \"%s\"", getLineNum(instructions, i),
-                        MethodUtil.toJavaDesc(node.owner, node.name, node.desc));
+                        MethodUtil.toJavaMethodDesc(node.owner, node.name, node.desc));
                     MethodInfo mockMethod = getMemberInjectMethodName(memberInjectMethods, node);
                     if (mockMethod != null) {
                         // it's a member or static method and an inject method for it exist
