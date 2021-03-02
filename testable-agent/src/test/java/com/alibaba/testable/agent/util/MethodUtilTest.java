@@ -1,5 +1,6 @@
 package com.alibaba.testable.agent.util;
 
+import com.alibaba.testable.core.accessor.PrivateAccessor;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -35,6 +36,16 @@ class MethodUtilTest {
         assertEquals("Ljava/lang/String;", MethodUtil.getFirstParameter("(Ljava/lang/String;Ljava/lang/Object;I)V"));
         assertEquals("Ljava/lang/String;", MethodUtil.getFirstParameter("(Ljava/lang/String;)V"));
         assertEquals("", MethodUtil.getFirstParameter("()V"));
+    }
+
+    @Test
+    void should_able_to_convert_bytecode_parameters() {
+        assertEquals("", PrivateAccessor.invokeStatic(MethodUtil.class, "toJavaParameterDesc", ""));
+        assertEquals("char", PrivateAccessor.invokeStatic(MethodUtil.class, "toJavaParameterDesc", "C"));
+        assertEquals("int,long", PrivateAccessor.invokeStatic(MethodUtil.class, "toJavaParameterDesc", "IJ"));
+        assertEquals("int[],long[]", PrivateAccessor.invokeStatic(MethodUtil.class, "toJavaParameterDesc", "[I[J"));
+        assertEquals("int,java.lang.String", PrivateAccessor.invokeStatic(MethodUtil.class, "toJavaParameterDesc", "ILjava/lang/String;"));
+        assertEquals("java.lang.String,int,long[]", PrivateAccessor.invokeStatic(MethodUtil.class, "toJavaParameterDesc", "Ljava/lang/String;I[J"));
     }
 
 }

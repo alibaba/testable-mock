@@ -14,6 +14,7 @@ public class ByteCodeConst {
     public static final byte TYPE_VOID = 'V';
     public static final byte PARAM_END = ')';
     public static final byte CLASS_END = ';';
+    public static final byte PKG_SEGMENT = '/';
     public static final byte TYPE_ARRAY = '[';
 
 }

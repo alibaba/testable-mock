@@ -137,6 +137,72 @@ public class MethodUtil {
      * @return java style descriptor
      */
     private static String toJavaParameterDesc(String desc) {
-        return desc;
+        if (desc.isEmpty()) {
+            return "";
+        }
+        StringBuilder sb = new StringBuilder();
+        boolean isArray = false;
+        boolean isTravellingClass = false;
+        for (byte b : desc.getBytes()) {
+            if (isTravellingClass) {
+                switch (b) {
+                    case CLASS_END:
+                        sb.append(isArray ? "[]" : "");
+                        isArray = false;
+                        isTravellingClass = false;
+                        break;
+                    case PKG_SEGMENT:
+                        sb.append('.');
+                        break;
+                    default:
+                        sb.append((char)b);
+                }
+            } else {
+                switch (b) {
+                    case TYPE_ARRAY:
+                        isArray = true;
+                        break;
+                    case TYPE_BYTE:
+                        sb.append(",byte").append(isArray ? "[]" : "");
+                        isArray = false;
+                        break;
+                    case TYPE_CHAR:
+                        sb.append(",char").append(isArray ? "[]" : "");
+                        isArray = false;
+                        break;
+                    case TYPE_DOUBLE:
+                        sb.append(",double").append(isArray ? "[]" : "");
+                        isArray = false;
+                        break;
+                    case TYPE_FLOAT:
+                        sb.append(",float").append(isArray ? "[]" : "");
+                        isArray = false;
+                        break;
+                    case TYPE_INT:
+                        sb.append(",int").append(isArray ? "[]" : "");
+                        isArray = false;
+                        break;
+                    case TYPE_LONG:
+                        sb.append(",long").append(isArray ? "[]" : "");
+                        isArray = false;
+                        break;
+                    case TYPE_SHORT:
+                        sb.append(",short").append(isArray ? "[]" : "");
+                        isArray = false;
+                        break;
+                    case TYPE_BOOL:
+                        sb.append(",boolean").append(isArray ? "[]" : "");
+                        isArray = false;
+                        break;
+                    case TYPE_CLASS:
+                        sb.append(",");
+                        isTravellingClass = true;
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+        return sb.substring(1);
     }
 }
