@@ -17,11 +17,11 @@ class DemoTest {
 输出日志示例如下：
 
 ```text
-[DIAGNOSE] Handling test class com/alibaba/testable/demo/DemoMockTest
+[DIAGNOSE] Handling test class com/alibaba/testable/demo/basic/DemoMockTest
 [DIAGNOSE]   Found 6 test cases
-[DIAGNOSE] Handling mock class com/alibaba/testable/demo/DemoMockTest$Mock
+[DIAGNOSE] Handling mock class com/alibaba/testable/demo/basic/DemoMockTest$Mock
 [DIAGNOSE]   Found 8 mock methods
-[DIAGNOSE] Handling source class com/alibaba/testable/demo/DemoMock
+[DIAGNOSE] Handling source class com/alibaba/testable/demo/basic/DemoMock
 [DIAGNOSE]   Handling method <init>
 [DIAGNOSE]   Handling method newFunc
 [DIAGNOSE]     Line 19, mock method "createBlackBox" used
@@ -55,43 +55,41 @@ class DemoTest {
 }
 ```
 
-再次执行单元测试，此时将会打印出所有Mock方法的运行期签名，以及被测类中扫描到所有调用的运行期签名：
+再次执行单元测试，此时将会打印出所有Mock方法的签名定义，以及被测类中扫描到所有调用的实际方法签名：
 
 ```text
-[DIAGNOSE] Handling test class com/alibaba/testable/demo/DemoMockTest
+[DIAGNOSE] Handling test class com/alibaba/testable/demo/basic/DemoMockTest
 [VERBOSE]    Test case "should_able_to_mock_new_object"
 ... ...
 [VERBOSE]    Test case "should_able_to_set_mock_context"
 [DIAGNOSE]   Found 6 test cases
-[DIAGNOSE] Handling mock class com/alibaba/testable/demo/DemoMockTest$Mock
-[VERBOSE]    Mock constructor "createBlackBox" as "(Ljava/lang/String;)V" for "com/alibaba/testable/demo/model/BlackBox"
-[VERBOSE]    Mock method "innerFunc" as "(Ljava/lang/String;)Ljava/lang/String;"
+[DIAGNOSE] Handling mock class com/alibaba/testable/demo/basic/DemoMockTest$Mock
+[VERBOSE]    Mock constructor "createBlackBox" as "com.alibaba.testable.demo.basic.model.BlackBox(java.lang.String)"
+[VERBOSE]    Mock method "innerFunc" as "com.alibaba.testable.demo.basic.DemoMock::innerFunc(java.lang.String) : java.lang.String"
 ... ...
 [VERBOSE]    Mock method "callFromDifferentMethod" as "()Ljava/lang/String;"
 [DIAGNOSE]   Found 8 mock methods
-[DIAGNOSE] Handling source class com/alibaba/testable/demo/DemoMock
+[DIAGNOSE] Handling source class com/alibaba/testable/demo/basic/DemoMock
 [DIAGNOSE]   Handling method <init>
-[VERBOSE]      Line 13, constructing "java/lang/Object" as "()V"
+[VERBOSE]      Line 13, constructing "java.lang.Object()"
 [DIAGNOSE]   Handling method newFunc
-[VERBOSE]      Line 19, constructing "com/alibaba/testable/demo/model/BlackBox" as "(Ljava/lang/String;)V"
+[VERBOSE]      Line 19, constructing "com.alibaba.testable.demo.basic.model.BlackBox(java.lang.String)"
 [DIAGNOSE]     Line 19, mock method "createBlackBox" used
-[VERBOSE]      Line 19, invoking "createBlackBox" as "(Ljava/lang/String;)Lcom/alibaba/testable/demo/model/BlackBox;"
-[VERBOSE]      Line 20, invoking "get" as "()Ljava/lang/String;"
+[VERBOSE]      Line 19, invoking "com.alibaba.testable.demo.basic.DemoMockTest$Mock::createBlackBox(java.lang.String) : com.alibaba.testable.demo.basic.model.BlackBox"
+[VERBOSE]      Line 20, invoking "com.alibaba.testable.demo.basic.model.BlackBox::get() : java.lang.String"
 [DIAGNOSE]   Handling method outerFunc
-[VERBOSE]      Line 27, constructing "java/lang/StringBuilder" as "()V"
-[VERBOSE]      Line 27, invoking "append" as "(Ljava/lang/String;)Ljava/lang/StringBuilder;"
-[VERBOSE]      Line 27, invoking "innerFunc" as "(Ljava/lang/String;)Ljava/lang/String;"
+[VERBOSE]      Line 27, constructing "java.lang.StringBuilder()"
+[VERBOSE]      Line 27, invoking "java.lang.StringBuilder::append(java.lang.String) : java.lang.StringBuilder"
+[VERBOSE]      Line 27, invoking "com.alibaba.testable.demo.basic.DemoMock::innerFunc(java.lang.String) : java.lang.String"
 [DIAGNOSE]     Line 27, mock method "innerFunc" used
 ... ...
 ```
 
 输出日志结构参考如下：
 
-- `Mock constructor "<Mock方法名>" as "<方法签名>" for "<类型>"` 在测试类中扫描到的**Mock构造方法**及其运行期签名
-- `Mock method "<Mock方法名>" as "<方法签名>"` 在测试类中扫描到的**普通Mock方法**及其运行期签名
-- `Line XX, constructing "<类型>" as "<方法签名>"` 在被测类中扫描掉的**构造方法调用**及其运行期签名
-- `Line XX, invoking "<方法名>" as "<方法签名>"` 在被测类中扫描到的**成员方法调用**及其运行期签名
-
-"运行期签名"是目标方法参数和返回值类型的在字节码中的表示形式，其结构相比方法的原始Java签名更紧凑精炼，通过对比相应代码行调用时的方法签名与Mock方法的实际签名，通常能够快速定位出Mock未匹配的原因。
+- `Mock constructor "<Mock方法名>" as "<方法签名>" for "<类型>"` 在测试类中扫描到的**Mock构造方法**及其签名
+- `Mock method "<Mock方法名>" as "<方法签名>"` 在测试类中扫描到的**普通Mock方法**及其签名
+- `Line XX, constructing "<类型>" as "<方法签名>"` 在被测类中扫描掉的**构造方法调用**及其签名
+- `Line XX, invoking "<方法名>" as "<方法签名>"` 在被测类中扫描到的**成员方法调用**及其签名
 
 > 在`0.4.x`版本使用测试类添加`@MockWith`注解的`diagnose`参数来启用诊断信息的方法在`0.5`版本中依然可用，但将在未来版本中移除，请优先使用`@MockDiagnose`注解替代。

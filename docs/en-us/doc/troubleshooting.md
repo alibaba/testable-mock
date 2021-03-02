@@ -15,9 +15,11 @@ class DemoTest {
 The output log example is as follows:
 
 ```text
-[DIAGNOSE] Handling test class com/alibaba/testable/demo/DemoMockTest
+[DIAGNOSE] Handling test class com/alibaba/testable/demo/basic/DemoMockTest
+[DIAGNOSE]   Found 6 test cases
+[DIAGNOSE] Handling mock class com/alibaba/testable/demo/basic/DemoMockTest$Mock
 [DIAGNOSE]   Found 8 mock methods
-[DIAGNOSE] Handling source class com/alibaba/testable/demo/DemoMock
+[DIAGNOSE] Handling source class com/alibaba/testable/demo/basic/DemoMock
 [DIAGNOSE]   Handling method <init>
 [DIAGNOSE]   Handling method newFunc
 [DIAGNOSE]     Line 19, mock method "createBlackBox" used
@@ -51,36 +53,30 @@ class DemoTest {
 Executing the unit test again will print out the runtime-signatures of all mock methods, and the runtime-signatures of all invocations scanned in the class under test:
 
 ```text
-[DIAGNOSE] Handling test class com/alibaba/testable/demo/DemoMockTest
-[VERBOSE]    Mock constructor "createBlackBox" as "(Ljava/lang/String;)V" for "com/alibaba/testable/demo/model/BlackBox"
-[VERBOSE]    Mock method "innerFunc" as "(Ljava/lang/String;)Ljava/lang/String;"
-[VERBOSE]    Mock method "staticFunc" as "()Ljava/lang/String;"
-[VERBOSE]    Mock method "trim" as "()Ljava/lang/String;"
-[VERBOSE]    Mock method "sub" as "(II)Ljava/lang/String;"
-[VERBOSE]    Mock method "startsWith" as "(Ljava/lang/String;)Z"
-[VERBOSE]    Mock method "secretBox" as "()Lcom/alibaba/testable/demo/model/BlackBox;"
+[DIAGNOSE] Handling test class com/alibaba/testable/demo/basic/DemoMockTest
+[VERBOSE]    Test case "should_able_to_mock_new_object"
+... ...
+[VERBOSE]    Test case "should_able_to_set_mock_context"
+[DIAGNOSE]   Found 6 test cases
+[DIAGNOSE] Handling mock class com/alibaba/testable/demo/basic/DemoMockTest$Mock
+[VERBOSE]    Mock constructor "createBlackBox" as "com.alibaba.testable.demo.basic.model.BlackBox(java.lang.String)"
+[VERBOSE]    Mock method "innerFunc" as "com.alibaba.testable.demo.basic.DemoMock::innerFunc(java.lang.String) : java.lang.String"
+... ...
 [VERBOSE]    Mock method "callFromDifferentMethod" as "()Ljava/lang/String;"
 [DIAGNOSE]   Found 8 mock methods
-[DIAGNOSE] Handling source class com/alibaba/testable/demo/DemoMock
+[DIAGNOSE] Handling source class com/alibaba/testable/demo/basic/DemoMock
 [DIAGNOSE]   Handling method <init>
-[VERBOSE]      Line 13, constructing "java/lang/Object" as "()V"
+[VERBOSE]      Line 13, constructing "java.lang.Object()"
 [DIAGNOSE]   Handling method newFunc
-[VERBOSE]      Line 19, constructing "com/alibaba/testable/demo/model/BlackBox" as "(Ljava/lang/String;)V"
+[VERBOSE]      Line 19, constructing "com.alibaba.testable.demo.basic.model.BlackBox(java.lang.String)"
 [DIAGNOSE]     Line 19, mock method "createBlackBox" used
-[VERBOSE]      Line 19, invoking "createBlackBox" as "(Ljava/lang/String;)Lcom/alibaba/testable/demo/model/BlackBox;"
-[VERBOSE]      Line 20, invoking "get" as "()Ljava/lang/String;"
+[VERBOSE]      Line 19, invoking "com.alibaba.testable.demo.basic.DemoMockTest$Mock::createBlackBox(java.lang.String) : com.alibaba.testable.demo.basic.model.BlackBox"
+[VERBOSE]      Line 20, invoking "com.alibaba.testable.demo.basic.model.BlackBox::get() : java.lang.String"
 [DIAGNOSE]   Handling method outerFunc
-[VERBOSE]      Line 27, constructing "java/lang/StringBuilder" as "()V"
-[VERBOSE]      Line 27, invoking "append" as "(Ljava/lang/String;)Ljava/lang/StringBuilder;"
-[VERBOSE]      Line 27, invoking "innerFunc" as "(Ljava/lang/String;)Ljava/lang/String;"
+[VERBOSE]      Line 27, constructing "java.lang.StringBuilder()"
+[VERBOSE]      Line 27, invoking "java.lang.StringBuilder::append(java.lang.String) : java.lang.StringBuilder"
+[VERBOSE]      Line 27, invoking "com.alibaba.testable.demo.basic.DemoMock::innerFunc(java.lang.String) : java.lang.String"
 [DIAGNOSE]     Line 27, mock method "innerFunc" used
-[VERBOSE]      Line 27, invoking "innerFunc" as "(Ljava/lang/String;)Ljava/lang/String;"
-[VERBOSE]      Line 27, invoking "append" as "(Ljava/lang/String;)Ljava/lang/StringBuilder;"
-[VERBOSE]      Line 27, invoking "staticFunc" as "()Ljava/lang/String;"
-[DIAGNOSE]     Line 27, mock method "staticFunc" used
-[VERBOSE]      Line 27, invoking "append" as "(Ljava/lang/String;)Ljava/lang/StringBuilder;"
-[VERBOSE]      Line 27, invoking "append" as "(Ljava/lang/String;)Ljava/lang/StringBuilder;"
-[VERBOSE]      Line 27, invoking "toString" as "()Ljava/lang/String;"
 ... ...
 ```
 

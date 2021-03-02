@@ -129,7 +129,7 @@ public class MethodUtil {
         String ownerInDotFormat = ClassUtil.toDotSeparatedName(owner);
         String returnType = toJavaParameterDesc(getReturnType(desc));
         String parameters = toJavaParameterDesc(extractParameters(desc));
-        return String.format("%s %s::%s(%s)", returnType, ownerInDotFormat, name, parameters);
+        return String.format("%s::%s(%s) : %s", ownerInDotFormat, name, parameters, returnType);
     }
 
     /**

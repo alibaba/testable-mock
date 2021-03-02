@@ -2,7 +2,6 @@ package com.alibaba.testable.demo.basic;
 
 import com.alibaba.testable.core.annotation.MockConstructor;
 import com.alibaba.testable.core.annotation.MockMethod;
-import com.alibaba.testable.demo.basic.DemoMock;
 import com.alibaba.testable.demo.basic.model.BlackBox;
 import org.junit.jupiter.api.Test;
 
