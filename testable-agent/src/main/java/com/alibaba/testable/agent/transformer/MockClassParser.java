@@ -86,12 +86,16 @@ public class MockClassParser {
         for (AnnotationNode an : mn.visibleAnnotations) {
             String fullClassName = toDotSeparateFullClassName(an.desc);
             if (fullClassName.equals(ConstPool.MOCK_CONSTRUCTOR)) {
-                LogUtil.verbose("   Mock constructor \"%s\" as \"%s\"", mn.name,
-                    MethodUtil.toJavaMethodDesc(MethodUtil.getReturnType(mn.desc), mn.desc));
+                if (LogUtil.isVerboseEnabled()) {
+                    LogUtil.verbose("   Mock constructor \"%s\" as \"%s\"", mn.name, MethodUtil.toJavaMethodDesc(
+                        ClassUtil.toDotSeparateFullClassName(MethodUtil.getReturnType(mn.desc)), mn.desc));
+                }
                 addMockConstructor(methodInfos, cn, mn);
             } else if (fullClassName.equals(ConstPool.MOCK_METHOD) && AnnotationUtil.isValidMockMethod(mn, an)) {
-                LogUtil.verbose("   Mock method \"%s\" as \"%s\"", mn.name, MethodUtil.toJavaMethodDesc(
-                    getTargetMethodOwner(mn, an), getTargetMethodName(mn, an), getTargetMethodDesc(mn, an)));
+                if (LogUtil.isVerboseEnabled()) {
+                    LogUtil.verbose("   Mock method \"%s\" as \"%s\"", mn.name, MethodUtil.toJavaMethodDesc(
+                        getTargetMethodOwner(mn, an), getTargetMethodName(mn, an), getTargetMethodDesc(mn, an)));
+                }
                 String targetMethod = AnnotationUtil.getAnnotationParameter(
                     an, ConstPool.FIELD_TARGET_METHOD, mn.name, String.class);
                 if (CONSTRUCTOR.equals(targetMethod)) {

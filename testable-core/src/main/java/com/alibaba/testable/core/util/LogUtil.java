@@ -33,7 +33,7 @@ public class LogUtil {
     private static LogLevel currentLogLevel = LogLevel.LEVEL_WARN;
 
     public static void verbose(String msg, Object... args) {
-        if (currentLogLevel.level >= LogLevel.LEVEL_VERBOSE.level) {
+        if (isVerboseEnabled()) {
             System.out.println(String.format("[VERBOSE] " + msg, args));
         }
     }
@@ -52,6 +52,13 @@ public class LogUtil {
 
     public static void error(String msg, Object... args) {
         System.err.println(String.format("[ERROR] " + msg, args));
+    }
+
+    /**
+     * a pre-check method for reduce verbose parameter calculation
+     */
+    public static boolean isVerboseEnabled() {
+        return currentLogLevel.level >= LogLevel.LEVEL_VERBOSE.level;
     }
 
     public static void setLevel(LogLevel level) {

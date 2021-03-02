@@ -113,8 +113,9 @@ public class MethodUtil {
      * @return java style constructor descriptor
      */
     public static String toJavaMethodDesc(String owner, String desc) {
+        String ownerInDotFormat = ClassUtil.toDotSeparatedName(owner);
         String parameters = toJavaParameterDesc(extractParameters(desc));
-        return String.format("%s(%s)", owner, parameters);
+        return String.format("%s(%s)", ownerInDotFormat, parameters);
     }
 
     /**
