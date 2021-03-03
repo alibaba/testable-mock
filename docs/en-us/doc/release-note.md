@@ -1,5 +1,11 @@
 # Release Note
 
+## 0.5.1
+- Use kotlin-style method descriptor in `VERBOSE` diagnose logs
+- Support parameterized test of JUnit 5
+- Fix an exception caused by method parameter with ternary operator
+- Fix a bug cause log message lost when `@MockWith` annotation used
+
 ## 0.4.12
 - support verbose diagnose log for better self-troubleshooting
 - support disable private access target existence check

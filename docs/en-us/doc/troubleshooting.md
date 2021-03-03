@@ -50,7 +50,7 @@ class DemoTest {
 }
 ```
 
-Executing the unit test again will print out the runtime-signatures of all mock methods, and the runtime-signatures of all invocations scanned in the class under test:
+Executing the unit test again will print out the signatures of all mock methods, and the signatures of all invocations scanned in the class under test:
 
 ```text
 [DIAGNOSE] Handling test class com/alibaba/testable/demo/basic/DemoMockTest
