@@ -163,6 +163,9 @@ public class MethodUtil {
                     case TYPE_ARRAY:
                         isArray = true;
                         break;
+                    case TYPE_VOID:
+                        sb.append(",void");
+                        break;
                     case TYPE_BYTE:
                         sb.append(",byte").append(isArray ? "[]" : "");
                         isArray = false;
