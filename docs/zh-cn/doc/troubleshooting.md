@@ -64,8 +64,8 @@ class DemoTest {
 [VERBOSE]    Test case "should_able_to_set_mock_context"
 [DIAGNOSE]   Found 6 test cases
 [DIAGNOSE] Handling mock class com/alibaba/testable/demo/basic/DemoMockTest$Mock
-[VERBOSE]    Mock constructor "createBlackBox" as "com.alibaba.testable.demo.basic.model.BlackBox(java.lang.String)"
-[VERBOSE]    Mock method "innerFunc" as "com.alibaba.testable.demo.basic.DemoMock::innerFunc(java.lang.String) : java.lang.String"
+[VERBOSE]    Mock constructor "createBlackBox" as "com.alibaba.demo.basic.model.BlackBox(java.lang.String)"
+[VERBOSE]    Mock method "innerFunc" as "com.alibaba.demo.basic.DemoMock::innerFunc(java.lang.String) : java.lang.String"
 ... ...
 [VERBOSE]    Mock method "callFromDifferentMethod" as "()Ljava/lang/String;"
 [DIAGNOSE]   Found 8 mock methods
@@ -73,14 +73,14 @@ class DemoTest {
 [DIAGNOSE]   Handling method <init>
 [VERBOSE]      Line 13, constructing "java.lang.Object()"
 [DIAGNOSE]   Handling method newFunc
-[VERBOSE]      Line 19, constructing "com.alibaba.testable.demo.basic.model.BlackBox(java.lang.String)"
+[VERBOSE]      Line 19, constructing "com.alibaba.demo.basic.model.BlackBox(java.lang.String)"
 [DIAGNOSE]     Line 19, mock method "createBlackBox" used
-[VERBOSE]      Line 19, invoking "com.alibaba.testable.demo.basic.DemoMockTest$Mock::createBlackBox(java.lang.String) : com.alibaba.testable.demo.basic.model.BlackBox"
-[VERBOSE]      Line 20, invoking "com.alibaba.testable.demo.basic.model.BlackBox::get() : java.lang.String"
+[VERBOSE]      Line 19, invoking "com.alibaba.demo.basic.DemoMockTest$Mock::createBlackBox(java.lang.String) : com.alibaba.demo.basic.model.BlackBox"
+[VERBOSE]      Line 20, invoking "com.alibaba.demo.basic.model.BlackBox::get() : java.lang.String"
 [DIAGNOSE]   Handling method outerFunc
 [VERBOSE]      Line 27, constructing "java.lang.StringBuilder()"
 [VERBOSE]      Line 27, invoking "java.lang.StringBuilder::append(java.lang.String) : java.lang.StringBuilder"
-[VERBOSE]      Line 27, invoking "com.alibaba.testable.demo.basic.DemoMock::innerFunc(java.lang.String) : java.lang.String"
+[VERBOSE]      Line 27, invoking "com.alibaba.demo.basic.DemoMock::innerFunc(java.lang.String) : java.lang.String"
 [DIAGNOSE]     Line 27, mock method "innerFunc" used
 ... ...
 ```
