@@ -10,6 +10,8 @@ import static org.objectweb.asm.Opcodes.ACC_STATIC;
 
 public class MethodUtil {
 
+    private static final String COMMA_SPACE = ", ";
+
     /**
      * Judge whether a method is static
      * @param mn method to check
@@ -164,42 +166,42 @@ public class MethodUtil {
                         isArray = true;
                         break;
                     case TYPE_VOID:
-                        sb.append(",void");
+                        sb.append(COMMA_SPACE).append("void");
                         break;
                     case TYPE_BYTE:
-                        sb.append(",byte").append(isArray ? "[]" : "");
+                        sb.append(COMMA_SPACE).append("byte").append(isArray ? "[]" : "");
                         isArray = false;
                         break;
                     case TYPE_CHAR:
-                        sb.append(",char").append(isArray ? "[]" : "");
+                        sb.append(COMMA_SPACE).append("char").append(isArray ? "[]" : "");
                         isArray = false;
                         break;
                     case TYPE_DOUBLE:
-                        sb.append(",double").append(isArray ? "[]" : "");
+                        sb.append(COMMA_SPACE).append("double").append(isArray ? "[]" : "");
                         isArray = false;
                         break;
                     case TYPE_FLOAT:
-                        sb.append(",float").append(isArray ? "[]" : "");
+                        sb.append(COMMA_SPACE).append("float").append(isArray ? "[]" : "");
                         isArray = false;
                         break;
                     case TYPE_INT:
-                        sb.append(",int").append(isArray ? "[]" : "");
+                        sb.append(COMMA_SPACE).append("int").append(isArray ? "[]" : "");
                         isArray = false;
                         break;
                     case TYPE_LONG:
-                        sb.append(",long").append(isArray ? "[]" : "");
+                        sb.append(COMMA_SPACE).append("long").append(isArray ? "[]" : "");
                         isArray = false;
                         break;
                     case TYPE_SHORT:
-                        sb.append(",short").append(isArray ? "[]" : "");
+                        sb.append(COMMA_SPACE).append("short").append(isArray ? "[]" : "");
                         isArray = false;
                         break;
                     case TYPE_BOOL:
-                        sb.append(",boolean").append(isArray ? "[]" : "");
+                        sb.append(COMMA_SPACE).append("boolean").append(isArray ? "[]" : "");
                         isArray = false;
                         break;
                     case TYPE_CLASS:
-                        sb.append(",");
+                        sb.append(COMMA_SPACE);
                         isTravellingClass = true;
                         break;
                     default:
@@ -207,6 +209,6 @@ public class MethodUtil {
                 }
             }
         }
-        return sb.substring(1);
+        return sb.substring(COMMA_SPACE.length());
     }
 }
