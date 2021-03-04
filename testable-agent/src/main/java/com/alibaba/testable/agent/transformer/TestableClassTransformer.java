@@ -41,7 +41,6 @@ public class TestableClassTransformer implements ClassFileTransformer {
     /**
      * Just avoid spend time to scan those surely non-user classes Should keep these lists as tiny as possible
      */
-    private final String[] WHITELIST_PREFIXES = new String[] {"com/alibaba/testable/demo/"};
     private final String[] BLACKLIST_PREFIXES = new String[] {"jdk/", "java/", "javax/", "sun/", "com/sun/",
         "org/apache/maven/", "com/alibaba/testable/", "junit/", "org/junit/", "org/testng/"};
 
@@ -83,6 +82,7 @@ public class TestableClassTransformer implements ClassFileTransformer {
         } catch (Throwable t) {
             LogUtil.warn("Failed to transform class " + className);
             LogUtil.diagnose(t.toString());
+            LogUtil.diagnose(ThreadUtil.getFirstRelatedStackLine(t));
         } finally {
             LogUtil.resetLogLevel();
         }
@@ -153,11 +153,6 @@ public class TestableClassTransformer implements ClassFileTransformer {
             }
             return true;
         } else {
-            for (String prefix : WHITELIST_PREFIXES) {
-                if (className.startsWith(prefix)) {
-                    return false;
-                }
-            }
             for (String prefix : BLACKLIST_PREFIXES) {
                 if (className.startsWith(prefix)) {
                     return true;
