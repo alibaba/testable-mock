@@ -41,11 +41,11 @@ class MethodUtilTest {
     @Test
     void should_able_to_convert_bytecode_parameters() {
         assertEquals("", PrivateAccessor.invokeStatic(MethodUtil.class, "toJavaParameterDesc", ""));
-        assertEquals("char", PrivateAccessor.invokeStatic(MethodUtil.class, "toJavaParameterDesc", "C"));
-        assertEquals("int,long", PrivateAccessor.invokeStatic(MethodUtil.class, "toJavaParameterDesc", "IJ"));
-        assertEquals("int[],long[]", PrivateAccessor.invokeStatic(MethodUtil.class, "toJavaParameterDesc", "[I[J"));
-        assertEquals("int,java.lang.String", PrivateAccessor.invokeStatic(MethodUtil.class, "toJavaParameterDesc", "ILjava/lang/String;"));
-        assertEquals("java.lang.String,int,long[]", PrivateAccessor.invokeStatic(MethodUtil.class, "toJavaParameterDesc", "Ljava/lang/String;I[J"));
+        assertEquals("void", PrivateAccessor.invokeStatic(MethodUtil.class, "toJavaParameterDesc", "V"));
+        assertEquals("int, long", PrivateAccessor.invokeStatic(MethodUtil.class, "toJavaParameterDesc", "IJ"));
+        assertEquals("int[], long[]", PrivateAccessor.invokeStatic(MethodUtil.class, "toJavaParameterDesc", "[I[J"));
+        assertEquals("int, java.lang.String", PrivateAccessor.invokeStatic(MethodUtil.class, "toJavaParameterDesc", "ILjava/lang/String;"));
+        assertEquals("java.lang.String, int, long[]", PrivateAccessor.invokeStatic(MethodUtil.class, "toJavaParameterDesc", "Ljava/lang/String;I[J"));
     }
 
 }

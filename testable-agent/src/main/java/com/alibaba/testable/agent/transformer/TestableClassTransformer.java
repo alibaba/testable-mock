@@ -111,7 +111,16 @@ public class TestableClassTransformer implements ClassFileTransformer {
         if (mockClass != null) {
             return mockClass;
         }
-        return foundMockForTestClass(ClassUtil.getTestClassName(className));
+        mockClass = foundMockForTestClass(ClassUtil.getTestClassName(className));
+        if (mockClass != null) {
+            return mockClass;
+        }
+        return foundMockForInnerSourceClass(className);
+    }
+
+    private String foundMockForInnerSourceClass(String className) {
+        return (className.contains(DOLLAR) && !className.endsWith(KOTLIN_POSTFIX_COMPANION)) ?
+            foundMockForTestClass(ClassUtil.getTestClassName(className.substring(0, className.indexOf(DOLLAR)))) : null;
     }
 
     private String foundMockForTestClass(String className) {
