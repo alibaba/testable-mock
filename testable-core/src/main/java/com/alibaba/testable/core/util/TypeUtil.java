@@ -1,6 +1,7 @@
 package com.alibaba.testable.core.util;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
 /**
@@ -23,37 +24,62 @@ public class TypeUtil {
     }
 
     /**
+     * get specified field from class or its parents
+     * @param clazz class contains fields
+     * @param field field to look for
+     * @return field which match the name
+     */
+    public static Field getFieldByName(Class<?> clazz, String field) {
+        try {
+            return clazz.getDeclaredField(field);
+        } catch (NoSuchFieldException e) {
+            if (clazz.getSuperclass() != null) {
+                return getFieldByName(clazz.getSuperclass(), field);
+            } else {
+                return null;
+            }
+        }
+    }
+
+    /**
      * get constructor by parameter matching
-     * @param availableConstructors available constructors
+     * @param clazz class to construct
      * @param parameterTypes class to look for
      * @return constructor which match the parameter classes
      */
-    public static Constructor<?> getConstructorByNameAndParameterTypes(Constructor<?>[] availableConstructors,
-                                                          Class<?>[] parameterTypes) {
+    public static Constructor<?> getConstructorByParameterTypes(Class<?> clazz, Class<?>[] parameterTypes) {
+        Constructor<?>[] availableConstructors = clazz.getDeclaredConstructors();
         for (Constructor<?> c : availableConstructors) {
             if (typeEquals(c.getParameterTypes(), parameterTypes)) {
                 return c;
             }
         }
-        return null;
+        if (clazz.getSuperclass() != null) {
+            return getConstructorByParameterTypes(clazz.getSuperclass(), parameterTypes);
+        } else {
+            return null;
+        }
     }
 
     /**
      * get method by name and parameter matching
-     * @param availableMethods available methods
+     * @param clazz class contains methods
      * @param methodName method to look for
      * @param parameterTypes class to look for
      * @return method which match the name and class
      */
-    public static Method getMethodByNameAndParameterTypes(Method[] availableMethods,
-                                                          String methodName,
-                                                          Class<?>[] parameterTypes) {
+    public static Method getMethodByNameAndParameterTypes(Class<?> clazz, String methodName, Class<?>[] parameterTypes) {
+        Method[] availableMethods = clazz.getDeclaredMethods();
         for (Method m : availableMethods) {
             if (m.getName().equals(methodName) && typeEquals(m.getParameterTypes(), parameterTypes)) {
                 return m;
             }
         }
-        return null;
+        if (clazz.getSuperclass() != null) {
+            return getMethodByNameAndParameterTypes(clazz.getSuperclass(), methodName, parameterTypes);
+        } else {
+            return null;
+        }
     }
 
     /**

@@ -18,35 +18,37 @@ public class PrivateAccessor {
     /**
      * 读取任意类的私有字段
      * @param ref 目标对象
-     * @param field 目标字段名
+     * @param fieldName 目标字段名
      */
-    public static <T> T get(Object ref, String field) {
+    public static <T> T get(Object ref, String fieldName) {
         try {
-            Field declaredField = ref.getClass().getDeclaredField(field);
-            declaredField.setAccessible(true);
-            return (T)declaredField.get(ref);
+            Field field = TypeUtil.getFieldByName(ref.getClass(), fieldName);
+            if (field == null) {
+                throw new MemberAccessException("Private field \"" + fieldName + "\" not exist");
+            }
+            field.setAccessible(true);
+            return (T)field.get(ref);
         } catch (IllegalAccessException e) {
-            throw new MemberAccessException("Failed to access private field \"" + field + "\"", e);
-        } catch (NoSuchFieldException e) {
-            throw new MemberAccessException("Private field \"" + field + "\" not exist", e);
+            throw new MemberAccessException("Failed to access private field \"" + fieldName + "\"", e);
         }
     }
 
     /**
      * 修改任意类的私有字段（或常量字段）
      * @param ref 目标对象
-     * @param field 目标字段名
+     * @param fieldName 目标字段名
      * @param value 目标值
      */
-    public static <T> void set(Object ref, String field, T value) {
+    public static <T> void set(Object ref, String fieldName, T value) {
         try {
-            Field declaredField = ref.getClass().getDeclaredField(field);
-            declaredField.setAccessible(true);
-            declaredField.set(ref, value);
+            Field field = TypeUtil.getFieldByName(ref.getClass(), fieldName);
+            if (field == null) {
+                throw new MemberAccessException("Private field \"" + fieldName + "\" not exist");
+            }
+            field.setAccessible(true);
+            field.set(ref, value);
         } catch (IllegalAccessException e) {
-            throw new MemberAccessException("Failed to access private field \"" + field + "\"", e);
-        } catch (NoSuchFieldException e) {
-            throw new MemberAccessException("Private field \"" + field + "\" not exist", e);
+            throw new MemberAccessException("Failed to access private field \"" + fieldName + "\"", e);
         }
     }
 
@@ -59,8 +61,7 @@ public class PrivateAccessor {
     public static <T> T invoke(Object ref, String method, Object... args) {
         try {
             Class<?>[] cls = TypeUtil.getClassesFromObjects(args);
-            Method declaredMethod = TypeUtil.getMethodByNameAndParameterTypes(ref.getClass().getDeclaredMethods(),
-                method, cls);
+            Method declaredMethod = TypeUtil.getMethodByNameAndParameterTypes(ref.getClass(), method, cls);
             if (declaredMethod != null) {
                 declaredMethod.setAccessible(true);
                 return (T)declaredMethod.invoke(ref, args);
@@ -79,35 +80,37 @@ public class PrivateAccessor {
     /**
      * 读取任意类的静态私有字段
      * @param clazz 目标类型
-     * @param field 目标字段名
+     * @param fieldName 目标字段名
      */
-    public static <T> T getStatic(Class<?> clazz, String field) {
+    public static <T> T getStatic(Class<?> clazz, String fieldName) {
         try {
-            Field declaredField = clazz.getDeclaredField(field);
-            declaredField.setAccessible(true);
-            return (T)declaredField.get(null);
+            Field field = TypeUtil.getFieldByName(clazz, fieldName);
+            if (field == null) {
+                throw new MemberAccessException("Private static field \"" + fieldName + "\" not exist");
+            }
+            field.setAccessible(true);
+            return (T)field.get(null);
         } catch (IllegalAccessException e) {
-            throw new MemberAccessException("Failed to access private static field \"" + field + "\"", e);
-        } catch (NoSuchFieldException e) {
-            throw new MemberAccessException("Private static field \"" + field + "\" not exist", e);
+            throw new MemberAccessException("Failed to access private static field \"" + fieldName + "\"", e);
         }
     }
 
     /**
      * 修改任意类的静态私有字段（或静态常量字段）
      * @param clazz 目标类型
-     * @param field 目标字段名
+     * @param fieldName 目标字段名
      * @param value 目标值
      */
-    public static <T> void setStatic(Class<?> clazz, String field, T value) {
+    public static <T> void setStatic(Class<?> clazz, String fieldName, T value) {
         try {
-            Field declaredField = clazz.getDeclaredField(field);
-            declaredField.setAccessible(true);
-            declaredField.set(null, value);
+            Field field = TypeUtil.getFieldByName(clazz, fieldName);
+            if (field == null) {
+                throw new MemberAccessException("Private static field \"" + fieldName + "\" not exist");
+            }
+            field.setAccessible(true);
+            field.set(null, value);
         } catch (IllegalAccessException e) {
-            throw new MemberAccessException("Failed to access private static field \"" + field + "\"", e);
-        } catch (NoSuchFieldException e) {
-            throw new MemberAccessException("Private static field \"" + field + "\" not exist", e);
+            throw new MemberAccessException("Failed to access private static field \"" + fieldName + "\"", e);
         }
     }
 
@@ -120,15 +123,14 @@ public class PrivateAccessor {
     public static <T> T invokeStatic(Class<?> clazz, String method, Object... args) {
         try {
             Class<?>[] cls = TypeUtil.getClassesFromObjects(args);
-            Method declaredMethod = TypeUtil.getMethodByNameAndParameterTypes(clazz.getDeclaredMethods(), method, cls);
+            Method declaredMethod = TypeUtil.getMethodByNameAndParameterTypes(clazz, method, cls);
             if (declaredMethod != null) {
                 declaredMethod.setAccessible(true);
                 return (T)declaredMethod.invoke(null, args);
             }
             // fit kotlin companion object, will throw 'NoSuchFieldException' otherwise
             Field companionClassField = clazz.getDeclaredField(KOTLIN_COMPANION_FIELD);
-            declaredMethod = TypeUtil.getMethodByNameAndParameterTypes(
-                companionClassField.getType().getDeclaredMethods(), method, cls);
+            declaredMethod = TypeUtil.getMethodByNameAndParameterTypes(companionClassField.getType(), method, cls);
             Object companionInstance = getStatic(clazz, KOTLIN_COMPANION_FIELD);
             if (declaredMethod != null && companionInstance != null) {
                 declaredMethod.setAccessible(true);
@@ -154,8 +156,7 @@ public class PrivateAccessor {
      */
     public static <T> T construct(Class<?> clazz, Object... args) {
         try {
-            Constructor<?> constructor = TypeUtil.getConstructorByNameAndParameterTypes(clazz.getDeclaredConstructors(),
-                TypeUtil.getClassesFromObjects(args));
+            Constructor<?> constructor = TypeUtil.getConstructorByParameterTypes(clazz, TypeUtil.getClassesFromObjects(args));
             if (constructor != null) {
                 constructor.setAccessible(true);
                 return (T)constructor.newInstance(args);

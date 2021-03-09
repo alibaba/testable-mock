@@ -210,7 +210,8 @@ public class EnablePrivateAccessTranslator extends BaseTranslator {
     private void findAllPrivateMembers(Class<?> cls) {
         Field[] fields = cls.getDeclaredFields();
         for (Field f : fields) {
-            if (Modifier.isFinal(f.getModifiers()) || Modifier.isPrivate(f.getModifiers())) {
+            if (Modifier.isFinal(f.getModifiers()) || Modifier.isPrivate(f.getModifiers())
+                || Modifier.isProtected(f.getModifiers())) {
                 memberRecord.privateOrFinalFields.add(f.getName());
             } else {
                 memberRecord.nonPrivateNorFinalFields.add(f.getName());
@@ -218,11 +219,14 @@ public class EnablePrivateAccessTranslator extends BaseTranslator {
         }
         Method[] methods = cls.getDeclaredMethods();
         for (final Method m : methods) {
-            if (Modifier.isPrivate(m.getModifiers())) {
+            if (Modifier.isPrivate(m.getModifiers()) || Modifier.isProtected(m.getModifiers())) {
                 checkAndAdd(memberRecord.privateMethods, m.getName(), getParameterLength(m));
             } else {
                 checkAndAdd(memberRecord.nonPrivateMethods, m.getName(), getParameterLength(m));
             }
+        }
+        if (cls.getSuperclass() != null) {
+            findAllPrivateMembers(cls.getSuperclass());
         }
     }
 
