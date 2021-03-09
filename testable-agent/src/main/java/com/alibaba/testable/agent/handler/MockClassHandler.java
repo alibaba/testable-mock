@@ -40,7 +40,7 @@ public class MockClassHandler extends BaseClassWithContextHandler {
 
     @Override
     protected void transform(ClassNode cn) {
-        injectGetInstanceMethod(cn);
+        injectRefFieldAndGetInstanceMethod(cn);
         for (MethodNode mn : cn.methods) {
             if (isMockMethod(mn)) {
                 mn.access &= ~ACC_PRIVATE;
@@ -61,25 +61,27 @@ public class MockClassHandler extends BaseClassWithContextHandler {
     /**
      * add method to fetch singleton instance of this mock class
      */
-    private void injectGetInstanceMethod(ClassNode cn) {
+    private void injectRefFieldAndGetInstanceMethod(ClassNode cn) {
+        String byteCodeMockClassName = ClassUtil.toByteCodeClassName(mockClassName);
         MethodNode getInstanceMethod = new MethodNode(ACC_PUBLIC | ACC_STATIC, GET_TESTABLE_REF,
-            VOID_ARGS + ClassUtil.toByteCodeClassName(mockClassName), null, null);
+            VOID_ARGS + byteCodeMockClassName, null, null);
         InsnList il = new InsnList();
-        il.add(new FieldInsnNode(GETSTATIC, mockClassName, TESTABLE_REF, ClassUtil.toByteCodeClassName(mockClassName)));
+        il.add(new FieldInsnNode(GETSTATIC, mockClassName, TESTABLE_REF, byteCodeMockClassName));
         LabelNode label = new LabelNode();
         il.add(new JumpInsnNode(IFNONNULL, label));
         il.add(new TypeInsnNode(NEW, mockClassName));
         il.add(new InsnNode(DUP));
         il.add(new MethodInsnNode(INVOKESPECIAL, mockClassName, CONSTRUCTOR, VOID_ARGS + VOID_RES, false));
-        il.add(new FieldInsnNode(PUTSTATIC, mockClassName, TESTABLE_REF, ClassUtil.toByteCodeClassName(mockClassName)));
+        il.add(new FieldInsnNode(PUTSTATIC, mockClassName, TESTABLE_REF, byteCodeMockClassName));
         il.add(label);
         il.add(new FrameNode(F_SAME, 0, null, 0, null));
-        il.add(new FieldInsnNode(GETSTATIC, mockClassName, TESTABLE_REF, ClassUtil.toByteCodeClassName(mockClassName)));
+        il.add(new FieldInsnNode(GETSTATIC, mockClassName, TESTABLE_REF, byteCodeMockClassName));
         il.add(new InsnNode(ARETURN));
         getInstanceMethod.instructions = il;
         getInstanceMethod.maxStack = 2;
         getInstanceMethod.maxLocals = 0;
         cn.methods.add(getInstanceMethod);
+        cn.fields.add(new FieldNode(ACC_PRIVATE | ACC_STATIC, TESTABLE_REF, byteCodeMockClassName, null, null));
     }
 
     /**
