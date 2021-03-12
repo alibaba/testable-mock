@@ -23,7 +23,7 @@ import java.security.ProtectionDomain;
 import java.util.List;
 
 import static com.alibaba.testable.agent.constant.ConstPool.*;
-import static com.alibaba.testable.agent.util.ClassUtil.toDotSeparateFullClassName;
+import static com.alibaba.testable.agent.util.ClassUtil.toJavaStyleClassName;
 import static com.alibaba.testable.core.constant.ConstPool.TEST_POSTFIX;
 import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
 import static org.objectweb.asm.Opcodes.ACC_STATIC;
@@ -214,7 +214,7 @@ public class TestableClassTransformer implements ClassFileTransformer {
     private String lookForMockWithAnnotationAsTestClass(ClassNode cn) {
         String mockClassName = parseMockWithAnnotation(cn, ClassType.TestClass);
         if (mockClassName != null) {
-            MockAssociationUtil.mockToTests.get(mockClassName).add(ClassUtil.toDotSeparateFullClassName(cn.name));
+            MockAssociationUtil.mockToTests.get(mockClassName).add(ClassUtil.toJavaStyleClassName(cn.name));
             return ClassUtil.toSlashSeparatedName(mockClassName);
         }
         return null;
@@ -230,7 +230,7 @@ public class TestableClassTransformer implements ClassFileTransformer {
         if (cn.visibleAnnotations != null) {
             for (AnnotationNode an : cn.visibleAnnotations) {
                 DiagnoseUtil.setupByAnnotation(an);
-                if (toDotSeparateFullClassName(an.desc).equals(ConstPool.MOCK_WITH)) {
+                if (toJavaStyleClassName(an.desc).equals(ConstPool.MOCK_WITH)) {
                     ClassType type = AnnotationUtil.getAnnotationParameter(an, FIELD_TREAT_AS, ClassType.GuessByName,
                         ClassType.class);
                     if (isExpectedType(cn.name, type, expectedType)) {

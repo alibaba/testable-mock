@@ -16,7 +16,7 @@ import org.objectweb.asm.tree.MethodNode;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.alibaba.testable.agent.util.ClassUtil.toDotSeparateFullClassName;
+import static com.alibaba.testable.agent.util.ClassUtil.toJavaStyleClassName;
 import static com.alibaba.testable.agent.util.MethodUtil.isStatic;
 import static com.alibaba.testable.core.constant.ConstPool.CONSTRUCTOR;
 
@@ -57,7 +57,7 @@ public class MockClassParser {
         for (MethodNode mn : cn.methods) {
             if (mn.visibleAnnotations != null) {
                 for (AnnotationNode an : mn.visibleAnnotations) {
-                    String fullClassName = toDotSeparateFullClassName(an.desc);
+                    String fullClassName = toJavaStyleClassName(an.desc);
                     if (fullClassName.equals(ConstPool.MOCK_METHOD) ||
                         fullClassName.equals(ConstPool.MOCK_CONSTRUCTOR)) {
                         return true;
@@ -84,11 +84,11 @@ public class MockClassParser {
             return;
         }
         for (AnnotationNode an : mn.visibleAnnotations) {
-            String fullClassName = toDotSeparateFullClassName(an.desc);
+            String fullClassName = toJavaStyleClassName(an.desc);
             if (fullClassName.equals(ConstPool.MOCK_CONSTRUCTOR)) {
                 if (LogUtil.isVerboseEnabled()) {
                     LogUtil.verbose("   Mock constructor \"%s\" as \"%s\"", mn.name, MethodUtil.toJavaMethodDesc(
-                        ClassUtil.toDotSeparateFullClassName(MethodUtil.getReturnType(mn.desc)), mn.desc));
+                        ClassUtil.toJavaStyleClassName(MethodUtil.getReturnType(mn.desc)), mn.desc));
                 }
                 addMockConstructor(methodInfos, cn, mn);
             } else if (fullClassName.equals(ConstPool.MOCK_METHOD) && AnnotationUtil.isValidMockMethod(mn, an)) {

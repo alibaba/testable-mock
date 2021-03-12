@@ -202,12 +202,21 @@ public class ClassUtil {
     }
 
     /**
+     * convert byte code class name to slash separated human readable name
+     * @param className original name
+     * @return converted name
+     */
+    public static String toSlashSeparateJavaStyleName(String className) {
+        return className.substring(1, className.length() - 1);
+    }
+
+    /**
      * convert byte code class name to dot separated human readable name
      * @param className original name
      * @return converted name
      */
-    public static String toDotSeparateFullClassName(String className) {
-        return toDotSeparatedName(className).substring(1, className.length() - 1);
+    public static String toJavaStyleClassName(String className) {
+        return toDotSeparatedName(toSlashSeparateJavaStyleName(className));
     }
 
     /**

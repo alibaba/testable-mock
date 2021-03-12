@@ -7,7 +7,7 @@ import org.objectweb.asm.tree.AnnotationNode;
 import org.objectweb.asm.tree.ClassNode;
 
 import static com.alibaba.testable.agent.constant.ConstPool.MOCK_WITH;
-import static com.alibaba.testable.agent.util.ClassUtil.toDotSeparateFullClassName;
+import static com.alibaba.testable.agent.util.ClassUtil.toJavaStyleClassName;
 
 public class DiagnoseUtil {
 
@@ -19,7 +19,7 @@ public class DiagnoseUtil {
             return;
         }
         for (AnnotationNode an : cn.visibleAnnotations) {
-            if (toDotSeparateFullClassName(an.desc).equals(ConstPool.MOCK_DIAGNOSE)) {
+            if (toJavaStyleClassName(an.desc).equals(ConstPool.MOCK_DIAGNOSE)) {
                 setupDiagnose(an, FIELD_VALUE);
             }
         }
@@ -27,7 +27,7 @@ public class DiagnoseUtil {
 
     public static void setupByAnnotation(AnnotationNode an) {
         // to be remove in v0.6
-        if (toDotSeparateFullClassName(an.desc).equals(MOCK_WITH)) {
+        if (toJavaStyleClassName(an.desc).equals(MOCK_WITH)) {
             setupDiagnose(an, FIELD_DIAGNOSE);
         }
     }

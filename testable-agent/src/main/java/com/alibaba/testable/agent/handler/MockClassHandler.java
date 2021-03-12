@@ -16,7 +16,7 @@ import java.util.List;
 
 import static com.alibaba.testable.agent.constant.ByteCodeConst.TYPE_ARRAY;
 import static com.alibaba.testable.agent.constant.ByteCodeConst.TYPE_CLASS;
-import static com.alibaba.testable.agent.util.ClassUtil.toDotSeparateFullClassName;
+import static com.alibaba.testable.agent.util.ClassUtil.toJavaStyleClassName;
 import static com.alibaba.testable.core.constant.ConstPool.CONSTRUCTOR;
 
 /**
@@ -178,7 +178,7 @@ public class MockClassHandler extends BaseClassWithContextHandler {
             il.add(new InsnNode(POP));
             il.add(new InsnNode(RETURN));
         } else if (returnType.charAt(0) == TYPE_ARRAY ||returnType.charAt(0) == TYPE_CLASS) {
-            il.add(new TypeInsnNode(CHECKCAST, returnType));
+            il.add(new TypeInsnNode(CHECKCAST, ClassUtil.toSlashSeparateJavaStyleName(returnType)));
             il.add(new InsnNode(ARETURN));
         } else {
             String wrapperClass = ClassUtil.toWrapperClass(returnType.getBytes()[0]);
@@ -284,7 +284,7 @@ public class MockClassHandler extends BaseClassWithContextHandler {
 
     private boolean isMockForConstructor(MethodNode mn) {
         for (AnnotationNode an : mn.visibleAnnotations) {
-            String annotationName = toDotSeparateFullClassName(an.desc);
+            String annotationName = toJavaStyleClassName(an.desc);
             if (ConstPool.MOCK_CONSTRUCTOR.equals(annotationName)) {
                 return true;
             } else if (ConstPool.MOCK_METHOD.equals(annotationName)) {
