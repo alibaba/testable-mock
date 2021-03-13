@@ -1,10 +1,15 @@
 # Release Note
 
+## 0.5.2
+- support use`PrivateAccessor` to access private member in parent class
+- fix a class format error in jvm 1.8+ cause by incorrect bytecode generation
+- fix illegal field modifiers error when add mock class to an interface
+
 ## 0.5.1
-- Use kotlin-style method descriptor in `VERBOSE` diagnose logs
-- Support parameterized test of JUnit 5
-- Fix an exception caused by method parameter with ternary operator
-- Fix a bug cause log message lost when `@MockWith` annotation used
+- use kotlin-style method descriptor in `VERBOSE` diagnose logs
+- support parameterized test of JUnit 5
+- fix an exception caused by method parameter with ternary operator
+- fix a bug cause log message lost when `@MockWith` annotation used
 
 ## 0.4.12
 - support verbose diagnose log for better self-troubleshooting

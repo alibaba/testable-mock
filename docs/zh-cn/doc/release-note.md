@@ -1,5 +1,10 @@
 # Release Note
 
+## 0.5.2
+- 支持使用`PrivateAccessor`访问父类中的私有成员 (issue-91)
+- 修复在较高版本JVM下的非法类型错误 (issue-112)
+- 修复Mock目标为接口类型时的字节码异常 (issue-82)
+
 ## 0.5.1
 - 在`VERBOSE`级别诊断日志中使用更易于阅读的方法签名格式
 - 增加对JUnit5参数化测试的支持 (issue-98)
