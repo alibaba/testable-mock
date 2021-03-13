@@ -7,7 +7,7 @@ Write a mock method, add an `@MockMethod` annotation, everything is done.
 
 Usage Document: https://alibaba.github.io/testable-mock/#/en-us/
 
-## Loadmap
+## Roadmap
 
 `TestableMock` is still under heavy development, the following version plans may be adjusted during the iteration
 
