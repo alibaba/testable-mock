@@ -32,4 +32,14 @@ public class UnnullableMap<K, V> extends HashMap<K, V> {
         }
         return value;
     }
+
+    public V getOrElse(Object key, V elseValue) {
+        V value = super.get(key);
+        if (value == null) {
+            value = elseValue;
+            super.put((K)key, value);
+        }
+        return value;
+    }
+
 }

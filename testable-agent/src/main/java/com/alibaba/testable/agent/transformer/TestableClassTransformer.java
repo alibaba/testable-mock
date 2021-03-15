@@ -22,7 +22,8 @@ import java.lang.instrument.ClassFileTransformer;
 import java.security.ProtectionDomain;
 import java.util.List;
 
-import static com.alibaba.testable.agent.constant.ConstPool.*;
+import static com.alibaba.testable.agent.constant.ConstPool.KOTLIN_POSTFIX_COMPANION;
+import static com.alibaba.testable.core.constant.ConstPool.*;
 import static com.alibaba.testable.agent.util.ClassUtil.toJavaStyleClassName;
 import static com.alibaba.testable.core.constant.ConstPool.TEST_POSTFIX;
 import static org.objectweb.asm.Opcodes.ACC_PUBLIC;

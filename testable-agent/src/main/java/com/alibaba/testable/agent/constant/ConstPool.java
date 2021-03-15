@@ -5,11 +5,6 @@ package com.alibaba.testable.agent.constant;
  */
 public class ConstPool {
 
-    public static final String DOT = ".";
-    public static final String SLASH = "/";
-    public static final String DOLLAR = "$";
-    public static final String UNDERLINE = "_";
-
     public static final String FIELD_TARGET_METHOD = "targetMethod";
     public static final String FIELD_TARGET_CLASS = "targetClass";
     public static final String FIELD_SCOPE = "scope";

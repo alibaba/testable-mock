@@ -11,8 +11,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static com.alibaba.testable.agent.constant.ByteCodeConst.*;
-import static com.alibaba.testable.core.constant.ConstPool.MOCK_POSTFIX;
-import static com.alibaba.testable.core.constant.ConstPool.TEST_POSTFIX;
+import static com.alibaba.testable.core.constant.ConstPool.*;
 import static org.objectweb.asm.Opcodes.*;
 
 /**
@@ -180,7 +179,7 @@ public class ClassUtil {
      * @return converted name
      */
     public static String toDotSeparatedName(String name) {
-        return name.replace(ConstPool.SLASH, ConstPool.DOT);
+        return name.replace(SLASH, DOT);
     }
 
     /**
@@ -189,7 +188,7 @@ public class ClassUtil {
      * @return converted name
      */
     public static String toSlashSeparatedName(String name) {
-        return name.replace(ConstPool.DOT, ConstPool.SLASH);
+        return name.replace(DOT, SLASH);
     }
 
     /**

@@ -13,4 +13,12 @@ public class ConstPool {
     public static final String TEST_POSTFIX = "Test";
     public static final String MOCK_POSTFIX = "Mock";
 
+    /**
+     * Common symbols
+     */
+    public static final String DOT = ".";
+    public static final String SLASH = "/";
+    public static final String DOLLAR = "$";
+    public static final String UNDERLINE = "_";
+
 }
