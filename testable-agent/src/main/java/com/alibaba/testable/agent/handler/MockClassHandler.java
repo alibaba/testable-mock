@@ -33,6 +33,7 @@ public class MockClassHandler extends BaseClassWithContextHandler {
     private static final String SIGNATURE_RECORDER_METHOD_INVOKE = "([Ljava/lang/Object;Z)V";
     private static final String METHOD_IS_ASSOCIATED = "isAssociated";
     private static final String SIGNATURE_IS_ASSOCIATED = "()Z";
+    private static final String SELF_REF = "__self";
 
     public MockClassHandler(String className) {
         this.mockClassName = className;
@@ -103,7 +104,7 @@ public class MockClassHandler extends BaseClassWithContextHandler {
             ImmutablePair<LabelNode, LabelNode> labels = getStartAndEndLabel(mn);
             mn.desc = MethodUtil.addParameterAtBegin(mn.desc, targetClassName);
             int parameterOffset = MethodUtil.isStatic(mn) ? 0 : 1;
-            mn.localVariables.add(parameterOffset, new LocalVariableNode("__self", targetClassName, null,
+            mn.localVariables.add(parameterOffset, new LocalVariableNode(SELF_REF, targetClassName, null,
                 labels.left, labels.right, parameterOffset));
             for (int i = parameterOffset + 1; i < mn.localVariables.size(); i++) {
                 mn.localVariables.get(i).index++;
@@ -114,7 +115,7 @@ public class MockClassHandler extends BaseClassWithContextHandler {
                 } else if (in instanceof VarInsnNode && ((VarInsnNode)in).var >= parameterOffset) {
                     ((VarInsnNode)in).var++;
                 } else if (in instanceof FrameNode && ((FrameNode)in).type == F_FULL) {
-                    ((FrameNode)in).local.add(parameterOffset, targetClassName);
+                    ((FrameNode)in).local.add(parameterOffset, ClassUtil.toSlashSeparateJavaStyleName(targetClassName));
                 }
             }
             mn.maxLocals++;
