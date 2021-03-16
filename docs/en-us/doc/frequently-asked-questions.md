@@ -29,19 +29,25 @@ See the use case of the `DemoTemplateTest` test class in the Java and Kotlin exa
 
 > Because JVM has a generic erasure mechanism, you can also directly use the `Object` type to replace generic parameters for Java projects, see the commented out "Second solution" example in the Java version of the `DemoTemplateTest` test class.
 
-#### 5. Why mocking methods in the `String` class in the Kotlin project does not work?
+#### 5. How to mock invocation inside an inner class?
+
+Just put mock methods in the mock container class of its outer class, it works for code in all inner classes.
+
+See the use case of the `DemoInnerClass` test class in the Java and Kotlin examples.
+
+#### 6. Why mocking methods in the `String` class in the Kotlin project does not work?
 
 The `String` type in Kotlin language is actually `kotlin.String` instead of `java.lang.String`. However, when this type is built from bytecode, it will be replaced with Java's `java.lang.String` class, so no matter if the mock target is written as `kotlin.String` or `java.lang.String`, it cannot match the original called method.
 
 In actual scenarios, there are very few scenarios where methods in the `String` class need to be mocked, so `TestableMock` has not dealt with this situation specifically.
 
-#### 6. Can `TestableMock` be used for testing Android projects?
+#### 7. Can `TestableMock` be used for testing Android projects?
 
 It can be used in combination with [Roboelectric](https://github.com/robolectric/robolectric) testing framework.
 
 The `Dalvik` and `ART` virtual machines of the Android system use a bytecode system different from the standard JVM, which will affect the normal functionality of `TestableMock`. The `Roboelectric` framework can run Android unit tests on a standard JVM virtual machine, which is much faster than running unit tests through the Android virtual machine. Recently, most Android App unit tests are written with the `Roboelectric` framework.
 
-#### 7. Meet "Command Line is too Long. Shorten command line for ..." error when triggering test in IntelliJ IDE?
+#### 8. Meet "Command Line is too Long. Shorten command line for ..." error when triggering test in IntelliJ IDE?
 
 This problem is caused by the system `Class Path` content is too long, and has nothing to do with `TestableMock`. However, it should be noted that IntelliJ provides two auxiliary solutions: `JAR manifest` and `classpath file`. If `TestableMock` is used in the test, please select `JAR manifest`.
 
