@@ -1,6 +1,7 @@
 package com.alibaba.testable.core.tool;
 
 import com.alibaba.testable.core.util.FixSizeMap;
+import com.alibaba.testable.core.util.TypeUtil;
 import com.sun.deploy.util.StringUtils;
 
 import java.lang.reflect.Field;
@@ -17,6 +18,13 @@ public class OmniAccessor {
 
     private static final FixSizeMap<Class<?>, List<String>> MEMBER_INDEXES = new FixSizeMap<Class<?>, List<String>>(30);
     private static final String THIS_REF_PREFIX = "this$";
+    private static final String REGEX_ANY_CLASS = "\\{[^}]+\\}";
+    private static final String REGEX_ANY_NAME = "[^{]+";
+    private static final String BRACE_START = "{";
+    private static final String ESCAPE = "\\";
+    private static final String BRACE_END = "}";
+    private static final String BRACKET_START = "[";
+    private static final String BRACKET_END = "]";
 
     /**
      * 获取第一个符合搜索路径的成员
@@ -41,9 +49,15 @@ public class OmniAccessor {
         List<T> values = new ArrayList<T>();
         for (String memberPath : MEMBER_INDEXES.getOrElse(target.getClass(), generateMemberIndex(target.getClass()))) {
             if (memberPath.matches(toPattern(queryPath))) {
-                T val = (T)getByPath(target, memberPath);
-                if (val != null) {
-                    values.add(val);
+                try {
+                    T val = (T)getByPath(target, memberPath, queryPath);
+                    if (val != null) {
+                        values.add(val);
+                    }
+                } catch (NoSuchFieldException e) {
+                    // continue
+                } catch (IllegalAccessException e) {
+                    // continue
                 }
             }
         }
@@ -61,9 +75,16 @@ public class OmniAccessor {
         int count = 0;
         for (String memberPath : MEMBER_INDEXES.getOrElse(target.getClass(), generateMemberIndex(target.getClass()))) {
             if (memberPath.matches(toPattern(queryPath))) {
-                Object parent = getByPath(target, toParent(memberPath));
-                if (parent != null && setByPath(parent, toChild(memberPath), value)) {
-                    count++;
+                try {
+                    Object parent = getByPath(target, toParent(memberPath), toParent(queryPath));
+                    if (parent != null) {
+                        setByPathSegment(parent, toChild(memberPath), toChild(queryPath), value);
+                        count++;
+                    }
+                } catch (NoSuchFieldException e) {
+                    // continue
+                } catch (IllegalAccessException e) {
+                    // continue
                 }
             }
         }
@@ -97,7 +118,7 @@ public class OmniAccessor {
     }
 
     private static String toPath(Field field) {
-        return field.getName() + "{" + field.getType().getSimpleName() + "}";
+        return field.getName() + BRACE_START + field.getType().getSimpleName() + BRACE_END;
     }
 
     private static String toPattern(String queryPath) {
@@ -110,13 +131,18 @@ public class OmniAccessor {
     }
 
     private static String toSinglePattern(String querySegment) {
+        if (querySegment.endsWith(BRACKET_END)) {
+            querySegment = querySegment.substring(0, querySegment.lastIndexOf(BRACKET_START));
+        }
         if (querySegment.isEmpty()) {
             return "";
-        } else if (querySegment.startsWith("{")) {
-            return "[^{]+" + querySegment.replace("{", "\\{").replace("}", "\\}")
-                .replace("[", "\\[").replace("]", "\\]");
+        } else if (querySegment.startsWith(BRACE_START)) {
+            return REGEX_ANY_NAME + querySegment.replace(BRACE_START, ESCAPE + BRACE_START)
+                .replace(BRACE_END, ESCAPE + BRACE_END)
+                .replace(BRACKET_START, ESCAPE + BRACKET_START)
+                .replace(BRACKET_END, ESCAPE + BRACKET_END);
         } else {
-            return querySegment + "\\{[^}]+\\}";
+            return querySegment + REGEX_ANY_CLASS;
         }
     }
 
@@ -128,12 +154,38 @@ public class OmniAccessor {
         return memberPath.contains(SLASH) ? memberPath.substring(0, memberPath.lastIndexOf(SLASH)) : "";
     }
 
-    private static Object getByPath(Object target, String memberPath) {
-        return null;
+    private static int extraIndexFromQuery(String query) {
+        return query.endsWith(BRACKET_END)
+            ? Integer.parseInt(query.substring(query.lastIndexOf(BRACKET_START) + 1), query.length() - 1)
+            : -1;
     }
 
-    private static boolean setByPath(Object target, String memberPath, Object value) {
-        return true;
+    private static Object getByPath(Object target, String memberPath, String queryPath)
+        throws NoSuchFieldException, IllegalAccessException {
+        String[] memberSegments = memberPath.split(SLASH);
+        String[] querySegments = queryPath.split(SLASH);
+        Object obj = target;
+        String name;
+        int nth;
+        Field field;
+        assert memberSegments.length == querySegments.length;
+        for (int i = 0; i < memberSegments.length; i++) {
+            name = memberSegments[i].substring(0, memberSegments[i].indexOf(BRACE_START));
+            nth = extraIndexFromQuery(querySegments[i]);
+            field = TypeUtil.getFieldByName(obj.getClass(), name);
+            field.setAccessible(true);
+            obj = field.get(obj);
+        }
+        return obj;
+    }
+
+    private static void setByPathSegment(Object target, String memberSegment, String querySegment, Object value)
+        throws IllegalAccessException {
+        String name = memberSegment.substring(0, memberSegment.indexOf(BRACE_START));
+        int nth = extraIndexFromQuery(querySegment);
+        Field field = TypeUtil.getFieldByName(target.getClass(), name);
+        field.setAccessible(true);
+        field.set(target, value);
     }
 
 }

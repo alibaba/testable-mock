@@ -2,9 +2,9 @@ package com.alibaba.testable.core.tool;
 
 public class DemoParent {
 
-    private DemoChild c;
+    public DemoChild c;
 
-    public DemoChild[] cs;
+    private DemoChild[] cs;
 
     public DemoChild.SubChild sc;
 
