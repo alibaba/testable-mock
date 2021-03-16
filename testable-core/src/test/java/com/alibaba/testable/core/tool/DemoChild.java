@@ -2,9 +2,9 @@ package com.alibaba.testable.core.tool;
 
 public class DemoChild {
 
-    public DemoGrandChild gc1;
+    public DemoGrandChild gc;
 
-    private DemoGrandChild gc2;
+    private DemoGrandChild[] gcs;
 
     public class SubChild {
         private DemoGrandChild gc;

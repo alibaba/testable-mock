@@ -1,6 +1,7 @@
 package com.alibaba.testable.core.tool;
 
-import com.alibaba.testable.core.util.UnnullableMap;
+import com.alibaba.testable.core.util.FixSizeMap;
+import com.sun.deploy.util.StringUtils;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -14,7 +15,7 @@ import static com.alibaba.testable.core.constant.ConstPool.SLASH;
  */
 public class OmniAccessor {
 
-    private static final UnnullableMap<Class<?>, List<String>> MEMBER_INDEXES = UnnullableMap.of(new ArrayList<String>());
+    private static final FixSizeMap<Class<?>, List<String>> MEMBER_INDEXES = new FixSizeMap<Class<?>, List<String>>(30);
     private static final String THIS_REF_PREFIX = "this$";
 
     /**
@@ -54,16 +55,19 @@ public class OmniAccessor {
      * @param target 目标对象
      * @param queryPath 搜索路径
      * @param value 新的值
+     * @return 实际影响的成员个数
      */
-    public static void set(Object target, String queryPath, Object value) {
+    public static int set(Object target, String queryPath, Object value) {
+        int count = 0;
         for (String memberPath : MEMBER_INDEXES.getOrElse(target.getClass(), generateMemberIndex(target.getClass()))) {
             if (memberPath.matches(toPattern(queryPath))) {
                 Object parent = getByPath(target, toParent(memberPath));
-                if (parent != null) {
-                    setByPath(parent, toChild(memberPath), value);
+                if (parent != null && setByPath(parent, toChild(memberPath), value)) {
+                    count++;
                 }
             }
         }
+        return count;
     }
 
     private static List<String> generateMemberIndex(Class<?> clazz) {
@@ -84,9 +88,10 @@ public class OmniAccessor {
     }
 
     private static List<Field> getAllFields(Class<?> clazz) {
-        List<Field> fields = new ArrayList<Field>(Arrays.asList(clazz.getDeclaredFields()));
-        if (clazz.getSuperclass() != null) {
-            fields.addAll(getAllFields(clazz.getSuperclass()));
+        Class<?> rawClass = clazz.isArray() ? clazz.getComponentType() : clazz;
+        List<Field> fields = new ArrayList<Field>(Arrays.asList(rawClass.getDeclaredFields()));
+        if (rawClass.getSuperclass() != null) {
+            fields.addAll(getAllFields(rawClass.getSuperclass()));
         }
         return fields;
     }
@@ -96,7 +101,23 @@ public class OmniAccessor {
     }
 
     private static String toPattern(String queryPath) {
-        return "";
+        String[] querySegments = queryPath.split(SLASH);
+        String[] patternSegments = new String[querySegments.length];
+        for (int i = 0; i < querySegments.length; i++) {
+            patternSegments[i] = toSinglePattern(querySegments[i]);
+        }
+        return StringUtils.join(Arrays.asList(patternSegments), SLASH);
+    }
+
+    private static String toSinglePattern(String querySegment) {
+        if (querySegment.isEmpty()) {
+            return "";
+        } else if (querySegment.startsWith("{")) {
+            return "[^{]+" + querySegment.replace("{", "\\{").replace("}", "\\}")
+                .replace("[", "\\[").replace("]", "\\]");
+        } else {
+            return querySegment + "\\{[^}]+\\}";
+        }
     }
 
     private static String toChild(String memberPath) {
@@ -111,8 +132,8 @@ public class OmniAccessor {
         return null;
     }
 
-    private static void setByPath(Object target, String memberPath, Object value) {
-
+    private static boolean setByPath(Object target, String memberPath, Object value) {
+        return true;
     }
 
 }
