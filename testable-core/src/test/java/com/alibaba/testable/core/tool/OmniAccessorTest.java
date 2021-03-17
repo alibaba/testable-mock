@@ -76,7 +76,7 @@ class OmniAccessorTest {
         DemoParent parent = prepareDemoObject();
         Object obj = PrivateAccessor.<String>invokeStatic(OmniAccessor.class, "getByPath", parent, "c{DemoChild}/gc{DemoGrandChild}", "c/gc");
         assertTrue(obj instanceof DemoGrandChild);
-        assertEquals(1, PrivateAccessor.<Integer>get(obj, "i"));
+        assertEquals(0, PrivateAccessor.<Integer>get(obj, "i"));
     }
 
     @Test
@@ -87,12 +87,7 @@ class OmniAccessorTest {
     }
 
     private DemoParent prepareDemoObject() {
-        DemoParent parent = new DemoParent();
-        DemoChild child = new DemoChild();
-        DemoGrandChild grandChild = new DemoGrandChild(1);
-        PrivateAccessor.set(parent, "c", child);
-        PrivateAccessor.set(child, "gc", grandChild);
-        return parent;
+        return OmniConstructor.newInstance(DemoParent.class);
     }
 
 }
