@@ -21,6 +21,7 @@ import static com.alibaba.testable.core.constant.ConstPool.CONSTRUCTOR;
  */
 public class SourceClassHandler extends BaseClassHandler {
 
+    private final String mockClassName;
     private final List<MethodInfo> injectMethods;
     private final Set<Integer> invokeOps = new HashSet<Integer>() {{
         add(Opcodes.INVOKEVIRTUAL);

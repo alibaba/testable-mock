@@ -22,6 +22,7 @@ public class TestClassHandler extends BaseClassWithContextHandler {
     private static final String DESC_METHOD_CLEAN = "()V";
     private static final String THIS = "this";
 
+    private final String mockClassName;
     private int testCaseCount = 0;
 
     private final Framework[] frameworkClasses = new Framework[] {

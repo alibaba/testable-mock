@@ -10,12 +10,9 @@ import org.objectweb.asm.tree.ClassNode;
  */
 abstract public class BaseClassHandler implements Opcodes {
 
-    protected static final String TESTABLE_REF = "__testable";
     protected static final String GET_TESTABLE_REF = "testableIns";
     protected static final String VOID_ARGS = "()";
     protected static final String VOID_RES = "V";
-
-    protected String mockClassName;
 
     public byte[] getBytes(byte[] classFileBuffer) {
         ClassReader cr = new ClassReader(classFileBuffer);

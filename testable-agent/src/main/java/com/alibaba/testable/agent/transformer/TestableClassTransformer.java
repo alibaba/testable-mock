@@ -2,6 +2,7 @@ package com.alibaba.testable.agent.transformer;
 
 import com.alibaba.testable.agent.constant.ConstPool;
 import com.alibaba.testable.agent.handler.MockClassHandler;
+import com.alibaba.testable.agent.handler.OmniClassHandler;
 import com.alibaba.testable.agent.handler.SourceClassHandler;
 import com.alibaba.testable.agent.handler.TestClassHandler;
 import com.alibaba.testable.agent.model.MethodInfo;
@@ -43,7 +44,7 @@ public class TestableClassTransformer implements ClassFileTransformer {
      * Just avoid spend time to scan those surely non-user classes Should keep these lists as tiny as possible
      */
     private final String[] BLACKLIST_PREFIXES = new String[] {"jdk/", "java/", "javax/", "sun/", "com/sun/",
-        "org/apache/maven/", "com/alibaba/testable/", "junit/", "org/junit/", "org/testng/"};
+        "org/groovy", "org/apache/maven/", "com/alibaba/testable/", "junit/", "org/junit/", "org/testng/"};
 
     public MockClassParser mockClassParser = new MockClassParser();
 
@@ -55,19 +56,19 @@ public class TestableClassTransformer implements ClassFileTransformer {
             return null;
         }
         LogUtil.verbose("Handle class: " + className);
-        byte[] bytes = null;
+        byte[] bytes = new OmniClassHandler().getBytes(classFileBuffer);
         try {
             if (mockClassParser.isMockClass(className)) {
                 // it's a mock class
                 LogUtil.diagnose("Handling mock class %s", className);
-                bytes = new MockClassHandler(className).getBytes(classFileBuffer);
+                bytes = new MockClassHandler(className).getBytes(bytes);
                 dumpByte(className, bytes);
             } else {
                 String mockClass = foundMockForTestClass(className);
                 if (mockClass != null) {
                     // it's a test class with testable enabled
                     LogUtil.diagnose("Handling test class %s", className);
-                    bytes = new TestClassHandler(mockClass).getBytes(classFileBuffer);
+                    bytes = new TestClassHandler(mockClass).getBytes(bytes);
                     dumpByte(className, bytes);
                 } else {
                     mockClass = foundMockForSourceClass(className);
@@ -75,7 +76,7 @@ public class TestableClassTransformer implements ClassFileTransformer {
                         // it's a source class with testable enabled
                         List<MethodInfo> injectMethods = mockClassParser.getTestableMockMethods(mockClass);
                         LogUtil.diagnose("Handling source class %s", className);
-                        bytes = new SourceClassHandler(injectMethods, mockClass).getBytes(classFileBuffer);
+                        bytes = new SourceClassHandler(injectMethods, mockClass).getBytes(bytes);
                         dumpByte(className, bytes);
                     }
                 }

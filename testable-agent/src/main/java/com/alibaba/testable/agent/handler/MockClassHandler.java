@@ -34,6 +34,9 @@ public class MockClassHandler extends BaseClassWithContextHandler {
     private static final String METHOD_IS_ASSOCIATED = "isAssociated";
     private static final String SIGNATURE_IS_ASSOCIATED = "()Z";
     private static final String SELF_REF = "__self";
+    private static final String TESTABLE_REF = "__testable";
+
+    private final String mockClassName;
 
     public MockClassHandler(String className) {
         this.mockClassName = className;
