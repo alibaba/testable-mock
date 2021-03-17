@@ -3,6 +3,9 @@ package com.alibaba.testable.core.util;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * @author flin
@@ -39,6 +42,20 @@ public class TypeUtil {
                 return null;
             }
         }
+    }
+
+    /**
+     * get all field from class and its parents
+     * @param clazz class contains fields
+     * @return all fields available
+     */
+    public static List<Field> getAllFields(Class<?> clazz) {
+        Class<?> rawClass = clazz.isArray() ? clazz.getComponentType() : clazz;
+        List<Field> fields = new ArrayList<Field>(Arrays.asList(rawClass.getDeclaredFields()));
+        if (rawClass.getSuperclass() != null) {
+            fields.addAll(getAllFields(rawClass.getSuperclass()));
+        }
+        return fields;
     }
 
     /**

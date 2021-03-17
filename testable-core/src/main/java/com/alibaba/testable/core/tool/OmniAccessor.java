@@ -96,7 +96,7 @@ public class OmniAccessor {
     }
 
     private static List<String> generateMemberIndex(String basePath, Class<?> clazz) {
-        List<Field> fields = getAllFields(clazz);
+        List<Field> fields = TypeUtil.getAllFields(clazz);
         List<String> paths = new ArrayList<String>();
         for (Field f : fields) {
             if (!f.getName().startsWith(THIS_REF_PREFIX)) {
@@ -106,15 +106,6 @@ public class OmniAccessor {
             }
         }
         return paths;
-    }
-
-    private static List<Field> getAllFields(Class<?> clazz) {
-        Class<?> rawClass = clazz.isArray() ? clazz.getComponentType() : clazz;
-        List<Field> fields = new ArrayList<Field>(Arrays.asList(rawClass.getDeclaredFields()));
-        if (rawClass.getSuperclass() != null) {
-            fields.addAll(getAllFields(rawClass.getSuperclass()));
-        }
-        return fields;
     }
 
     private static String toPath(Field field) {

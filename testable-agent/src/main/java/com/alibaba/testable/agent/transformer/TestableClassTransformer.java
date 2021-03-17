@@ -41,10 +41,9 @@ public class TestableClassTransformer implements ClassFileTransformer {
     private static final String CLASS_NAME_MOCK = "Mock";
 
     /**
-     * Just avoid spend time to scan those surely non-user classes Should keep these lists as tiny as possible
+     * Just avoid spend time to scan those surely non-user classes, should keep these lists as tiny as possible
      */
-    private final String[] BLACKLIST_PREFIXES = new String[] {"jdk/", "java/", "javax/", "sun/", "com/sun/",
-        "org/groovy", "org/apache/maven/", "com/alibaba/testable/", "junit/", "org/junit/", "org/testng/"};
+    private final String[] BLACKLIST_PREFIXES = new String[] { "sun/", "com/sun/" };
 
     public MockClassParser mockClassParser = new MockClassParser();
 
