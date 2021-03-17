@@ -4,10 +4,10 @@ public class DemoParent {
 
     public DemoChild c;
 
-    private DemoChild[] cs;
+    public DemoChild[] cs;
 
-    public DemoChild.SubChild sc;
+    private DemoChild.SubChild sc;
 
-    public DemoChild.StaticSubChild ssc;
+    private DemoChild.StaticSubChild ssc;
 
 }

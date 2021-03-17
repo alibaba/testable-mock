@@ -7,4 +7,13 @@ public class DemoGrandChild {
     public DemoGrandChild(int i) {
         this.i = i;
     }
+
+    public int get() {
+        return i;
+    }
+
+    public void set(int i) {
+        this.i = i;
+    }
+
 }

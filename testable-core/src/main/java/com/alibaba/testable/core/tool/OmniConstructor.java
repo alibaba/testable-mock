@@ -3,10 +3,7 @@ package com.alibaba.testable.core.tool;
 import com.alibaba.testable.core.model.Null;
 import com.alibaba.testable.core.util.TypeUtil;
 
-import java.lang.reflect.Array;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.*;
 
 /**
  * @author flin
@@ -19,9 +16,14 @@ public class OmniConstructor {
                 return newPrimitive(clazz);
             } else if (clazz.isArray()) {
                 return newArray(clazz);
-            } else {
-                return newObject(clazz);
+            } else if (clazz.isEnum()) {
+                return newEnum(clazz);
+            } else if (clazz.isInterface()) {
+                return newInterface(clazz);
+            } else if (Modifier.isAbstract(clazz.getModifiers())) {
+                return newAbstractClass(clazz);
             }
+            return newObject(clazz);
         } catch (NoSuchMethodException e) {
             return null;
         } catch (IllegalAccessException e) {
@@ -30,15 +32,9 @@ public class OmniConstructor {
             return null;
         } catch (InvocationTargetException e) {
             return null;
+        } catch (ClassCastException e) {
+            return null;
         }
-    }
-
-    public static <T> void appendInstance(Object target, Class<T> clazz) {
-        appendInstance(target, 1, clazz);
-    }
-
-    public static <T> void appendInstance(Object target, int count, Class<T> clazz) {
-        return;
     }
 
     private static <T> T newObject(Class<T> clazz)
@@ -51,6 +47,20 @@ public class OmniConstructor {
             f.set(ins, newInstance(f.getType()));
         }
         return (T)ins;
+    }
+
+    private static <T> T newAbstractClass(Class<T> clazz) {
+        return null;
+    }
+
+    private static <T> T newInterface(Class<T> clazz) {
+        return null;
+    }
+
+    private static <T> T newEnum(Class<T> clazz)
+        throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+        T[] constants = clazz.getEnumConstants();
+        return constants.length > 0 ? constants[0] : null;
     }
 
     private static <T> T newArray(Class<T> clazz) {

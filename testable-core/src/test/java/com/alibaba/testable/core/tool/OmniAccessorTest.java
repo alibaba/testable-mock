@@ -73,21 +73,49 @@ class OmniAccessorTest {
 
     @Test
     void should_get_by_path() {
-        DemoParent parent = prepareDemoObject();
+        DemoParent parent = prepareParentObject();
         Object obj = PrivateAccessor.<String>invokeStatic(OmniAccessor.class, "getByPath", parent, "c{DemoChild}/gc{DemoGrandChild}", "c/gc");
         assertTrue(obj instanceof DemoGrandChild);
-        assertEquals(0, PrivateAccessor.<Integer>get(obj, "i"));
+        assertEquals(0, ((DemoGrandChild)obj).get());
+        PrivateAccessor.set(parent.c, "gcs", new DemoGrandChild[] { new DemoGrandChild(4), new DemoGrandChild(6) });
+        obj = PrivateAccessor.<String>invokeStatic(OmniAccessor.class, "getByPath", parent, "c{DemoChild}/gcs{DemoGrandChild[]}", "c/gcs");
+        assertTrue(obj instanceof DemoGrandChild[]);
+        assertEquals(2, ((DemoGrandChild[])obj).length);
+        obj = PrivateAccessor.<String>invokeStatic(OmniAccessor.class, "getByPath", parent, "c{DemoChild}/gcs{DemoGrandChild[]}", "c/gcs[1]");
+        assertTrue(obj instanceof DemoGrandChild);
+        assertEquals(6, ((DemoGrandChild)obj).get());
+        parent.cs = new DemoChild[] { null, prepareChildObject() };
+        obj = PrivateAccessor.<String>invokeStatic(OmniAccessor.class, "getByPath", parent, "cs{DemoChild[]}/gcs{DemoGrandChild[]}/i{int}", "c[1]/gcs[1]/i");
+        assertEquals(3, obj);
     }
 
     @Test
     void should_set_by_path_segment() {
-        DemoParent parent = prepareDemoObject();
+        DemoParent parent = prepareParentObject();
+        DemoChild child = prepareChildObject();
         PrivateAccessor.<String>invokeStatic(OmniAccessor.class, "setByPathSegment", parent.c, "gc{DemoGrandChild}", "gc", new DemoGrandChild(2));
-        assertEquals(2, PrivateAccessor.<Integer>get(parent.c.gc, "i"));
+        assertEquals(2, parent.c.gc.get());
+        PrivateAccessor.<String>invokeStatic(OmniAccessor.class, "setByPathSegment", parent, "cs{DemoChild[]}", "cs[2]", child);
+        assertNull(parent.cs[0]);
+        assertNull(parent.cs[1]);
+        assertEquals(5, parent.cs[2].gc.get());
+        PrivateAccessor.<String>invokeStatic(OmniAccessor.class, "setByPathSegment", parent, "cs{DemoChild[]}", "cs", child);
+        assertEquals(5, parent.cs[0].gc.get());
+        assertEquals(5, parent.cs[1].gc.get());
+        assertEquals(5, parent.cs[2].gc.get());
     }
 
-    private DemoParent prepareDemoObject() {
-        return OmniConstructor.newInstance(DemoParent.class);
+    private DemoParent prepareParentObject() {
+        DemoParent parent = OmniConstructor.newInstance(DemoParent.class);
+        parent.cs = new DemoChild[3];
+        return parent;
+    }
+
+    private DemoChild prepareChildObject() {
+        DemoChild child = OmniConstructor.newInstance(DemoChild.class);
+        PrivateAccessor.set(child, "gcs", new DemoGrandChild[] { null, new DemoGrandChild(3) });
+        child.gc.set(5);
+        return child;
     }
 
 }

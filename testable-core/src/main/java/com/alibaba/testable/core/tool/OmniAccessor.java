@@ -4,6 +4,7 @@ import com.alibaba.testable.core.util.FixSizeMap;
 import com.alibaba.testable.core.util.TypeUtil;
 import com.sun.deploy.util.StringUtils;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -147,7 +148,7 @@ public class OmniAccessor {
 
     private static int extraIndexFromQuery(String query) {
         return query.endsWith(BRACKET_END)
-            ? Integer.parseInt(query.substring(query.lastIndexOf(BRACKET_START) + 1), query.length() - 1)
+            ? Integer.parseInt(query.substring(query.lastIndexOf(BRACKET_START) + 1, query.length() - 1))
             : -1;
     }
 
@@ -165,7 +166,12 @@ public class OmniAccessor {
             nth = extraIndexFromQuery(querySegments[i]);
             field = TypeUtil.getFieldByName(obj.getClass(), name);
             field.setAccessible(true);
-            obj = field.get(obj);
+            if (field.getType().isArray() && nth >= 0) {
+                Object f = field.get(obj);
+                obj = Array.get(f, nth);
+            } else {
+                obj = field.get(obj);
+            }
         }
         return obj;
     }
@@ -176,7 +182,18 @@ public class OmniAccessor {
         int nth = extraIndexFromQuery(querySegment);
         Field field = TypeUtil.getFieldByName(target.getClass(), name);
         field.setAccessible(true);
-        field.set(target, value);
+        if (field.getType().isArray()) {
+            Object f = field.get(target);
+            if (nth >= 0) {
+                Array.set(f, nth, value);
+            } else {
+                for (int i = 0; i < Array.getLength(f); i++) {
+                    Array.set(f, i, value);
+                }
+            }
+        } else {
+            field.set(target, value);
+        }
     }
 
 }
