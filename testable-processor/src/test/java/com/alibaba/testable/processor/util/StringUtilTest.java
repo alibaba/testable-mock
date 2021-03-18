@@ -10,7 +10,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class StringUtilTest {
 
     @Test
-    void should_able_to_join_string() {
+    void should_join_string() {
         List<String> list = new ArrayList<String>(4);
         list.add("a");
         list.add("b");

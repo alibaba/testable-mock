@@ -15,6 +15,8 @@ public class PrivateAccessor {
 
     private static final String KOTLIN_COMPANION_FIELD = "Companion";
 
+    private PrivateAccessor() {}
+
     /**
      * 读取任意类的私有字段
      * @param ref 目标对象

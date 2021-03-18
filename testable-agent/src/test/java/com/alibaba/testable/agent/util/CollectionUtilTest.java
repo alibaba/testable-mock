@@ -7,7 +7,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class CollectionUtilTest {
 
     @Test
-    void should_able_to_check_collection_contains_any_element() {
+    void should_check_collection_contains_any_element() {
         assertTrue(CollectionUtil.containsAny(
             CollectionUtil.listOf("a", "b"), CollectionUtil.listOf("b", "c")
         ));

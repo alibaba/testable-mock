@@ -19,7 +19,7 @@ internal class DemoInnerClassTest {
 
     @Test
     @Throws(Exception::class)
-    fun should_able_to_mock_invoke_inside_inner_class() {
+    fun should_mock_invoke_inside_inner_class() {
         val demo = DemoInnerClass()
         Assertions.assertEquals("MockedCall", demo.callInnerDemo())
         Assertions.assertEquals("MockedCall", demo.callAnonymousInner())

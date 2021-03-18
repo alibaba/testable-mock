@@ -64,26 +64,26 @@ internal class DemoMockTest {
     }
 
     @Test
-    fun should_able_to_mock_new_object() {
+    fun should_mock_new_object() {
         assertEquals("mock_something", demoMock.newFunc())
         verify("createBlackBox").with("something")
     }
 
     @Test
-    fun should_able_to_mock_member_method() {
+    fun should_mock_member_method() {
         assertEquals("{ \"res\": \"mock_hello_MOCK_TAIL\"}", demoMock.outerFunc("hello"))
         verify("innerFunc").with("hello")
         verify("staticFunc").with()
     }
 
 //    @Test
-//    fun should_able_to_mock_method_in_companion_object() {
+//    fun should_mock_method_in_companion_object() {
 //        assertEquals("CALL_MOCK_TAIL", DemoMock.callStaticFunc())
 //        verify("staticFunc").with()
 //    }
 
     @Test
-    fun should_able_to_mock_common_method() {
+    fun should_mock_common_method() {
         assertEquals("trim_string__sub_string__false", demoMock.commonFunc())
         verify("trim").withTimes(1)
         verify("sub").withTimes(1)
@@ -91,14 +91,14 @@ internal class DemoMockTest {
     }
 
     @Test
-    fun should_able_to_mock_static_method() {
+    fun should_mock_static_method() {
         assertEquals("White_not_secret_box", demoMock.getBox().get())
         verify("secretBox").withTimes(1)
         verify("createBox").withTimes(1)
     }
 
     @Test
-    fun should_able_to_get_source_method_name() {
+    fun should_get_source_method_name() {
         // synchronous
         assertEquals("mock_one_mock_others", demoMock.callerOne() + "_" + demoMock.callerTwo())
         // asynchronous
@@ -109,7 +109,7 @@ internal class DemoMockTest {
     }
 
     @Test
-    fun should_able_to_get_test_case_name() {
+    fun should_get_test_case_name() {
         MOCK_CONTEXT["case"] = "special_case"
         // synchronous
         assertEquals("mock_special", demoMock.callerOne())

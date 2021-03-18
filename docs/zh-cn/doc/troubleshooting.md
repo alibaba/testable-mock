@@ -59,9 +59,9 @@ class DemoTest {
 
 ```text
 [DIAGNOSE] Handling test class com/alibaba/testable/demo/basic/DemoMockTest
-[VERBOSE]    Test case "should_able_to_mock_new_object"
+[VERBOSE]    Test case "should_mock_new_object"
 ... ...
-[VERBOSE]    Test case "should_able_to_set_mock_context"
+[VERBOSE]    Test case "should_set_mock_context"
 [DIAGNOSE]   Found 6 test cases
 [DIAGNOSE] Handling mock class com/alibaba/testable/demo/basic/DemoMockTest$Mock
 [VERBOSE]    Mock constructor "createBlackBox" as "com.alibaba.demo.basic.model.BlackBox(java.lang.String)"

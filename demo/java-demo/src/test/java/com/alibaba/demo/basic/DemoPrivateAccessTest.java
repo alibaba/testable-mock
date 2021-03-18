@@ -21,7 +21,7 @@ class DemoPrivateAccessTest {
     private DemoPrivateAccess demoPrivateAccess = new DemoPrivateAccess();
 
     @Test
-    void should_able_to_access_private_method() {
+    void should_access_private_method() {
         List<String> list = new ArrayList<String>() {{ add("a"); add("b"); add("c"); }};
         assertEquals("member", demoPrivateAccess.privateFunc());
         assertEquals("member", PrivateAccessor.invoke(demoPrivateAccess, "privateFunc"));
@@ -30,7 +30,7 @@ class DemoPrivateAccessTest {
     }
 
     @Test
-    void should_able_to_access_private_field() {
+    void should_access_private_field() {
         demoPrivateAccess.count = 2;
         assertEquals(Integer.valueOf(2), demoPrivateAccess.count);
 
@@ -39,7 +39,7 @@ class DemoPrivateAccessTest {
     }
 
     @Test
-    void should_able_to_access_private_static_method() {
+    void should_access_private_static_method() {
         assertEquals("static", DemoPrivateAccess.privateStaticFunc());
         assertEquals("static", PrivateAccessor.invokeStatic(DemoPrivateAccess.class, "privateStaticFunc"));
         assertEquals("hello + 1", DemoPrivateAccess.privateStaticFuncWithArgs("hello", 1));
@@ -47,7 +47,7 @@ class DemoPrivateAccessTest {
     }
 
     @Test
-    void should_able_to_access_private_static_field() {
+    void should_access_private_static_field() {
         DemoPrivateAccess.staticCount = 2;
         assertEquals(Integer.valueOf(2), DemoPrivateAccess.staticCount);
 
@@ -56,7 +56,7 @@ class DemoPrivateAccessTest {
     }
 
     @Test
-    void should_able_to_update_final_field() {
+    void should_update_final_field() {
         demoPrivateAccess.pi = 4.13;
         assertEquals(Double.valueOf(4.13), demoPrivateAccess.pi);
 
@@ -65,7 +65,7 @@ class DemoPrivateAccessTest {
     }
 
     @Test
-    void should_able_to_use_null_parameter() {
+    void should_use_null_parameter() {
         demoPrivateAccess.pi = null;
         assertNull(demoPrivateAccess.pi);
         assertEquals("null + 1", DemoPrivateAccess.privateStaticFuncWithArgs(null, 1));

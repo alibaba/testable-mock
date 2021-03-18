@@ -67,7 +67,7 @@ private String substring(String self, int i, int j) {
 }
 ```
 
-For complete code examples, see the `should_able_to_mock_common_method()` test cases in the `java-demo` and `kotlin-demo` sample projects. (Because Kotlin has made magical changes to the String type, the method under test in the Kotlin example adds a layer of encapsulation to the `BlackBox` class)
+For complete code examples, see the `should_mock_common_method()` test cases in the `java-demo` and `kotlin-demo` sample projects. (Because Kotlin has made magical changes to the String type, the method under test in the Kotlin example adds a layer of encapsulation to the `BlackBox` class)
 
 #### 2. Mock the member method of the class under test itself
 
@@ -87,7 +87,7 @@ private String innerFunc(String text) {
 
 Similarly, if the method in the above example needs to access the original tested object that initiated the call, it may not use the `targetClass` parameter, but when defining the mock method, add a parameter of type `DemoMock` to the first index of the method parameter list.
 
-For complete code examples, see the `should_able_to_mock_member_method()` test case in the `java-demo` and `kotlin-demo` sample projects.
+For complete code examples, see the `should_mock_member_method()` test case in the `java-demo` and `kotlin-demo` sample projects.
 
 #### 3. Mock static methods of any class
 
@@ -102,7 +102,7 @@ private BlackBox secretBox() {
 }
 ```
 
-For complete code examples, see the `should_able_to_mock_static_method()` test case in the `java-demo` and `kotlin-demo` sample projects.
+For complete code examples, see the `should_mock_static_method()` test case in the `java-demo` and `kotlin-demo` sample projects.
 
 #### 4. Mock `new` operation of any type
 
@@ -123,7 +123,7 @@ private BlackBox createBlackBox(String text) {
 
 > You can still use the `@MockMethod` annotation, and configure the `targetMethod` parameter value to `"<init>"`, and the rest is the same as above. The effect is the same as using the `@MockContructor` annotation
 
-For complete code examples, see the `should_able_to_mock_new_object()` test case in the `java-demo` and `kotlin-demo` sample projects.
+For complete code examples, see the `should_mock_new_object()` test case in the `java-demo` and `kotlin-demo` sample projects.
 
 #### 5. Identify different invocation source in mock method
 
@@ -157,7 +157,7 @@ private Data mockDemo() {
 }
 ```
 
-For complete code examples, see the `should_able_to_get_source_method_name()` and `should_able_to_get_test_case_name()` test cases in the `java-demo` and `kotlin-demo` sample projects.
+For complete code examples, see the `should_get_source_method_name()` and `should_get_test_case_name()` test cases in the `java-demo` and `kotlin-demo` sample projects.
 
 #### 6. Verify the sequence and parameters of the mock method being invoked
 

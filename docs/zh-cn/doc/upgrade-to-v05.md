@@ -19,7 +19,7 @@ public class DemoMockTest {
     }
         
     @Test
-    void should_able_to_mock_member_method() throws Exception {
+    void should_mock_member_method() throws Exception {
         assertEquals("hello_world", demoMock.outerFunc());
         verify("innerFunc").with("world");
     }
@@ -39,7 +39,7 @@ public class DemoMockTest {
     }                            // 增加此行
         
     @Test
-    void should_able_to_mock_member_method() throws Exception {
+    void should_mock_member_method() throws Exception {
         assertEquals("hello_world", demoMock.outerFunc());
         verify("innerFunc").with("world");
     }

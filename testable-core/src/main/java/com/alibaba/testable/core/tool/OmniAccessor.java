@@ -8,6 +8,7 @@ import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static com.alibaba.testable.core.constant.ConstPool.SLASH;
@@ -27,26 +28,28 @@ public class OmniAccessor {
     private static final String BRACKET_START = "[";
     private static final String BRACKET_END = "]";
 
+    private OmniAccessor() {}
+
     /**
      * 获取第一个符合搜索路径的成员
-     * @param target 目标对象
+     *
+     * @param target    目标对象
      * @param queryPath 搜索路径
-     * @param clazz 目标成员类型
      * @return 返回目标成员，若不存在则返回null
      */
-    public static <T> T getFirst(Object target, String queryPath, Class<T> clazz) {
-        List<T> values = get(target, queryPath, clazz);
-        return values.isEmpty() ? null : values.get(0);
+    public static <T> T getFirst(Object target, String queryPath) {
+        T[] values = get(target, queryPath);
+        return values.length == 0 ? null : values[0];
     }
 
     /**
      * 获取所有符合搜索路径的成员
-     * @param target 目标对象
+     *
+     * @param target    目标对象
      * @param queryPath 搜索路径
-     * @param clazz 目标成员类型
      * @return 返回所有匹配的成员
      */
-    public static <T> List<T> get(Object target, String queryPath, Class<T> clazz) {
+    public static <T> T[] get(Object target, String queryPath) {
         List<T> values = new ArrayList<T>();
         for (String memberPath : MEMBER_INDEXES.getOrElse(target.getClass(), generateMemberIndex(target.getClass()))) {
             if (memberPath.matches(toPattern(queryPath))) {
@@ -62,14 +65,15 @@ public class OmniAccessor {
                 }
             }
         }
-        return values;
+        return (T[])values.toArray();
     }
 
     /**
      * 为符合搜索路径的成员赋值
-     * @param target 目标对象
+     *
+     * @param target    目标对象
      * @param queryPath 搜索路径
-     * @param value 新的值
+     * @param value     新的值
      * @return 实际影响的成员个数
      */
     public static int set(Object target, String queryPath, Object value) {
@@ -97,6 +101,9 @@ public class OmniAccessor {
     }
 
     private static List<String> generateMemberIndex(String basePath, Class<?> clazz) {
+        if (clazz.isEnum()) {
+            return Collections.emptyList();
+        }
         List<Field> fields = TypeUtil.getAllFields(clazz);
         List<String> paths = new ArrayList<String>();
         for (Field f : fields) {
@@ -155,12 +162,11 @@ public class OmniAccessor {
     private static Object getByPath(Object target, String memberPath, String queryPath)
         throws NoSuchFieldException, IllegalAccessException {
         String[] memberSegments = memberPath.split(SLASH);
-        String[] querySegments = queryPath.split(SLASH);
+        String[] querySegments = calculateFullQueryPath(queryPath.split(SLASH), memberSegments);
         Object obj = target;
         String name;
         int nth;
         Field field;
-        assert memberSegments.length == querySegments.length;
         for (int i = 0; i < memberSegments.length; i++) {
             name = memberSegments[i].substring(0, memberSegments[i].indexOf(BRACE_START));
             nth = extraIndexFromQuery(querySegments[i]);
@@ -174,6 +180,21 @@ public class OmniAccessor {
             }
         }
         return obj;
+    }
+
+    private static String[] calculateFullQueryPath(String[] querySegments, String[] memberSegments) {
+        assert memberSegments.length >= querySegments.length;
+        ;
+        if (memberSegments.length > querySegments.length) {
+            String[] fullQuerySegments = new String[memberSegments.length];
+            for (int i = 0; i < querySegments.length; i++) {
+                fullQuerySegments[i] = "";
+            }
+            System.arraycopy(querySegments, 0, fullQuerySegments, querySegments.length,
+                memberSegments.length - querySegments.length);
+            return fullQuerySegments;
+        }
+        return querySegments;
     }
 
     private static void setByPathSegment(Object target, String memberSegment, String querySegment, Object value)

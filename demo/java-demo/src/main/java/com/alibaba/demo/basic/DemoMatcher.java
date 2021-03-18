@@ -1,8 +1,7 @@
 package com.alibaba.demo.basic;
 
 
-import com.alibaba.demo.basic.model.BlackBox;
-import com.alibaba.demo.basic.model.BlackBox;
+import com.alibaba.demo.basic.model.mock.BlackBox;
 
 import java.util.ArrayList;
 import java.util.HashMap;

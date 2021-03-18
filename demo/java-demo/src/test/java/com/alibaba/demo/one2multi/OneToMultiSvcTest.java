@@ -15,7 +15,7 @@ public class OneToMultiSvcTest {
     private CSvc cSvc = new CSvc();
 
     @Test
-    public void should_able_to_test_multi_class_together() {
+    public void should_test_multi_class_together() {
         assertEquals("a_mock", aSvc.demo("test"));
         assertEquals("b_mock", bSvc.demo("test"));
         assertEquals("c_mock", cSvc.demo("test"));

@@ -40,19 +40,19 @@ internal class DemoTemplateTest {
     }
 
     @Test
-    fun should_able_to_mock_single_template_method() {
+    fun should_mock_single_template_method() {
         val res = demoTemplate.singleTemplateMethod()
         Assertions.assertEquals("demo_mock_list", res)
     }
 
     @Test
-    fun should_able_to_mock_double_template_method() {
+    fun should_mock_double_template_method() {
         val res = demoTemplate.doubleTemplateMethod()
         Assertions.assertEquals("testable_mock_map", res)
     }
 
     @Test
-    fun should_able_to_mock_new_template_method() {
+    fun should_mock_new_template_method() {
         val res = demoTemplate.newTemplateMethod()
         Assertions.assertEquals(2, res.size)
         val iterator = res.stream().iterator()

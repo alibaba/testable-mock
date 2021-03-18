@@ -7,12 +7,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class ClassUtilTest {
 
     @Test
-    void should_able_to_convert_class_name() {
+    void should_convert_class_name() {
         assertEquals("Ljava/lang/String;", ClassUtil.toByteCodeClassName("java.lang.String"));
     }
 
     @Test
-    void should_able_to_fit_companion_class_name() {
+    void should_fit_companion_class_name() {
         assertEquals("com/intellij/rt/debugger/agent/CaptureAgent$ParamKeyProvider",
             ClassUtil.fitCompanionClassName("com/intellij/rt/debugger/agent/CaptureAgent$ParamKeyProvider"));
         assertEquals("com/alibaba/testable/demo/BlackBox",

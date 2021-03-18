@@ -41,7 +41,7 @@ class PathUtilTest {
     }
 
     @Test
-    fun should_able_to_mock_java_method_invoke_in_kotlin() {
+    fun should_mock_java_method_invoke_in_kotlin() {
         PathUtil.deleteRecursively(File("/a/b/"))
         verify("listFiles").withTimes(2)
         verify("delete").withTimes(4)

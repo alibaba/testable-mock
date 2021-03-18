@@ -19,7 +19,7 @@ class DemoInnerClassTest {
     }
 
     @Test
-    void should_able_to_mock_invoke_inside_inner_class() throws Exception {
+    void should_mock_invoke_inside_inner_class() throws Exception {
         DemoInnerClass demo = new DemoInnerClass();
         assertEquals("MockedCall", demo.callInnerDemo());
         assertEquals("MockedCall", demo.callAnonymousInner());

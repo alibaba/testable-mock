@@ -33,24 +33,24 @@ class OmniAccessorTest {
 
     @Test
     void should_match_pattern() {
-        assertTrue("abc{Abc}".matches("abc\\{[^}]+\\}"));
-        assertTrue("abc{Abc}".matches("[^{]+\\{Abc\\}"));
-        assertTrue("abc{Abc[]}/xyz{Xyz[]}".matches("[^{]+\\{Abc\\[\\]\\}/[^{]+\\{Xyz\\[\\]\\}"));
-        assertTrue("abc{Abc}/xyz{Xyz}/demo{Demo}".matches("abc\\{[^}]+\\}/[^{]+\\{Xyz\\}/demo\\{[^}]+\\}"));
+        assertTrue("/abc{Abc}".matches(".*/abc\\{[^}]+\\}"));
+        assertTrue("/abc{Abc}".matches(".*/[^{]+\\{Abc\\}"));
+        assertTrue("/abc{Abc[]}/xyz{Xyz[]}".matches(".*/[^{]+\\{Abc\\[\\]\\}/[^{]+\\{Xyz\\[\\]\\}"));
+        assertTrue("/abc{Abc}/xyz{Xyz}/demo{Demo}".matches(".*/abc\\{[^}]+\\}/[^{]+\\{Xyz\\}/demo\\{[^}]+\\}"));
     }
 
     @Test
     void should_to_pattern() {
-        assertEquals("", PrivateAccessor.<String>invokeStatic(OmniAccessor.class, "toPattern", ""));
-        assertEquals("abc\\{[^}]+\\}", PrivateAccessor.<String>invokeStatic(OmniAccessor.class, "toPattern", "abc"));
-        assertEquals("[^{]+\\{Abc\\}", PrivateAccessor.<String>invokeStatic(OmniAccessor.class, "toPattern", "{Abc}"));
-        assertEquals("abc\\{[^}]+\\}/xyz\\{[^}]+\\}", PrivateAccessor.<String>invokeStatic(OmniAccessor.class, "toPattern", "abc/xyz"));
-        assertEquals("[^{]+\\{Abc\\}/xyz\\{[^}]+\\}", PrivateAccessor.<String>invokeStatic(OmniAccessor.class, "toPattern", "{Abc}/xyz"));
-        assertEquals("abc\\{[^}]+\\}/[^{]+\\{Xyz\\}", PrivateAccessor.<String>invokeStatic(OmniAccessor.class, "toPattern", "abc/{Xyz}"));
-        assertEquals("[^{]+\\{Abc\\}/[^{]+\\{Xyz\\}", PrivateAccessor.<String>invokeStatic(OmniAccessor.class, "toPattern", "{Abc}/{Xyz}"));
-        assertEquals("[^{]+\\{Abc\\[\\]\\}/[^{]+\\{Xyz\\[\\]\\}", PrivateAccessor.<String>invokeStatic(OmniAccessor.class, "toPattern", "{Abc[]}/{Xyz[]}"));
-        assertEquals("abc\\{[^}]+\\}/[^{]+\\{Xyz\\[\\]\\}", PrivateAccessor.<String>invokeStatic(OmniAccessor.class, "toPattern", "abc[1]/{Xyz[]}[2]"));
-        assertEquals("abc\\{[^}]+\\}/[^{]+\\{Xyz\\}/demo\\{[^}]+\\}", PrivateAccessor.<String>invokeStatic(OmniAccessor.class, "toPattern", "abc/{Xyz}/demo"));
+        assertEquals(".*/", PrivateAccessor.<String>invokeStatic(OmniAccessor.class, "toPattern", ""));
+        assertEquals(".*/abc\\{[^}]+\\}", PrivateAccessor.<String>invokeStatic(OmniAccessor.class, "toPattern", "abc"));
+        assertEquals(".*/[^{]+\\{Abc\\}", PrivateAccessor.<String>invokeStatic(OmniAccessor.class, "toPattern", "{Abc}"));
+        assertEquals(".*/abc\\{[^}]+\\}/xyz\\{[^}]+\\}", PrivateAccessor.<String>invokeStatic(OmniAccessor.class, "toPattern", "abc/xyz"));
+        assertEquals(".*/[^{]+\\{Abc\\}/xyz\\{[^}]+\\}", PrivateAccessor.<String>invokeStatic(OmniAccessor.class, "toPattern", "{Abc}/xyz"));
+        assertEquals(".*/abc\\{[^}]+\\}/[^{]+\\{Xyz\\}", PrivateAccessor.<String>invokeStatic(OmniAccessor.class, "toPattern", "abc/{Xyz}"));
+        assertEquals(".*/[^{]+\\{Abc\\}/[^{]+\\{Xyz\\}", PrivateAccessor.<String>invokeStatic(OmniAccessor.class, "toPattern", "{Abc}/{Xyz}"));
+        assertEquals(".*/[^{]+\\{Abc\\[\\]\\}/[^{]+\\{Xyz\\[\\]\\}", PrivateAccessor.<String>invokeStatic(OmniAccessor.class, "toPattern", "{Abc[]}/{Xyz[]}"));
+        assertEquals(".*/abc\\{[^}]+\\}/[^{]+\\{Xyz\\[\\]\\}", PrivateAccessor.<String>invokeStatic(OmniAccessor.class, "toPattern", "abc[1]/{Xyz[]}[2]"));
+        assertEquals(".*/abc\\{[^}]+\\}/[^{]+\\{Xyz\\}/demo\\{[^}]+\\}", PrivateAccessor.<String>invokeStatic(OmniAccessor.class, "toPattern", "abc/{Xyz}/demo"));
     }
 
     @Test
@@ -72,20 +72,32 @@ class OmniAccessorTest {
     }
 
     @Test
+    void should_get_full_query_segments() {
+        String[] querySegments = new String[] { "c", "d" };
+        String[] memberSegments = new String[] { "a{A}", "b{B}", "c{C}", "d{D}" };
+        String[] fullQuerySegments = PrivateAccessor.invokeStatic(OmniAccessor.class, "calculateFullQueryPath", querySegments, memberSegments);
+        assertEquals(4, fullQuerySegments.length);
+        assertEquals("", fullQuerySegments[0]);
+        assertEquals("", fullQuerySegments[1]);
+        assertEquals("c", fullQuerySegments[2]);
+        assertEquals("d", fullQuerySegments[3]);
+    }
+
+    @Test
     void should_get_by_path() {
         DemoParent parent = prepareParentObject();
-        Object obj = PrivateAccessor.<String>invokeStatic(OmniAccessor.class, "getByPath", parent, "c{DemoChild}/gc{DemoGrandChild}", "c/gc");
+        Object obj = PrivateAccessor.<String>invokeStatic(OmniAccessor.class, "getByPath", parent, "/c{DemoChild}/gc{DemoGrandChild}", "c/gc");
         assertTrue(obj instanceof DemoGrandChild);
         assertEquals(0, ((DemoGrandChild)obj).get());
         PrivateAccessor.set(parent.c, "gcs", new DemoGrandChild[] { new DemoGrandChild(4), new DemoGrandChild(6) });
-        obj = PrivateAccessor.<String>invokeStatic(OmniAccessor.class, "getByPath", parent, "c{DemoChild}/gcs{DemoGrandChild[]}", "c/gcs");
+        obj = PrivateAccessor.<String>invokeStatic(OmniAccessor.class, "getByPath", parent, "/c{DemoChild}/gcs{DemoGrandChild[]}", "c/gcs");
         assertTrue(obj instanceof DemoGrandChild[]);
         assertEquals(2, ((DemoGrandChild[])obj).length);
-        obj = PrivateAccessor.<String>invokeStatic(OmniAccessor.class, "getByPath", parent, "c{DemoChild}/gcs{DemoGrandChild[]}", "c/gcs[1]");
+        obj = PrivateAccessor.<String>invokeStatic(OmniAccessor.class, "getByPath", parent, "/c{DemoChild}/gcs{DemoGrandChild[]}", "c/gcs[1]");
         assertTrue(obj instanceof DemoGrandChild);
         assertEquals(6, ((DemoGrandChild)obj).get());
         parent.cs = new DemoChild[] { null, prepareChildObject() };
-        obj = PrivateAccessor.<String>invokeStatic(OmniAccessor.class, "getByPath", parent, "cs{DemoChild[]}/gcs{DemoGrandChild[]}/i{int}", "c[1]/gcs[1]/i");
+        obj = PrivateAccessor.<String>invokeStatic(OmniAccessor.class, "getByPath", parent, "/cs{DemoChild[]}/gcs{DemoGrandChild[]}/i{int}", "c[1]/gcs[1]/i");
         assertEquals(3, obj);
     }
 

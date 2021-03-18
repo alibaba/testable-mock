@@ -8,7 +8,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class MockAssociationUtilTest {
 
     @Test
-    void should_able_to_associate_by_inner_mock_class() {
+    void should_associate_by_inner_mock_class() {
         assertTrue((Boolean)PrivateAccessor.invokeStatic(MockAssociationUtil.class, "isAssociatedByInnerMockClass",
             "com.alibaba.testable.DemoTest", "com.alibaba.testable.DemoTest$Mock"));
         assertFalse((Boolean)PrivateAccessor.invokeStatic(MockAssociationUtil.class, "isAssociatedByInnerMockClass",
@@ -16,7 +16,7 @@ class MockAssociationUtilTest {
     }
 
     @Test
-    void should_able_to_associate_by_outer_mock_class() {
+    void should_associate_by_outer_mock_class() {
         assertTrue((Boolean)PrivateAccessor.invokeStatic(MockAssociationUtil.class, "isAssociatedByOuterMockClass",
             "com.alibaba.testable.DemoTest", "com.alibaba.testable.DemoMock"));
         assertFalse((Boolean)PrivateAccessor.invokeStatic(MockAssociationUtil.class, "isAssociatedByOuterMockClass",

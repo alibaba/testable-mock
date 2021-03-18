@@ -67,7 +67,7 @@ private String substring(String self, int i, int j) {
 }
 ```
 
-完整代码示例见`java-demo`和`kotlin-demo`示例项目中的`should_able_to_mock_common_method()`测试用例。(由于Kotlin对String类型进行了魔改，故Kotlin示例中将被测方法在`BlackBox`类里加了一层封装)
+完整代码示例见`java-demo`和`kotlin-demo`示例项目中的`should_mock_common_method()`测试用例。(由于Kotlin对String类型进行了魔改，故Kotlin示例中将被测方法在`BlackBox`类里加了一层封装)
 
 #### 2. 覆写被测类自身的成员方法
 
@@ -87,7 +87,7 @@ private String innerFunc(String text) {
 
 同样的，上述示例中的方法如需访问发起调用的原始被测对象，也可不使用`targetClass`参数，而是在定义Mock方法时，在方法参数列表首位加一个类型为`DemoMock`的参数（名字随意）。
 
-完整代码示例见`java-demo`和`kotlin-demo`示例项目中的`should_able_to_mock_member_method()`测试用例。
+完整代码示例见`java-demo`和`kotlin-demo`示例项目中的`should_mock_member_method()`测试用例。
 
 #### 3. 覆写任意类的静态方法
 
@@ -104,7 +104,7 @@ private BlackBox secretBox() {
 
 对于静态方法的Mock，通常不使用方法参数列表的首位加参数来表示目标类型。但这种方法也依然适用，只是实际传入的第一个参数值将始终是`null`。
 
-完整代码示例见`java-demo`和`kotlin-demo`示例项目中的`should_able_to_mock_static_method()`测试用例。
+完整代码示例见`java-demo`和`kotlin-demo`示例项目中的`should_mock_static_method()`测试用例。
 
 #### 4. 覆写任意类的new操作
 
@@ -123,7 +123,7 @@ private BlackBox createBlackBox(String text) {
 }
 ```
 
-完整代码示例见`java-demo`和`kotlin-demo`示例项目中的`should_able_to_mock_new_object()`测试用例。
+完整代码示例见`java-demo`和`kotlin-demo`示例项目中的`should_mock_new_object()`测试用例。
 
 #### 5. 在Mock方法中区分调用来源
 
@@ -157,7 +157,7 @@ private Data mockDemo() {
 }
 ```
 
-完整代码示例见`java-demo`和`kotlin-demo`示例项目中的`should_able_to_get_source_method_name()`和`should_able_to_get_test_case_name()`测试用例。
+完整代码示例见`java-demo`和`kotlin-demo`示例项目中的`should_get_source_method_name()`和`should_get_test_case_name()`测试用例。
 
 #### 6. 验证Mock方法被调用的顺序和参数
 

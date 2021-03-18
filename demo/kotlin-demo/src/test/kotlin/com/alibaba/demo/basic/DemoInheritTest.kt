@@ -49,42 +49,42 @@ internal class DemoInheritTest {
     }
 
     @Test
-    fun should_able_to_mock_call_sub_object_method_by_parent_object() {
+    fun should_mock_call_sub_object_method_by_parent_object() {
         val box = demoInherit.putIntoBox() as BlackBox
         InvokeVerifier.verify("put_into_box").withTimes(1)
         Assertions.assertEquals("put_data_into_box", box.get())
     }
 
     @Test
-    fun should_able_to_mock_call_sub_object_method_by_sub_object() {
+    fun should_mock_call_sub_object_method_by_sub_object() {
         val box = demoInherit.putIntoBlackBox()
         InvokeVerifier.verify("put_into_blackbox").withTimes(1)
         Assertions.assertEquals("put_data_into_blackbox", box.get())
     }
 
     @Test
-    fun should_able_to_mock_call_parent_object_method_by_parent_object() {
+    fun should_mock_call_parent_object_method_by_parent_object() {
         val content = demoInherit.fromBox
         InvokeVerifier.verify("get_from_box").withTimes(1)
         Assertions.assertEquals("get_from_box", content)
     }
 
     @Test
-    fun should_able_to_mock_call_parent_object_method_by_sub_object() {
+    fun should_mock_call_parent_object_method_by_sub_object() {
         val content = demoInherit.fromBlackBox
         InvokeVerifier.verify("get_from_blackbox").withTimes(1)
         Assertions.assertEquals("get_from_blackbox", content)
     }
 
     @Test
-    fun should_able_to_mock_call_interface_method_by_interface_object() {
+    fun should_mock_call_interface_method_by_interface_object() {
         val color = demoInherit.colorViaColor
         InvokeVerifier.verify("get_color_from_color").withTimes(1)
         Assertions.assertEquals("color_from_color", color)
     }
 
     @Test
-    fun should_able_to_mock_call_interface_method_by_sub_class_object() {
+    fun should_mock_call_interface_method_by_sub_class_object() {
         val color = demoInherit.colorViaBox
         InvokeVerifier.verify("get_color_from_blackbox").withTimes(1)
         Assertions.assertEquals("color_from_blackbox", color)

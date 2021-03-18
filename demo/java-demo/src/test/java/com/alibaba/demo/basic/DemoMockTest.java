@@ -1,9 +1,8 @@
 package com.alibaba.demo.basic;
 
-import com.alibaba.demo.basic.model.BlackBox;
+import com.alibaba.demo.basic.model.mock.BlackBox;
 import com.alibaba.testable.core.annotation.MockConstructor;
 import com.alibaba.testable.core.annotation.MockMethod;
-import com.alibaba.demo.basic.model.BlackBox;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -73,20 +72,20 @@ class DemoMockTest {
     }
 
     @Test
-    void should_able_to_mock_new_object() {
+    void should_mock_new_object() {
         assertEquals("mock_something", demoMock.newFunc());
         verify("createBlackBox").with("something");
     }
 
     @Test
-    void should_able_to_mock_member_method() throws Exception {
+    void should_mock_member_method() throws Exception {
         assertEquals("{ \"res\": \"mock_hello_MOCK_TAIL\"}", demoMock.outerFunc("hello"));
         verify("innerFunc").with("hello");
         verify("staticFunc").with();
     }
 
     @Test
-    void should_able_to_mock_common_method() {
+    void should_mock_common_method() {
         assertEquals("trim_string__sub_string__false", demoMock.commonFunc());
         verify("trim").withTimes(1);
         verify("sub").withTimes(1);
@@ -94,13 +93,13 @@ class DemoMockTest {
     }
 
     @Test
-    void should_able_to_mock_static_method() {
+    void should_mock_static_method() {
         Assertions.assertEquals("not_secret_box", demoMock.getBox().get());
         verify("secretBox").withTimes(1);
     }
 
     @Test
-    void should_able_to_get_source_method_name() throws Exception {
+    void should_get_source_method_name() throws Exception {
         // synchronous
         assertEquals("mock_one_mock_others", demoMock.callerOne() + "_" + demoMock.callerTwo());
         // asynchronous
@@ -110,7 +109,7 @@ class DemoMockTest {
     }
 
     @Test
-    void should_able_to_set_mock_context() throws Exception {
+    void should_set_mock_context() throws Exception {
         MOCK_CONTEXT.put("case", "special_case");
         // synchronous
         assertEquals("mock_special", demoMock.callerOne());

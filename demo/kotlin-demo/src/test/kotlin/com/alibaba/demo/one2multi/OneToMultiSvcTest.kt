@@ -13,7 +13,7 @@ class OneToMultiSvcTest {
     private val cSvc = CSvc()
 
     @Test
-    fun should_able_to_test_multi_class_together() {
+    fun should_test_multi_class_together() {
         Assertions.assertEquals("a_mock", aSvc.demo("test"))
         Assertions.assertEquals("b_mock", bSvc.demo("test"))
         Assertions.assertEquals("c_mock", cSvc.demo("test"))

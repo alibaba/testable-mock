@@ -1,5 +1,6 @@
 package com.alibaba.testable.core.tool;
 
+import com.alibaba.testable.core.exception.ClassConstructionException;
 import com.alibaba.testable.core.model.Null;
 import com.alibaba.testable.core.util.TypeUtil;
 
@@ -9,6 +10,8 @@ import java.lang.reflect.*;
  * @author flin
  */
 public class OmniConstructor {
+
+    private OmniConstructor() {}
 
     public static <T> T newInstance(Class<T> clazz) {
         try {
@@ -25,15 +28,15 @@ public class OmniConstructor {
             }
             return newObject(clazz);
         } catch (NoSuchMethodException e) {
-            return null;
+            throw new ClassConstructionException("Failed to find constructor", e);
         } catch (IllegalAccessException e) {
-            return null;
-        } catch (InstantiationException e) {
-            return null;
+            throw new ClassConstructionException("Failed to access constructor", e);
         } catch (InvocationTargetException e) {
-            return null;
+            throw new ClassConstructionException("Failed to invoke constructor", e);
+        } catch (InstantiationException e) {
+            throw new ClassConstructionException("Failed to complete construction", e);
         } catch (ClassCastException e) {
-            return null;
+            throw new ClassConstructionException("Unexpected type", e);
         }
     }
 
@@ -86,15 +89,6 @@ public class OmniConstructor {
             return (T)Boolean.valueOf(false);
         }
         return null;
-    }
-
-    private static boolean isJavaAgentEnabled(Class<?> clazz) {
-        try {
-            clazz.getDeclaredConstructor(Null.class);
-        } catch (NoSuchMethodException e) {
-            return false;
-        }
-        return true;
     }
 
     private static Object newInstance(Constructor<?> constructor)
