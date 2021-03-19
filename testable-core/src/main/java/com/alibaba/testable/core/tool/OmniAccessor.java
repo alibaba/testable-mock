@@ -38,8 +38,8 @@ public class OmniAccessor {
      * @return 返回目标成员，若不存在则返回null
      */
     public static <T> T getFirst(Object target, String queryPath) {
-        T[] values = get(target, queryPath);
-        return values.length == 0 ? null : values[0];
+        List<T> values = get(target, queryPath);
+        return values.isEmpty() ? null : values.get(0);
     }
 
     /**
@@ -49,14 +49,14 @@ public class OmniAccessor {
      * @param queryPath 搜索路径
      * @return 返回所有匹配的成员
      */
-    public static <T> T[] get(Object target, String queryPath) {
+    public static <T> List<T> get(Object target, String queryPath) {
         List<T> values = new ArrayList<T>();
         for (String memberPath : MEMBER_INDEXES.getOrElse(target.getClass(), generateMemberIndex(target.getClass()))) {
             if (memberPath.matches(toPattern(queryPath))) {
                 try {
-                    T val = (T)getByPath(target, memberPath, queryPath);
-                    if (val != null) {
-                        values.add(val);
+                    List<T> elements = getByPath(target, memberPath, queryPath);
+                    if (!elements.isEmpty()) {
+                        values.addAll(elements);
                     }
                 } catch (NoSuchFieldException e) {
                     // continue
@@ -65,7 +65,7 @@ public class OmniAccessor {
                 }
             }
         }
-        return (T[])values.toArray();
+        return values;
     }
 
     /**
@@ -81,9 +81,11 @@ public class OmniAccessor {
         for (String memberPath : MEMBER_INDEXES.getOrElse(target.getClass(), generateMemberIndex(target.getClass()))) {
             if (memberPath.matches(toPattern(queryPath))) {
                 try {
-                    Object parent = getByPath(target, toParent(memberPath), toParent(queryPath));
-                    if (parent != null) {
-                        setByPathSegment(parent, toChild(memberPath), toChild(queryPath), value);
+                    List<Object> parent = getByPath(target, toParent(memberPath), toParent(queryPath));
+                    if (parent.isEmpty()) {
+                        for (Object p : parent) {
+                            setByPathSegment(p, toChild(memberPath), toChild(queryPath), value);
+                        }
                         count++;
                     }
                 } catch (NoSuchFieldException e) {
@@ -104,9 +106,8 @@ public class OmniAccessor {
         if (clazz.isEnum()) {
             return Collections.emptyList();
         }
-        List<Field> fields = TypeUtil.getAllFields(clazz);
         List<String> paths = new ArrayList<String>();
-        for (Field f : fields) {
+        for (Field f : TypeUtil.getAllFields(clazz)) {
             if (!f.getName().startsWith(THIS_REF_PREFIX)) {
                 String fullPath = basePath + SLASH + toPath(f);
                 paths.add(fullPath);
@@ -126,7 +127,7 @@ public class OmniAccessor {
         for (int i = 0; i < querySegments.length; i++) {
             patternSegments[i] = toSinglePattern(querySegments[i]);
         }
-        return StringUtils.join(Arrays.asList(patternSegments), SLASH);
+        return ".*/" + StringUtils.join(Arrays.asList(patternSegments), SLASH);
     }
 
     private static String toSinglePattern(String querySegment) {
@@ -153,53 +154,78 @@ public class OmniAccessor {
         return memberPath.contains(SLASH) ? memberPath.substring(0, memberPath.lastIndexOf(SLASH)) : "";
     }
 
+    private static String extraNameFromMemberRecord(String memberSegment) {
+        return memberSegment.substring(0, memberSegment.indexOf(BRACE_START));
+    }
+
     private static int extraIndexFromQuery(String query) {
         return query.endsWith(BRACKET_END)
             ? Integer.parseInt(query.substring(query.lastIndexOf(BRACKET_START) + 1, query.length() - 1))
             : -1;
     }
 
-    private static Object getByPath(Object target, String memberPath, String queryPath)
+    private static <T> List<T> getByPath(Object target, String memberPath, String queryPath)
         throws NoSuchFieldException, IllegalAccessException {
-        String[] memberSegments = memberPath.split(SLASH);
-        String[] querySegments = calculateFullQueryPath(queryPath.split(SLASH), memberSegments);
-        Object obj = target;
-        String name;
-        int nth;
-        Field field;
-        for (int i = 0; i < memberSegments.length; i++) {
-            name = memberSegments[i].substring(0, memberSegments[i].indexOf(BRACE_START));
-            nth = extraIndexFromQuery(querySegments[i]);
-            field = TypeUtil.getFieldByName(obj.getClass(), name);
-            field.setAccessible(true);
-            if (field.getType().isArray() && nth >= 0) {
-                Object f = field.get(obj);
-                obj = Array.get(f, nth);
-            } else {
-                obj = field.get(obj);
-            }
+        String[] memberSegments = memberPath.substring(1).split(SLASH);
+        String[] querySegments = queryPath.split(SLASH);
+        if (memberSegments.length < querySegments.length) {
+            return Collections.emptyList();
         }
-        return obj;
+        String[] querySegmentsWithPadding = calculateFullQueryPath(querySegments, memberSegments);
+        return getBySegment(target, memberSegments, querySegmentsWithPadding, 0);
+    }
+
+    private static <T> List<T> getBySegment(Object target, String[] memberSegments, String[] querySegments, int n)
+        throws IllegalAccessException {
+        if (target == null) {
+            return Collections.emptyList();
+        }
+        if (memberSegments.length == n) {
+            int nth = extraIndexFromQuery(querySegments[n]);
+            return Collections.singletonList((T)(nth > 0 ? Array.get(target, nth) : target));
+        }
+        String name = extraNameFromMemberRecord(memberSegments[n]);
+        int nth = extraIndexFromQuery(querySegments[n]);
+        List<T> nexts = new ArrayList<T>();
+        if (target.getClass().isArray()) {
+            for (int i = 0; i < Array.getLength(target); i++) {
+                List<T> all = getBySegment(getField(Array.get(target, i), name, nth), memberSegments, querySegments, n + 1);
+                nexts.addAll(all);
+            }
+        } else {
+            List <T> all = getBySegment(getField(target, name, nth), memberSegments, querySegments, n + 1);
+            nexts.addAll(all);
+        }
+        return nexts;
+    }
+
+    private static Object getField(Object obj, String name, int nth) throws IllegalAccessException {
+        if (obj == null) {
+            return null;
+        }
+        Field field = TypeUtil.getFieldByName(obj.getClass(), name);
+        field.setAccessible(true);
+        if (field.getType().isArray() && nth >= 0) {
+            Object f = field.get(obj);
+            return Array.get(f, nth);
+        } else {
+            return field.get(obj);
+        }
     }
 
     private static String[] calculateFullQueryPath(String[] querySegments, String[] memberSegments) {
-        assert memberSegments.length >= querySegments.length;
-        ;
-        if (memberSegments.length > querySegments.length) {
-            String[] fullQuerySegments = new String[memberSegments.length];
-            for (int i = 0; i < querySegments.length; i++) {
-                fullQuerySegments[i] = "";
-            }
-            System.arraycopy(querySegments, 0, fullQuerySegments, querySegments.length,
-                memberSegments.length - querySegments.length);
-            return fullQuerySegments;
+        String[] fullQuerySegments = new String[memberSegments.length + 1];
+        for (int i = 0; i <= memberSegments.length - querySegments.length; i++) {
+            fullQuerySegments[i] = "";
         }
-        return querySegments;
+        System.arraycopy(querySegments, 0, fullQuerySegments, memberSegments.length - querySegments.length + 1,
+            querySegments.length);
+        return fullQuerySegments;
     }
 
     private static void setByPathSegment(Object target, String memberSegment, String querySegment, Object value)
         throws IllegalAccessException {
-        String name = memberSegment.substring(0, memberSegment.indexOf(BRACE_START));
+        String name = extraNameFromMemberRecord(memberSegment);
         int nth = extraIndexFromQuery(querySegment);
         Field field = TypeUtil.getFieldByName(target.getClass(), name);
         field.setAccessible(true);

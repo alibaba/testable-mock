@@ -76,29 +76,30 @@ class OmniAccessorTest {
         String[] querySegments = new String[] { "c", "d" };
         String[] memberSegments = new String[] { "a{A}", "b{B}", "c{C}", "d{D}" };
         String[] fullQuerySegments = PrivateAccessor.invokeStatic(OmniAccessor.class, "calculateFullQueryPath", querySegments, memberSegments);
-        assertEquals(4, fullQuerySegments.length);
+        assertEquals(5, fullQuerySegments.length);
         assertEquals("", fullQuerySegments[0]);
         assertEquals("", fullQuerySegments[1]);
-        assertEquals("c", fullQuerySegments[2]);
-        assertEquals("d", fullQuerySegments[3]);
+        assertEquals("", fullQuerySegments[2]);
+        assertEquals("c", fullQuerySegments[3]);
+        assertEquals("d", fullQuerySegments[4]);
     }
 
     @Test
     void should_get_by_path() {
         DemoParent parent = prepareParentObject();
-        Object obj = PrivateAccessor.<String>invokeStatic(OmniAccessor.class, "getByPath", parent, "/c{DemoChild}/gc{DemoGrandChild}", "c/gc");
-        assertTrue(obj instanceof DemoGrandChild);
-        assertEquals(0, ((DemoGrandChild)obj).get());
+        List<Object> obj = PrivateAccessor.invokeStatic(OmniAccessor.class, "getByPath", parent, "/c{DemoChild}/gc{DemoGrandChild}", "c/gc");
+        assertTrue(obj.get(0) instanceof DemoGrandChild);
+        assertEquals(0, ((DemoGrandChild)obj.get(0)).get());
         PrivateAccessor.set(parent.c, "gcs", new DemoGrandChild[] { new DemoGrandChild(4), new DemoGrandChild(6) });
-        obj = PrivateAccessor.<String>invokeStatic(OmniAccessor.class, "getByPath", parent, "/c{DemoChild}/gcs{DemoGrandChild[]}", "c/gcs");
-        assertTrue(obj instanceof DemoGrandChild[]);
-        assertEquals(2, ((DemoGrandChild[])obj).length);
-        obj = PrivateAccessor.<String>invokeStatic(OmniAccessor.class, "getByPath", parent, "/c{DemoChild}/gcs{DemoGrandChild[]}", "c/gcs[1]");
-        assertTrue(obj instanceof DemoGrandChild);
-        assertEquals(6, ((DemoGrandChild)obj).get());
+        obj = PrivateAccessor.invokeStatic(OmniAccessor.class, "getByPath", parent, "/c{DemoChild}/gcs{DemoGrandChild[]}", "c/gcs");
+        assertTrue(obj.get(0) instanceof DemoGrandChild[]);
+        assertEquals(2, ((DemoGrandChild[])obj.get(0)).length);
+        obj = PrivateAccessor.invokeStatic(OmniAccessor.class, "getByPath", parent, "/c{DemoChild}/gcs{DemoGrandChild[]}", "c/gcs[1]");
+        assertTrue(obj.get(0) instanceof DemoGrandChild);
+        assertEquals(6, ((DemoGrandChild)obj.get(0)).get());
         parent.cs = new DemoChild[] { null, prepareChildObject() };
-        obj = PrivateAccessor.<String>invokeStatic(OmniAccessor.class, "getByPath", parent, "/cs{DemoChild[]}/gcs{DemoGrandChild[]}/i{int}", "c[1]/gcs[1]/i");
-        assertEquals(3, obj);
+        obj = PrivateAccessor.invokeStatic(OmniAccessor.class, "getByPath", parent, "/cs{DemoChild[]}/gcs{DemoGrandChild[]}/i{int}", "c[1]/gcs[1]/i");
+        assertEquals(3, obj.get(0));
     }
 
     @Test

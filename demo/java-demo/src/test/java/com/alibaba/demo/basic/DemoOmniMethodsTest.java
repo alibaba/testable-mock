@@ -38,12 +38,12 @@ class DemoOmniMethodsTest {
         Parent demo = OmniConstructor.newInstance(Parent.class);
 
         demo.getChild().setEnumChild(EnumChild.VAL2);
-        assertEquals(EnumChild.VAL2, OmniAccessor.get(demo, "ec"));
-        assertEquals(EnumChild.VAL2, OmniAccessor.get(demo, "{EnumChild}"));
-        assertEquals(EnumChild.VAL2, OmniAccessor.get(demo, "c/ec"));
+        assertEquals(EnumChild.VAL2, OmniAccessor.getFirst(demo, "ec"));
+        assertEquals(EnumChild.VAL2, OmniAccessor.getFirst(demo, "{EnumChild}"));
+        assertEquals(EnumChild.VAL2, OmniAccessor.getFirst(demo, "c/ec"));
 
-        demo.setChildren(new Child[]{ new Child() });
-        assertEquals(EnumChild.VAL1, OmniAccessor.get(demo, "cs[0]/ec"));
+        demo.setChildren(new Child[]{ OmniConstructor.newInstance(Child.class) });
+        assertEquals(EnumChild.VAL1, OmniAccessor.getFirst(demo, "cs[0]/ec"));
     }
 
     @Test
