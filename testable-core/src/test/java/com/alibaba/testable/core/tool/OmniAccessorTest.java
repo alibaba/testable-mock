@@ -32,14 +32,6 @@ class OmniAccessorTest {
     }
 
     @Test
-    void should_match_pattern() {
-        assertTrue("/abc{Abc}".matches(".*/abc\\{[^}]+\\}"));
-        assertTrue("/abc{Abc}".matches(".*/[^{]+\\{Abc\\}"));
-        assertTrue("/abc{Abc[]}/xyz{Xyz[]}".matches(".*/[^{]+\\{Abc\\[\\]\\}/[^{]+\\{Xyz\\[\\]\\}"));
-        assertTrue("/abc{Abc}/xyz{Xyz}/demo{Demo}".matches(".*/abc\\{[^}]+\\}/[^{]+\\{Xyz\\}/demo\\{[^}]+\\}"));
-    }
-
-    @Test
     void should_to_pattern() {
         assertEquals(".*/", PrivateAccessor.<String>invokeStatic(OmniAccessor.class, "toPattern", ""));
         assertEquals(".*/abc\\{[^}]+\\}", PrivateAccessor.<String>invokeStatic(OmniAccessor.class, "toPattern", "abc"));
@@ -51,6 +43,13 @@ class OmniAccessorTest {
         assertEquals(".*/[^{]+\\{Abc\\[\\]\\}/[^{]+\\{Xyz\\[\\]\\}", PrivateAccessor.<String>invokeStatic(OmniAccessor.class, "toPattern", "{Abc[]}/{Xyz[]}"));
         assertEquals(".*/abc\\{[^}]+\\}/[^{]+\\{Xyz\\[\\]\\}", PrivateAccessor.<String>invokeStatic(OmniAccessor.class, "toPattern", "abc[1]/{Xyz[]}[2]"));
         assertEquals(".*/abc\\{[^}]+\\}/[^{]+\\{Xyz\\}/demo\\{[^}]+\\}", PrivateAccessor.<String>invokeStatic(OmniAccessor.class, "toPattern", "abc/{Xyz}/demo"));
+        assertEquals(".*/abc\\{[^}]+\\}/de[^{]+\\{[^}]+\\}/[^{]+\\{Xyz\\}", PrivateAccessor.<String>invokeStatic(OmniAccessor.class, "toPattern", "abc/de*/{Xyz}"));
+        assertEquals(".*/abc\\{[^}]+\\}/[^{]+mo\\{[^}]+\\}/[^{]+\\{Xyz\\}", PrivateAccessor.<String>invokeStatic(OmniAccessor.class, "toPattern", "abc/*mo/{Xyz}"));
+        assertEquals(".*/abc\\{[^}]+\\}/d[^{]+o\\{[^}]+\\}/[^{]+\\{Xyz\\}", PrivateAccessor.<String>invokeStatic(OmniAccessor.class, "toPattern", "abc/d*o/{Xyz}"));
+        assertEquals(".*/abc\\{[^}]+\\}/[^{]+\\{De[^}]+\\}/[^{]+\\{Xyz\\}", PrivateAccessor.<String>invokeStatic(OmniAccessor.class, "toPattern", "abc/{De*}/{Xyz}"));
+        assertEquals(".*/abc\\{[^}]+\\}/[^{]+\\{[^}]+mo\\}/[^{]+\\{Xyz\\}", PrivateAccessor.<String>invokeStatic(OmniAccessor.class, "toPattern", "abc/{*mo}/{Xyz}"));
+        assertEquals(".*/abc\\{[^}]+\\}/[^{]+\\{D[^}]+o\\}/[^{]+\\{Xyz\\}", PrivateAccessor.<String>invokeStatic(OmniAccessor.class, "toPattern", "abc/{D*o}/{Xyz}"));
+        assertEquals(".*/abc\\{[^}]+\\}/[^/]+/[^{]+\\{Xyz\\}/[^/]+/demo\\{[^}]+\\}", PrivateAccessor.<String>invokeStatic(OmniAccessor.class, "toPattern", "abc/*/{Xyz}/*/demo"));
     }
 
     @Test

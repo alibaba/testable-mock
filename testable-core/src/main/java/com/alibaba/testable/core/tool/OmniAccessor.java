@@ -20,13 +20,17 @@ public class OmniAccessor {
 
     private static final FixSizeMap<Class<?>, List<String>> MEMBER_INDEXES = new FixSizeMap<Class<?>, List<String>>(30);
     private static final String THIS_REF_PREFIX = "this$";
-    private static final String REGEX_ANY_CLASS = "\\{[^}]+\\}";
-    private static final String REGEX_ANY_NAME = "[^{]+";
+    private static final String PATTERN_PREFIX = ".*/";
+    private static final String REGEX_ANY_NAME = "[^/]+";
+    private static final String REGEX_ANY_FIELD_NAME = "[^{]+";
+    private static final String REGEX_ANY_CLASS_NAME = "[^}]+";
+    private static final String REGEX_ANY_CLASS = "\\{" + REGEX_ANY_CLASS_NAME + "\\}";
     private static final String BRACE_START = "{";
     private static final String ESCAPE = "\\";
     private static final String BRACE_END = "}";
     private static final String BRACKET_START = "[";
     private static final String BRACKET_END = "]";
+    private static final String STAR = "*";
 
     private OmniAccessor() {}
 
@@ -82,11 +86,11 @@ public class OmniAccessor {
             if (memberPath.matches(toPattern(queryPath))) {
                 try {
                     List<Object> parent = getByPath(target, toParent(memberPath), toParent(queryPath));
-                    if (parent.isEmpty()) {
+                    if (!parent.isEmpty()) {
                         for (Object p : parent) {
                             setByPathSegment(p, toChild(memberPath), toChild(queryPath), value);
+                            count++;
                         }
-                        count++;
                     }
                 } catch (NoSuchFieldException e) {
                     // continue
@@ -127,7 +131,7 @@ public class OmniAccessor {
         for (int i = 0; i < querySegments.length; i++) {
             patternSegments[i] = toSinglePattern(querySegments[i]);
         }
-        return ".*/" + StringUtils.join(Arrays.asList(patternSegments), SLASH);
+        return PATTERN_PREFIX + StringUtils.join(Arrays.asList(patternSegments), SLASH);
     }
 
     private static String toSinglePattern(String querySegment) {
@@ -136,13 +140,16 @@ public class OmniAccessor {
         }
         if (querySegment.isEmpty()) {
             return "";
+        } else if (querySegment.equals(STAR)) {
+            return REGEX_ANY_NAME;
         } else if (querySegment.startsWith(BRACE_START)) {
-            return REGEX_ANY_NAME + querySegment.replace(BRACE_START, ESCAPE + BRACE_START)
+            return REGEX_ANY_FIELD_NAME + querySegment.replace(BRACE_START, ESCAPE + BRACE_START)
                 .replace(BRACE_END, ESCAPE + BRACE_END)
                 .replace(BRACKET_START, ESCAPE + BRACKET_START)
-                .replace(BRACKET_END, ESCAPE + BRACKET_END);
+                .replace(BRACKET_END, ESCAPE + BRACKET_END)
+                .replace(STAR, REGEX_ANY_CLASS_NAME);
         } else {
-            return querySegment + REGEX_ANY_CLASS;
+            return querySegment.replace(STAR, REGEX_ANY_FIELD_NAME) + REGEX_ANY_CLASS;
         }
     }
 
