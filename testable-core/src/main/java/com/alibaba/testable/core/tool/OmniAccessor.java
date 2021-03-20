@@ -248,6 +248,16 @@ public class OmniAccessor {
         throws IllegalAccessException {
         String name = extraNameFromMemberRecord(memberSegment);
         int nth = extraIndexFromQuery(querySegment);
+        if (target.getClass().isArray()) {
+            for (int i = 0; i < Array.getLength(target); i++) {
+                setFieldByName(Array.get(target, i), name, nth, value);
+            }
+        } else {
+            setFieldByName(target, name, nth, value);
+        }
+    }
+
+    private static void setFieldByName(Object target, String name, int nth, Object value) throws IllegalAccessException {
         Field field = TypeUtil.getFieldByName(target.getClass(), name);
         field.setAccessible(true);
         if (field.getType().isArray()) {

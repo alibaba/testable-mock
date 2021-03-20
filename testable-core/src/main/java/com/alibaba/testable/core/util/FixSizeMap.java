@@ -1,10 +1,6 @@
 package com.alibaba.testable.core.util;
 
-import com.sun.tools.javac.util.ListBuffer;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Queue;
+import java.util.*;
 
 /**
  * @author flin
@@ -18,7 +14,7 @@ public class FixSizeMap<K, V> {
     public FixSizeMap(int size) {
         this.capacity = size;
         this.content = new HashMap<K, V>(size);
-        this.order = new ListBuffer<K>();
+        this.order = new ArrayDeque<K>(size);
     }
 
     public V get(K key) {

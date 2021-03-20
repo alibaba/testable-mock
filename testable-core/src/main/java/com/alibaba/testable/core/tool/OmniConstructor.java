@@ -13,12 +13,18 @@ public class OmniConstructor {
 
     private OmniConstructor() {}
 
+    /**
+     * 快速创建任意指定类型的测试对象
+     *
+     * @param clazz 目标类型
+     * @return 返回新建的对象
+     */
     public static <T> T newInstance(Class<T> clazz) {
         try {
             if (clazz.isPrimitive()) {
                 return newPrimitive(clazz);
             } else if (clazz.isArray()) {
-                return newArray(clazz);
+                return (T)newArray(clazz.getComponentType(), 0);
             } else if (clazz.isEnum()) {
                 return newEnum(clazz);
             } else if (clazz.isInterface()) {
@@ -40,11 +46,26 @@ public class OmniConstructor {
         }
     }
 
+    /**
+     * 快速创建任意指定类型的对象数组
+     *
+     * @param clazz 目标类型
+     * @param size 数组大小
+     * @return 返回新建的数组
+     */
+    public static <T> T[] newArray(Class<T> clazz, int size) {
+        T[] array = (T[])Array.newInstance(clazz, size);
+        for (int i = 0; i < size; i++) {
+            Array.set(array, i, newInstance(clazz));
+        }
+        return array;
+    }
+
     private static <T> T newObject(Class<T> clazz)
         throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
         Constructor<?> constructor = getBestConstructor(clazz);
         constructor.setAccessible(true);
-        Object ins = newInstance(constructor);
+        Object ins = createInstance(constructor);
         for (Field f : TypeUtil.getAllFields(clazz)) {
             f.setAccessible(true);
             if (f.get(ins) == null) {
@@ -68,10 +89,6 @@ public class OmniConstructor {
         return constants.length > 0 ? constants[0] : null;
     }
 
-    private static <T> T newArray(Class<T> clazz) {
-        return (T)Array.newInstance(clazz.getComponentType(), 0);
-    }
-
     private static <T> T newPrimitive(Class<T> clazz) {
         if (clazz.equals(int.class)) {
             return (T)Integer.valueOf(0);
@@ -93,7 +110,7 @@ public class OmniConstructor {
         return null;
     }
 
-    private static Object newInstance(Constructor<?> constructor)
+    private static Object createInstance(Constructor<?> constructor)
         throws InstantiationException, IllegalAccessException, InvocationTargetException {
         Class<?>[] types = constructor.getParameterTypes();
         if (types.length == 1 && types[0].equals(Null.class)) {
