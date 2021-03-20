@@ -33,19 +33,25 @@
 
 > 由于JVM存在泛型擦除机制，对于Java项目也可以直接使用`Object`类型替代泛型参数，见Java版`DemoTemplateTest`测试类中被注释掉的"第二种写法"示例。
 
-#### 5. 在Kotlin项目对`String`类中的方法进行Mock不生效？
+#### 5. 如何Mock在内部类代码里的调用？
+
+在其所在外部类对应的Mock容器中定义所需的Mock方法即可。
+
+参见Java和Kotlin示例中`DemoInnerClass`测试类的用例。
+
+#### 6. 在Kotlin项目对`String`类中的方法进行Mock不生效？
 
 Kotlin语言中的`String`类型实际上是`kotlin.String`，而非`java.lang.String`。但在构建生成自字节码的时候又会被替换为Java的`java.lang.String`类，因此无论将Mock目标写为`kotlin.String`或`java.lang.String`均无法正常匹配到原始的被调用方法。
 
 实际场景中需要对`String`类中的方法进行Mock的场景很少，`TestableMock`暂未对这种情况做特别处理。
 
-#### 6. `TestableMock`能否用于Android项目的测试？
+#### 7. `TestableMock`能否用于Android项目的测试？
 
 结合[Roboelectric](https://github.com/robolectric/robolectric)测试框架可使用。
 
 Android系统的`Dalvik`和`ART`虚拟机采用了与标准JVM不同的字节码体系，会影响`TestableMock`的正常工作。`Roboelectric`框架能在普通JVM虚拟机上运行Android单元测试，其速度比通过Android虚拟机运行单元测试快非常多，绝大多数Android App的单元测试都在使用`Roboelectric`框架。
 
-#### 7. 在IntelliJ运行测试报"Command Line is too Long. Shorten command line for ..."错误？
+#### 8. 在IntelliJ运行测试报"Command Line is too Long. Shorten command line for ..."错误？
 
 这个问题是由于系统ClassPath包含太多路径所致，与是否使用`TestableMock`无关。但需要注意的是，IntelliJ提供了两种辅助解决机制：`JAR manifest`和`classpath file`，若测试中使用了`TestableMock`，请选择`JAR manifest`。
 
