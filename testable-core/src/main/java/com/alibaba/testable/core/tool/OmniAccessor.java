@@ -107,7 +107,7 @@ public class OmniAccessor {
     }
 
     private static List<String> generateMemberIndex(String basePath, Class<?> clazz) {
-        if (clazz.isEnum()) {
+        if (isAtomicType(clazz)) {
             return Collections.emptyList();
         }
         List<String> paths = new ArrayList<String>();
@@ -119,6 +119,13 @@ public class OmniAccessor {
             }
         }
         return paths;
+    }
+
+    private static boolean isAtomicType(Class<?> clazz) {
+        return clazz.isEnum() || clazz.equals(Integer.class) || clazz.equals(Short.class) || clazz.equals(Long.class)
+            || clazz.equals(Byte.class) || clazz.equals(Character.class) || clazz.equals(Float.class)
+            || clazz.equals(Double.class) || clazz.equals(Boolean.class) || clazz.equals(Class.class)
+            || clazz.equals(String.class);
     }
 
     private static String toPath(Field field) {

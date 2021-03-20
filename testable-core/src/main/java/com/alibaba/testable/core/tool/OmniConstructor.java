@@ -47,7 +47,9 @@ public class OmniConstructor {
         Object ins = newInstance(constructor);
         for (Field f : TypeUtil.getAllFields(clazz)) {
             f.setAccessible(true);
-            f.set(ins, newInstance(f.getType()));
+            if (f.get(ins) == null) {
+                f.set(ins, newInstance(f.getType()));
+            }
         }
         return (T)ins;
     }
