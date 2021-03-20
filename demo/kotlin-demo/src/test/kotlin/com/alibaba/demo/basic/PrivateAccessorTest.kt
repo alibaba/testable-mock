@@ -1,6 +1,6 @@
 package com.alibaba.demo.basic
 
-import com.alibaba.testable.core.accessor.PrivateAccessor
+import com.alibaba.testable.core.tool.PrivateAccessor
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 
@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test
  * 演示私有成员访问功能
  * Demonstrate private member access functionality
  */
-internal class DemoPrivateAccessTest {
+internal class PrivateAccessorTest {
 
     private val demoPrivateAccess = DemoPrivateAccess()
 

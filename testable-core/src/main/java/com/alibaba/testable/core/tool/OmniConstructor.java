@@ -16,8 +16,8 @@ public class OmniConstructor {
     /**
      * 快速创建任意指定类型的测试对象
      *
-     * @param clazz 目标类型
-     * @return 返回新建的对象
+     * @param clazz 期望的对象类型
+     * @return 返回新创建的对象
      */
     public static <T> T newInstance(Class<T> clazz) {
         try {
@@ -49,9 +49,9 @@ public class OmniConstructor {
     /**
      * 快速创建任意指定类型的对象数组
      *
-     * @param clazz 目标类型
+     * @param clazz 期望的对象类型
      * @param size 数组大小
-     * @return 返回新建的数组
+     * @return 返回新创建的对象数组
      */
     public static <T> T[] newArray(Class<T> clazz, int size) {
         T[] array = (T[])Array.newInstance(clazz, size);

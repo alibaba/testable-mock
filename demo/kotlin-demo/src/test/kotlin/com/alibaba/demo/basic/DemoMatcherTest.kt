@@ -4,7 +4,7 @@ import com.alibaba.testable.core.annotation.MockMethod
 import com.alibaba.testable.core.error.VerifyFailedError
 import com.alibaba.testable.core.matcher.InvokeMatcher
 import com.alibaba.testable.core.matcher.InvokeVerifier
-import com.alibaba.demo.basic.model.BlackBox
+import com.alibaba.demo.basic.model.mock.BlackBox
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 

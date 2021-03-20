@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * 演示快速创建任意对象和使用路径访问成员
  * Demonstrate quick object construction and access members by path
  */
-class DemoOmniMethodsTest {
+class OmniConstructorTest {
 
     @Test
     void should_construct_any_class() {

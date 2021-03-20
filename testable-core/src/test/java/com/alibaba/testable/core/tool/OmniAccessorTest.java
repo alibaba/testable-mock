@@ -1,6 +1,5 @@
 package com.alibaba.testable.core.tool;
 
-import com.alibaba.testable.core.accessor.PrivateAccessor;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;

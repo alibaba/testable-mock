@@ -1,6 +1,6 @@
 package com.alibaba.testable.core.util;
 
-import com.alibaba.testable.core.accessor.PrivateAccessor;
+import com.alibaba.testable.core.tool.PrivateAccessor;
 import com.alibaba.testable.core.model.MockContext;
 
 import java.util.HashSet;

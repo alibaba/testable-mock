@@ -1,8 +1,8 @@
 package com.alibaba.demo.basic
 
-import com.alibaba.demo.basic.model.BlackBox
-import com.alibaba.demo.basic.model.Box
-import com.alibaba.demo.basic.model.Color
+import com.alibaba.demo.basic.model.mock.BlackBox
+import com.alibaba.demo.basic.model.mock.Box
+import com.alibaba.demo.basic.model.mock.Color
 
 /**
  * 演示父类变量引用子类对象时的Mock场景

@@ -5,8 +5,8 @@ import com.alibaba.testable.core.annotation.MockMethod
 import com.alibaba.testable.core.matcher.InvokeVerifier.verify
 import com.alibaba.testable.core.tool.TestableTool.SOURCE_METHOD
 import com.alibaba.testable.core.tool.TestableTool.MOCK_CONTEXT
-import com.alibaba.demo.basic.model.BlackBox
-import com.alibaba.demo.basic.model.ColorBox
+import com.alibaba.demo.basic.model.mock.BlackBox
+import com.alibaba.demo.basic.model.mock.ColorBox
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import java.util.concurrent.Executors

@@ -1,7 +1,7 @@
 package com.alibaba.testable.agent.transformer;
 
 import com.alibaba.testable.agent.tool.ImmutablePair;
-import com.alibaba.testable.core.accessor.PrivateAccessor;
+import com.alibaba.testable.core.tool.PrivateAccessor;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;

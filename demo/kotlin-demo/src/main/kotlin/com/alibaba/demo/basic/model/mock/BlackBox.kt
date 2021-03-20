@@ -1,4 +1,4 @@
-package com.alibaba.demo.basic.model
+package com.alibaba.demo.basic.model.mock
 
 
 class BlackBox(var input: String) : Box(), Color {

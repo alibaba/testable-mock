@@ -1,4 +1,4 @@
-package com.alibaba.testable.core.accessor;
+package com.alibaba.testable.core.tool;
 
 import com.alibaba.testable.core.exception.MemberAccessException;
 import com.alibaba.testable.core.util.TypeUtil;

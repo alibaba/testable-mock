@@ -1,7 +1,7 @@
 package com.alibaba.testable.agent.handler;
 
 import com.alibaba.testable.agent.model.MethodInfo;
-import com.alibaba.testable.core.accessor.PrivateAccessor;
+import com.alibaba.testable.core.tool.PrivateAccessor;
 import org.junit.jupiter.api.Test;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.InsnNode;

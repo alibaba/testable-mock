@@ -2,9 +2,9 @@ package com.alibaba.demo.basic
 
 import com.alibaba.testable.core.annotation.MockMethod
 import com.alibaba.testable.core.matcher.InvokeVerifier
-import com.alibaba.demo.basic.model.BlackBox
-import com.alibaba.demo.basic.model.Box
-import com.alibaba.demo.basic.model.Color
+import com.alibaba.demo.basic.model.mock.BlackBox
+import com.alibaba.demo.basic.model.mock.Box
+import com.alibaba.demo.basic.model.mock.Color
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 

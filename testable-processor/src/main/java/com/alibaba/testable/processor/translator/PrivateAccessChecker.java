@@ -9,6 +9,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import static com.alibaba.testable.processor.constant.ConstPool.TESTABLE_PRIVATE_ACCESSOR;
+
 /**
  * Validate parameter of PrivateAccessor methods to prevent broken by refactor
  *
@@ -17,7 +19,6 @@ import java.util.Map;
 public class PrivateAccessChecker {
 
     private static final String CLASS_NAME_PRIVATE_ACCESSOR = "PrivateAccessor";
-    private static final String CLASS_NAME_PRIVATE_ACCESSOR_FULL = "com.alibaba.testable.core.accessor.PrivateAccessor";
     private static final List<String> FIELD_ACCESS_METHOD = Arrays.asList(new String[]
         { "get", "set", "getStatic", "setStatic" }.clone());
     private static final List<String> FIELD_INVOKE_METHOD = Arrays.asList(new String[]
@@ -77,7 +78,7 @@ public class PrivateAccessChecker {
 
     private boolean isPrivateAccessorWithFullRef(JCTree.JCFieldAccess fieldAccess) {
         return fieldAccess.selected instanceof JCTree.JCFieldAccess &&
-            fieldAccess.selected.toString().equals(CLASS_NAME_PRIVATE_ACCESSOR_FULL);
+            fieldAccess.selected.toString().equals(TESTABLE_PRIVATE_ACCESSOR);
     }
 
     private boolean checkParameterCount(Map<String, List<Integer>> methods, String target, int parameterCount) {

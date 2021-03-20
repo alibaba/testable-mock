@@ -9,7 +9,7 @@ class DemoPrivateAccess {
     /**
      * a private member field
      */
-    private var count = 0
+    var count = 0
 
     /**
      * a constant field
@@ -19,7 +19,7 @@ class DemoPrivateAccess {
     /**
      * private member method
      */
-    private fun privateFunc(list: List<String>, str: String, i: Int): String {
+    fun privateFunc(list: List<String>, str: String, i: Int): String {
         return list.reduce { a: String, s: String -> a + s } + " + " + "$str + $i"
     }
 
@@ -28,12 +28,12 @@ class DemoPrivateAccess {
         /**
          * a private static field
          */
-        private var staticCount = 0
+        var staticCount = 0
 
         /**
          * private static method
          */
-        private fun privateStaticFunc(str: String, i: Int): String {
+        fun privateStaticFunc(str: String, i: Int): String {
             return "$str + $i"
         }
 
