@@ -1,8 +1,8 @@
 package com.alibaba.testable.core.tool;
 
+import com.alibaba.testable.core.util.CollectionUtil;
 import com.alibaba.testable.core.util.FixSizeMap;
 import com.alibaba.testable.core.util.TypeUtil;
-import com.sun.deploy.util.StringUtils;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
@@ -138,7 +138,7 @@ public class OmniAccessor {
         for (int i = 0; i < querySegments.length; i++) {
             patternSegments[i] = toSinglePattern(querySegments[i]);
         }
-        return PATTERN_PREFIX + StringUtils.join(Arrays.asList(patternSegments), SLASH);
+        return PATTERN_PREFIX + CollectionUtil.join(Arrays.asList(patternSegments), SLASH);
     }
 
     private static String toSinglePattern(String querySegment) {
@@ -198,22 +198,29 @@ public class OmniAccessor {
             int nth = extraIndexFromQuery(querySegments[n]);
             return Collections.singletonList((T)(nth > 0 ? Array.get(target, nth) : target));
         }
-        String name = extraNameFromMemberRecord(memberSegments[n]);
         int nth = extraIndexFromQuery(querySegments[n]);
+        String fieldName = extraNameFromMemberRecord(memberSegments[n]);
         List<T> nexts = new ArrayList<T>();
         if (target.getClass().isArray()) {
-            for (int i = 0; i < Array.getLength(target); i++) {
-                List<T> all = getBySegment(getField(Array.get(target, i), name, nth), memberSegments, querySegments, n + 1);
+            if (nth < 0) {
+                for (int i = 0; i < Array.getLength(target); i++) {
+                    List<T> all = getBySegment(getFieldValue(Array.get(target, i), fieldName, i),
+                        memberSegments, querySegments, n + 1);
+                    nexts.addAll(all);
+                }
+            } else {
+                List <T> all = getBySegment(getFieldValue(Array.get(target, nth), fieldName, nth),
+                    memberSegments, querySegments, n + 1);
                 nexts.addAll(all);
             }
         } else {
-            List <T> all = getBySegment(getField(target, name, nth), memberSegments, querySegments, n + 1);
+            List <T> all = getBySegment(getFieldValue(target, fieldName, nth), memberSegments, querySegments, n + 1);
             nexts.addAll(all);
         }
         return nexts;
     }
 
-    private static Object getField(Object obj, String name, int nth) throws IllegalAccessException {
+    private static Object getFieldValue(Object obj, String name, int nth) throws IllegalAccessException {
         if (obj == null) {
             return null;
         }
