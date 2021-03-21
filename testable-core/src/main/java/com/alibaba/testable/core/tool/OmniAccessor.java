@@ -22,9 +22,10 @@ public class OmniAccessor {
     private static final String THIS_REF_PREFIX = "this$";
     private static final String PATTERN_PREFIX = ".*/";
     private static final String REGEX_ANY_NAME = "[^/]+";
-    private static final String REGEX_ANY_FIELD_NAME = "[^{]+";
-    private static final String REGEX_ANY_CLASS_NAME = "[^}]+";
-    private static final String REGEX_ANY_CLASS = "\\{" + REGEX_ANY_CLASS_NAME + "\\}";
+    private static final String REGEX_ANY_FIELD_NAME = "[^{]*";
+    private static final String REGEX_ANY_CLASS_NAME = "[^}]*";
+    private static final String REGEX_ANY_FIELD = "[^{]+";
+    private static final String REGEX_ANY_CLASS = "\\{[^}]+\\}";
     private static final String BRACE_START = "{";
     private static final String ESCAPE = "\\";
     private static final String BRACE_END = "}";
@@ -150,7 +151,7 @@ public class OmniAccessor {
         } else if (querySegment.equals(STAR)) {
             return REGEX_ANY_NAME;
         } else if (querySegment.startsWith(BRACE_START)) {
-            return REGEX_ANY_FIELD_NAME + querySegment.replace(BRACE_START, ESCAPE + BRACE_START)
+            return REGEX_ANY_FIELD + querySegment.replace(BRACE_START, ESCAPE + BRACE_START)
                 .replace(BRACE_END, ESCAPE + BRACE_END)
                 .replace(BRACKET_START, ESCAPE + BRACKET_START)
                 .replace(BRACKET_END, ESCAPE + BRACKET_END)

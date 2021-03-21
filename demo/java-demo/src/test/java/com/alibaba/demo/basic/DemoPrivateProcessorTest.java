@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
  * Demonstrate access private member via `@EnablePrivateAccess` annotation
  */
 @EnablePrivateAccess(srcClass = DemoPrivateAccess.class)
-class PrivateProcessorTest {
+class DemoPrivateProcessorTest {
 
     private DemoPrivateAccess demoPrivateAccess = new DemoPrivateAccess();
 

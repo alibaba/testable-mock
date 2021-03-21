@@ -60,12 +60,12 @@ class OmniAccessorTest {
         assertEquals(".*/[^{]+\\{Abc\\[\\]\\}/[^{]+\\{Xyz\\[\\]\\}", PrivateAccessor.<String>invokeStatic(OmniAccessor.class, "toPattern", "{Abc[]}/{Xyz[]}"));
         assertEquals(".*/abc\\{[^}]+\\}/[^{]+\\{Xyz\\[\\]\\}", PrivateAccessor.<String>invokeStatic(OmniAccessor.class, "toPattern", "abc[1]/{Xyz[]}[2]"));
         assertEquals(".*/abc\\{[^}]+\\}/[^{]+\\{Xyz\\}/demo\\{[^}]+\\}", PrivateAccessor.<String>invokeStatic(OmniAccessor.class, "toPattern", "abc/{Xyz}/demo"));
-        assertEquals(".*/abc\\{[^}]+\\}/de[^{]+\\{[^}]+\\}/[^{]+\\{Xyz\\}", PrivateAccessor.<String>invokeStatic(OmniAccessor.class, "toPattern", "abc/de*/{Xyz}"));
-        assertEquals(".*/abc\\{[^}]+\\}/[^{]+mo\\{[^}]+\\}/[^{]+\\{Xyz\\}", PrivateAccessor.<String>invokeStatic(OmniAccessor.class, "toPattern", "abc/*mo/{Xyz}"));
-        assertEquals(".*/abc\\{[^}]+\\}/d[^{]+o\\{[^}]+\\}/[^{]+\\{Xyz\\}", PrivateAccessor.<String>invokeStatic(OmniAccessor.class, "toPattern", "abc/d*o/{Xyz}"));
-        assertEquals(".*/abc\\{[^}]+\\}/[^{]+\\{De[^}]+\\}/[^{]+\\{Xyz\\}", PrivateAccessor.<String>invokeStatic(OmniAccessor.class, "toPattern", "abc/{De*}/{Xyz}"));
-        assertEquals(".*/abc\\{[^}]+\\}/[^{]+\\{[^}]+mo\\}/[^{]+\\{Xyz\\}", PrivateAccessor.<String>invokeStatic(OmniAccessor.class, "toPattern", "abc/{*mo}/{Xyz}"));
-        assertEquals(".*/abc\\{[^}]+\\}/[^{]+\\{D[^}]+o\\}/[^{]+\\{Xyz\\}", PrivateAccessor.<String>invokeStatic(OmniAccessor.class, "toPattern", "abc/{D*o}/{Xyz}"));
+        assertEquals(".*/abc\\{[^}]+\\}/de[^{]*\\{[^}]+\\}/[^{]+\\{Xyz\\}", PrivateAccessor.<String>invokeStatic(OmniAccessor.class, "toPattern", "abc/de*/{Xyz}"));
+        assertEquals(".*/abc\\{[^}]+\\}/[^{]*mo\\{[^}]+\\}/[^{]+\\{Xyz\\}", PrivateAccessor.<String>invokeStatic(OmniAccessor.class, "toPattern", "abc/*mo/{Xyz}"));
+        assertEquals(".*/abc\\{[^}]+\\}/d[^{]*o\\{[^}]+\\}/[^{]+\\{Xyz\\}", PrivateAccessor.<String>invokeStatic(OmniAccessor.class, "toPattern", "abc/d*o/{Xyz}"));
+        assertEquals(".*/abc\\{[^}]+\\}/[^{]+\\{De[^}]*\\}/[^{]+\\{Xyz\\}", PrivateAccessor.<String>invokeStatic(OmniAccessor.class, "toPattern", "abc/{De*}/{Xyz}"));
+        assertEquals(".*/abc\\{[^}]+\\}/[^{]+\\{[^}]*mo\\}/[^{]+\\{Xyz\\}", PrivateAccessor.<String>invokeStatic(OmniAccessor.class, "toPattern", "abc/{*mo}/{Xyz}"));
+        assertEquals(".*/abc\\{[^}]+\\}/[^{]+\\{D[^}]*o\\}/[^{]+\\{Xyz\\}", PrivateAccessor.<String>invokeStatic(OmniAccessor.class, "toPattern", "abc/{D*o}/{Xyz}"));
         assertEquals(".*/abc\\{[^}]+\\}/[^/]+/[^{]+\\{Xyz\\}/[^/]+/demo\\{[^}]+\\}", PrivateAccessor.<String>invokeStatic(OmniAccessor.class, "toPattern", "abc/*/{Xyz}/*/demo"));
     }
 

@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
  * 演示使用`PrivateAccessor`工具类访问私有成员
  * Demonstrate access private member via `PrivateAccessor` class
  */
-class PrivateAccessorTest {
+class DemoPrivateAccessorTest {
 
     private DemoPrivateAccess demoPrivateAccess = new DemoPrivateAccess();
 

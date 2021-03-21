@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test
  * 演示私有成员访问功能
  * Demonstrate private member access functionality
  */
-internal class PrivateAccessorTest {
+internal class DemoPrivateAccessorTest {
 
     private val demoPrivateAccess = DemoPrivateAccess()
 
