@@ -6,10 +6,7 @@ import com.alibaba.testable.core.util.TypeUtil;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 import static com.alibaba.testable.core.constant.ConstPool.SLASH;
 
@@ -104,21 +101,23 @@ public class OmniAccessor {
     }
 
     private static List<String> generateMemberIndex(Class<?> clazz) {
-        return generateMemberIndex("", clazz);
+        return generateMemberIndex(clazz, "", new HashSet<Class<?>>(6));
     }
 
-    private static List<String> generateMemberIndex(String basePath, Class<?> clazz) {
+    private static List<String> generateMemberIndex(Class<?> clazz, String basePath, Set<Class<?>> classPool) {
         if (isAtomicType(clazz)) {
             return Collections.emptyList();
         }
+        classPool.add(clazz);
         List<String> paths = new ArrayList<String>();
         for (Field f : TypeUtil.getAllFields(clazz)) {
-            if (!f.getName().startsWith(THIS_REF_PREFIX)) {
+            if (!classPool.contains(f.getType()) && !f.getName().startsWith(THIS_REF_PREFIX)) {
                 String fullPath = basePath + SLASH + toPath(f);
                 paths.add(fullPath);
-                paths.addAll(generateMemberIndex(fullPath, f.getType()));
+                paths.addAll(generateMemberIndex(f.getType(), fullPath, classPool));
             }
         }
+        classPool.remove(clazz);
         return paths;
     }
 

@@ -33,7 +33,7 @@ public class Child {
      * 这是一个私有内部类
      * An private inner class
      */
-    private static class InnerChild {
+    private class InnerChild {
         private String secret;
     }
 

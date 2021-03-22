@@ -82,7 +82,7 @@ class DemoOmniMethodsTest {
         assertEquals("demo in batch", parent.getChildren()[1].getGrandChild().getContent());
         assertEquals("demo in batch", parent.getChildren()[2].getGrandChild().getContent());
 
-        // 读写私有内部类类型的成员（注意使用类型名引用类别类时，无需带外部类名）
+        // 读写私有内部类类型的成员（使用类型名引用内部类时，无需带外部类名）
         assertEquals("", OmniAccessor.getFirst(parent, "subChild/secret"));
         OmniAccessor.set(parent, "{InnerChild}/secret", "inner-class secret");
         assertEquals("inner-class secret", OmniAccessor.getFirst(parent, "subChild/secret"));
