@@ -173,8 +173,24 @@ public class BytecodeUtil {
         put(IFNONNULL, -1);
     }};
 
+    /**
+     * Get stack impact of a specified ops code
+     * @param bytecode ops code to check
+     * @return stack change
+     */
     public static int stackEffect(int bytecode) {
         return bytecodeStackEffect.get(bytecode);
     }
 
+    /**
+     * Make sure method has public access
+     * @param access original access mark
+     * @return access mark with public flag
+     */
+    public static int toPublicAccess(int access) {
+        access &= ~ACC_PRIVATE;
+        access &= ~ACC_PROTECTED;
+        access |= ACC_PUBLIC;
+        return access;
+    }
 }

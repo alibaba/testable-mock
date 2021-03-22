@@ -27,8 +27,7 @@ import static com.alibaba.testable.agent.constant.ConstPool.KOTLIN_POSTFIX_COMPA
 import static com.alibaba.testable.core.constant.ConstPool.*;
 import static com.alibaba.testable.agent.util.ClassUtil.toJavaStyleClassName;
 import static com.alibaba.testable.core.constant.ConstPool.TEST_POSTFIX;
-import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
-import static org.objectweb.asm.Opcodes.ACC_STATIC;
+import static org.objectweb.asm.Opcodes.*;
 
 /**
  * @author flin
@@ -194,12 +193,12 @@ public class TestableClassTransformer implements ClassFileTransformer {
      */
     private String lookForInnerMockClass(ClassNode cn) {
         for (InnerClassNode ic : cn.innerClasses) {
-            if ((ic.access & ACC_PUBLIC) != 0 && ic.name.equals(getInnerMockClassName(cn.name)) &&
-                mockClassParser.isMockClass(ic.name)) {
-                if ((ic.access & ACC_STATIC) != 0) {
-                    return ic.name;
-                } else {
+            if (ic.name.equals(getInnerMockClassName(cn.name)) && mockClassParser.isMockClass(ic.name)) {
+                if ((ic.access & ACC_STATIC) == 0) {
                     LogUtil.warn(String.format("Mock class in \"%s\" is not declared as static", cn.name));
+                } else {
+                    ic.access = BytecodeUtil.toPublicAccess(ic.access);
+                    return ic.name;
                 }
             }
         }

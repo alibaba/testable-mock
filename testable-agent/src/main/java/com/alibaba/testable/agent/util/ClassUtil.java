@@ -79,7 +79,7 @@ public class ClassUtil {
     }
 
     /**
-     * fit kotlin companion class name to original name
+     * Fit kotlin companion class name to original name
      * @param name a class name (which could be a companion class)
      * @return is companion class or not
      */
@@ -88,7 +88,7 @@ public class ClassUtil {
     }
 
     /**
-     * fit kotlin companion class name to original name
+     * Fit kotlin companion class name to original name
      * @param name a class name (which could be a companion class)
      * @return original name
      */
@@ -98,7 +98,7 @@ public class ClassUtil {
     }
 
     /**
-     * fit kotlin accessor method name to original name
+     * Fit kotlin accessor method name to original name
      * @param name a accessor name (which could be a common kotlin method)
      * @return original name
      */
@@ -108,7 +108,7 @@ public class ClassUtil {
     }
 
     /**
-     * get mock class name from source class name
+     * Get mock class name from source class name
      * @param sourceClassName source class name
      * @return mock class name
      */
@@ -117,7 +117,7 @@ public class ClassUtil {
     }
 
     /**
-     * get test class name from source class name
+     * Get test class name from source class name
      * @param sourceClassName source class name
      * @return test class name
      */
@@ -126,7 +126,7 @@ public class ClassUtil {
     }
 
     /**
-     * get source class name from test class name
+     * Get source class name from test class name
      * @param testClassName test class name
      * @return source class name
      */
@@ -135,7 +135,7 @@ public class ClassUtil {
     }
 
     /**
-     * get wrapper class of specified private type
+     * Get wrapper class of specified private type
      * @param primaryType byte code of private type
      * @return byte code of wrapper class
      */
@@ -144,7 +144,7 @@ public class ClassUtil {
     }
 
     /**
-     * get method name and descriptor to convert wrapper type to primary type
+     * Get method name and descriptor to convert wrapper type to primary type
      * @param primaryType byte code of private type
      * @return pair of [method-name, method-descriptor]
      */
@@ -153,7 +153,7 @@ public class ClassUtil {
     }
 
     /**
-     * get byte code for return specified private type
+     * Get byte code for return specified private type
      * @param type class type
      * @return byte code of return operation
      */
@@ -163,7 +163,7 @@ public class ClassUtil {
     }
 
     /**
-     * get method node to convert primary type to wrapper type
+     * Get method node to convert primary type to wrapper type
      * @param type primary type to convert
      * @return converter method node
      */
@@ -174,7 +174,7 @@ public class ClassUtil {
     }
 
     /**
-     * convert slash separated name to dot separated name
+     * Convert slash separated name to dot separated name
      * @param name original name
      * @return converted name
      */
@@ -183,7 +183,7 @@ public class ClassUtil {
     }
 
     /**
-     * convert dot separated name to slash separated name
+     * Convert dot separated name to slash separated name
      * @param name original name
      * @return converted name
      */
@@ -192,7 +192,7 @@ public class ClassUtil {
     }
 
     /**
-     * convert dot separated name to byte code class name
+     * Convert dot separated name to byte code class name
      * @param className original name
      * @return converted name
      */
@@ -201,7 +201,7 @@ public class ClassUtil {
     }
 
     /**
-     * convert byte code class name to slash separated human readable name
+     * Convert byte code class name to slash separated human readable name
      * @param className original name
      * @return converted name
      */
@@ -210,7 +210,7 @@ public class ClassUtil {
     }
 
     /**
-     * convert byte code class name to dot separated human readable name
+     * Convert byte code class name to dot separated human readable name
      * @param className original name
      * @return converted name
      */

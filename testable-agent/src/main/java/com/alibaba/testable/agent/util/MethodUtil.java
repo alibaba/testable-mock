@@ -22,7 +22,7 @@ public class MethodUtil {
     }
 
     /**
-     * parse method desc, fetch parameter types
+     * Parse method desc, fetch parameter types
      * @param desc method description
      * @return list of parameter types
      */
@@ -55,7 +55,7 @@ public class MethodUtil {
     }
 
     /**
-     * extract parameter part of method desc
+     * Extract parameter part of method desc
      * @param desc method description
      * @return parameter value
      */
@@ -65,7 +65,7 @@ public class MethodUtil {
     }
 
     /**
-     * parse method desc, fetch return value types
+     * Parse method desc, fetch return value types
      * @param desc method description
      * @return types of return value
      */
@@ -75,7 +75,7 @@ public class MethodUtil {
     }
 
     /**
-     * parse method desc, fetch first parameter type (assume first parameter is an object type)
+     * Parse method desc, fetch first parameter type (assume first parameter is an object type)
      * @param desc method description
      * @return types of first parameter
      */
@@ -85,7 +85,7 @@ public class MethodUtil {
     }
 
     /**
-     * remove first parameter from method descriptor
+     * Remove first parameter from method descriptor
      * @param desc original descriptor
      * @return descriptor without first parameter
      */
@@ -94,7 +94,7 @@ public class MethodUtil {
     }
 
     /**
-     * add extra parameter to the beginning of method descriptor
+     * Add extra parameter to the beginning of method descriptor
      * @param desc original descriptor
      * @param type byte code class name
      * @return descriptor with specified parameter at begin
@@ -109,7 +109,7 @@ public class MethodUtil {
     }
 
     /**
-     * format to java style constructor descriptor
+     * Format to java style constructor descriptor
      * @param owner class of method belongs to
      * @param desc method constructor in bytecode format
      * @return java style constructor descriptor
@@ -121,7 +121,7 @@ public class MethodUtil {
     }
 
     /**
-     * format to java style method descriptor
+     * Format to java style method descriptor
      * @param owner class of method belongs to
      * @param name method name
      * @param desc method descriptor in bytecode format
@@ -135,7 +135,7 @@ public class MethodUtil {
     }
 
     /**
-     * convert bytecode style parameter descriptor to java style descriptor
+     * Convert bytecode style parameter descriptor to java style descriptor
      * @param desc bytecode style descriptor
      * @return java style descriptor
      */

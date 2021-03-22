@@ -3,10 +3,7 @@ package com.alibaba.testable.agent.handler;
 import com.alibaba.testable.agent.constant.ByteCodeConst;
 import com.alibaba.testable.agent.constant.ConstPool;
 import com.alibaba.testable.agent.tool.ImmutablePair;
-import com.alibaba.testable.agent.util.AnnotationUtil;
-import com.alibaba.testable.agent.util.ClassUtil;
-import com.alibaba.testable.agent.util.GlobalConfig;
-import com.alibaba.testable.agent.util.MethodUtil;
+import com.alibaba.testable.agent.util.*;
 import com.alibaba.testable.core.model.MockScope;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.Type;
@@ -47,9 +44,7 @@ public class MockClassHandler extends BaseClassWithContextHandler {
         injectRefFieldAndGetInstanceMethod(cn);
         for (MethodNode mn : cn.methods) {
             if (isMockMethod(mn)) {
-                mn.access &= ~ACC_PRIVATE;
-                mn.access &= ~ACC_PROTECTED;
-                mn.access |= ACC_PUBLIC;
+                mn.access = BytecodeUtil.toPublicAccess(mn.access);
                 // firstly, unfold target class from annotation to parameter
                 unfoldTargetClass(mn);
                 // secondly, add invoke recorder at the beginning of mock method
@@ -165,7 +160,7 @@ public class MockClassHandler extends BaseClassWithContextHandler {
         il.add(new JumpInsnNode(IFNE, firstLine));
         il.add(invokeOriginalMethod(mn));
         il.add(firstLine);
-        il.add( new FrameNode(F_SAME, 0, null, 0, null));
+        il.add(new FrameNode(F_SAME, 0, null, 0, null));
         mn.instructions.insertBefore(mn.instructions.getFirst(), il);
     }
 
@@ -181,7 +176,7 @@ public class MockClassHandler extends BaseClassWithContextHandler {
         if (VOID_RES.equals(returnType)) {
             il.add(new InsnNode(POP));
             il.add(new InsnNode(RETURN));
-        } else if (returnType.charAt(0) == TYPE_ARRAY ||returnType.charAt(0) == TYPE_CLASS) {
+        } else if (returnType.charAt(0) == TYPE_ARRAY || returnType.charAt(0) == TYPE_CLASS) {
             il.add(new TypeInsnNode(CHECKCAST, ClassUtil.toSlashSeparateJavaStyleName(returnType)));
             il.add(new InsnNode(ARETURN));
         } else {
