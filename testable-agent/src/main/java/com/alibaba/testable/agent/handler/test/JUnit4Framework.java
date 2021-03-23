@@ -5,7 +5,7 @@ import java.util.List;
 
 public class JUnit4Framework extends Framework {
 
-    private static final String ANNOTATION_TEST = "Lorg/junit/Test;";
+    public static final String ANNOTATION_TEST = "Lorg/junit/Test;";
     private static final String ANNOTATION_AFTER_TEST = "Lorg/junit/After;";
 
     @Override

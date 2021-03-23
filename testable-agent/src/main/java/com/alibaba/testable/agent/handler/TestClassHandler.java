@@ -11,6 +11,8 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+import static com.alibaba.testable.core.constant.ConstPool.THIS_REF;
+
 /**
  * @author flin
  */
@@ -20,7 +22,6 @@ public class TestClassHandler extends BaseClassWithContextHandler {
     private static final String DESC_METHOD_INIT = "()V";
     private static final String METHOD_CLEAN = "clean";
     private static final String DESC_METHOD_CLEAN = "()V";
-    private static final String THIS = "this";
 
     private final String mockClassName;
     private int testCaseCount = 0;
@@ -90,8 +91,8 @@ public class TestClassHandler extends BaseClassWithContextHandler {
         il.add(new InsnNode(RETURN));
         il.add(endLabel);
         afterTestMethod.instructions = il;
-        afterTestMethod.localVariables = Collections.singletonList(
-            new LocalVariableNode(THIS, ClassUtil.toByteCodeClassName(cn.name), null, startLabel, endLabel, 0));
+        afterTestMethod.localVariables = Collections.singletonList(new LocalVariableNode(THIS_REF,
+            ClassUtil.toByteCodeClassName(cn.name), null, startLabel, endLabel, 0));
         afterTestMethod.maxLocals = 1;
         afterTestMethod.maxStack = 0;
         cn.methods.add(afterTestMethod);

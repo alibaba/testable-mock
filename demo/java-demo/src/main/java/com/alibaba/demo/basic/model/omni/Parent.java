@@ -2,6 +2,14 @@ package com.alibaba.demo.basic.model.omni;
 
 public class Parent {
 
+    /**
+     * 我是一个虽然存在但无法正常使用的构造方法
+     * This class have constructor with exception throw
+     */
+    public Parent() {
+        throw new IllegalArgumentException();
+    }
+
     // ---------- 内部成员字段 ----------
 
     private Child child;

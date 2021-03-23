@@ -6,6 +6,7 @@ public class ConstPool {
      * Name of the constructor method
      */
     public static final String CONSTRUCTOR = "<init>";
+    public static final String THIS_REF = "this";
 
     /**
      * Postfix or test and mock file

@@ -5,8 +5,8 @@ import java.util.List;
 
 public class JUnit5Framework extends Framework {
 
-    private static final String ANNOTATION_TEST = "Lorg/junit/jupiter/api/Test;";
-    private static final String ANNOTATION_PARAMETERIZED_TEST = "Lorg/junit/jupiter/params/ParameterizedTest;";
+    public static final String ANNOTATION_TEST = "Lorg/junit/jupiter/api/Test;";
+    public static final String ANNOTATION_PARAMETERIZED_TEST = "Lorg/junit/jupiter/params/ParameterizedTest;";
     private static final String ANNOTATION_AFTER_TEST = "Lorg/junit/jupiter/api/AfterEach;";
 
     @Override
