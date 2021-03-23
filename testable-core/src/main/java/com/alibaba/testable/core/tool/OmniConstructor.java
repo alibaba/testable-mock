@@ -5,10 +5,7 @@ import com.alibaba.testable.core.model.Null;
 import com.alibaba.testable.core.util.TypeUtil;
 
 import java.lang.reflect.*;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author flin
@@ -98,6 +95,13 @@ public class OmniConstructor {
     }
 
     private static <T> T newInterface(Class<T> clazz) {
+        if (clazz.equals(List.class)) {
+            return (T)Collections.emptyList();
+        } else if (clazz.equals(Map.class)) {
+            return (T)Collections.emptyMap();
+        } else if (clazz.equals(Set.class)) {
+            return (T)Collections.emptySet();
+        }
         return null;
     }
 
