@@ -2,8 +2,8 @@
   - [Use TestableMock](en-us/doc/setup.md)
   - [Fast Mocking](en-us/doc/use-mock.md)
   - [Private Accessor](en-us/doc/private-accessor.md)
+  - [Omni Constructor](en-us/doc/omni-constructor.md)
   - [Test Void Method](en-us/doc/test-void-method.md)
-  - [Parameter constructor](en-us/doc/parameter-constructor.md)
 
 - Usage Guide
   - [Verify Mock Invocation](en-us/doc/invoke-matcher.md)
@@ -16,7 +16,7 @@
   - [Testable Maven Plugin](en-us/doc/use-maven-plugin.md)
 
 - Technical Reference
-  - [Upgrade To Version 0.5](en-us/doc/upgrade-to-v05.md)
+  - [Upgrade Guide](en-us/doc/upgrade-guide.md)
   - [Available Global Arguments](zh-cn/doc/javaagent-args.md)
   - [Available Annotations](zh-cn/doc/annotations.md)
   - [How Mock Works](zh-cn/doc/design-and-mechanism.md)

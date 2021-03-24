@@ -9,7 +9,7 @@ Compared with the class-granularity mocking practices of existing mock tools, `T
 
 The detail mock method definition convention is as follows.
 
-#### 0. Pre-step, prepare the mock class
+### 0. Pre-step, prepare the mock class
 
 First, create a mock class as the container for mock methods associated with the test class. The simplest way is to add a static inner class named `Mock` to the test class. E.g:
 
@@ -23,7 +23,7 @@ public class DemoTest {
 }
 ```
 
-#### 1. Mock method calls of any class
+### 1.1 Mock method calls of any class
 
 Define an ordinary method annotated with `@MockMethod` in the mock class with exactly the same signature (name, parameter, and return value type) as the method to be mocked, and then add the type of target object (which the method originally belongs to) as `targetMethod` parameter of `@MockMethod` annotation.
 
@@ -69,7 +69,7 @@ private String substring(String self, int i, int j) {
 
 For complete code examples, see the `should_mock_common_method()` test cases in the `java-demo` and `kotlin-demo` sample projects. (Because Kotlin has made magical changes to the String type, the method under test in the Kotlin example adds a layer of encapsulation to the `BlackBox` class)
 
-#### 2. Mock the member method of the class under test itself
+### 1.2 Mock the member method of the class under test itself
 
 Sometimes, when testing certain methods, it is desirable to mock out some other member methods of the class under test itself.
 
@@ -89,7 +89,7 @@ Similarly, if the method in the above example needs to access the original teste
 
 For complete code examples, see the `should_mock_member_method()` test case in the `java-demo` and `kotlin-demo` sample projects.
 
-#### 3. Mock static methods of any class
+### 1.3 Mock static methods of any class
 
 Mock for static methods is the same as for any ordinary methods.
 
@@ -104,7 +104,7 @@ private BlackBox secretBox() {
 
 For complete code examples, see the `should_mock_static_method()` test case in the `java-demo` and `kotlin-demo` sample projects.
 
-#### 4. Mock `new` operation of any type
+### 1.4 Mock `new` operation of any type
 
 Define an ordinary method annotated with `@MockContructor` in the mock class, make the return value type of the method the type of the object to be created, and the method parameters are exactly the same as the constructor parameters to be mocked, the method name is arbitrary.
 
@@ -125,7 +125,7 @@ private BlackBox createBlackBox(String text) {
 
 For complete code examples, see the `should_mock_new_object()` test case in the `java-demo` and `kotlin-demo` sample projects.
 
-#### 5. Identify different invocation source in mock method
+### 2. Identify different invocation source in mock method
 
 In the mock method, you can use the `TestableTool.SOURCE_METHOD` variable to identify **the method name of the class under test before entering the mock method**; in addition, the `TestableTool.MOCK_CONTEXT` variable can **inject additional context parameters into the mock method**, to distinguish and process different calling scenarios.
 
@@ -159,7 +159,7 @@ private Data mockDemo() {
 
 For complete code examples, see the `should_get_source_method_name()` and `should_get_test_case_name()` test cases in the `java-demo` and `kotlin-demo` sample projects.
 
-#### 6. Verify the sequence and parameters of the mock method being invoked
+### 3. Verify the sequence and parameters of the mock method being invoked
 
 In test cases, you can use the `TestableTool.verify()` method, and cooperate with `with()`, `withInOrder()`, `without()`, `withTimes()` and other methods to verify the mock call situation.
 

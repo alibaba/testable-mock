@@ -5,8 +5,8 @@
 
 - [快速Mock任意调用](zh-cn/doc/use-mock.md)：使被测类的任意方法调用快速替换为Mock方法，实现"指哪换哪"，解决传统Mock工具使用繁琐的问题
 - [访问被测类私有成员](zh-cn/doc/private-accessor.md)：使单元测试能直接调用和访问被测类的私有成员，解决私有成员初始化和私有方法测试的问题
+- [快速构造参数对象](zh-cn/doc/omni-constructor.md)：生成任意复杂嵌套的对象实例，并简化其内部成员赋值方式，解决被测方法参数初始化代码冗长的问题
 - [辅助测试void方法](zh-cn/doc/test-void-method.md)：利用Mock校验器对方法的内部逻辑进行检查，解决无返回值方法难以实施单元测试的问题
-- [快速构造参数对象](zh-cn/doc/parameter-constructor.md)：生成任意多层嵌套的对象实例，并简化其内部成员赋值方式，解决被测方法参数初始化代码冗长的问题
 
 ## 在Maven项目中使用
 

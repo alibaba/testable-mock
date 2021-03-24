@@ -3,13 +3,13 @@
 
 相比以往Mock工具以类为粒度的Mock方式，`TestableMock`允许用户直接定义需要Mock的单个方法，并遵循约定优于配置的原则，按照规则自动在测试运行时替换被测方法中的指定方法调用。
 
-> 归纳起来就两条：
+> 规则归纳起来就两条：
 > - Mock非构造方法，拷贝原方法定义到Mock容器类，加`@MockMethod`注解
 > - Mock构造方法，拷贝原方法定义到Mock容器类，返回值换成构造的类型，方法名随意，加`@MockContructor`注解
 
 具体的Mock方法定义约定如下。
 
-#### 0. 前置步骤，准备Mock容器
+### 0. 前置步骤，准备Mock容器
 
 首先为测试类添加一个关联的Mock类型，作为承载其Mock方法的容器，最简单的做法是在测试类里添加一个名称为`Mock`的静态内部类。例如：
 
@@ -23,7 +23,7 @@ public class DemoTest {
 }
 ```
 
-#### 1. 覆写任意类的方法调用
+### 1.1 覆写任意类的方法调用
 
 在Mock容器类中定义一个有`@MockMethod`注解的普通方法，使它与需覆写的方法名称、参数、返回值类型完全一致，并在注解的`targetClass`参数指定该方法原本所属对象类型。
 
@@ -69,7 +69,7 @@ private String substring(String self, int i, int j) {
 
 完整代码示例见`java-demo`和`kotlin-demo`示例项目中的`should_mock_common_method()`测试用例。(由于Kotlin对String类型进行了魔改，故Kotlin示例中将被测方法在`BlackBox`类里加了一层封装)
 
-#### 2. 覆写被测类自身的成员方法
+### 1.2 覆写被测类自身的成员方法
 
 有时候，在对某些方法进行测试时，希望将被测类自身的另外一些成员方法Mock掉（比如这个方法里有许多外部依赖或耗时操作）。
 
@@ -89,7 +89,7 @@ private String innerFunc(String text) {
 
 完整代码示例见`java-demo`和`kotlin-demo`示例项目中的`should_mock_member_method()`测试用例。
 
-#### 3. 覆写任意类的静态方法
+### 1.3 覆写任意类的静态方法
 
 对于静态方法的Mock与普通方法相同。
 
@@ -106,7 +106,7 @@ private BlackBox secretBox() {
 
 完整代码示例见`java-demo`和`kotlin-demo`示例项目中的`should_mock_static_method()`测试用例。
 
-#### 4. 覆写任意类的new操作
+### 1.4 覆写任意类的new操作
 
 在Mock容器类里定义一个返回值类型为要被创建的对象类型，且方法参数与要Mock的构造函数参数完全一致的方法，名称随意，然后加上`@MockContructor`注解。
 
@@ -125,7 +125,7 @@ private BlackBox createBlackBox(String text) {
 
 完整代码示例见`java-demo`和`kotlin-demo`示例项目中的`should_mock_new_object()`测试用例。
 
-#### 5. 在Mock方法中区分调用来源
+### 2. 在Mock方法中区分调用来源
 
 在Mock方法中通过`TestableTool.SOURCE_METHOD`变量可以识别**进入该Mock方法前的被测类方法名称**；此外，还可以借助`TestableTool.MOCK_CONTEXT`变量为Mock方法注入“**额外的上下文参数**”，从而区分处理不同的调用场景。
 
@@ -159,13 +159,14 @@ private Data mockDemo() {
 
 完整代码示例见`java-demo`和`kotlin-demo`示例项目中的`should_get_source_method_name()`和`should_get_test_case_name()`测试用例。
 
-#### 6. 验证Mock方法被调用的顺序和参数
+### 3. 验证Mock方法被调用的顺序和参数
 
 在测试用例中可用通过`TestableTool.verify()`方法，配合`with()`、`withInOrder()`、`without()`、`withTimes()`等方法实现对Mock调用情况的验证。
 
 详见[校验Mock调用](zh-cn/doc/matcher.md)文档。
 
-#### 特别说明
+
+### 4. 特别说明
 
 > **Mock只对被测类的代码有效**
 >
@@ -173,7 +174,7 @@ private Data mockDemo() {
 >
 > 除去这种情况，若Mock未生效，请参考[自助问题排查](zh-cn/doc/troubleshooting.md)提供的方法对比<u>Mock方法签名</u>和<u>目标位置的调用方法签名</u>。若依然无法定位原因，欢迎提交Issues告诉我们。
 
-> **测试类和Mock容器的命名约定**：
+> **测试类和Mock容器的命名约定**
 >
 > 默认情况下，`TestableMock`假设测试类与被测类的<u>包路径相同，且名称为`被测类名+Test`</u>（通常采用`Maven`或`Gradle`构建的Java项目均符合这种惯例）。
 > 同时约定测试类关联的Mock容器为<u>在其内部且名为`Mock`的静态类</u>，或<u>相同包路径下名为`被测类名+Mock`的独立类</u>。

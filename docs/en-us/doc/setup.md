@@ -5,8 +5,8 @@ Use TestableMock
 
 - [Quickly mock arbitrary call](en-us/doc/use-mock.md): quickly replace any method invocation in the class under test with a mock method, solve the cumbersome use of traditional mock tools problem
 - [Access private members of the class under test](en-us/doc/private-accessor.md): enable unit tests directly invoke or access private members of the class under test, solve the problems of private member initialization and private method testing
+- [Quickly construct complicated parameter object](en-us/doc/omni-constructor.md)：generate arbitrarily nested object instances, simplify their internal member assignment methods, solve the problem of long initialization codes for method parameters
 - [Auxiliary test void method](en-us/doc/test-void-method.md): use the mock validator to check the internal logic of method, solve the problem that unit testing is difficult to implement to the method with no return value
-- [Quickly construct complicated parameter object](en-us/doc/parameter-constructor.md)：generate arbitrarily nested object instances, simplify their internal member assignment methods, solve the problem of long initialization codes for method parameters
 
 ## Use in Maven project
 

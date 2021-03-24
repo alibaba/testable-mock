@@ -2,8 +2,8 @@
   - [使用TestableMock](zh-cn/doc/setup.md)
   - [快速Mock任意方法](zh-cn/doc/use-mock.md)
   - [直接访问私有成员](zh-cn/doc/private-accessor.md)
+  - [快速构造复杂入参](zh-cn/doc/omni-constructor.md)
   - [测试无返回值的方法](zh-cn/doc/test-void-method.md)
-  - [快速构造复杂入参](zh-cn/doc/parameter-constructor.md)
 
 - 使用指南
   - [校验Mock调用](zh-cn/doc/invoke-matcher.md)
@@ -16,7 +16,7 @@
   - [使用Maven插件](zh-cn/doc/use-maven-plugin.md)
 
 - 技术参考
-  - [升级到0.5版本](zh-cn/doc/upgrade-to-v05.md)
+  - [版本升级说明](zh-cn/doc/upgrade-guide.md)
   - [全局运行参数](zh-cn/doc/javaagent-args.md)
   - [注解参数清单](zh-cn/doc/annotations.md)
   - [Mock的设计和原理](zh-cn/doc/design-and-mechanism.md)
