@@ -100,6 +100,17 @@ public class TypeUtil {
     }
 
     /**
+     * whether class is a system basic type
+     * @param clazz type to check
+     */
+    public static boolean isBasicType(Class<?> clazz) {
+        return clazz.isEnum() || clazz.equals(Integer.class) || clazz.equals(Short.class) || clazz.equals(Long.class)
+            || clazz.equals(Byte.class) || clazz.equals(Character.class) || clazz.equals(Float.class)
+            || clazz.equals(Double.class) || clazz.equals(Boolean.class) || clazz.equals(Class.class)
+            || clazz.equals(String.class);
+    }
+
+    /**
      * type equals
      * @param classesLeft class to be compared
      * @param classesRight class to compare (item can be null)

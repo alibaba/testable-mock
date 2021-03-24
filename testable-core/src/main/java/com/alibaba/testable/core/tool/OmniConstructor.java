@@ -159,7 +159,7 @@ public class OmniConstructor {
                 for (int i = 0; i < Array.getLength(fieldIns); i++) {
                     handleCircleReference(Array.get(fieldIns, i), classPool);
                 }
-            } else if (!fieldType.isPrimitive() && !fieldType.isEnum()) {
+            } else if (!fieldType.isPrimitive() && !TypeUtil.isBasicType(fieldType)) {
                 if (fieldIns == null && classPool.containsKey(fieldType)) {
                     f.set(instance, classPool.get(fieldType));
                 } else if (fieldIns != null && !classPool.containsKey(fieldType)) {
