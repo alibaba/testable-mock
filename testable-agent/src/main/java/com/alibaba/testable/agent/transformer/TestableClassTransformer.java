@@ -81,8 +81,8 @@ public class TestableClassTransformer implements ClassFileTransformer {
             }
         } catch (Throwable t) {
             LogUtil.warn("Failed to transform class " + className);
-            LogUtil.diagnose(t.toString());
-            LogUtil.diagnose(ThreadUtil.getFirstRelatedStackLine(t));
+            LogUtil.warn(t.toString());
+            LogUtil.warn(ThreadUtil.getFirstRelatedStackLine(t));
         } finally {
             LogUtil.resetLogLevel();
         }
