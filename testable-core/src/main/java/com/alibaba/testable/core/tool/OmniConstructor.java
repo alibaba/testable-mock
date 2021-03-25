@@ -8,6 +8,8 @@ import javax.lang.model.type.NullType;
 import java.lang.reflect.*;
 import java.util.*;
 
+import static com.alibaba.testable.core.constant.ConstPool.DOLLAR;
+
 /**
  * @author flin
  */
@@ -35,7 +37,7 @@ public class OmniConstructor {
      * @return 返回新创建的对象数组
      */
     public static <T> T[] newArray(Class<T> clazz, int size) {
-        return handleCircleReference(newArray(clazz, size, new HashSet<Class<?>>(INITIAL_CAPACITY)));
+        return (T[])handleCircleReference(newArray(clazz, size, new HashSet<Class<?>>(INITIAL_CAPACITY)));
     }
 
     private static <T> T newInstance(Class<T> clazz, Set<Class<?>> classPool) {
@@ -74,17 +76,21 @@ public class OmniConstructor {
     private static <T> T newObject(Class<T> clazz, Set<Class<?>> classPool)
         throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
         Object ins = createInstance(getBestConstructor(clazz), classPool);
-        for (Field f : TypeUtil.getAllFields(clazz)) {
-            f.setAccessible(true);
-            if (f.get(ins) == null) {
-                f.set(ins, newInstance(f.getType(), classPool));
+        if (!TypeUtil.isBasicType(clazz)) {
+            for (Field f : TypeUtil.getAllFields(clazz)) {
+                f.setAccessible(true);
+                // skip "$jacocoData" field added by jacoco
+                if (f.get(ins) == null && !f.getName().startsWith(DOLLAR)) {
+                    f.set(ins, newInstance(f.getType(), classPool));
+                }
             }
         }
         return (T)ins;
     }
 
-    private static <T> T[] newArray(Class<T> clazz, int size, Set<Class<?>> classPool) {
-        T[] array = (T[])Array.newInstance(clazz, size);
+    private static Object newArray(Class<?> clazz, int size, Set<Class<?>> classPool) {
+        // primary[] cannot be cast to Object[], have to use Object instead of T[]
+        Object array = Array.newInstance(clazz, size);
         for (int i = 0; i < size; i++) {
             Array.set(array, i, newInstance(clazz, classPool));
         }
@@ -156,8 +162,10 @@ public class OmniConstructor {
             Object fieldIns = f.get(instance);
             Class<?> fieldType = f.getType();
             if (fieldType.isArray()) {
-                for (int i = 0; i < Array.getLength(fieldIns); i++) {
-                    handleCircleReference(Array.get(fieldIns, i), classPool);
+                if (fieldIns != null) {
+                    for (int i = 0; i < Array.getLength(fieldIns); i++) {
+                        handleCircleReference(Array.get(fieldIns, i), classPool);
+                    }
                 }
             } else if (!fieldType.isPrimitive() && !TypeUtil.isBasicType(fieldType)) {
                 if (fieldIns == null && classPool.containsKey(fieldType)) {
