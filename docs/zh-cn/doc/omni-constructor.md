@@ -103,9 +103,9 @@ OmniAccessor.set(parent, "children[2]/*/value", 100);
 
 > **你真的需要用到`OmniAccessor`吗？**
 > 
-> `OmniAccessor`具有基于Fail-Fast机制的防代码重构能力，当用户提供的访问路径无法匹配到任何成员时，`OmniAccessor`将立即抛出异常，使单元测试提前终止。然而相比常规的成员访问方式，`OmniAccessor`在IDE重构方面的支持依然偏弱。
+> `OmniAccessor`具有基于Fail-Fast机制的防代码重构能力，当用户提供的访问路径无法匹配到任何成员时，`OmniAccessor`将立即抛出`NoSuchMemberError`错误，使单元测试提前终止。然而相比常规的成员访问方式，`OmniAccessor`在IDE重构方面的支持依然偏弱。
 >
 > 对于复杂对象的内容赋值，大多数情况下，我们更推荐使用[构造者模式](https://developer.aliyun.com/article/705058)，或者暴露Getter/Setter方法实现。这些常规手段虽然稍显笨拙（尤其在需要为许多相似的成员批量赋值的时候），但对业务逻辑的封装和重构都更加友好。
-> 仅当原类型不适合改造，且没有其它可访问目标成员的方法时，`OmniAccessor`才是最后的终极工具。
+> 仅当原类型不适合改造，且没有其它可访问目标成员的方法时，`OmniAccessor`才是最后的终极手段。
 >
-> 出于相同的原因，虽然技术上可行，但我们并不推荐在除单元测试之外的场景使用`OmniAccessor`方式来读写业务类的成员字段。
+> 出于相同的原因，我们并不推荐在除单元测试之外的场景使用`OmniAccessor`方式来读写业务类的成员字段（虽然技术上可行）。

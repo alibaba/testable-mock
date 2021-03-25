@@ -1,5 +1,6 @@
 package com.alibaba.testable.core.tool;
 
+import com.alibaba.testable.core.error.NoSuchMemberError;
 import com.alibaba.testable.core.util.CollectionUtil;
 import com.alibaba.testable.core.util.FixSizeMap;
 import com.alibaba.testable.core.util.TypeUtil;
@@ -67,6 +68,9 @@ public class OmniAccessor {
                 }
             }
         }
+        if (values.isEmpty()) {
+            throw new NoSuchMemberError("Query \"" + queryPath + "\"" + " does not match any member!");
+        }
         return values;
     }
 
@@ -86,8 +90,9 @@ public class OmniAccessor {
                     List<Object> parent = getByPath(target, toParent(memberPath), toParent(queryPath));
                     if (!parent.isEmpty()) {
                         for (Object p : parent) {
-                            setByPathSegment(p, toChild(memberPath), toChild(queryPath), value);
-                            count++;
+                            if (setByPathSegment(p, toChild(memberPath), toChild(queryPath), value)) {
+                                count++;
+                            }
                         }
                     }
                 } catch (NoSuchFieldException e) {
@@ -96,6 +101,9 @@ public class OmniAccessor {
                     // continue
                 }
             }
+        }
+        if (count == 0) {
+            throw new NoSuchMemberError("Query \"" + queryPath + "\"" + " does not match any member!");
         }
         return count;
     }
@@ -237,21 +245,26 @@ public class OmniAccessor {
         return fullQuerySegments;
     }
 
-    private static void setByPathSegment(Object target, String memberSegment, String querySegment, Object value)
+    private static boolean setByPathSegment(Object target, String memberSegment, String querySegment, Object value)
         throws IllegalAccessException {
         String name = extraNameFromMemberRecord(memberSegment);
         int nth = extraIndexFromQuery(querySegment);
+        boolean isFieldMatch = false;
         if (target.getClass().isArray()) {
             for (int i = 0; i < Array.getLength(target); i++) {
-                setFieldByName(Array.get(target, i), name, nth, value);
+                isFieldMatch |= setFieldByName(Array.get(target, i), name, nth, value);
             }
         } else {
-            setFieldByName(target, name, nth, value);
+            isFieldMatch = setFieldByName(target, name, nth, value);
         }
+        return isFieldMatch;
     }
 
-    private static void setFieldByName(Object target, String name, int nth, Object value) throws IllegalAccessException {
+    private static boolean setFieldByName(Object target, String name, int nth, Object value) throws IllegalAccessException {
         Field field = TypeUtil.getFieldByName(target.getClass(), name);
+        if (field == null) {
+            return false;
+        }
         field.setAccessible(true);
         if (field.getType().isArray()) {
             Object f = field.get(target);
@@ -265,6 +278,7 @@ public class OmniAccessor {
         } else {
             field.set(target, value);
         }
+        return true;
     }
 
 }
