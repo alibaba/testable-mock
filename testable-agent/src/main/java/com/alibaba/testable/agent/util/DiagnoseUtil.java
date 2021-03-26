@@ -6,13 +6,11 @@ import com.alibaba.testable.core.util.LogUtil;
 import org.objectweb.asm.tree.AnnotationNode;
 import org.objectweb.asm.tree.ClassNode;
 
-import static com.alibaba.testable.agent.constant.ConstPool.MOCK_WITH;
 import static com.alibaba.testable.agent.util.ClassUtil.toJavaStyleClassName;
 
 public class DiagnoseUtil {
 
     private static final String FIELD_VALUE = "value";
-    private static final String FIELD_DIAGNOSE = "diagnose";
 
     public static void setupByClass(ClassNode cn) {
         if (cn == null || cn.visibleAnnotations == null) {
@@ -22,13 +20,6 @@ public class DiagnoseUtil {
             if (toJavaStyleClassName(an.desc).equals(ConstPool.MOCK_DIAGNOSE)) {
                 setupDiagnose(an, FIELD_VALUE);
             }
-        }
-    }
-
-    public static void setupByAnnotation(AnnotationNode an) {
-        // to be remove in v0.6
-        if (toJavaStyleClassName(an.desc).equals(MOCK_WITH)) {
-            setupDiagnose(an, FIELD_DIAGNOSE);
         }
     }
 

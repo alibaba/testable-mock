@@ -28,11 +28,4 @@ public @interface MockWith {
      */
     ClassType treatAs() default ClassType.GuessByName;
 
-    /**
-     * switch of mock diagnose information of current test class
-     * @deprecated to be removed in v0.6, use @MockDiagnose annotation instead
-     * @return enable or disable
-     */
-    LogLevel diagnose() default LogLevel.DISABLE;
-
 }

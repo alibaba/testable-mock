@@ -229,7 +229,6 @@ public class TestableClassTransformer implements ClassFileTransformer {
     private String parseMockWithAnnotation(ClassNode cn, ClassType expectedType) {
         if (cn.visibleAnnotations != null) {
             for (AnnotationNode an : cn.visibleAnnotations) {
-                DiagnoseUtil.setupByAnnotation(an);
                 if (toJavaStyleClassName(an.desc).equals(ConstPool.MOCK_WITH)) {
                     ClassType type = AnnotationUtil.getAnnotationParameter(an, FIELD_TREAT_AS, ClassType.GuessByName,
                         ClassType.class);

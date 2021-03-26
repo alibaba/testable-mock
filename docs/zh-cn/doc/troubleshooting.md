@@ -91,5 +91,3 @@ class DemoTest {
 - `Mock method "<Mock方法名>" as "<方法签名>"` 在测试类中扫描到的**普通Mock方法**及其签名
 - `Line XX, constructing "<类型>" as "<方法签名>"` 在被测类中扫描掉的**构造方法调用**及其签名
 - `Line XX, invoking "<方法名>" as "<方法签名>"` 在被测类中扫描到的**成员方法调用**及其签名
-
-> 在`0.4.x`版本使用测试类添加`@MockWith`注解的`diagnose`参数来启用诊断信息的方法在`0.5`版本中依然可用，但将在未来版本中移除，请优先使用`@MockDiagnose`注解替代。
