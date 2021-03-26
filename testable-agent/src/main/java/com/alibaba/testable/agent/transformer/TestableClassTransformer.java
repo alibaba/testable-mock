@@ -16,7 +16,6 @@ import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.InnerClassNode;
 
 import javax.lang.model.type.NullType;
-import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.instrument.ClassFileTransformer;
@@ -36,6 +35,7 @@ public class TestableClassTransformer implements ClassFileTransformer {
 
     private static final String FIELD_VALUE = "value";
     private static final String FIELD_TREAT_AS = "treatAs";
+    private static final String FIELD_PATH = "path";
     private static final String COMMA = ",";
     private static final String CLASS_NAME_MOCK = "Mock";
 
@@ -55,19 +55,28 @@ public class TestableClassTransformer implements ClassFileTransformer {
         }
         LogUtil.verbose("Handle class: " + className);
         byte[] bytes = new OmniClassHandler().getBytes(classFileBuffer);
+        ClassNode cn = ClassUtil.getClassNode(className);
+        if (cn != null) {
+            return transformMock(bytes, cn);
+        }
+        return bytes;
+    }
+
+    private byte[] transformMock(byte[] bytes, ClassNode cn) {
+        String className = cn.name;
         try {
-            if (mockClassParser.isMockClass(className)) {
+            if (mockClassParser.isMockClass(cn)) {
                 // it's a mock class
                 LogUtil.diagnose("Handling mock class %s", className);
                 bytes = new MockClassHandler(className).getBytes(bytes);
-                dumpByte(className, bytes);
+                dumpByte(className, GlobalConfig.getDumpPath(), bytes);
             } else {
                 String mockClass = foundMockForTestClass(className);
                 if (mockClass != null) {
                     // it's a test class with testable enabled
                     LogUtil.diagnose("Handling test class %s", className);
                     bytes = new TestClassHandler().getBytes(bytes);
-                    dumpByte(className, bytes);
+                    dumpByte(className, GlobalConfig.getDumpPath(), bytes);
                 } else {
                     mockClass = foundMockForSourceClass(className);
                     if (mockClass != null) {
@@ -75,7 +84,7 @@ public class TestableClassTransformer implements ClassFileTransformer {
                         List<MethodInfo> injectMethods = mockClassParser.getTestableMockMethods(mockClass);
                         LogUtil.diagnose("Handling source class %s", className);
                         bytes = new SourceClassHandler(injectMethods, mockClass).getBytes(bytes);
-                        dumpByte(className, bytes);
+                        dumpByte(className, GlobalConfig.getDumpPath(), bytes);
                     }
                 }
             }
@@ -86,16 +95,16 @@ public class TestableClassTransformer implements ClassFileTransformer {
         } finally {
             LogUtil.resetLogLevel();
         }
+        dumpByte(className, getDumpPathByAnnotation(cn), bytes);
         return bytes;
     }
 
-    private void dumpByte(String className, byte[] bytes) {
-        String dumpDir = GlobalConfig.getDumpPath();
-        if (dumpDir == null || dumpDir.isEmpty() || !new File(dumpDir).isDirectory()) {
+    private void dumpByte(String className, String dumpPath, byte[] bytes) {
+        if (dumpPath == null) {
             return;
         }
         try {
-            String dumpFile = StringUtil.joinPath(dumpDir,
+            String dumpFile = StringUtil.joinPath(dumpPath,
                 className.replace(SLASH, DOT).replace(DOLLAR, UNDERLINE) + ".class");
             LogUtil.verbose("Dump class: " + dumpFile);
             FileOutputStream stream = new FileOutputStream(dumpFile);
@@ -139,10 +148,9 @@ public class TestableClassTransformer implements ClassFileTransformer {
     }
 
     private String lookForOuterMockClass(String className) {
-        String mockClass;
-        mockClass = ClassUtil.getMockClassName(ClassUtil.getSourceClassName(className));
-        if (mockClassParser.isMockClass(mockClass)) {
-            return mockClass;
+        String mockClassName = ClassUtil.getMockClassName(ClassUtil.getSourceClassName(className));
+        if (mockClassParser.isMockClass(ClassUtil.getClassNode(mockClassName))) {
+            return mockClassName;
         }
         return null;
     }
@@ -193,7 +201,8 @@ public class TestableClassTransformer implements ClassFileTransformer {
      */
     private String lookForInnerMockClass(ClassNode cn) {
         for (InnerClassNode ic : cn.innerClasses) {
-            if (ic.name.equals(getInnerMockClassName(cn.name)) && mockClassParser.isMockClass(ic.name)) {
+            ClassNode innerClassNode = ClassUtil.getClassNode(ic.name);
+            if (ic.name.equals(getInnerMockClassName(cn.name)) && mockClassParser.isMockClass(innerClassNode)) {
                 if ((ic.access & ACC_STATIC) == 0) {
                     LogUtil.warn(String.format("Mock class in \"%s\" is not declared as static", cn.name));
                 } else {
@@ -238,6 +247,17 @@ public class TestableClassTransformer implements ClassFileTransformer {
                         DiagnoseUtil.setupByClass(ClassUtil.getClassNode(clazz.getClassName()));
                         return clazz.getClassName();
                     }
+                }
+            }
+        }
+        return null;
+    }
+
+    private String getDumpPathByAnnotation(ClassNode cn) {
+        if (cn.visibleAnnotations != null) {
+            for (AnnotationNode an : cn.visibleAnnotations) {
+                if (toJavaStyleClassName(an.desc).equals(ConstPool.DUMP_TO)) {
+                    return AnnotationUtil.getAnnotationParameter(an, FIELD_PATH, null, String.class);
                 }
             }
         }

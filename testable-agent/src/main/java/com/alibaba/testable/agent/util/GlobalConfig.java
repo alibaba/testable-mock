@@ -3,6 +3,8 @@ package com.alibaba.testable.agent.util;
 import com.alibaba.testable.core.model.MockScope;
 import com.alibaba.testable.core.util.LogUtil;
 
+import java.io.File;
+
 /**
  * @author flin
  */
@@ -31,7 +33,7 @@ public class GlobalConfig {
     }
 
     public static String getDumpPath() {
-        return dumpPath;
+        return (dumpPath == null || dumpPath.isEmpty() || !new File(dumpPath).isDirectory()) ? null : dumpPath;
     }
 
     public static void setDumpPath(String path) {

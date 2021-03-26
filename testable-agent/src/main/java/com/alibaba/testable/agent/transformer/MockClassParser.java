@@ -45,11 +45,10 @@ public class MockClassParser {
     /**
      * Check whether any method in specified class has mock-related annotation
      *
-     * @param className class that need to explore
+     * @param cn class that need to explore
      * @return found annotation or not
      */
-    public boolean isMockClass(String className) {
-        ClassNode cn = ClassUtil.getClassNode(className);
+    public boolean isMockClass(ClassNode cn) {
         if (cn == null) {
             return false;
         }
