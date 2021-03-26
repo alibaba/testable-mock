@@ -66,7 +66,7 @@ public class TestableClassTransformer implements ClassFileTransformer {
                 if (mockClass != null) {
                     // it's a test class with testable enabled
                     LogUtil.diagnose("Handling test class %s", className);
-                    bytes = new TestClassHandler(mockClass).getBytes(bytes);
+                    bytes = new TestClassHandler().getBytes(bytes);
                     dumpByte(className, bytes);
                 } else {
                     mockClass = foundMockForSourceClass(className);

@@ -23,6 +23,7 @@ public class MockAssociationUtil {
     public static Map<String, Set<String>> mockToTests = UnnullableMap.of(new HashSet<String>());
 
     /**
+     * Note: this method will be invoked in transformed byte code
      * Check whether current mock method is invoked from its associated test class
      * should be invoked in mock method
      */
@@ -39,6 +40,10 @@ public class MockAssociationUtil {
             isAssociatedByMockWithAnnotation(testClassName, mockClassName);
     }
 
+    /**
+     * Note: this method will be invoked in transformed byte code
+     * Invoke original method when mock class is not associated with current test case
+     */
     public static Object invokeOrigin(Class<?> originClass, String originMethod, Object... args) {
         if (originMethod.equals(CONSTRUCTOR)) {
             return PrivateAccessor.construct(originClass, args);

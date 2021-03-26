@@ -23,7 +23,6 @@ public class TestClassHandler extends BaseClassWithContextHandler {
     private static final String METHOD_CLEAN = "clean";
     private static final String DESC_METHOD_CLEAN = "()V";
 
-    private final String mockClassName;
     private int testCaseCount = 0;
 
     private final Framework[] frameworkClasses = new Framework[] {
@@ -32,10 +31,6 @@ public class TestClassHandler extends BaseClassWithContextHandler {
         new TestNgFramework(),
         new TestNgOnClassFramework()
     };
-
-    public TestClassHandler(String mockClassName) {
-        this.mockClassName = mockClassName;
-    }
 
     /**
      * Handle bytecode of test class
