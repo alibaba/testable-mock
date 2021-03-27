@@ -41,4 +41,4 @@
 
 最后点击运行单元测试，如图中位置③
 
-总体来说，使用`testable-maven-plugin`带来的额外复杂性依然高于其对配置的简化作用。目前而言，直接在`pom.xml`文件中修改`maven-surefire-plugin`插件配置还是相对推荐的实用方案。
+总体来说，由于当下的IDE支持问题，使用`testable-maven-plugin`带来的额外复杂性依然高于其对配置的简化作用。目前直接在`pom.xml`文件中修改`maven-surefire-plugin`插件配置还是相对推荐的实用方案。

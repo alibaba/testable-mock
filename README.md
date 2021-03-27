@@ -9,7 +9,7 @@
 
 阅读[这里](https://mp.weixin.qq.com/s/KyU6Eu7mDkZU8FspfSqfMw)了解更多故事。
 
-<font size="5">**0.5版本已发布**</font>，从`0.4.x`升级到`0.5.x`版本请参考[0.5版本升级指南](https://alibaba.github.io/testable-mock/#/zh-cn/doc/upgrade-to-v05)
+<font size="5">**0.6版本已发布**</font>，从`0.5.x`升级到`0.6.x`版本请参考[版本升级指南](https://alibaba.github.io/testable-mock/#/zh-cn/doc/upgrade-guide)
 
 如果有遇到其他任何使用问题和建议，请直接在[Issue](https://github.com/alibaba/testable-mock/issues)中提出，也可通过[Pull Request](https://github.com/alibaba/testable-mock/pulls)提交您的代码，我们将在24小时内回复并处理
 
@@ -19,8 +19,8 @@
 
 `TestableMock`正在持续迭代演进，以下版本计划可能在开发过程中发生调整
 
-- `0.5` 当前版本，进行中的工作内容参考[Issue](https://github.com/alibaba/testable-mock/issues)清单
-- `0.6` 实现第四项单元测试增强能力"[快速入参构造器](https://alibaba.github.io/testable-mock/#/zh-cn/doc/parameter-constructor)"
+- `0.6` 当前版本，进行中的工作内容参考[Issue](https://github.com/alibaba/testable-mock/issues)清单
+- `0.7` 完善Mock功能的防代码重构机制，支持快速Mock指定类型的所有方法
 - `1.0` 功能稳定，一个崭新的开始
 
 ## 目录结构

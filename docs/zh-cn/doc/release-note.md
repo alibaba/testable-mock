@@ -1,5 +1,10 @@
 # Release Note
 
+## 0.6.0
+- 增加`OmniConstructor`和`OmniAccessor`，支持快速构建方法入参
+- 修复一处`FRAME FULL`字节码处理的异常 (issue-117)
+- 移除`@MockWith`的`diagnose`参数支持
+
 ## 0.5.2
 - 支持使用`PrivateAccessor`访问父类中的私有成员 (issue-91)
 - 修复在较高版本JVM下的非法类型错误 (issue-112)

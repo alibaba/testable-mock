@@ -1,5 +1,10 @@
 # Release Note
 
+## 0.6.0
+- add `OmniConstructor` and `OmniAccessor` tool for parameter preparation
+- fix a `ClassFormatError` caused by incorrect `FRAME FULL` operation
+- remove support for`diagnose` parameter of `@MockWith` annotation
+
 ## 0.5.2
 - support use`PrivateAccessor` to access private member in parent class
 - fix a class format error in jvm 1.8+ cause by incorrect bytecode generation
