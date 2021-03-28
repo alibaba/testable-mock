@@ -1,47 +1,51 @@
 快速构造复杂的参数对象
 ---
 
-在单元测试中，测试数据的准备和构造是一件既必须又繁琐的任务，尤其遇到被测函数的入参类型结构复杂、没有合适的构造方法、成员对象使用私有内部类的时候，常规方法往往无处下手。为此`TestableMock`提供了`OmniConstructor`和`OmniAccessor`两个极简的工具类，从此让一切对象构造不再困难。
+在单元测试中，测试数据的准备和构造是一件既必须又繁琐的任务，面向对象的层层封装，在测试时就成为了初始化对象状态的重重阻碍。尤其遇到类型结构嵌套复杂、没有合适的构造方法、需要使用私有内部类等等状况时，常规手段往往显得力不从心。
+
+为此`TestableMock`提供了`OmniConstructor`和`OmniAccessor`两个极简的工具类，从此让一切对象构造不再困难。
 
 ### 1. 一行代码构造任何对象
 
-万能的对象构造器`OmniConstructor`有两个静态方法：
+不论目标类型多么奇葩，呼唤`OmniConstructor`，马上递给您~ 万能的对象构造器`OmniConstructor`有两个静态方法：
 
 - `newInstance(任意类型)` ➜ 指定任意类型，返回一个该类型的对象
 - `newArray(任意类型, 数组大小)` ➜ 指定任意类型，返回一个该类型的数组
 
-例如：
+用法举例：
 
 ```java
-// 构造一个ComplicatedClass类型的对象
-ComplicatedClass obj = OmniConstructor.newInstance(ComplicatedClass.class);
-// 构造一个ComplicatedClass[]类型，容量为5的数组
-ComplicatedClass[] arr = OmniConstructor.newArray(ComplicatedClass.class, 5);
+// 构造一个WhatEverClass类型的对象
+WhatEverClass obj = OmniConstructor.newInstance(WhatEverClass.class);
+// 构造一个WhatEverClass[]类型，容量为5的数组
+WhatEverClass[] arr = OmniConstructor.newArray(WhatEverClass.class, 5);
 ```
 
-值得一提的是，使用`OmniConstructor`构造出来的并非是一个所有成员值为`null`的简单空对象。该对象的所有成员，以及所有成员的所有子成员，都会在构造时被依次递归赋值。相比直接用`new`构造的对象，使用`OmniConstructor`能够确保对象完全初始化，无需担心测试过程中发生`NullPointerException`问题。
-
-> **注意**：在`0.6.0`版本中，类型为接口或抽象类的成员字段依然会被初始化为`null`，此问题将在近期版本修复
+不仅如此，`OmniConstructor`构造出的绝非是所有成员值为`null`的简单空对象，而是所有成员、以及所有成员的所有子成员，都已经依次递归初始化的"丰满"对象。相比使用`new`进行构造，`OmniConstructor`能够确保对象结构完整，避免测试数据部分初始化导致的`NullPointerException`问题。
 
 ```java
 // 使用构造函数创建对象
 Parent parent = new Parent();
-// 内部成员未初始化，直接访问报NullPointerException异常
+// 内部成员未初始化，直接访问报NullPointerException异常（❌）
 parent.getChild().getGrandChild();
 
 // 使用OmniConstructor创建对象
 Parent parent = OmniConstructor.newInstance(Parent.class);
-// 无需顾虑，安心访问任意子成员
+// 无需顾虑，安心访问任意子成员（✅）
 parent.getChild().getGrandChild().getContent();
 ```
 
+> **注意**：在`0.6.0`版本中，类型为接口或抽象类的成员字段依然会被初始化为`null`，此问题将在后续版本中修复
+
 除了用于构造方法的入参，`OmniConstructor`也可以用于快速构造Mock方法的返回值，相比将`null`作为Mock方法的返回值，使用完全初始化的对象能够更好保障测试的可靠性。
 
-详见`java-demo`和`kotlin-demo`示例项目`DemoOmniMethodsTest`测试类中的用例。
+在`java-demo`和`kotlin-demo`示例项目的`DemoOmniMethodsTest`测试类中，详细展示了当目标类型有多层嵌套结构、构造方法无法正常使用，甚至没有公开的构造方法时，如何用`OmniConstructor`轻松创建所需对象。
 
 ### 2. 一行代码访问任意深度成员
 
-在单元测试中，有时会遇到一些结构复杂的参数对象，但与特定测试用例有关的仅仅是该对象结构深处的个别几个属性和状态。`OmniAccessor`的灵感来自于`XML`语言中的`xpath`节点选择器，它有`get`、`set`两个主要的静态方法：
+对于测试数据而言，即使是结构复杂的参数对象，与特定测试用例有关的通常也只是其中的部分属性和状态，然而要为这些深藏在对象结构内部的字段赋值有时却并非易事。
+
+做为`PrivateAccessor`功能的加加加强版，`OmniAccessor`的灵感来自于`XML`语言中的[XPath节点选择器](https://www.w3school.com.cn/xpath/xpath_syntax.asp)，它提供了`get`、`set`两个主要的静态方法：
 
 - `get(任意对象, "访问路径")` ➜ 返回根据路径匹配搜索到的所有成员对象
 - `set(任意对象, "访问路径", 新的值)` ➜ 根据路径匹配为指定位置的对象赋值
@@ -76,7 +80,7 @@ OmniAccessor.set(parent, "children[2]/*/value", 100);
 - `{Children[]}`: 匹配所有类型是`Children`数组的子孙成员
 - `{Child}/{GrandChild}`: 匹配所有类型是`Child`的子孙成员里，所有类型是`GrandChild`子成员
 
-成员名和类型可以在路径上混用，但暂不支持在同一级路径既指定成员名称又指定类型的写法
+成员名和类型可以在路径上混用（暂不支持在同一级路径同时指定成员名称和类型）
 
 - `child/{GrandChild}`: 匹配名字为`child`的子孙成员里，所有类型是`GrandChild`的子成员
 - `{Child}/grandChild/content`: 匹配所有类型是`Child`的子孙成员里，名为`grandChild`子成员里的，名为`content`的子成员
@@ -102,10 +106,8 @@ OmniAccessor.set(parent, "children[2]/*/value", 100);
 ### 3. 特别说明
 
 > **你真的需要用到`OmniAccessor`吗？**
-> 
+>
 > `OmniAccessor`具有基于Fail-Fast机制的防代码重构能力，当用户提供的访问路径无法匹配到任何成员时，`OmniAccessor`将立即抛出`NoSuchMemberError`错误，使单元测试提前终止。然而相比常规的成员访问方式，`OmniAccessor`在IDE重构方面的支持依然偏弱。
 >
 > 对于复杂对象的内容赋值，大多数情况下，我们更推荐使用[构造者模式](https://developer.aliyun.com/article/705058)，或者暴露Getter/Setter方法实现。这些常规手段虽然稍显笨拙（尤其在需要为许多相似的成员批量赋值的时候），但对业务逻辑的封装和重构都更加友好。
 > 仅当原类型不适合改造，且没有其它可访问目标成员的方法时，`OmniAccessor`才是最后的终极手段。
->
-> 出于相同的原因，我们并不推荐在除单元测试之外的场景使用`OmniAccessor`方式来读写业务类的成员字段（虽然技术上可行）。
