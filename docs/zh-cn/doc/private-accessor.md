@@ -25,9 +25,9 @@
 
 为此，`TestableMock`对`PrivateAccessor`进行了增强，赋予其编译期私有成员校验能力。这项功能默认关闭，需要通过`@EnablePrivateAccess`注解开启。（实际上是通过该注解的`verifyTargetOnCompile`参数控制，由于此参数默认值为`true`，因此只需在被测类上添加该注解即可启用私有成员校验）
 
-**注意 1.**：当私有成员校验功能开启时，`PrivateAccessor`工具类将只能用于访问**被测类**的私有成员，从某种角度而言，这也有助于限制将`PrivateAccessor`工具类用于与当前测试无关的“越权”操作。
+**注意 1**：当私有成员校验功能开启时，`PrivateAccessor`工具类将只能用于访问**被测类**的私有成员，从某种角度而言，这也有助于限制将`PrivateAccessor`工具类用于与当前测试无关的“越权”操作。
 
-**注意 2.**：`TestableMock`默认约定测试类与**被测类**的包路径相同，且名称为`被测类+Test`。若测试类名称不符合此约定时，在使用`@EnablePrivateAccess`注解时，需用`srcClass`参数显式指明实际的**被测类**位置。
+**注意 2**：`TestableMock`默认约定测试类与**被测类**的包路径相同，且名称为`被测类+Test`。若测试类名称不符合此约定时，在使用`@EnablePrivateAccess`注解时，需用`srcClass`参数显式指明实际的**被测类**位置。
 
 **注意 3**： 此机制目前只针对`Java`语言实现，对于`Kotlin`以及其他JVM方言均无效。
 
