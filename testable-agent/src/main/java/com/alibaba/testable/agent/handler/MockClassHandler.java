@@ -113,7 +113,9 @@ public class MockClassHandler extends BaseClassWithContextHandler {
                 } else if (in instanceof VarInsnNode && ((VarInsnNode)in).var >= parameterOffset) {
                     ((VarInsnNode)in).var++;
                 } else if (in instanceof FrameNode && ((FrameNode)in).type == F_FULL) {
-                    ((FrameNode)in).local.add(parameterOffset, ClassUtil.toSlashSeparateJavaStyleName(targetClassName));
+                    // For groovy adaptation (issue-121)
+                    int pos = ((FrameNode)in).local.size() == 0 ? 0 : parameterOffset;
+                    ((FrameNode)in).local.add(pos, ClassUtil.toSlashSeparateJavaStyleName(targetClassName));
                 }
             }
             mn.maxLocals++;
