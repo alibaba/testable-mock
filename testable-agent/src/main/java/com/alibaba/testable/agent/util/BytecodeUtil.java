@@ -1,8 +1,14 @@
 package com.alibaba.testable.agent.util;
 
+import com.alibaba.testable.core.util.LogUtil;
+
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.alibaba.testable.core.constant.ConstPool.*;
+import static com.alibaba.testable.core.constant.ConstPool.UNDERLINE;
 import static org.objectweb.asm.Opcodes.*;
 
 /**
@@ -192,5 +198,27 @@ public class BytecodeUtil {
         access &= ~ACC_PROTECTED;
         access |= ACC_PUBLIC;
         return access;
+    }
+
+    /**
+     * Dump byte code to specified class file
+     * @param className original class name
+     * @param dumpPath folder to store class file
+     * @param bytes original class bytes
+     */
+    public static void dumpByte(String className, String dumpPath, byte[] bytes) {
+        if (dumpPath == null) {
+            return;
+        }
+        try {
+            String dumpFile = StringUtil.joinPath(dumpPath,
+                className.replace(SLASH, DOT).replace(DOLLAR, UNDERLINE) + ".class");
+            LogUtil.verbose("Dump class: " + dumpFile);
+            FileOutputStream stream = new FileOutputStream(dumpFile);
+            stream.write(bytes);
+            stream.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
