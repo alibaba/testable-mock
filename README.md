@@ -32,6 +32,7 @@
 |-- testable-agent        ➜ JavaAgent模块，提供Mock测试相关功能
 |-- testable-core         ➜ 基础功能模块，提供Mock相关注解和工具类
 |-- testable-maven-plugin ➜ Maven插件模块，用于简化JavaAgent注入
+|-- tool                  ➜ 项目开发过程中的工具脚本
 |-- demo
 |   |-- java-demo         ➜ Java语言的示例代码
 |   `-- kotlin-demo       ➜ Kotlin语言的示例代码

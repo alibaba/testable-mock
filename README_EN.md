@@ -24,6 +24,7 @@ Usage Document: https://alibaba.github.io/testable-mock/#/en-us/
 |-- testable-agent        ➜ JavaAgent module, provides test mocking related functions
 |-- testable-core         ➜ Basic function module, provides mock related class and annotation
 |-- testable-maven-plugin ➜ Maven plugin module, for simplify JavaAgent injection
+|-- tool                  ➜ Scripts for project maintain
 |-- demo
 |   |-- java-demo         ➜ Java code example
 |   `-- kotlin-demo       ➜ Kotlin code example
