@@ -186,7 +186,7 @@ public class TestableClassTransformer implements ClassFileTransformer {
             ClassNode innerClassNode = ClassUtil.getClassNode(ic.name);
             if (ic.name.equals(getInnerMockClassName(cn.name)) && mockClassParser.isMockClass(innerClassNode)) {
                 if ((ic.access & ACC_STATIC) == 0) {
-                    LogUtil.warn(String.format("Mock class in \"%s\" is not declared as static", cn.name));
+                    LogUtil.warn("Mock class in \"%s\" is not declared as static", cn.name);
                 } else {
                     ic.access = BytecodeUtil.toPublicAccess(ic.access);
                     return ic.name;

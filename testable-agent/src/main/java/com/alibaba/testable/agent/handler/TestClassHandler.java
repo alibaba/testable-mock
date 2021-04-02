@@ -40,7 +40,7 @@ public class TestClassHandler extends BaseClassWithContextHandler {
     protected void transform(ClassNode cn) {
         Framework framework = checkFramework(cn);
         if (framework == null) {
-            LogUtil.warn("Failed to detect test framework for " + cn.name);
+            LogUtil.warn("Failed to detect test framework for %s", cn.name);
             return;
         }
         if (!framework.hasTestAfterMethod) {
@@ -50,7 +50,7 @@ public class TestClassHandler extends BaseClassWithContextHandler {
             handleTestableUtil(mn);
             handleTestCaseMethod(mn, framework);
         }
-        LogUtil.diagnose(String.format("  Found %d test cases", testCaseCount));
+        LogUtil.diagnose("  Found %d test cases", testCaseCount);
     }
 
     private Framework checkFramework(ClassNode cn) {
@@ -96,7 +96,7 @@ public class TestClassHandler extends BaseClassWithContextHandler {
     private void handleTestCaseMethod(MethodNode mn, Framework framework) {
         TestCaseMethodType type = framework.checkMethodType(mn);
         if (type.equals(TestCaseMethodType.TEST)) {
-            LogUtil.verbose(String.format("   Test case \"%s\"", mn.name));
+            LogUtil.verbose("   Test case \"%s\"", mn.name);
             injectMockContextInit(mn);
             testCaseCount++;
         } else if (type.equals(TestCaseMethodType.AFTER_TEST)) {
