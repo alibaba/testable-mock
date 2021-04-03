@@ -40,7 +40,7 @@ public class TestableClassTransformer implements ClassFileTransformer {
     /**
      * Just avoid spend time to scan those surely non-user classes, should keep these lists as tiny as possible
      */
-    private final String[] BLACKLIST_PREFIXES = new String[] { "sun/", "com/sun/" };
+    private final String[] BLACKLIST_PREFIXES = new String[] { "sun/", "com/sun/", "org/gradle/" };
 
     public MockClassParser mockClassParser = new MockClassParser();
 
