@@ -20,6 +20,7 @@ import java.lang.instrument.ClassFileTransformer;
 import java.security.ProtectionDomain;
 import java.util.List;
 
+import static com.alibaba.testable.agent.constant.ConstPool.CGLIB_CLASS_PATTERN;
 import static com.alibaba.testable.agent.constant.ConstPool.KOTLIN_POSTFIX_COMPANION;
 import static com.alibaba.testable.agent.util.ClassUtil.toJavaStyleClassName;
 import static com.alibaba.testable.core.constant.ConstPool.DOLLAR;
@@ -139,7 +140,7 @@ public class TestableClassTransformer implements ClassFileTransformer {
 
     private boolean isSystemClass(String className) {
         // className can be null for Java 8 lambdas
-        if (null == className) {
+        if (null == className || className.contains(CGLIB_CLASS_PATTERN)) {
             return true;
         }
         String whitePrefix = GlobalConfig.getPkgPrefix();

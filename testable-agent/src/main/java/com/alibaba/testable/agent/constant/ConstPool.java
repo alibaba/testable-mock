@@ -15,6 +15,7 @@ public class ConstPool {
     public static final String MOCK_METHOD = "com.alibaba.testable.core.annotation.MockMethod";
     public static final String MOCK_CONSTRUCTOR = "com.alibaba.testable.core.annotation.MockConstructor";
 
+    public static final String CGLIB_CLASS_PATTERN = "$$EnhancerBy";
     public static final String KOTLIN_POSTFIX_COMPANION = "$Companion";
     public static final String KOTLIN_PREFIX_ACCESS = "access$";
 
