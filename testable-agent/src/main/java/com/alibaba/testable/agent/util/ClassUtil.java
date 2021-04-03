@@ -6,7 +6,6 @@ import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.MethodInsnNode;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -227,7 +226,7 @@ public class ClassUtil {
         ClassNode cn = new ClassNode();
         try {
             new ClassReader(className).accept(cn, 0);
-        } catch (Exception e) {
+        } catch (Throwable e) {
             // Could be IOException, ClassCircularityError or NullPointerException
             // Ignore all of them
             return null;
