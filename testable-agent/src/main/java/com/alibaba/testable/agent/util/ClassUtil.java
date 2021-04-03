@@ -227,7 +227,9 @@ public class ClassUtil {
         ClassNode cn = new ClassNode();
         try {
             new ClassReader(className).accept(cn, 0);
-        } catch (IOException e) {
+        } catch (Exception e) {
+            // Could be IOException, ClassCircularityError or NullPointerException
+            // Ignore all of them
             return null;
         }
         return cn;
