@@ -1,36 +1,14 @@
 package com.alibaba.testable.core.util;
 
+import com.alibaba.testable.core.model.LogLevel;
+
 /**
  * @author flin
  */
 public class LogUtil {
 
-    public enum LogLevel {
-        /**
-         * Mute
-         */
-        LEVEL_MUTE(0),
-        /**
-         * Warn only
-         */
-        LEVEL_WARN(1),
-        /**
-         * Show diagnose messages
-         */
-        LEVEL_DIAGNOSE(2),
-        /**
-         * Show detail progress logs
-         */
-        LEVEL_VERBOSE(3);
-
-        int level;
-        LogLevel(int l) {
-            level = l;
-        }
-    }
-
-    private static LogLevel defaultLogLevel = LogLevel.LEVEL_WARN;
-    private static LogLevel currentLogLevel = LogLevel.LEVEL_WARN;
+    private static LogLevel defaultLogLevel = LogLevel.DEFAULT;
+    private static LogLevel currentLogLevel = LogLevel.DEFAULT;
 
     public static void verbose(String msg, Object... args) {
         if (isVerboseEnabled()) {
@@ -39,13 +17,13 @@ public class LogUtil {
     }
 
     public static void diagnose(String msg, Object... args) {
-        if (currentLogLevel.level >= LogLevel.LEVEL_DIAGNOSE.level) {
+        if (currentLogLevel.level >= LogLevel.ENABLE.level) {
             System.out.println(String.format("[DIAGNOSE] " + msg, args));
         }
     }
 
     public static void warn(String msg, Object... args) {
-        if (currentLogLevel.level >= LogLevel.LEVEL_WARN.level) {
+        if (currentLogLevel.level >= LogLevel.DEFAULT.level) {
             System.err.println(String.format("[WARN] " + msg, args));
         }
     }
@@ -58,7 +36,7 @@ public class LogUtil {
      * a pre-check method for reduce verbose parameter calculation
      */
     public static boolean isVerboseEnabled() {
-        return currentLogLevel.level >= LogLevel.LEVEL_VERBOSE.level;
+        return currentLogLevel.level >= LogLevel.VERBOSE.level;
     }
 
     public static void setLevel(LogLevel level) {

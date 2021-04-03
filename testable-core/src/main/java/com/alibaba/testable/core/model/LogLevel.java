@@ -3,22 +3,26 @@ package com.alibaba.testable.core.model;
 /**
  * @author flin
  */
-
 public enum LogLevel {
-
     /**
-     * Be quiet
+     * Mute
      */
-    DISABLE,
-
+    DISABLE(0),
     /**
-     * Print diagnose logs
+     * Warn only
      */
-    ENABLE,
-
+    DEFAULT(1),
     /**
-     * Print verbose log
+     * Show diagnose messages
      */
-    VERBOSE
+    ENABLE(2),
+    /**
+     * Show detail progress logs
+     */
+    VERBOSE(3);
 
+    public int level;
+    LogLevel(int level) {
+        this.level = level;
+    }
 }

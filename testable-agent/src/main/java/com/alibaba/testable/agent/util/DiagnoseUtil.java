@@ -26,8 +26,7 @@ public class DiagnoseUtil {
     private static void setupDiagnose(AnnotationNode an, String fieldDiagnose) {
         LogLevel level = AnnotationUtil.getAnnotationParameter(an, fieldDiagnose, null, LogLevel.class);
         if (level != null) {
-            LogUtil.setLevel(level == LogLevel.ENABLE ? LogUtil.LogLevel.LEVEL_DIAGNOSE :
-                (level == LogLevel.VERBOSE ? LogUtil.LogLevel.LEVEL_VERBOSE : LogUtil.LogLevel.LEVEL_MUTE));
+            LogUtil.setLevel(level);
         }
     }
 

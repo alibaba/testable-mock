@@ -1,5 +1,6 @@
 package com.alibaba.testable.agent.util;
 
+import com.alibaba.testable.core.model.LogLevel;
 import com.alibaba.testable.core.model.MockScope;
 import com.alibaba.testable.core.util.LogUtil;
 
@@ -20,13 +21,13 @@ public class GlobalConfig {
 
     public static boolean setLogLevel(String level) {
         if (level.equals(MUTE)) {
-            LogUtil.setDefaultLevel(LogUtil.LogLevel.LEVEL_MUTE);
+            LogUtil.setDefaultLevel(LogLevel.DISABLE);
             return true;
         } else if (level.equals(DEBUG)) {
-            LogUtil.setDefaultLevel(LogUtil.LogLevel.LEVEL_DIAGNOSE);
+            LogUtil.setDefaultLevel(LogLevel.ENABLE);
             return true;
         } else if (level.equals(VERBOSE)) {
-            LogUtil.setDefaultLevel(LogUtil.LogLevel.LEVEL_VERBOSE);
+            LogUtil.setDefaultLevel(LogLevel.VERBOSE);
             return true;
         }
         return false;
