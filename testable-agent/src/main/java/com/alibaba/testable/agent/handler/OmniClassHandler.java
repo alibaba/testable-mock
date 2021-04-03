@@ -31,37 +31,33 @@ public class OmniClassHandler extends BaseClassHandler {
 
     @Override
     protected void transform(ClassNode cn) {
-        if ((cn.access & ACC_INTERFACE) != 0 || cn.superName == null) {
+        if (isInterface(cn) || isJunitTestClass(cn)) {
             return;
         }
+        MethodNode constructor = new MethodNode(ACC_PUBLIC, CONSTRUCTOR,
+            METHOD_START + ClassUtil.toByteCodeClassName(NULL_TYPE) + VOID_METHOD_END, null, null);
+        LabelNode start = new LabelNode(new Label());
+        LabelNode end = new LabelNode(new Label());
         if (cn.superName.equals(CLASS_OBJECT)) {
-            // JUnit require test class contains only one constructor
-            if (isJUnitTestClass(cn)) {
-                return;
-            }
-            MethodNode constructor = new MethodNode(ACC_PUBLIC, CONSTRUCTOR,
-                METHOD_START + ClassUtil.toByteCodeClassName(NULL_TYPE) + VOID_METHOD_END, null, null);
-            LabelNode start = new LabelNode(new Label());
-            LabelNode end = new LabelNode(new Label());
             constructor.instructions = invokeSuperWithoutParameter(start, end);
             constructor.localVariables = createLocalVariables(cn, start, end);
             constructor.maxStack = 1;
-            constructor.maxLocals = 2;
-            cn.methods.add(constructor);
         } else {
-            MethodNode constructor = new MethodNode(ACC_PUBLIC, CONSTRUCTOR,
-                METHOD_START + ClassUtil.toByteCodeClassName(NULL_TYPE) + VOID_METHOD_END, null, null);
-            LabelNode start = new LabelNode(new Label());
-            LabelNode end = new LabelNode(new Label());
             constructor.instructions = invokeSuperWithTestableNullParameter(cn, start, end);
             constructor.localVariables = createLocalVariables(cn, start, end);
             constructor.maxStack = 3;
-            constructor.maxLocals = 2;
-            cn.methods.add(constructor);
         }
+        constructor.maxLocals = 2;
+        cn.methods.add(constructor);
     }
 
-    private boolean isJUnitTestClass(ClassNode cn) {
+    private boolean isInterface(ClassNode cn) {
+        // is interface or the object class
+        return (cn.access & ACC_INTERFACE) != 0 || cn.superName == null;
+    }
+
+    private boolean isJunitTestClass(ClassNode cn) {
+        // junit require test class contains only one constructor
         for (MethodNode mn : cn.methods) {
             if (mn.visibleAnnotations == null) {
                 continue;
