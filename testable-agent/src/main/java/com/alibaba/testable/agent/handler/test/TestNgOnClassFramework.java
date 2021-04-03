@@ -13,13 +13,7 @@ public class TestNgOnClassFramework extends TestNgFramework {
 
     @Override
     public boolean fit(Set<String> classAnnotations, Set<String> methodAnnotations) {
-        if (CollectionUtil.containsAny(classAnnotations, getTestAnnotations())) {
-            if (methodAnnotations.contains(getTestAfterAnnotation())) {
-                hasTestAfterMethod = true;
-            }
-            return true;
-        }
-        return false;
+        return CollectionUtil.containsAny(classAnnotations, getTestMethodAnnotations());
     }
 
     @Override
@@ -28,7 +22,7 @@ public class TestNgOnClassFramework extends TestNgFramework {
             return (mn.access & ACC_PUBLIC) != 0 ? TestCaseMethodType.TEST : TestCaseMethodType.OTHERS;
         }
         for (AnnotationNode an : mn.visibleAnnotations) {
-            if (an.desc.equals(getTestAfterAnnotation())) {
+            if (an.desc.equals(getCleanupMethodAnnotation())) {
                 return TestCaseMethodType.AFTER_TEST;
             }
         }

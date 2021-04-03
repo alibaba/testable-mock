@@ -1,16 +1,14 @@
 package com.alibaba.testable.agent.handler.test;
 
 import com.alibaba.testable.agent.model.TestCaseMethodType;
-import com.alibaba.testable.agent.util.CollectionUtil;
-import org.objectweb.asm.tree.AnnotationNode;
 import org.objectweb.asm.tree.MethodNode;
 
-import java.util.List;
 import java.util.Set;
 
-abstract public class Framework {
-
-    public boolean hasTestAfterMethod;
+/**
+ * @author flin
+ */
+public interface Framework {
 
     /**
      * Check whether the test class using current test framework
@@ -18,31 +16,20 @@ abstract public class Framework {
      * @param methodAnnotations annotations of all methods
      * @return fit or not
      */
-    public boolean fit(Set<String> classAnnotations, Set<String> methodAnnotations) {
-        if (methodAnnotations.contains(getTestAfterAnnotation())) {
-            hasTestAfterMethod = true;
-            return true;
-        } else {
-            return CollectionUtil.containsAny(methodAnnotations, getTestAnnotations());
-        }
-    }
+    boolean fit(Set<String> classAnnotations, Set<String> methodAnnotations);
 
-    public TestCaseMethodType checkMethodType(MethodNode mn) {
-        if (mn.visibleAnnotations == null) {
-            return TestCaseMethodType.OTHERS;
-        }
-        for (AnnotationNode an : mn.visibleAnnotations) {
-            if (getTestAnnotations().contains(an.desc)) {
-                return TestCaseMethodType.TEST;
-            } else if (an.desc.equals(getTestAfterAnnotation())) {
-                return TestCaseMethodType.AFTER_TEST;
-            }
-        }
-        return TestCaseMethodType.OTHERS;
-    }
+    /**
+     * Check whether a method is test or cleanup method
+     * @param mn method node
+     * @return test method / cleanup method / other method
+     */
+    TestCaseMethodType checkMethodType(MethodNode mn);
 
-    public abstract List<String> getTestAnnotations();
-
-    public abstract String getTestAfterAnnotation();
+    /**
+     * Generate cleanup method with correct name and annotations
+     * @param className full name of test class
+     * @return cleanup method for current framework
+     */
+    MethodNode getCleanupMethod(String className);
 
 }
