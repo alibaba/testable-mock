@@ -31,7 +31,7 @@ public class OmniClassHandler extends BaseClassHandler {
 
     @Override
     protected void transform(ClassNode cn) {
-        if (isInterface(cn) || isJunitTestClass(cn)) {
+        if (isInterface(cn) || isJunitTestClass(cn) || isUninstantiableClass(cn)) {
             return;
         }
         MethodNode constructor = new MethodNode(ACC_PUBLIC, CONSTRUCTOR,
@@ -49,6 +49,16 @@ public class OmniClassHandler extends BaseClassHandler {
         }
         constructor.maxLocals = 2;
         cn.methods.add(constructor);
+    }
+
+    private boolean isUninstantiableClass(ClassNode cn) {
+        // if the class has no even default constructor, skip it
+        for (MethodNode mn : cn.methods) {
+            if (mn.name.equals(CONSTRUCTOR)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private boolean isInterface(ClassNode cn) {
