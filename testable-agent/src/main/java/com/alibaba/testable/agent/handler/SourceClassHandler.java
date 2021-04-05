@@ -57,7 +57,7 @@ public class SourceClassHandler extends BaseClassHandler {
 
     private void transformMethod(MethodNode mn, Set<MethodInfo> memberInjectMethods,
                                  Set<MethodInfo> newOperatorInjectMethods) {
-        LogUtil.diagnose("  Handling method %s", mn.name);
+        LogUtil.diagnose("  Found method %s", mn.name);
         AbstractInsnNode[] instructions = mn.instructions.toArray();
         if (instructions.length == 0) {
             // native method (issue-52)

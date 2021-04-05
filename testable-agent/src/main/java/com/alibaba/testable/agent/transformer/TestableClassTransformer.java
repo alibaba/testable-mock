@@ -66,14 +66,14 @@ public class TestableClassTransformer implements ClassFileTransformer {
         try {
             if (mockClassParser.isMockClass(cn)) {
                 // it's a mock class
-                LogUtil.diagnose("Handling mock class %s", className);
+                LogUtil.diagnose("Found mock class %s", className);
                 bytes = new MockClassHandler(className).getBytes(bytes);
                 BytecodeUtil.dumpByte(className, GlobalConfig.getDumpPath(), bytes);
             } else {
                 String mockClass = foundMockForTestClass(className);
                 if (mockClass != null) {
                     // it's a test class with testable enabled
-                    LogUtil.diagnose("Handling test class %s", className);
+                    LogUtil.diagnose("Found test class %s", className);
                     bytes = new TestClassHandler().getBytes(bytes);
                     BytecodeUtil.dumpByte(className, GlobalConfig.getDumpPath(), bytes);
                 } else {
@@ -81,7 +81,7 @@ public class TestableClassTransformer implements ClassFileTransformer {
                     if (mockClass != null) {
                         // it's a source class with testable enabled
                         List<MethodInfo> injectMethods = mockClassParser.getTestableMockMethods(mockClass);
-                        LogUtil.diagnose("Handling source class %s", className);
+                        LogUtil.diagnose("Found source class %s", className);
                         bytes = new SourceClassHandler(injectMethods, mockClass).getBytes(bytes);
                         BytecodeUtil.dumpByte(className, GlobalConfig.getDumpPath(), bytes);
                     }
