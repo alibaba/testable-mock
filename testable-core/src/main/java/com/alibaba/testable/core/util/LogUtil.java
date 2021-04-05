@@ -2,7 +2,6 @@ package com.alibaba.testable.core.util;
 
 import com.alibaba.testable.core.model.LogLevel;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -12,8 +11,6 @@ import java.util.Date;
  * @author flin
  */
 public class LogUtil {
-
-    private static final String TESTABLE_AGENT_LOG = "testable-agent.log";
 
     private static LogLevel defaultLogLevel = LogLevel.DEFAULT;
     private static LogLevel currentLogLevel = LogLevel.DEFAULT;
@@ -73,14 +70,12 @@ public class LogUtil {
         currentLogLevel = defaultLogLevel;
     }
 
-    public static void setGlobalLogPath(String logFolderPath) {
-        if (logFolderPath.isEmpty()) {
-            return;
-        }
-        String logFilePath = logFolderPath + File.separator + TESTABLE_AGENT_LOG;
+    public static void setGlobalLogPath(String logFilePath) {
         try {
-            logFileStream = new FileOutputStream(logFilePath);
-            diagnose("Start at %s", new Date().toString());
+            if (PathUtil.createFolder(PathUtil.getFolder(logFilePath))) {
+                logFileStream = new FileOutputStream(logFilePath);
+                diagnose("Start at %s", new Date().toString());
+            }
         } catch (FileNotFoundException e) {
             warn("Failed to create log file %s", logFilePath);
         }

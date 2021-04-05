@@ -17,6 +17,7 @@ public class PreMain {
     private static final String AND = "&";
     private static final String USE_THREAD_POOL = "useThreadPool";
     private static final String LOG_LEVEL = "logLevel";
+    private static final String LOG_FILE = "logFile";
     private static final String DUMP_PATH = "dumpPath";
     private static final String PKG_PREFIX = "pkgPrefix";
     private static final String MOCK_SCOPE = "mockScope";
@@ -24,8 +25,8 @@ public class PreMain {
     private static boolean enhanceThreadLocal = false;
 
     public static void premain(String agentArgs, Instrumentation inst) {
-        GlobalConfig.setupLogRootPath();
         parseArgs(agentArgs);
+        GlobalConfig.setupLogRootPath();
         if (enhanceThreadLocal) {
             // add transmittable thread local transformer
             TtlAgent.premain(agentArgs, inst);
@@ -47,6 +48,8 @@ public class PreMain {
                 String v = a.substring(i + 1);
                 if (k.equals(LOG_LEVEL)) {
                     GlobalConfig.setLogLevel(v);
+                } else if (k.equals(LOG_FILE)) {
+                    GlobalConfig.setLogFile(v);
                 } else if (k.equals(DUMP_PATH)) {
                     GlobalConfig.setDumpPath(v);
                 } else if (k.equals(PKG_PREFIX)) {
