@@ -211,7 +211,7 @@ public class BytecodeUtil {
             return;
         }
         try {
-            String dumpFile = StringUtil.joinPath(dumpPath,
+            String dumpFile = PathUtil.join(dumpPath,
                 className.replace(SLASH, DOT).replace(DOLLAR, UNDERLINE) + ".class");
             LogUtil.verbose("Dump class: " + dumpFile);
             FileOutputStream stream = new FileOutputStream(dumpFile);

@@ -14,6 +14,7 @@ public class GlobalConfig {
     private static final String MUTE = "mute";
     private static final String DEBUG = "debug";
     private static final String VERBOSE = "verbose";
+    private static final String USER_DIR = "user.dir";
 
     private static String dumpPath = null;
     private static String pkgPrefix = null;
@@ -55,5 +56,10 @@ public class GlobalConfig {
 
     public static void setDefaultMockScope(MockScope scope) {
         defaultMockScope = scope;
+    }
+
+    public static void setupLogRootPath() {
+        LogUtil.setGlobalLogPath(
+            PathUtil.getFirstLevelFolder(System.getProperty(USER_DIR), Object.class.getResource("/").getPath()));
     }
 }

@@ -1,7 +1,5 @@
 package com.alibaba.testable.agent.util;
 
-import java.io.File;
-
 /**
  * @author flin
  */
@@ -19,16 +17,6 @@ public class StringUtil {
             sb.append(text);
         }
         return sb.toString();
-    }
-
-    /**
-     * join a path text and a file name to full file path
-     * @param folder path text
-     * @param file file name
-     * @return joined full file path
-     */
-    public static String joinPath(String folder, String file) {
-        return (folder.endsWith(File.separator) ? folder : (folder + File.separator)) + file;
     }
 
 }

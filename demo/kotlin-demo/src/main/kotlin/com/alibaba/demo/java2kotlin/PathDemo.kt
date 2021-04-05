@@ -3,7 +3,7 @@ package com.alibaba.demo.java2kotlin
 import java.io.File
 import java.io.IOException
 
-object PathUtil {
+object PathDemo {
 
     fun deleteRecursively(file: File) {
         if (!file.exists()) {

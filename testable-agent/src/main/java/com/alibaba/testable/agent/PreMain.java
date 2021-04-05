@@ -3,6 +3,7 @@ package com.alibaba.testable.agent;
 import com.alibaba.testable.agent.transformer.TestableClassTransformer;
 import com.alibaba.testable.agent.util.GlobalConfig;
 import com.alibaba.testable.core.model.MockScope;
+import com.alibaba.testable.core.util.LogUtil;
 import com.alibaba.ttl.threadpool.agent.TtlAgent;
 
 import java.lang.instrument.Instrumentation;
@@ -23,6 +24,7 @@ public class PreMain {
     private static boolean enhanceThreadLocal = false;
 
     public static void premain(String agentArgs, Instrumentation inst) {
+        GlobalConfig.setupLogRootPath();
         parseArgs(agentArgs);
         if (enhanceThreadLocal) {
             // add transmittable thread local transformer
@@ -30,6 +32,7 @@ public class PreMain {
         }
         // add testable mock transformer
         inst.addTransformer(new TestableClassTransformer());
+        cleanup();
     }
 
     private static void parseArgs(String args) {
@@ -58,6 +61,15 @@ public class PreMain {
                 }
             }
         }
+    }
+
+    private static void cleanup() {
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            @Override
+            public void run() {
+                LogUtil.cleanup();
+            }
+        });
     }
 
 }
