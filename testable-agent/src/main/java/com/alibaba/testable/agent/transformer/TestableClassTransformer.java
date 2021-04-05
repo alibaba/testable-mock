@@ -20,11 +20,11 @@ import java.lang.instrument.ClassFileTransformer;
 import java.security.ProtectionDomain;
 import java.util.List;
 
-import static com.alibaba.testable.agent.constant.ConstPool.CGLIB_CLASS_PATTERN;
-import static com.alibaba.testable.agent.constant.ConstPool.KOTLIN_POSTFIX_COMPANION;
+import static com.alibaba.testable.agent.constant.ConstPool.*;
 import static com.alibaba.testable.agent.util.ClassUtil.toJavaStyleClassName;
 import static com.alibaba.testable.core.constant.ConstPool.DOLLAR;
 import static com.alibaba.testable.core.constant.ConstPool.TEST_POSTFIX;
+import static com.alibaba.testable.core.util.PathUtil.createFolder;
 import static org.objectweb.asm.Opcodes.ACC_STATIC;
 
 /**
@@ -34,7 +34,6 @@ public class TestableClassTransformer implements ClassFileTransformer {
 
     private static final String FIELD_VALUE = "value";
     private static final String FIELD_TREAT_AS = "treatAs";
-    private static final String FIELD_PATH = "path";
     private static final String COMMA = ",";
     private static final String CLASS_NAME_MOCK = "Mock";
 
@@ -241,7 +240,11 @@ public class TestableClassTransformer implements ClassFileTransformer {
         if (cn.visibleAnnotations != null) {
             for (AnnotationNode an : cn.visibleAnnotations) {
                 if (toJavaStyleClassName(an.desc).equals(ConstPool.DUMP_TO)) {
-                    return AnnotationUtil.getAnnotationParameter(an, FIELD_PATH, null, String.class);
+                    String path = AnnotationUtil.getAnnotationParameter(an, FIELD_VALUE, null, String.class);
+                    String fullPath = PathUtil.join(System.getProperty(PROPERTY_USER_DIR), path);
+                    if (createFolder(fullPath)) {
+                        return fullPath;
+                    }
                 }
             }
         }

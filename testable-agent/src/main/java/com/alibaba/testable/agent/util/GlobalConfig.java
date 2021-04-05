@@ -6,6 +6,9 @@ import com.alibaba.testable.core.util.LogUtil;
 
 import java.io.File;
 
+import static com.alibaba.testable.agent.constant.ConstPool.PROPERTY_USER_DIR;
+import static com.alibaba.testable.core.util.PathUtil.createFolder;
+
 /**
  * @author flin
  */
@@ -14,7 +17,6 @@ public class GlobalConfig {
     private static final String MUTE = "mute";
     private static final String DEBUG = "debug";
     private static final String VERBOSE = "verbose";
-    private static final String USER_DIR = "user.dir";
     private static final String DISABLE_LOG_FILE = "null";
 
     private static final String TESTABLE_AGENT_LOG = "testable-agent.log";
@@ -43,7 +45,10 @@ public class GlobalConfig {
     }
 
     public static void setDumpPath(String path) {
-        dumpPath = path;
+        String fullPath = PathUtil.join(System.getProperty(PROPERTY_USER_DIR), path);
+        if (createFolder(fullPath)) {
+            dumpPath = fullPath;
+        }
     }
 
     public static String getPkgPrefix() {
@@ -64,13 +69,13 @@ public class GlobalConfig {
 
     public static void setupLogRootPath() {
         if (logFile == null) {
-            String baseFolder = PathUtil.getFirstLevelFolder(System.getProperty(USER_DIR),
+            String baseFolder = PathUtil.getFirstLevelFolder(System.getProperty(PROPERTY_USER_DIR),
                 Object.class.getResource("/").getPath());
             if (!baseFolder.isEmpty()) {
                 LogUtil.setGlobalLogPath(PathUtil.join(baseFolder, TESTABLE_AGENT_LOG));
             }
         } else if (!DISABLE_LOG_FILE.equals(logFile)) {
-            LogUtil.setGlobalLogPath(PathUtil.join(System.getProperty(USER_DIR), logFile));
+            LogUtil.setGlobalLogPath(PathUtil.join(System.getProperty(PROPERTY_USER_DIR), logFile));
         }
     }
 }
