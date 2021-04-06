@@ -234,6 +234,24 @@ public class ClassUtil {
         return cn;
     }
 
+    /**
+     * Check whether a class has implement specified interface
+     * @param clazz class to check
+     * @param intf target interface
+     * @return has or not
+     */
+    public static boolean hasImplement(Class<?> clazz, Class<?> intf) {
+        if (clazz == null) {
+            return false;
+        }
+        for (Class<?> i : clazz.getInterfaces()) {
+            if (i.equals(intf)) {
+                return true;
+            }
+        }
+        return hasImplement(clazz.getSuperclass(), intf);
+    }
+
     private static String toDescriptor(Byte type, String objectType) {
         return "(" + (char)type.byteValue() + ")L" + objectType + ";";
     }

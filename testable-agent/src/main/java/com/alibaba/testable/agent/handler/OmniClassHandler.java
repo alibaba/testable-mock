@@ -4,11 +4,15 @@ import com.alibaba.testable.agent.handler.test.JUnit4Framework;
 import com.alibaba.testable.agent.handler.test.JUnit5Framework;
 import com.alibaba.testable.agent.util.ClassUtil;
 import com.alibaba.testable.agent.util.CollectionUtil;
+import com.alibaba.testable.core.tool.PrivateAccessor;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.tree.*;
 
+import java.io.ObjectStreamClass;
+import java.io.Serializable;
 import java.util.List;
 
+import static com.alibaba.testable.agent.constant.ByteCodeConst.TYPE_LONG;
 import static com.alibaba.testable.agent.util.ClassUtil.CLASS_OBJECT;
 import static com.alibaba.testable.core.constant.ConstPool.CONSTRUCTOR;
 import static com.alibaba.testable.core.constant.ConstPool.THIS_REF;
@@ -24,16 +28,42 @@ public class OmniClassHandler extends BaseClassHandler {
     private static final String METHOD_START = "(";
     private static final String VOID_METHOD_END = ")V";
     private static final String VOID_METHOD = "()V";
+    private static final String ENABLE_CONFIGURATION_PROPERTIES
+        = "Lorg/springframework/boot/context/properties/EnableConfigurationProperties;";
 
     private static final String[] JUNIT_TEST_ANNOTATIONS = new String[] {
         JUnit4Framework.ANNOTATION_TEST, JUnit5Framework.ANNOTATION_TEST, JUnit5Framework.ANNOTATION_PARAMETERIZED_TEST
     };
+    private static final String SERIAL_VERSION_UID = "serialVersionUID";
+    private final Class<?> rawClass;
+
+    public OmniClassHandler(Class<?> clazz) {
+        this.rawClass = clazz;
+    }
 
     @Override
     protected void transform(ClassNode cn) {
-        if (isInterface(cn) || isJunitTestClass(cn) || isUninstantiableClass(cn)) {
+        if (isInterface(cn) || isJunitTestClass(cn) || isUninstantiableClass(cn) || hasSpecialAnnotation(cn)) {
             return;
         }
+        addSerialVersionUid(cn);
+        addConstructorWithNullTypeParameter(cn);
+    }
+
+    private void addSerialVersionUid(ClassNode cn) {
+        if (ClassUtil.hasImplement(rawClass, Serializable.class)) {
+            for (FieldNode fn : cn.fields) {
+                if (SERIAL_VERSION_UID.equals(fn.name)) {
+                    return;
+                }
+            }
+            cn.fields.add(new FieldNode(ACC_PRIVATE | ACC_FINAL | ACC_STATIC, SERIAL_VERSION_UID,
+                String.valueOf(TYPE_LONG), null,
+                PrivateAccessor.invokeStatic(ObjectStreamClass.class, "computeDefaultSUID", rawClass)));
+        }
+    }
+
+    private void addConstructorWithNullTypeParameter(ClassNode cn) {
         MethodNode constructor = new MethodNode(ACC_PUBLIC, CONSTRUCTOR,
             METHOD_START + ClassUtil.toByteCodeClassName(NULL_TYPE) + VOID_METHOD_END, null, null);
         LabelNode start = new LabelNode(new Label());
@@ -49,6 +79,18 @@ public class OmniClassHandler extends BaseClassHandler {
         }
         constructor.maxLocals = 2;
         cn.methods.add(constructor);
+    }
+
+    private boolean hasSpecialAnnotation(ClassNode cn) {
+        if (cn.visibleAnnotations == null) {
+            return false;
+        }
+        for (AnnotationNode an : cn.visibleAnnotations) {
+            if (an.desc.equals(ENABLE_CONFIGURATION_PROPERTIES)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private boolean isUninstantiableClass(ClassNode cn) {
