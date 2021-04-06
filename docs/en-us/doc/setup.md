@@ -16,7 +16,7 @@ It is recommended to add a `property` field that identifies the TestableMock ver
 
 ```xml
 <properties>
-    <testable.version>0.6.0</testable.version>
+    <testable.version>0.6.1</testable.version>
 </properties>
 ```
 
@@ -63,8 +63,8 @@ Add dependence of `TestableMock` in `build.gradle` file:
 
 ```groovy
 dependencies {
-    testImplementation('com.alibaba.testable:testable-all:0.6.0')
-    testAnnotationProcessor('com.alibaba.testable:testable-processor:0.6.0')
+    testImplementation('com.alibaba.testable:testable-all:0.6.1')
+    testAnnotationProcessor('com.alibaba.testable:testable-processor:0.6.1')
 }
 ```
 

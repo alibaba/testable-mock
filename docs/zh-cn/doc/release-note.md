@@ -1,5 +1,10 @@
 # Release Note
 
+## 0.6.1
+- 自动生成Mock扫描过程日志文件，便于自助排查问题
+- 修复一处`Spock`测试框架的兼容问题 (issue-121)
+- 修复一处`Gradle`运行单元测试的兼容问题（issue-123）
+
 ## 0.6.0
 - 增加`OmniConstructor`和`OmniAccessor`，支持快速构建方法入参
 - 修复一处`FRAME FULL`字节码处理的异常 (issue-117)

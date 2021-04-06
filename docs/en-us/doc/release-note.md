@@ -1,5 +1,10 @@
 # Release Note
 
+## 0.6.1
+- generate mock scanning log file automatically, for self-troubleshooting
+- fix a `Spock` test frame compatibility issue
+- fix a `Gradle` unit test runtime compatibility issue
+
 ## 0.6.0
 - add `OmniConstructor` and `OmniAccessor` tool for parameter preparation
 - fix a `ClassFormatError` caused by incorrect `FRAME FULL` operation

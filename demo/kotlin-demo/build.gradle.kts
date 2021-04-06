@@ -16,8 +16,8 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     testImplementation("org.junit.jupiter:junit-jupiter:5.6.2")
-    testImplementation("com.alibaba.testable:testable-all:0.6.0")
-    testAnnotationProcessor("com.alibaba.testable:testable-processor:0.6.0")
+    testImplementation("com.alibaba.testable:testable-all:0.6.1")
+    testAnnotationProcessor("com.alibaba.testable:testable-processor:0.6.1")
 }
 
 tasks.withType<KotlinCompile> {
