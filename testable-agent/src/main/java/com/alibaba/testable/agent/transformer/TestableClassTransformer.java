@@ -40,7 +40,7 @@ public class TestableClassTransformer implements ClassFileTransformer {
     /**
      * Just avoid spend time to scan those surely non-user classes, should keep these lists as tiny as possible
      */
-    private final String[] BLACKLIST_PREFIXES = new String[] { "sun/", "com/sun/" };
+    private final String[] BLACKLIST_PREFIXES = new String[] { "sun/", "com/sun/", "org/gradle/" };
 
     public MockClassParser mockClassParser = new MockClassParser();
 
@@ -52,7 +52,7 @@ public class TestableClassTransformer implements ClassFileTransformer {
             return null;
         }
         LogUtil.verbose("Handle class: " + className);
-        byte[] bytes = new OmniClassHandler(classBeingRedefined).getBytes(classFileBuffer);
+        byte[] bytes = new OmniClassHandler().getBytes(classFileBuffer);
         ClassNode cn = ClassUtil.getClassNode(className);
         if (cn != null) {
             return transformMock(bytes, cn);
