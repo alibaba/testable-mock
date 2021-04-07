@@ -25,6 +25,8 @@ public class GlobalConfig {
     private static String dumpPath = null;
     private static String pkgPrefix = null;
     private static MockScope defaultMockScope = MockScope.GLOBAL;
+    private static boolean enhanceThreadLocal = false;
+    private static boolean enhanceOmniConstructor = false;
 
     public static void setLogLevel(String level) {
         if (level.equals(MUTE)) {
@@ -77,5 +79,21 @@ public class GlobalConfig {
         } else if (!DISABLE_LOG_FILE.equals(logFile)) {
             LogUtil.setGlobalLogPath(PathUtil.join(System.getProperty(PROPERTY_USER_DIR), logFile));
         }
+    }
+
+    public static void setEnhanceThreadLocal(boolean enabled) {
+        enhanceThreadLocal = enabled;
+    }
+
+    public static boolean isEnhanceThreadLocal() {
+        return enhanceThreadLocal;
+    }
+
+    public static void setEnhanceOmniConstructor(boolean enabled) {
+        enhanceOmniConstructor = enabled;
+    }
+
+    public static boolean isEnhanceOmniConstructor() {
+        return enhanceOmniConstructor;
     }
 }

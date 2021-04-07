@@ -52,7 +52,8 @@ public class TestableClassTransformer implements ClassFileTransformer {
             return null;
         }
         LogUtil.verbose("Handle class: " + className);
-        byte[] bytes = new OmniClassHandler().getBytes(classFileBuffer);
+        byte[] bytes = GlobalConfig.isEnhanceOmniConstructor() ?
+            new OmniClassHandler().getBytes(classFileBuffer) : classFileBuffer;
         ClassNode cn = ClassUtil.getClassNode(className);
         if (cn != null) {
             return transformMock(bytes, cn);

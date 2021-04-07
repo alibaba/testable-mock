@@ -1,5 +1,6 @@
 package com.alibaba.testable.agent;
 
+import com.alibaba.testable.agent.config.PropertiesParser;
 import com.alibaba.testable.agent.transformer.TestableClassTransformer;
 import com.alibaba.testable.agent.util.GlobalConfig;
 import com.alibaba.testable.core.model.MockScope;
@@ -21,13 +22,15 @@ public class PreMain {
     private static final String DUMP_PATH = "dumpPath";
     private static final String PKG_PREFIX = "pkgPrefix";
     private static final String MOCK_SCOPE = "mockScope";
+    private static final String CONFIG_FILE = "configFile";
     private static final String EQUAL = "=";
-    private static boolean enhanceThreadLocal = false;
+    private static String configFilePath = null;
 
     public static void premain(String agentArgs, Instrumentation inst) {
         parseArgs(agentArgs);
+        new PropertiesParser().parseFile(configFilePath);
         GlobalConfig.setupLogRootPath();
-        if (enhanceThreadLocal) {
+        if (GlobalConfig.isEnhanceThreadLocal()) {
             // add transmittable thread local transformer
             TtlAgent.premain(agentArgs, inst);
         }
@@ -56,11 +59,13 @@ public class PreMain {
                     GlobalConfig.setPkgPrefix(v);
                 } else if (k.equals(MOCK_SCOPE)) {
                     GlobalConfig.setDefaultMockScope(MockScope.of(v));
+                } else if (k.equals(CONFIG_FILE)) {
+                    configFilePath = v;
                 }
             } else {
                 // parameter with single value
                 if (a.equals(USE_THREAD_POOL)) {
-                    enhanceThreadLocal = true;
+                    GlobalConfig.setEnhanceThreadLocal(true);
                 }
             }
         }
