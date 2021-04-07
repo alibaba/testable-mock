@@ -1,5 +1,10 @@
 # Release Note
 
+## 0.6.2
+- 支持通过Properties文件配置TestableAgent
+- 默认禁用OmniConstructor相关的字节码增强
+- 修复OmniConstructor与`Spring`框架的兼容问题（issue-129）
+
 ## 0.6.1
 - 自动生成Mock扫描过程日志文件，便于自助排查问题
 - 修复一处`Spock`测试框架的兼容问题 (issue-121)

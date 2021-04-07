@@ -1,8 +1,13 @@
 # Release Note
 
+## 0.6.2
+- support setup global testable agent configure via properties file
+- disable OmniConstructor bytecode enhancement by default
+- fix a `Spring` framework compatibility issue with OmniConstructor
+
 ## 0.6.1
 - generate mock scanning log file automatically, for self-troubleshooting
-- fix a `Spock` test frame compatibility issue
+- fix a `Spock` test framework compatibility issue
 - fix a `Gradle` unit test runtime compatibility issue
 
 ## 0.6.0
