@@ -20,4 +20,4 @@ for md in docs/zh-cn/doc/setup.md docs/en-us/doc/setup.md; do
 done
 
 echo "Done. Please setup maven configuration for sonatype, and manually run \"mvn clean deploy -Prelease\""
-echo "Then commit the new version with \"git add . && git commit -m 'release v${VERSION}' && git tag v${VERSION} && git push --tag\""
+echo "Then commit the new version with \"git add . && git commit -m 'release v${NEXT}' && git tag v${NEXT} && git push --tag\""
