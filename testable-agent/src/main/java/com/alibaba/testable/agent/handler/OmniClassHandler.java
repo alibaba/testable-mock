@@ -24,8 +24,7 @@ public class OmniClassHandler extends BaseClassHandler {
     private static final String METHOD_START = "(";
     private static final String VOID_METHOD_END = ")V";
     private static final String VOID_METHOD = "()V";
-    private static final String ENABLE_CONFIGURATION_PROPERTIES
-        = "Lorg/springframework/boot/context/properties/EnableConfigurationProperties;";
+    private static final String ENABLE_CONFIGURATION = "Lorg/springframework/context/annotation/Configuration;";
 
     private static final String[] JUNIT_TEST_ANNOTATIONS = new String[] {
         JUnit4Framework.ANNOTATION_TEST, JUnit5Framework.ANNOTATION_TEST, JUnit5Framework.ANNOTATION_PARAMETERIZED_TEST
@@ -62,7 +61,7 @@ public class OmniClassHandler extends BaseClassHandler {
             return false;
         }
         for (AnnotationNode an : cn.visibleAnnotations) {
-            if (an.desc.equals(ENABLE_CONFIGURATION_PROPERTIES)) {
+            if (an.desc.equals(ENABLE_CONFIGURATION)) {
                 return true;
             }
         }
