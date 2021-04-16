@@ -25,7 +25,7 @@ public class PropertiesParser {
     private static final String ENABLE_THREAD_POOL = "thread.pool.enhance.enable";
     private static final String ENABLE_OMNI_INJECT = "omni.constructor.enhance.enable";
 
-    public void parseFile(String configFilePath) {
+    public static void parseFile(String configFilePath) {
         String path = (configFilePath == null) ? DEFAULT_CONFIG_FILE : configFilePath;
         String fullPath = PathUtil.join(System.getProperty(PROPERTY_USER_DIR), path);
         Properties pps = new Properties();
@@ -44,7 +44,7 @@ public class PropertiesParser {
         parsePropertiesContent(pps);
     }
 
-    private void parsePropertiesContent(Properties pps) {
+    private static void parsePropertiesContent(Properties pps) {
         Enumeration<?> en = pps.propertyNames();
         while(en.hasMoreElements()) {
             String k = (String)en.nextElement();
