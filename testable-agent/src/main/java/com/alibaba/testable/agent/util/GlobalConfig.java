@@ -5,9 +5,11 @@ import com.alibaba.testable.core.model.MockScope;
 import com.alibaba.testable.core.util.LogUtil;
 
 import java.io.File;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.alibaba.testable.agent.constant.ConstPool.PROPERTY_TEMP_DIR;
 import static com.alibaba.testable.agent.constant.ConstPool.PROPERTY_USER_DIR;
 import static com.alibaba.testable.core.util.PathUtil.createFolder;
 
@@ -22,8 +24,9 @@ public class GlobalConfig {
     private static final String DISABLE_LOG_FILE = "null";
     private static final String COMMA = ",";
     private static final String DOT = ".";
-
     private static final String TESTABLE_AGENT_LOG = "testable-agent.log";
+    private static final String DEFAULT_MAVEN_OUTPUT_FOLDER = "target";
+    private static final String DEFAULT_GRADLE_OUTPUT_FOLDER = "gradle";
 
     private static String logFile = null;
     private static String dumpPath = null;
@@ -78,13 +81,30 @@ public class GlobalConfig {
 
     public static void setupLogRootPath() {
         if (logFile == null) {
-            String baseFolder = PathUtil.getFirstLevelFolder(System.getProperty(PROPERTY_USER_DIR),
-                Object.class.getResource("/").getPath());
+            // Use default log file location
+            String baseFolder = getBuildOutputFolder();
             if (!baseFolder.isEmpty()) {
-                LogUtil.setGlobalLogPath(PathUtil.join(baseFolder, TESTABLE_AGENT_LOG));
+                String logFilePath = PathUtil.join(baseFolder, TESTABLE_AGENT_LOG);
+                LogUtil.setGlobalLogPath(logFilePath);
+                LogUtil.verbose("Generate testable agent log file at: %s", logFilePath);
             }
         } else if (!DISABLE_LOG_FILE.equals(logFile)) {
+            // Use custom log file location
             LogUtil.setGlobalLogPath(PathUtil.join(System.getProperty(PROPERTY_USER_DIR), logFile));
+        }
+    }
+
+    private static String getBuildOutputFolder() {
+        String contextFolder = System.getProperty(PROPERTY_USER_DIR);
+        URL rootResourceFolder = Object.class.getResource("/");
+        if (rootResourceFolder != null) {
+            return PathUtil.getFirstLevelFolder(contextFolder, rootResourceFolder.getPath());
+        } else if (PathUtil.folderExists(PathUtil.join(contextFolder, DEFAULT_MAVEN_OUTPUT_FOLDER))) {
+            return PathUtil.join(contextFolder, DEFAULT_MAVEN_OUTPUT_FOLDER);
+        } else if (PathUtil.folderExists(PathUtil.join(contextFolder, DEFAULT_GRADLE_OUTPUT_FOLDER))) {
+            return PathUtil.join(contextFolder, DEFAULT_GRADLE_OUTPUT_FOLDER);
+        } else {
+            return System.getProperty(PROPERTY_TEMP_DIR);
         }
     }
 

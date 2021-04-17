@@ -28,4 +28,13 @@ public class PathUtil {
         int pos = targetPath.indexOf(separator, rootFolder.length() + 1);
         return pos > 0 ? targetPath.substring(0, pos) : "";
     }
+
+    /**
+     * Check whether specified path exists and is folder
+     * @param path path to check
+     * @return exists or not
+     */
+    public static boolean folderExists(String path) {
+        return new File(path).isDirectory();
+    }
 }

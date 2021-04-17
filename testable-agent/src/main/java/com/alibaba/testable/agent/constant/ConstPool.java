@@ -10,6 +10,7 @@ public class ConstPool {
     public static final String FIELD_SCOPE = "scope";
 
     public static final String PROPERTY_USER_DIR = "user.dir";
+    public static final String PROPERTY_TEMP_DIR = "java.io.tmpdir";
 
     public static final String MOCK_WITH = "com.alibaba.testable.core.annotation.MockWith";
     public static final String DUMP_TO = "com.alibaba.testable.core.annotation.DumpTo";
