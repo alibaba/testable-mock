@@ -20,11 +20,12 @@ public class PropertiesParser {
     private static final String LOG_LEVEL = "log.level";
     private static final String LOG_FILE = "log.file";
     private static final String DUMP_PATH = "dump.path";
-    private static final String PKG_PREFIX_WHITELIST = "enhance.pkgPrefix.whiteList";
+    private static final String PKG_PREFIX_INCLUDES = "enhance.pkgPrefix.includes";
     private static final String INNER_MOCK_CLASS_NAME = "mock.innerClass.name";
     private static final String DEFAULT_MOCK_SCOPE = "mock.scope.default";
     private static final String ENABLE_THREAD_POOL = "thread.pool.enhance.enable";
     private static final String ENABLE_OMNI_INJECT = "omni.constructor.enhance.enable";
+    private static final String OMNI_INJECT_EXCLUDES = "omni.constructor.enhance.pkgPrefix.excludes";
 
     public static void parseFile(String configFilePath) {
         String path = (configFilePath == null) ? DEFAULT_CONFIG_FILE : configFilePath;
@@ -56,14 +57,16 @@ public class PropertiesParser {
                 GlobalConfig.setLogFile(v);
             } else if (k.equals(DUMP_PATH)) {
                 GlobalConfig.setDumpPath(v);
-            } else if (k.equals(PKG_PREFIX_WHITELIST)) {
-                GlobalConfig.setPkgPrefixes(v);
+            } else if (k.equals(PKG_PREFIX_INCLUDES)) {
+                GlobalConfig.setPkgPrefixWhiteList(v);
+            } else if (k.equals(OMNI_INJECT_EXCLUDES)) {
+                GlobalConfig.setOmniPkgPrefixBlackList(v);
             } else if (k.equals(DEFAULT_MOCK_SCOPE)) {
                 GlobalConfig.setDefaultMockScope(MockScope.of(v));
             } else if (k.equals(ENABLE_THREAD_POOL)) {
-                GlobalConfig.setEnhanceThreadLocal(Boolean.parseBoolean(v));
+                GlobalConfig.enableEnhanceThreadLocal(Boolean.parseBoolean(v));
             } else if (k.equals(ENABLE_OMNI_INJECT)) {
-                GlobalConfig.setEnhanceOmniConstructor(Boolean.parseBoolean(v));
+                GlobalConfig.enableEnhanceOmniConstructor(Boolean.parseBoolean(v));
             } else if (k.equals(INNER_MOCK_CLASS_NAME)) {
                 GlobalConfig.setInnerMockClassName(v);
             }

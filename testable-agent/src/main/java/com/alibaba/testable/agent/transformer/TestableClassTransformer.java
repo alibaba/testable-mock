@@ -50,13 +50,18 @@ public class TestableClassTransformer implements ClassFileTransformer {
             return null;
         }
         LogUtil.verbose("Handle class: " + className);
-        byte[] bytes = GlobalConfig.isEnhanceOmniConstructor() ?
-            new OmniClassHandler().getBytes(classFileBuffer) : classFileBuffer;
+        byte[] bytes = shouldOmniEnhance(className) ? new OmniClassHandler().getBytes(classFileBuffer) : classFileBuffer;
         ClassNode cn = ClassUtil.getClassNode(className);
         if (cn != null) {
             return transformMock(bytes, cn);
         }
         return bytes;
+    }
+
+    private boolean shouldOmniEnhance(String className) {
+        String[] blackList = GlobalConfig.getOmniPkgPrefixBlackList();
+        return GlobalConfig.shouldEnhanceOmniConstructor() &&
+            (blackList == null || !isInPrefixList(className, blackList));
     }
 
     private byte[] transformMock(byte[] bytes, ClassNode cn) {
@@ -141,20 +146,18 @@ public class TestableClassTransformer implements ClassFileTransformer {
         if (null == className || className.contains(CGLIB_CLASS_PATTERN)) {
             return true;
         }
-        List<String> whitePrefixes = GlobalConfig.getPkgPrefixes();
-        if (!whitePrefixes.isEmpty()) {
-            for (String prefix : whitePrefixes) {
-                if (className.startsWith(prefix)) {
-                    // Only consider package in provided list as non-system class
-                    return false;
-                }
-            }
-            return true;
-        } else {
-            for (String prefix : BLACKLIST_PREFIXES) {
-                if (className.startsWith(prefix)) {
-                    return true;
-                }
+        String[] pkgPrefixWhiteList = GlobalConfig.getPkgPrefixWhiteList();
+        if (pkgPrefixWhiteList != null) {
+            // Only consider package in provided list as non-system class
+            return !isInPrefixList(className, pkgPrefixWhiteList);
+        }
+        return isInPrefixList(className, BLACKLIST_PREFIXES);
+    }
+
+    private boolean isInPrefixList(String name, String[] prefixList) {
+        for (String prefix : prefixList) {
+            if (name.startsWith(prefix)) {
+                return true;
             }
         }
         return false;

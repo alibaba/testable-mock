@@ -33,7 +33,7 @@ public class ArgumentParser {
                 } else if (k.equals(DUMP_PATH)) {
                     GlobalConfig.setDumpPath(v);
                 } else if (k.equals(PKG_PREFIX)) {
-                    GlobalConfig.setPkgPrefixes(v);
+                    GlobalConfig.setPkgPrefixWhiteList(v);
                 } else if (k.equals(MOCK_SCOPE)) {
                     GlobalConfig.setDefaultMockScope(MockScope.of(v));
                 } else if (k.equals(CONFIG_FILE)) {
@@ -42,7 +42,7 @@ public class ArgumentParser {
             } else {
                 // parameter with single value
                 if (a.equals(USE_THREAD_POOL)) {
-                    GlobalConfig.setEnhanceThreadLocal(true);
+                    GlobalConfig.enableEnhanceThreadLocal(true);
                 }
             }
         }

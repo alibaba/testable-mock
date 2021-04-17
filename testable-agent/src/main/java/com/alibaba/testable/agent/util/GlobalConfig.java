@@ -30,7 +30,8 @@ public class GlobalConfig {
 
     private static String logFile = null;
     private static String dumpPath = null;
-    private static List<String> pkgPrefixes = new ArrayList<String>();
+    private static String[] pkgPrefixWhiteList = null;
+    private static String[] omniPkgPrefixBlackList = null;
     private static MockScope defaultMockScope = MockScope.GLOBAL;
     private static boolean enhanceThreadLocal = false;
     private static boolean enhanceOmniConstructor = false;
@@ -61,14 +62,20 @@ public class GlobalConfig {
         }
     }
 
-    public static List<String> getPkgPrefixes() {
-        return pkgPrefixes;
+    public static String[] getPkgPrefixWhiteList() {
+        return pkgPrefixWhiteList;
     }
 
-    public static void setPkgPrefixes(String prefixes) {
-        for (String p : prefixes.split(COMMA)) {
-            pkgPrefixes.add(p.endsWith(DOT) ? p : p + DOT);
-        }
+    public static void setPkgPrefixWhiteList(String prefixes) {
+        pkgPrefixWhiteList = parsePkgPrefixList(prefixes).toArray(new String[0]);
+    }
+
+    public static String[] getOmniPkgPrefixBlackList() {
+        return omniPkgPrefixBlackList;
+    }
+
+    public static void setOmniPkgPrefixBlackList(String prefixes) {
+        omniPkgPrefixBlackList = parsePkgPrefixList(prefixes).toArray(new String[0]);
     }
 
     public static MockScope getDefaultMockScope() {
@@ -108,19 +115,19 @@ public class GlobalConfig {
         }
     }
 
-    public static void setEnhanceThreadLocal(boolean enabled) {
+    public static void enableEnhanceThreadLocal(boolean enabled) {
         enhanceThreadLocal = enabled;
     }
 
-    public static boolean isEnhanceThreadLocal() {
+    public static boolean shouldEnhanceThreadLocal() {
         return enhanceThreadLocal;
     }
 
-    public static void setEnhanceOmniConstructor(boolean enabled) {
+    public static void enableEnhanceOmniConstructor(boolean enabled) {
         enhanceOmniConstructor = enabled;
     }
 
-    public static boolean isEnhanceOmniConstructor() {
+    public static boolean shouldEnhanceOmniConstructor() {
         return enhanceOmniConstructor;
     }
 
@@ -130,5 +137,13 @@ public class GlobalConfig {
 
     public static String getInnerMockClassName() {
         return innerMockClassName;
+    }
+
+    private static List<String> parsePkgPrefixList(String prefixes) {
+        List<String> whiteList = new ArrayList<String>();
+        for (String p : prefixes.split(COMMA)) {
+            whiteList.add(p.endsWith(DOT) ? p : p + DOT);
+        }
+        return whiteList;
     }
 }

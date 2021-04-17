@@ -19,7 +19,7 @@ public class PreMain {
         ArgumentParser.parseArgs(agentArgs);
         PropertiesParser.parseFile(ArgumentParser.configFilePath);
         GlobalConfig.setupLogRootPath();
-        if (GlobalConfig.isEnhanceThreadLocal()) {
+        if (GlobalConfig.shouldEnhanceThreadLocal()) {
             // add transmittable thread local transformer
             TtlAgent.premain(agentArgs, inst);
         }
