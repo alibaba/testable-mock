@@ -11,6 +11,8 @@ import java.util.List;
 
 import static com.alibaba.testable.agent.constant.ConstPool.PROPERTY_TEMP_DIR;
 import static com.alibaba.testable.agent.constant.ConstPool.PROPERTY_USER_DIR;
+import static com.alibaba.testable.core.constant.ConstPool.COMMA;
+import static com.alibaba.testable.core.constant.ConstPool.DOT;
 import static com.alibaba.testable.core.util.PathUtil.createFolder;
 
 /**
@@ -22,8 +24,6 @@ public class GlobalConfig {
     private static final String DEBUG = "debug";
     private static final String VERBOSE = "verbose";
     private static final String DISABLE_LOG_FILE = "null";
-    private static final String COMMA = ",";
-    private static final String DOT = ".";
     private static final String TESTABLE_AGENT_LOG = "testable-agent.log";
     private static final String DEFAULT_MAVEN_OUTPUT_FOLDER = "target";
     private static final String DEFAULT_GRADLE_OUTPUT_FOLDER = "gradle";
@@ -142,7 +142,7 @@ public class GlobalConfig {
     private static List<String> parsePkgPrefixList(String prefixes) {
         List<String> whiteList = new ArrayList<String>();
         for (String p : prefixes.split(COMMA)) {
-            whiteList.add(p.endsWith(DOT) ? p : p + DOT);
+            whiteList.add(ClassUtil.toSlashSeparatedName(p.endsWith(DOT) ? p : p + DOT));
         }
         return whiteList;
     }
