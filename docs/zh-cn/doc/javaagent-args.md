@@ -32,7 +32,7 @@
 
 ```xml
 <configuration>
-    <argLine>-javaagent:${settings.localRepository}/com/alibaba/testable/testable-agent/${testable.version}/testable-agent-${testable.version}.jar=mockScope=associated&amp;pkgPrefix=com.demo.</argLine>
+    <argLine>-javaagent:${settings.localRepository}/com/alibaba/testable/testable-agent/${testable.version}/testable-agent-${testable.version}.jar=mockScope=associated&amp;pkgPrefix=com.demo</argLine>
 </configuration>
 ```
 
@@ -42,5 +42,5 @@
 
 
 ```groovy
-    jvmArgs "-javaagent:${classpath.find { it.name.contains("testable-agent") }.absolutePath}=mockScope=associated&pkgPrefix=com.demo."
+    jvmArgs "-javaagent:${classpath.find { it.name.contains("testable-agent") }.absolutePath}=mockScope=associated&pkgPrefix=com.demo"
 ```

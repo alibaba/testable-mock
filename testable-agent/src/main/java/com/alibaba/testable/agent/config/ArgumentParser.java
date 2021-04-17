@@ -33,7 +33,7 @@ public class ArgumentParser {
                 } else if (k.equals(DUMP_PATH)) {
                     GlobalConfig.setDumpPath(v);
                 } else if (k.equals(PKG_PREFIX)) {
-                    GlobalConfig.setPkgPrefix(v);
+                    GlobalConfig.setPkgPrefixes(v);
                 } else if (k.equals(MOCK_SCOPE)) {
                     GlobalConfig.setDefaultMockScope(MockScope.of(v));
                 } else if (k.equals(CONFIG_FILE)) {

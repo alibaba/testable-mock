@@ -57,7 +57,7 @@ public class PropertiesParser {
             } else if (k.equals(DUMP_PATH)) {
                 GlobalConfig.setDumpPath(v);
             } else if (k.equals(PKG_PREFIX_WHITELIST)) {
-                GlobalConfig.setPkgPrefix(v);
+                GlobalConfig.setPkgPrefixes(v);
             } else if (k.equals(DEFAULT_MOCK_SCOPE)) {
                 GlobalConfig.setDefaultMockScope(MockScope.of(v));
             } else if (k.equals(ENABLE_THREAD_POOL)) {

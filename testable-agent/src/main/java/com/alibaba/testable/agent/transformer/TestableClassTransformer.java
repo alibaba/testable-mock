@@ -141,9 +141,9 @@ public class TestableClassTransformer implements ClassFileTransformer {
         if (null == className || className.contains(CGLIB_CLASS_PATTERN)) {
             return true;
         }
-        String whitePrefix = GlobalConfig.getPkgPrefix();
-        if (whitePrefix != null) {
-            for (String prefix : whitePrefix.split(COMMA)) {
+        List<String> whitePrefixes = GlobalConfig.getPkgPrefixes();
+        if (!whitePrefixes.isEmpty()) {
+            for (String prefix : whitePrefixes) {
                 if (className.startsWith(prefix)) {
                     // Only consider package in provided list as non-system class
                     return false;
