@@ -20,7 +20,8 @@ public class PropertiesParser {
     private static final String LOG_LEVEL = "log.level";
     private static final String LOG_FILE = "log.file";
     private static final String DUMP_PATH = "dump.path";
-    private static final String PKG_PREFIX_WHITELIST = "custom.pkgPrefix.whiteList";
+    private static final String PKG_PREFIX_WHITELIST = "enhance.pkgPrefix.whiteList";
+    private static final String INNER_MOCK_CLASS_NAME = "mock.innerClass.name";
     private static final String DEFAULT_MOCK_SCOPE = "mock.scope.default";
     private static final String ENABLE_THREAD_POOL = "thread.pool.enhance.enable";
     private static final String ENABLE_OMNI_INJECT = "omni.constructor.enhance.enable";
@@ -63,6 +64,8 @@ public class PropertiesParser {
                 GlobalConfig.setEnhanceThreadLocal(Boolean.parseBoolean(v));
             } else if (k.equals(ENABLE_OMNI_INJECT)) {
                 GlobalConfig.setEnhanceOmniConstructor(Boolean.parseBoolean(v));
+            } else if (k.equals(INNER_MOCK_CLASS_NAME)) {
+                GlobalConfig.setInnerMockClassName(v);
             }
         }
     }

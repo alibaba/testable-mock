@@ -5,6 +5,8 @@ import com.alibaba.testable.core.model.MockScope;
 import com.alibaba.testable.core.util.LogUtil;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.alibaba.testable.agent.constant.ConstPool.PROPERTY_USER_DIR;
 import static com.alibaba.testable.core.util.PathUtil.createFolder;
@@ -18,15 +20,18 @@ public class GlobalConfig {
     private static final String DEBUG = "debug";
     private static final String VERBOSE = "verbose";
     private static final String DISABLE_LOG_FILE = "null";
+    private static final String COMMA = ",";
+    private static final String DOT = ".";
 
     private static final String TESTABLE_AGENT_LOG = "testable-agent.log";
 
     private static String logFile = null;
     private static String dumpPath = null;
-    private static String pkgPrefix = null;
+    private static List<String> pkgPrefixes = new ArrayList<String>();
     private static MockScope defaultMockScope = MockScope.GLOBAL;
     private static boolean enhanceThreadLocal = false;
     private static boolean enhanceOmniConstructor = false;
+    private static String innerMockClassName = "Mock";
 
     public static void setLogLevel(String level) {
         if (level.equals(MUTE)) {
@@ -53,12 +58,14 @@ public class GlobalConfig {
         }
     }
 
-    public static String getPkgPrefix() {
-        return pkgPrefix;
+    public static List<String> getPkgPrefixes() {
+        return pkgPrefixes;
     }
 
-    public static void setPkgPrefix(String prefix) {
-        pkgPrefix = prefix;
+    public static void setPkgPrefixes(String prefixes) {
+        for (String p : prefixes.split(COMMA)) {
+            pkgPrefixes.add(p.endsWith(DOT) ? p : p + DOT);
+        }
     }
 
     public static MockScope getDefaultMockScope() {
@@ -95,5 +102,13 @@ public class GlobalConfig {
 
     public static boolean isEnhanceOmniConstructor() {
         return enhanceOmniConstructor;
+    }
+
+    public static void setInnerMockClassName(String name) {
+        innerMockClassName = name;
+    }
+
+    public static String getInnerMockClassName() {
+        return innerMockClassName;
     }
 }

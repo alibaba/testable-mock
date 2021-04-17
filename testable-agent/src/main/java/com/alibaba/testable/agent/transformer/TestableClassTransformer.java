@@ -34,8 +34,6 @@ public class TestableClassTransformer implements ClassFileTransformer {
 
     private static final String FIELD_VALUE = "value";
     private static final String FIELD_TREAT_AS = "treatAs";
-    private static final String COMMA = ",";
-    private static final String CLASS_NAME_MOCK = "Mock";
 
     /**
      * Just avoid spend time to scan those surely non-user classes, should keep these lists as tiny as possible
@@ -260,7 +258,7 @@ public class TestableClassTransformer implements ClassFileTransformer {
     }
 
     private String getInnerMockClassName(String className) {
-        return className + DOLLAR + CLASS_NAME_MOCK;
+        return className + DOLLAR + GlobalConfig.getInnerMockClassName();
     }
 
 }
