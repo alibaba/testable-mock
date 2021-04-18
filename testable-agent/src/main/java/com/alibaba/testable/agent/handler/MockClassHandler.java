@@ -123,7 +123,7 @@ public class MockClassHandler extends BaseClassWithContextHandler {
     }
 
     private ImmutablePair<LabelNode, LabelNode> getStartAndEndLabel(MethodNode mn) {
-        if (MethodUtil.isStatic(mn)) {
+        if (MethodUtil.isStatic(mn) || mn.localVariables.isEmpty()) {
             LabelNode startLabel = null, endLabel = null;
             for (AbstractInsnNode n = mn.instructions.getFirst(); n != null; n = n.getNext()) {
                 if (n instanceof LabelNode) {
