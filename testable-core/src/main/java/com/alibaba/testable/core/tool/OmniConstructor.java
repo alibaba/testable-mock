@@ -2,6 +2,7 @@ package com.alibaba.testable.core.tool;
 
 import com.alibaba.testable.core.exception.ClassConstructionException;
 import com.alibaba.testable.core.model.TestableNull;
+import com.alibaba.testable.core.util.CollectionUtil;
 import com.alibaba.testable.core.util.TypeUtil;
 
 import javax.lang.model.type.NullType;
@@ -200,12 +201,24 @@ public class OmniConstructor {
             Class<?>[] types = constructor.getParameterTypes();
             if (types.length == 1 && types[0].equals(NullType.class)) {
                 return constructor;
-            } else if (types.length < minimalParametersSize) {
+            } else if (types.length < minimalParametersSize && !anyMatch(types, clazz)) {
                 minimalParametersSize = types.length;
                 bestConstructor = constructor;
             }
         }
         return bestConstructor;
+    }
+
+    private static boolean anyMatch(Class<?>[] types, Class<?> clazz) {
+        for (Class<?> t : types) {
+            if (clazz.getName().equals(t.getName())) {
+                return true;
+            }
+            if (clazz.getSuperclass() != null && clazz.getSuperclass().getName().equals(t.getName())) {
+                return true;
+            }
+        }
+        return false;
     }
 
 }
