@@ -17,15 +17,15 @@ import static com.alibaba.testable.agent.constant.ConstPool.PROPERTY_USER_DIR;
 public class PropertiesParser {
 
     private static final String DEFAULT_CONFIG_FILE = "src/test/resources/testable.properties";
-    private static final String LOG_LEVEL = "log.level";
-    private static final String LOG_FILE = "log.file";
     private static final String DUMP_PATH = "dump.path";
     private static final String PKG_PREFIX_INCLUDES = "enhance.pkgPrefix.includes";
+    private static final String LOG_FILE = "log.file";
+    private static final String LOG_LEVEL = "log.level";
     private static final String INNER_MOCK_CLASS_NAME = "mock.innerClass.name";
     private static final String DEFAULT_MOCK_SCOPE = "mock.scope.default";
-    private static final String ENABLE_THREAD_POOL = "thread.pool.enhance.enable";
     private static final String ENABLE_OMNI_INJECT = "omni.constructor.enhance.enable";
     private static final String OMNI_INJECT_EXCLUDES = "omni.constructor.enhance.pkgPrefix.excludes";
+    private static final String ENABLE_THREAD_POOL = "thread.pool.enhance.enable";
 
     public static void parseFile(String configFilePath) {
         String path = (configFilePath == null) ? DEFAULT_CONFIG_FILE : configFilePath;
@@ -51,24 +51,24 @@ public class PropertiesParser {
         while(en.hasMoreElements()) {
             String k = (String)en.nextElement();
             String v = pps.getProperty(k);
-            if (k.equals(LOG_LEVEL)) {
-                GlobalConfig.setLogLevel(v);
-            } else if (k.equals(LOG_FILE)) {
-                GlobalConfig.setLogFile(v);
-            } else if (k.equals(DUMP_PATH)) {
+            if (k.equals(DUMP_PATH)) {
                 GlobalConfig.setDumpPath(v);
             } else if (k.equals(PKG_PREFIX_INCLUDES)) {
                 GlobalConfig.setPkgPrefixWhiteList(v);
-            } else if (k.equals(OMNI_INJECT_EXCLUDES)) {
-                GlobalConfig.setOmniPkgPrefixBlackList(v);
-            } else if (k.equals(DEFAULT_MOCK_SCOPE)) {
-                GlobalConfig.setDefaultMockScope(MockScope.of(v));
-            } else if (k.equals(ENABLE_THREAD_POOL)) {
-                GlobalConfig.enableEnhanceThreadLocal(Boolean.parseBoolean(v));
-            } else if (k.equals(ENABLE_OMNI_INJECT)) {
-                GlobalConfig.enableEnhanceOmniConstructor(Boolean.parseBoolean(v));
+            } else if (k.equals(LOG_FILE)) {
+                GlobalConfig.setLogFile(v);
+            } else if (k.equals(LOG_LEVEL)) {
+                GlobalConfig.setLogLevel(v);
             } else if (k.equals(INNER_MOCK_CLASS_NAME)) {
                 GlobalConfig.setInnerMockClassName(v);
+            } else if (k.equals(DEFAULT_MOCK_SCOPE)) {
+                GlobalConfig.setDefaultMockScope(MockScope.of(v));
+            } else if (k.equals(ENABLE_OMNI_INJECT)) {
+                GlobalConfig.enableEnhanceOmniConstructor(Boolean.parseBoolean(v));
+            } else if (k.equals(OMNI_INJECT_EXCLUDES)) {
+                GlobalConfig.setOmniPkgPrefixBlackList(v);
+            } else if (k.equals(ENABLE_THREAD_POOL)) {
+                GlobalConfig.enableEnhanceThreadLocal(Boolean.parseBoolean(v));
             }
         }
     }
