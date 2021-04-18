@@ -1,5 +1,12 @@
 # Release Note
 
+## 0.6.3
+- support custom inner `Mock` class name
+- support skip specified packages from `OmniConstructor` enhancement
+- fix 2 circle construction cases in `OmniConstructor`
+- fix an index out-of-range issue caused by non-static method without `this` reference
+- fix a null pointer exception caused by resource folder unavailable at runtime
+
 ## 0.6.2
 - support setup global testable agent configure via properties file
 - disable OmniConstructor bytecode enhancement by default

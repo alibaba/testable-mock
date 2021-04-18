@@ -1,5 +1,12 @@
 # Release Note
 
+## 0.6.3
+- 支持自定义内部Mock容器类名（issue-137）
+- 支持自定义`OmniConstructor`字节码增强范围
+- 修复两处可导致`OmniConstructor`无限递归构建的问题（包括issue-138）
+- 修复一处非静态方法获取`this`引用失败导致的下标越界异常（issue-136）
+- 修复获取构建目录失败导致的空指针异常（issue-135）
+
 ## 0.6.2
 - 支持通过Properties文件配置TestableAgent
 - 默认禁用OmniConstructor相关的字节码增强
@@ -120,26 +127,26 @@
 - 重名了现有的各种注解，以便与更好的与实际功能对应
 
 ## v0.1.0
-- move generated agent jar to class folder
-- support mock method of any object
+- 将生成的Agent Jar包自动移到打包工程的Class目录
+- 支持Mock任意类型的方法调用（不再局限于被测类中的方法）
 
 ## v0.0.5
-- use dynamically runtime modification to replace static `e.java` file
-- get rid of unit test framework dependence
-- add testable ref field in test class at runtime instead of compile time
+- 使用运行期字节码修改替代预先生成的`e.java`文件
+- 消除所有对特定单元测试框架的定制逻辑
+- 将测试类中的Testable引用字段从编译期生成改为运行期生成
 
 ## v0.0.4
-- use runtime byte code rewrite to invoke testable setup method
-- add `TestableUtil` class to fetch current test case and invocation source
+- 改用运行期字节码修改来调用Testable的`setup`方法
+- 添加`TestableUtil`工具类用于获取当前测试用例和调用来源
 
 ## v0.0.3
-- use global method invoke to access private members instead of modification in place
-- use `e.java` replace `testable` class make code more readable
-- introduce `agent` module, use runtime byte code modification to support new operation and member method mocking
+- 使用静态方法封装私有成员的访问过程，不在原调用处直接添加反射代码
+- 使用`e.java`文件替代`testable`类型，提高代码可读性
+- 引入`agent`模块，使用运行期字节码修改实现`new`操作和私有成员调用的Mock
 
 ## v0.0.2
-- add support of member method mocking by compile time code modification
+- 基于编译期代码修改支持Mock私有成员方法的调用
 
 ## v0.0.1
-- PoC version
-- use compile time code modification to support new operation mocking and private field & method access
+- 首个概念验证版本
+- 基于编译期代码修改支持`new`操作的Mock和访问被测类私有成员
