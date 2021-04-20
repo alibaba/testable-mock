@@ -101,7 +101,8 @@ public class MockClassHandler extends BaseClassWithContextHandler {
             // must get label before method description changed
             ImmutablePair<LabelNode, LabelNode> labels = getStartAndEndLabel(mn);
             mn.desc = MethodUtil.addParameterAtBegin(mn.desc, targetClassName);
-            int parameterOffset = MethodUtil.isStatic(mn) ? 0 : 1;
+            // in certain case, local variable table of non-static method can be empty (issue-136)
+            int parameterOffset = MethodUtil.isStatic(mn) ? 0 : Math.min(mn.localVariables.size(), 1);
             mn.localVariables.add(parameterOffset, new LocalVariableNode(SELF_REF, targetClassName, null,
                 labels.left, labels.right, parameterOffset));
             for (int i = parameterOffset + 1; i < mn.localVariables.size(); i++) {
@@ -123,6 +124,7 @@ public class MockClassHandler extends BaseClassWithContextHandler {
     }
 
     private ImmutablePair<LabelNode, LabelNode> getStartAndEndLabel(MethodNode mn) {
+        // in certain case, local variable table of non-static method can be empty (issue-136)
         if (MethodUtil.isStatic(mn) || mn.localVariables.isEmpty()) {
             LabelNode startLabel = null, endLabel = null;
             for (AbstractInsnNode n = mn.instructions.getFirst(); n != null; n = n.getNext()) {
