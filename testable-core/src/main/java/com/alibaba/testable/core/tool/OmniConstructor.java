@@ -157,6 +157,9 @@ public class OmniConstructor {
 
     private static <T> void handleCircleReference(T instance, Map<Class<?>, Object> classPool)
         throws IllegalAccessException {
+        if (instance == null) {
+            return;
+        }
         classPool.put(instance.getClass(), instance);
         for (Field f : TypeUtil.getAllFields(instance.getClass())) {
             f.setAccessible(true);
@@ -171,7 +174,7 @@ public class OmniConstructor {
             } else if (!fieldType.isPrimitive() && !TypeUtil.isBasicType(fieldType)) {
                 if (fieldIns == null && classPool.containsKey(fieldType)) {
                     f.set(instance, classPool.get(fieldType));
-                } else if (fieldIns != null && !classPool.containsKey(fieldType)) {
+                } else if (!classPool.containsKey(fieldType)) {
                     handleCircleReference(fieldIns, classPool);
                 }
             }
