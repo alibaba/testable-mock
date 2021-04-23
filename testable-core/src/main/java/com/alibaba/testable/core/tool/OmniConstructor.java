@@ -43,7 +43,7 @@ public class OmniConstructor {
     }
 
     private static <T> T newInstance(Class<T> clazz, Set<Class<?>> classPool, int level) {
-        LogUtil.verbose(level, "creating %s", clazz.getSimpleName());
+        LogUtil.verbose(level, "Creating %s", clazz.getName());
         if (classPool.contains(clazz)) {
             return null;
         }
@@ -146,10 +146,12 @@ public class OmniConstructor {
         try {
             if (instance.getClass().isArray()) {
                 for (int i = 0; i < Array.getLength(instance); i++) {
-                    handleCircleReference(Array.get(instance, i), new HashMap<Class<?>, Object>(INITIAL_CAPACITY), ZERO);
+                    handleCircleReference(Array.get(instance, i), instance.getClass().getComponentType(),
+                        new HashMap<Class<?>, Object>(INITIAL_CAPACITY), ZERO);
                 }
             } else {
-                handleCircleReference(instance, new HashMap<Class<?>, Object>(INITIAL_CAPACITY), ZERO);
+                handleCircleReference(instance, instance.getClass(),
+                    new HashMap<Class<?>, Object>(INITIAL_CAPACITY), ZERO);
             }
         } catch (IllegalAccessException e) {
             throw new ClassConstructionException("Failed to access field", e);
@@ -157,33 +159,34 @@ public class OmniConstructor {
         return instance;
     }
 
-    private static <T> void handleCircleReference(T instance, Map<Class<?>, Object> classPool, int level)
+    private static <T> void handleCircleReference(T instance, Class<?> type, Map<Class<?>, Object> classPool, int level)
         throws IllegalAccessException {
         if (instance == null) {
             // don't travel null object
             return;
         }
-        LogUtil.verbose(level, "verifying %s", instance.getClass().getSimpleName());
-        classPool.put(instance.getClass(), instance);
-        for (Field f : TypeUtil.getAllFields(instance.getClass())) {
+        LogUtil.verbose(level, "Verifying %s", type.getName());
+        classPool.put(type, instance);
+        for (Field f : TypeUtil.getAllFields(type)) {
             f.setAccessible(true);
             Object fieldIns = f.get(instance);
             Class<?> fieldType = f.getType();
             if (fieldType.isArray()) {
                 if (fieldIns != null) {
                     for (int i = 0; i < Array.getLength(fieldIns); i++) {
-                        handleCircleReference(Array.get(fieldIns, i), classPool, level + 1);
+                        handleCircleReference(Array.get(fieldIns, i), fieldType.getComponentType(),
+                            classPool, level + 1);
                     }
                 }
             } else if (!fieldType.isPrimitive() && !TypeUtil.isBasicType(fieldType)) {
                 if (fieldIns == null && classPool.containsKey(fieldType)) {
                     f.set(instance, classPool.get(fieldType));
                 } else if (!classPool.containsKey(fieldType)) {
-                    handleCircleReference(fieldIns, classPool, level + 1);
+                    handleCircleReference(fieldIns, fieldType, classPool, level + 1);
                 }
             }
         }
-        classPool.remove(instance.getClass());
+        classPool.remove(type);
     }
 
     private static Object createInstance(Constructor<?> constructor, Set<Class<?>> classPool, int level)
