@@ -45,12 +45,11 @@ public class TestableClassTransformer implements ClassFileTransformer {
     @Override
     public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined,
                             ProtectionDomain protectionDomain, byte[] classFileBuffer) {
+        // className is in slash-separated format
         if (isSystemClass(className)) {
             // Ignore system class and reloaded class
             return null;
         }
-        // className is in slash-separated format
-        LogUtil.verbose("Handle class: " + className);
         byte[] bytes = shouldOmniEnhance(className) ? new OmniClassHandler().getBytes(classFileBuffer) : classFileBuffer;
         ClassNode cn = ClassUtil.getClassNode(className);
         if (cn != null) {

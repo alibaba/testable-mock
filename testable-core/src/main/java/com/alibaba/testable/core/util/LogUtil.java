@@ -17,8 +17,16 @@ public class LogUtil {
     private static FileOutputStream logFileStream = null;
 
     public static void verbose(String msg, Object... args) {
+        verbose(0, msg, args);
+    }
+
+    public static void diagnose(String msg, Object... args) {
+        diagnose(0, msg, args);
+    }
+
+    public static void verbose(int indent, String msg, Object... args) {
         if (isVerboseEnabled()) {
-            String text = String.format(msg + "\n", args);
+            String text = String.format(space(indent) + msg + "\n", args);
             System.out.print("[VERBOSE] ");
             System.out.print(text);
             write("[TIP] ");
@@ -26,8 +34,8 @@ public class LogUtil {
         }
     }
 
-    public static void diagnose(String msg, Object... args) {
-        String text = String.format(msg + "\n", args);
+    public static void diagnose(int indent, String msg, Object... args) {
+        String text = String.format(space(indent) + msg + "\n", args);
         if (currentLogLevel.level >= LogLevel.ENABLE.level) {
             System.out.print("[DIAGNOSE] ");
             System.out.print(text);
@@ -91,6 +99,10 @@ public class LogUtil {
         } catch (IOException e) {
             warn("Log file is not closed properly");
         }
+    }
+
+    private static String space(int indent) {
+        return StringUtil.repeat("  ", indent);
     }
 
     private static void write(String text) {
