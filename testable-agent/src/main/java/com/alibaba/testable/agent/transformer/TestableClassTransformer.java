@@ -34,6 +34,7 @@ public class TestableClassTransformer implements ClassFileTransformer {
 
     private static final String FIELD_VALUE = "value";
     private static final String FIELD_TREAT_AS = "treatAs";
+    private static final String CLASS_JUNIT_5_NESTED = "Lorg/junit/jupiter/api/Nested;";
 
     /**
      * Just avoid spend time to scan those surely non-user classes, should keep these lists as tiny as possible
@@ -119,7 +120,7 @@ public class TestableClassTransformer implements ClassFileTransformer {
     }
 
     private String foundMockForTestClass(String className) {
-        ClassNode cn = ClassUtil.getClassNode(className);
+        ClassNode cn = adaptInnerClass(ClassUtil.getClassNode(className));
         if (cn != null) {
             String mockClass = lookForMockWithAnnotationAsTestClass(cn);
             if (mockClass != null) {
@@ -131,6 +132,18 @@ public class TestableClassTransformer implements ClassFileTransformer {
             }
         }
         return lookForOuterMockClass(className);
+    }
+
+    private ClassNode adaptInnerClass(ClassNode cn) {
+        if (cn == null || cn.visibleAnnotations == null) {
+            return cn;
+        }
+        for (AnnotationNode an : cn.visibleAnnotations) {
+            if (an.desc.equals(CLASS_JUNIT_5_NESTED)) {
+                return ClassUtil.getClassNode(ClassUtil.toOuterClassName(cn.name));
+            }
+        }
+        return cn;
     }
 
     private String lookForOuterMockClass(String className) {

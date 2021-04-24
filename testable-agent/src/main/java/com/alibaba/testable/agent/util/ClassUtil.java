@@ -234,8 +234,17 @@ public class ClassUtil {
         return cn;
     }
 
+    /**
+     * Get outer class name from a inner class name
+     * @param name inner class name
+     * @return outer class name
+     */
+    public static String toOuterClassName(String name) {
+        int pos = name.lastIndexOf("$");
+        return (pos > 0) ? name.substring(0, pos) : name;
+    }
+
     private static String toDescriptor(Byte type, String objectType) {
         return "(" + (char)type.byteValue() + ")L" + objectType + ";";
     }
-
 }
