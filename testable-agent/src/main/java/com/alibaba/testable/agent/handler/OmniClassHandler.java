@@ -24,6 +24,7 @@ public class OmniClassHandler extends BaseClassHandler {
     private static final String VOID_METHOD_END = ")V";
     private static final String VOID_METHOD = "()V";
     private static final String ENABLE_CONFIGURATION = "Lorg/springframework/context/annotation/Configuration;";
+    private static final String CLASS_ABSTRACT_COLLECTION = "java/util/AbstractCollection";
 
     private static final String[] JUNIT_TEST_ANNOTATIONS = new String[] {
         JUnit4Framework.ANNOTATION_TEST, JUnit5Framework.ANNOTATION_TEST, JUnit5Framework.ANNOTATION_PARAMETERIZED_TEST
@@ -113,9 +114,13 @@ public class OmniClassHandler extends BaseClassHandler {
         InsnList il = new InsnList();
         il.add(start);
         il.add(new VarInsnNode(ALOAD, 0));
-        il.add(new VarInsnNode(ALOAD, 1));
-        il.add(new MethodInsnNode(INVOKESPECIAL, cn.superName, CONSTRUCTOR,
-            METHOD_START + ClassUtil.toByteCodeClassName(VOID_TYPE) + VOID_METHOD_END, false));
+        if (cn.superName.equals(CLASS_ABSTRACT_COLLECTION)) {
+            il.add(new MethodInsnNode(INVOKESPECIAL, cn.superName, CONSTRUCTOR, VOID_METHOD, false));
+        } else {
+            il.add(new VarInsnNode(ALOAD, 1));
+            il.add(new MethodInsnNode(INVOKESPECIAL, cn.superName, CONSTRUCTOR,
+                METHOD_START + ClassUtil.toByteCodeClassName(VOID_TYPE) + VOID_METHOD_END, false));
+        }
         il.add(new InsnNode(RETURN));
         il.add(end);
         return il;
