@@ -41,7 +41,9 @@ public class OmniConstructor {
     }
 
     private static <T> T newInstance(Class<T> clazz, Set<Class<?>> classPool, int level) {
-        LogUtil.verbose(level, "Creating %s", clazz.getName());
+        if (!clazz.equals(Void.class)) {
+            LogUtil.verbose(level, "Creating %s", clazz.getName());
+        }
         if (classPool.contains(clazz)) {
             return null;
         }
@@ -76,7 +78,7 @@ public class OmniConstructor {
 
     private static <T> T newObject(Class<T> clazz, Set<Class<?>> classPool, int level)
         throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
-        Object ins = createInstance(getBestConstructor(clazz), classPool, level);
+        Object ins = createInstance(clazz, classPool, level);
         if (!TypeUtil.isBasicType(clazz)) {
             for (Field f : TypeUtil.getAllFields(clazz)) {
                 f.setAccessible(true);
@@ -163,7 +165,9 @@ public class OmniConstructor {
             // don't travel null object
             return;
         }
-        LogUtil.verbose(level, "Verifying %s", type.getName());
+        if (!type.equals(Void.class)) {
+            LogUtil.verbose(level, "Verifying %s", type.getName());
+        }
         classPool.put(type, instance);
         for (Field f : TypeUtil.getAllFields(type)) {
             f.setAccessible(true);
@@ -187,8 +191,12 @@ public class OmniConstructor {
         classPool.remove(type);
     }
 
-    private static Object createInstance(Constructor<?> constructor, Set<Class<?>> classPool, int level)
+    private static Object createInstance(Class<?> clazz, Set<Class<?>> classPool, int level)
         throws InstantiationException, IllegalAccessException, InvocationTargetException {
+        Constructor<?> constructor = getBestConstructor(clazz);
+        if (constructor == null) {
+            throw new ClassConstructionException("Fail to invoke constructor of " + clazz.getName());
+        }
         constructor.setAccessible(true);
         Class<?>[] types = constructor.getParameterTypes();
         if (types.length == 1 && types[0].equals(Void.class)) {
