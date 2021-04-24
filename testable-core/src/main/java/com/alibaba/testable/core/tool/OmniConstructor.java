@@ -204,7 +204,7 @@ public class OmniConstructor {
         } else {
             Object[] args = new Object[types.length];
             for (int i = 0; i < types.length; i++) {
-                args[i] = newInstance(types[i], classPool, level + 1);
+                args[i] = types[i].equals(clazz) ? null : newInstance(types[i], classPool, level + 1);
             }
             return constructor.newInstance(args);
         }
@@ -217,24 +217,12 @@ public class OmniConstructor {
             Class<?>[] types = constructor.getParameterTypes();
             if (types.length == 1 && types[0].equals(Void.class)) {
                 return constructor;
-            } else if (types.length < minimalParametersSize && !anyMatch(types, clazz)) {
+            } else if (types.length < minimalParametersSize) {
                 minimalParametersSize = types.length;
                 bestConstructor = constructor;
             }
         }
         return bestConstructor;
-    }
-
-    private static boolean anyMatch(Class<?>[] types, Class<?> clazz) {
-        for (Class<?> t : types) {
-            if (clazz.getName().equals(t.getName())) {
-                return true;
-            }
-            if (clazz.getSuperclass() != null && clazz.getSuperclass().getName().equals(t.getName())) {
-                return true;
-            }
-        }
-        return false;
     }
 
 }
