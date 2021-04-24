@@ -1,11 +1,9 @@
 package com.alibaba.testable.core.tool;
 
 import com.alibaba.testable.core.exception.ClassConstructionException;
-import com.alibaba.testable.core.model.TestableNull;
 import com.alibaba.testable.core.util.LogUtil;
 import com.alibaba.testable.core.util.TypeUtil;
 
-import javax.lang.model.type.NullType;
 import java.lang.reflect.*;
 import java.util.*;
 
@@ -193,8 +191,8 @@ public class OmniConstructor {
         throws InstantiationException, IllegalAccessException, InvocationTargetException {
         constructor.setAccessible(true);
         Class<?>[] types = constructor.getParameterTypes();
-        if (types.length == 1 && types[0].equals(NullType.class)) {
-            return constructor.newInstance(new TestableNull());
+        if (types.length == 1 && types[0].equals(Void.class)) {
+            return constructor.newInstance(OmniConstructor.newInstance(Void.class));
         } else {
             Object[] args = new Object[types.length];
             for (int i = 0; i < types.length; i++) {
@@ -209,7 +207,7 @@ public class OmniConstructor {
         int minimalParametersSize = 999;
         for (Constructor<?> constructor : clazz.getDeclaredConstructors()) {
             Class<?>[] types = constructor.getParameterTypes();
-            if (types.length == 1 && types[0].equals(NullType.class)) {
+            if (types.length == 1 && types[0].equals(Void.class)) {
                 return constructor;
             } else if (types.length < minimalParametersSize && !anyMatch(types, clazz)) {
                 minimalParametersSize = types.length;
