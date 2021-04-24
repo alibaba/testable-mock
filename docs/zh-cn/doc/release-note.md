@@ -1,5 +1,10 @@
 # Release Note
 
+## 0.6.4
+- 移除`TestableNull`类型，让`OmniConstructor`更轻量
+- 支持JUnit 5的`@Nested`注解（issue-140）
+- 修复多处`OmniConstructor`的兼容性BUG（感谢[@ddatsh](https://github.com/ddatsh)）
+
 ## 0.6.3
 - 支持自定义内部Mock容器类名（issue-137）
 - 支持自定义`OmniConstructor`字节码增强范围

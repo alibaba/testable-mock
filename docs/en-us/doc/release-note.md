@@ -1,5 +1,10 @@
 # Release Note
 
+## 0.6.4
+- `TestableNull` class removed, let `OmniConstructor` even lighter
+- support `@Nested` annotation of JUnit 5
+- fix several `OmniConstructor` compatibility issues（thanks to [@ddatsh](https://github.com/ddatsh)）
+
 ## 0.6.3
 - support custom inner `Mock` class name
 - support skip specified packages from `OmniConstructor` enhancement
