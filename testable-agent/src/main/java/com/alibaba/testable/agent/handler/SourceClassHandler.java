@@ -58,6 +58,10 @@ public class SourceClassHandler extends BaseClassHandler {
     private void transformMethod(MethodNode mn, Set<MethodInfo> memberInjectMethods,
                                  Set<MethodInfo> newOperatorInjectMethods) {
         LogUtil.diagnose("  Found method %s", mn.name);
+        if (mn.name.startsWith("$")) {
+            // skip methods e.g. "$jacocoInit"
+            return;
+        }
         AbstractInsnNode[] instructions = mn.instructions.toArray();
         if (instructions.length == 0) {
             // native method (issue-52)
