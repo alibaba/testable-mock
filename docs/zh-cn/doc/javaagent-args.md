@@ -14,7 +14,7 @@
 |  配置项  | 描述  | 可用值和示例（`N/A`表示无需赋值） |
 |  ----   | ---- | ----  |
 | dump.path  | 将修改过后的字节码保存到本地指定目录（用于排查问题） | 相对项目根目录的位置，例如：`target/bytecode` |
-| enhance.pkgPrefix.includes  | 限定`TestableMock`仅对部分包生效 | 使用`,`分隔的包路径前缀列表，例如：`com.demo.svc,com.demo.dao` |
+| enhance.pkgPrefix.includes  | 让`TestableMock`仅在特定包内生效，通常用于大型项目 | 使用`,`分隔的包路径前缀列表，例如：`com.demo.biz,com.3rd.biz` |
 | log.file  | 指定TestableAgent日志文件位置 | 相对项目根目录的位置，例如：`target/testable/agent.log`，特殊值`null`表示禁用日志文件 |
 | log.level  | 修改全局日志级别 | 可用值为：`mute`（禁止打印警告） / `debug`（打印调试信息） / `verbose`（打印非常详细的调试信息） |
 | mock.innerClass.name | 修改测试类中的内置Mock容器类名 | 任意符合Java类名的值，默认值为`Mock` |
@@ -37,7 +37,7 @@
 | logLevel      | 修改全局日志级别 | 可用值为：`mute`（禁止打印警告） / `debug`（打印调试信息） / `verbose`（打印非常详细的调试信息） |
 | logFile       | 指定TestableAgent日志文件位置 | 相对项目根目录的位置，例如：`target/testable/agent.log`，特殊值`null`表示禁用日志文件 |
 | dumpPath      | 将修改过后的字节码保存到本地指定目录（用于排查问题） | 相对项目根目录的位置，例如：`target/bytecode` |
-| pkgPrefix     | 限定`TestableMock`仅对部分包生效 | 使用`,`分隔的包路径前缀列表，例如：`com.demo.svc,com.demo.dao` |
+| pkgPrefix     | 让`TestableMock`仅在特定包内生效，通常用于大型项目 | 使用`,`分隔的包路径前缀列表，例如：`com.demo.biz,com.3rd.biz` |
 | mockScope     | 修改默认的Mock生效范围（详见[Mock生效范围](zh-cn/doc/scope-of-mock)） | 可用值为：`global`（全局生效） / `associated`（只对关联的测试用例生效） |
 | useThreadPool | 启用基于`TransmittableThreadLocal`的Mock上下文存储（用于包含线程池的测试用例） | `N/A` |
 
