@@ -7,7 +7,9 @@ import com.alibaba.testable.agent.util.CollectionUtil;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.tree.*;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static com.alibaba.testable.agent.util.ClassUtil.CLASS_OBJECT;
 import static com.alibaba.testable.core.constant.ConstPool.CONSTRUCTOR;
@@ -25,10 +27,14 @@ public class OmniClassHandler extends BaseClassHandler {
     private static final String VOID_METHOD = "()V";
     private static final String ENABLE_CONFIGURATION = "Lorg/springframework/context/annotation/Configuration;";
     private static final String CLASS_ABSTRACT_COLLECTION = "java/util/AbstractCollection";
+    private static final String CLASS_NUMBER = "java/lang/Number";
 
     private static final String[] JUNIT_TEST_ANNOTATIONS = new String[] {
         JUnit4Framework.ANNOTATION_TEST, JUnit5Framework.ANNOTATION_TEST, JUnit5Framework.ANNOTATION_PARAMETERIZED_TEST
     };
+    private static final Set<String> UNREACHABLE_CLASSES = new HashSet<String>() {{
+       add(CLASS_ABSTRACT_COLLECTION); add(CLASS_NUMBER);
+    }};
 
     @Override
     protected void transform(ClassNode cn) {
@@ -114,7 +120,7 @@ public class OmniClassHandler extends BaseClassHandler {
         InsnList il = new InsnList();
         il.add(start);
         il.add(new VarInsnNode(ALOAD, 0));
-        if (cn.superName.equals(CLASS_ABSTRACT_COLLECTION)) {
+        if (UNREACHABLE_CLASSES.contains(cn.superName)) {
             il.add(new MethodInsnNode(INVOKESPECIAL, cn.superName, CONSTRUCTOR, VOID_METHOD, false));
         } else {
             il.add(new VarInsnNode(ALOAD, 1));

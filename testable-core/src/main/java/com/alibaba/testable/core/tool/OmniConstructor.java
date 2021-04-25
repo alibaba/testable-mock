@@ -15,6 +15,7 @@ import static com.alibaba.testable.core.constant.ConstPool.DOLLAR;
 public class OmniConstructor {
 
     private static final int INITIAL_CAPACITY = 6;
+    private static final int FIRST = 1;
 
     private OmniConstructor() {}
 
@@ -155,7 +156,7 @@ public class OmniConstructor {
         return instance;
     }
 
-    private static <T> void handleCircleReference(T instance, Class<?> type, Map<Class<?>, Object> classPool)
+    private static void handleCircleReference(Object instance, Class<?> type, Map<Class<?>, Object> classPool)
         throws IllegalAccessException {
         if (instance == null) {
             // don't travel null object
@@ -173,13 +174,11 @@ public class OmniConstructor {
             Class<?> fieldType = f.getType();
             if (fieldType.isArray()) {
                 Class<?> componentType = fieldType.getComponentType();
-                if (fieldIns != null && !componentType.isPrimitive() && !TypeUtil.isBasicType(componentType)) {
+                if (fieldIns != null && !TypeUtil.isBasicType(componentType)) {
                     LogUtil.verbose(classPool.size(), "Field(Array[%d]) %s", Array.getLength(fieldIns), f.getName());
-                    for (int i = 0; i < Math.min(Array.getLength(fieldIns), 10); i++) {
-                        handleCircleReference(Array.get(fieldIns, i), componentType, classPool);
-                    }
+                    handleCircleReferenceOfArrayField(fieldIns, componentType, classPool);
                 }
-            } else if (!fieldType.isPrimitive() && !TypeUtil.isBasicType(fieldType)) {
+            } else if (!TypeUtil.isBasicType(fieldType)) {
                 if (fieldIns == null && classPool.containsKey(fieldType)) {
                     f.set(instance, classPool.get(fieldType));
                 } else if (!classPool.containsKey(fieldType)) {
@@ -189,6 +188,22 @@ public class OmniConstructor {
             }
         }
         classPool.remove(type);
+    }
+
+    private static void handleCircleReferenceOfArrayField(Object instance, Class<?> type, Map<Class<?>, Object> classPool)
+        throws IllegalAccessException {
+        if (type.isArray()) {
+            for (int i = 0; i < Math.min(Array.getLength(instance), FIRST); i++) {
+                Object arrayIns = Array.get(instance, i);
+                if (arrayIns != null) {
+                    handleCircleReferenceOfArrayField(arrayIns, arrayIns.getClass().getComponentType(), classPool);
+                }
+            }
+        } else if (!classPool.containsKey(type)) {
+            for (int i = 0; i < Math.min(Array.getLength(instance), FIRST); i++) {
+                handleCircleReference(Array.get(instance, i), type, classPool);
+            }
+        }
     }
 
     private static Object createInstance(Class<?> clazz, Set<Class<?>> classPool)
