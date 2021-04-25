@@ -1,6 +1,8 @@
 package com.alibaba.testable.core.tool;
 
 import com.alibaba.testable.core.exception.ClassConstructionException;
+import com.alibaba.testable.core.model.ConstructionOption;
+import com.alibaba.testable.core.util.CollectionUtil;
 import com.alibaba.testable.core.util.LogUtil;
 import com.alibaba.testable.core.util.TypeUtil;
 
@@ -8,6 +10,7 @@ import java.lang.reflect.*;
 import java.util.*;
 
 import static com.alibaba.testable.core.constant.ConstPool.DOLLAR;
+import static com.alibaba.testable.core.model.ConstructionOption.ALLOW_NULL_FOR_NESTED_TYPE;
 
 /**
  * @author flin
@@ -25,8 +28,12 @@ public class OmniConstructor {
      * @param clazz 期望的对象类型
      * @return 返回新创建的对象
      */
-    public static <T> T newInstance(Class<T> clazz) {
-        return handleCircleReference(newInstance(clazz, new HashSet<Class<?>>(INITIAL_CAPACITY)));
+    public static <T> T newInstance(Class<T> clazz, ConstructionOption... options) {
+        T ins = newInstance(clazz, new HashSet<Class<?>>(INITIAL_CAPACITY));
+        if (ins == null || CollectionUtil.contains(options, ALLOW_NULL_FOR_NESTED_TYPE)) {
+            return ins;
+        }
+        return handleCircleReference(ins);
     }
 
     /**
@@ -36,8 +43,12 @@ public class OmniConstructor {
      * @param size 数组大小
      * @return 返回新创建的对象数组
      */
-    public static <T> T[] newArray(Class<T> clazz, int size) {
-        return (T[])handleCircleReference(newArray(clazz, size, new HashSet<Class<?>>(INITIAL_CAPACITY)));
+    public static <T> T[] newArray(Class<T> clazz, int size, ConstructionOption... options) {
+        T[] array = (T[])newArray(clazz, size, new HashSet<Class<?>>(INITIAL_CAPACITY));
+        if (CollectionUtil.contains(options, ALLOW_NULL_FOR_NESTED_TYPE)) {
+            return array;
+        }
+        return handleCircleReference(array);
     }
 
     private static <T> T newInstance(Class<T> clazz, Set<Class<?>> classPool) {

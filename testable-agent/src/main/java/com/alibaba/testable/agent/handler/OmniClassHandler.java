@@ -7,13 +7,12 @@ import com.alibaba.testable.agent.util.CollectionUtil;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.tree.*;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import static com.alibaba.testable.agent.util.ClassUtil.CLASS_OBJECT;
 import static com.alibaba.testable.core.constant.ConstPool.CONSTRUCTOR;
 import static com.alibaba.testable.core.constant.ConstPool.THIS_REF;
+import static com.alibaba.testable.core.util.CollectionUtil.contains;
 
 /**
  * @author flin
@@ -32,9 +31,9 @@ public class OmniClassHandler extends BaseClassHandler {
     private static final String[] JUNIT_TEST_ANNOTATIONS = new String[] {
         JUnit4Framework.ANNOTATION_TEST, JUnit5Framework.ANNOTATION_TEST, JUnit5Framework.ANNOTATION_PARAMETERIZED_TEST
     };
-    private static final Set<String> UNREACHABLE_CLASSES = new HashSet<String>() {{
-       add(CLASS_ABSTRACT_COLLECTION); add(CLASS_NUMBER);
-    }};
+    private static final String[] UNREACHABLE_CLASSES = new String[] {
+        CLASS_ABSTRACT_COLLECTION, CLASS_NUMBER
+    };
 
     @Override
     protected void transform(ClassNode cn) {
@@ -96,10 +95,8 @@ public class OmniClassHandler extends BaseClassHandler {
                 continue;
             }
             for (AnnotationNode an : mn.visibleAnnotations) {
-                for (String annotation : JUNIT_TEST_ANNOTATIONS) {
-                    if (an.desc.equals(annotation)) {
-                        return true;
-                    }
+                if (contains(JUNIT_TEST_ANNOTATIONS, an.desc)) {
+                    return true;
                 }
             }
         }
@@ -120,7 +117,7 @@ public class OmniClassHandler extends BaseClassHandler {
         InsnList il = new InsnList();
         il.add(start);
         il.add(new VarInsnNode(ALOAD, 0));
-        if (UNREACHABLE_CLASSES.contains(cn.superName)) {
+        if (contains(UNREACHABLE_CLASSES, cn.superName)) {
             il.add(new MethodInsnNode(INVOKESPECIAL, cn.superName, CONSTRUCTOR, VOID_METHOD, false));
         } else {
             il.add(new VarInsnNode(ALOAD, 1));

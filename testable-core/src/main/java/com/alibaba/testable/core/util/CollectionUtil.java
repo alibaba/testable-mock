@@ -25,4 +25,12 @@ public class CollectionUtil {
         return sb.toString();
     }
 
+    public static <T> boolean contains(T[] collection, T target) {
+        for (T item : collection) {
+            if (target.equals(item)) {
+                return true;
+            }
+        }
+        return false;
+    }
 }
