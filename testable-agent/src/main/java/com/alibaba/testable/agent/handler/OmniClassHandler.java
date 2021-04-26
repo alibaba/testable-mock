@@ -27,12 +27,13 @@ public class OmniClassHandler extends BaseClassHandler {
     private static final String ENABLE_CONFIGURATION = "Lorg/springframework/context/annotation/Configuration;";
     private static final String CLASS_ABSTRACT_COLLECTION = "java/util/AbstractCollection";
     private static final String CLASS_NUMBER = "java/lang/Number";
+    private static final String CLASS_HASH_SET = "java/util/HashSet";
 
     private static final String[] JUNIT_TEST_ANNOTATIONS = new String[] {
         JUnit4Framework.ANNOTATION_TEST, JUnit5Framework.ANNOTATION_TEST, JUnit5Framework.ANNOTATION_PARAMETERIZED_TEST
     };
     private static final String[] UNREACHABLE_CLASSES = new String[] {
-        CLASS_ABSTRACT_COLLECTION, CLASS_NUMBER
+        CLASS_ABSTRACT_COLLECTION, CLASS_NUMBER, CLASS_HASH_SET
     };
 
     @Override

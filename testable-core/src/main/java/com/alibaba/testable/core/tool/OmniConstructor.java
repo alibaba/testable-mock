@@ -60,6 +60,8 @@ public class OmniConstructor {
         try {
             if (clazz.isPrimitive()) {
                 return newPrimitive(clazz);
+            } else if (clazz.equals(Class.class)) {
+                return (T)Object.class;
             } else if (clazz.isArray()) {
                 return (T)newArray(clazz.getComponentType(), 0, classPool);
             } else if (clazz.isEnum()) {
@@ -176,8 +178,8 @@ public class OmniConstructor {
         LogUtil.verbose(classPool.size(), "Verifying %s", type.getName());
         classPool.put(type, instance);
         for (Field f : TypeUtil.getAllFields(type)) {
-            if (f.getName().startsWith("$")) {
-                // skip fields e.g. "$jacocoData"
+            if (f.getName().startsWith("$") || isStaticFinalField(f)) {
+                // skip static-final fields and fields e.g. "$jacocoData"
                 continue;
             }
             f.setAccessible(true);
@@ -199,6 +201,10 @@ public class OmniConstructor {
             }
         }
         classPool.remove(type);
+    }
+
+    private static boolean isStaticFinalField(Field field) {
+        return Modifier.isFinal(field.getModifiers()) && Modifier.isStatic(field.getModifiers());
     }
 
     private static void handleCircleReferenceOfArrayField(Object instance, Class<?> type, Map<Class<?>, Object> classPool)
