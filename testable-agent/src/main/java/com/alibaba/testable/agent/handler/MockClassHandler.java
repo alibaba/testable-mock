@@ -165,6 +165,7 @@ public class MockClassHandler extends BaseClassWithContextHandler {
         il.add(invokeOriginalMethod(mn));
         il.add(firstLine);
         il.add(new FrameNode(F_SAME, 0, null, 0, null));
+        mn.maxStack = Math.max(6, mn.maxStack);
         mn.instructions.insertBefore(mn.instructions.getFirst(), il);
     }
 
