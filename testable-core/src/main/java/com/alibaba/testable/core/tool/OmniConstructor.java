@@ -10,7 +10,7 @@ import java.lang.reflect.*;
 import java.util.*;
 
 import static com.alibaba.testable.core.constant.ConstPool.DOLLAR;
-import static com.alibaba.testable.core.model.ConstructionOption.ALLOW_NULL_FOR_NESTED_TYPE;
+import static com.alibaba.testable.core.model.ConstructionOption.EXCEPT_LOOP_NESTING;
 
 /**
  * @author flin
@@ -26,11 +26,12 @@ public class OmniConstructor {
      * 快速创建任意指定类型的测试对象
      *
      * @param clazz 期望的对象类型
+     * @param options 可选参数
      * @return 返回新创建的对象
      */
     public static <T> T newInstance(Class<T> clazz, ConstructionOption... options) {
         T ins = newInstance(clazz, new HashSet<Class<?>>(INITIAL_CAPACITY));
-        if (ins == null || CollectionUtil.contains(options, ALLOW_NULL_FOR_NESTED_TYPE)) {
+        if (ins == null || CollectionUtil.contains(options, EXCEPT_LOOP_NESTING)) {
             return ins;
         }
         return handleCircleReference(ins);
@@ -41,11 +42,12 @@ public class OmniConstructor {
      *
      * @param clazz 期望的对象类型
      * @param size 数组大小
+     * @param options 可选参数
      * @return 返回新创建的对象数组
      */
     public static <T> T[] newArray(Class<T> clazz, int size, ConstructionOption... options) {
         T[] array = (T[])newArray(clazz, size, new HashSet<Class<?>>(INITIAL_CAPACITY));
-        if (CollectionUtil.contains(options, ALLOW_NULL_FOR_NESTED_TYPE)) {
+        if (CollectionUtil.contains(options, EXCEPT_LOOP_NESTING)) {
             return array;
         }
         return handleCircleReference(array);
