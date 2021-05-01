@@ -15,7 +15,7 @@ class SellerServiceTest {
 
     @Test
     void should_sell_hamburger() {
-        assertEquals("Hamburger-Cooker & Cooked-Hamburger", sellerService.sellHamburger());
+        assertEquals("Real-Hamburger-Cooker & Real-Hamburger", sellerService.sellHamburger());
     }
 
 }

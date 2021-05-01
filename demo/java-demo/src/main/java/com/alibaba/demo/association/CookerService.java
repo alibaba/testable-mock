@@ -7,19 +7,19 @@ package com.alibaba.demo.association;
 public class CookerService {
 
     private static String hireSandwichCooker() {
-        return "Sandwich-Cooker";
+        return "Real-Sandwich-Cooker";
     }
 
     private static String hireHamburgerCooker() {
-        return "Hamburger-Cooker";
+        return "Real-Hamburger-Cooker";
     }
 
     private String cookSandwich() {
-        return "Cooked-Sandwich";
+        return "Real-Sandwich";
     }
 
     private String cookHamburger() {
-        return "Cooked-Hamburger";
+        return "Real-Hamburger";
     }
 
     public String prepareSandwich() {
