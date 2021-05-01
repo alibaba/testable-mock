@@ -18,7 +18,6 @@ import static org.objectweb.asm.Opcodes.*;
  */
 public class ClassUtil {
 
-    public static final String CLASS_OBJECT = "java/lang/Object";
     private static final String CLASS_BYTE = "java/lang/Byte";
     private static final String CLASS_CHARACTER = "java/lang/Character";
     private static final String CLASS_DOUBLE = "java/lang/Double";

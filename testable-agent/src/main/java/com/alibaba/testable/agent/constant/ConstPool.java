@@ -22,4 +22,5 @@ public class ConstPool {
     public static final String KOTLIN_POSTFIX_COMPANION = "$Companion";
     public static final String KOTLIN_PREFIX_ACCESS = "access$";
 
+    public static final String CLASS_OBJECT = "java/lang/Object";
 }

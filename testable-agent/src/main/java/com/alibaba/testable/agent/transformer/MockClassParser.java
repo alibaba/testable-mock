@@ -16,13 +16,12 @@ import org.objectweb.asm.tree.MethodNode;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.alibaba.testable.agent.constant.ConstPool.CLASS_OBJECT;
 import static com.alibaba.testable.agent.util.ClassUtil.toJavaStyleClassName;
 import static com.alibaba.testable.agent.util.MethodUtil.isStatic;
 import static com.alibaba.testable.core.constant.ConstPool.CONSTRUCTOR;
 
 public class MockClassParser {
-
-    private static final String CLASS_OBJECT = "java/lang/Object";
 
     /**
      * Get information of all mock methods

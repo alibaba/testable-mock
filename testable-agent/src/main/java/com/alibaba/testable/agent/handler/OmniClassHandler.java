@@ -9,7 +9,7 @@ import org.objectweb.asm.tree.*;
 
 import java.util.List;
 
-import static com.alibaba.testable.agent.util.ClassUtil.CLASS_OBJECT;
+import static com.alibaba.testable.agent.constant.ConstPool.CLASS_OBJECT;
 import static com.alibaba.testable.core.constant.ConstPool.CONSTRUCTOR;
 import static com.alibaba.testable.core.constant.ConstPool.THIS_REF;
 import static com.alibaba.testable.core.util.CollectionUtil.contains;

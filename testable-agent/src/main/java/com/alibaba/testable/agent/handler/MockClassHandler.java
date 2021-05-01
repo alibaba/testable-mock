@@ -5,6 +5,7 @@ import com.alibaba.testable.agent.constant.ConstPool;
 import com.alibaba.testable.agent.tool.ImmutablePair;
 import com.alibaba.testable.agent.util.*;
 import com.alibaba.testable.core.model.MockScope;
+import com.alibaba.testable.core.util.MockAssociationUtil;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.*;
@@ -13,6 +14,7 @@ import java.util.List;
 
 import static com.alibaba.testable.agent.constant.ByteCodeConst.TYPE_ARRAY;
 import static com.alibaba.testable.agent.constant.ByteCodeConst.TYPE_CLASS;
+import static com.alibaba.testable.agent.constant.ConstPool.CLASS_OBJECT;
 import static com.alibaba.testable.agent.util.ClassUtil.toJavaStyleClassName;
 import static com.alibaba.testable.core.constant.ConstPool.CONSTRUCTOR;
 
@@ -41,6 +43,10 @@ public class MockClassHandler extends BaseClassWithContextHandler {
 
     @Override
     protected void transform(ClassNode cn) {
+        if (!CLASS_OBJECT.equals(cn.superName)) {
+            MockAssociationUtil.recordSubMockContainer(ClassUtil.toDotSeparatedName(cn.superName),
+                ClassUtil.toDotSeparatedName(cn.name));
+        }
         injectRefFieldAndGetInstanceMethod(cn);
         for (MethodNode mn : cn.methods) {
             if (isMockMethod(mn)) {
@@ -269,7 +275,7 @@ public class MockClassHandler extends BaseClassWithContextHandler {
         List<Byte> types = MethodUtil.getParameterTypes(mn.desc);
         int size = types.size();
         il.add(getIntInsn(size));
-        il.add(new TypeInsnNode(ANEWARRAY, ClassUtil.CLASS_OBJECT));
+        il.add(new TypeInsnNode(ANEWARRAY, CLASS_OBJECT));
         int parameterOffset = MethodUtil.isStatic(mn) ? 0 : 1;
         for (int i = 0; i < size; i++) {
             il.add(new InsnNode(DUP));
