@@ -2,9 +2,7 @@ package com.alibaba.demo.basic;
 
 import com.alibaba.demo.basic.model.mock.BlackBox;
 import com.alibaba.testable.core.annotation.MockConstructor;
-import com.alibaba.testable.core.annotation.MockDiagnose;
 import com.alibaba.testable.core.annotation.MockMethod;
-import com.alibaba.testable.core.model.LogLevel;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -23,15 +21,12 @@ class DemoMockTest {
 
     private DemoMock demoMock = new DemoMock();
 
-    @MockDiagnose(LogLevel.VERBOSE)
-    public static class Mock extends BaseMock {
+    public static class Mock {
         @MockConstructor
         private BlackBox createBlackBox(String text) {
             return new BlackBox("mock_" + text);
         }
-    }
 
-    public static class BaseMock {
         @MockMethod(targetClass = DemoMock.class)
         private String innerFunc(String text) {
             return "mock_" + text;
