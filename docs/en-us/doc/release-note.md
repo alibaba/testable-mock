@@ -1,5 +1,11 @@
 # Release Note
 
+## 0.6.5
+- fix an issue cause `OmniConstructor` fail to handle classes like Date and BigDecimal
+- fix an issue of `PrivateAccessor` fail to invoke method with single array parameter
+- fix an issue of mock methods in super class are ignored when `scope` is `associated`
+- fix an issue of empty mock method not works when `scope` is `associated`
+
 ## 0.6.4
 - `TestableNull` class removed, let `OmniConstructor` even lighter
 - support `@Nested` annotation of JUnit 5

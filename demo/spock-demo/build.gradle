@@ -14,8 +14,8 @@ repositories {
 dependencies {
     testImplementation 'org.codehaus.groovy:groovy-all:3.0.7'
     testImplementation 'org.spockframework:spock-core:2.0-M5-groovy-3.0'
-    testImplementation('com.alibaba.testable:testable-all:0.6.4')
-    testAnnotationProcessor('com.alibaba.testable:testable-processor:0.6.4')
+    testImplementation('com.alibaba.testable:testable-all:0.6.5')
+    testAnnotationProcessor('com.alibaba.testable:testable-processor:0.6.5')
 }
 
 tasks.withType(JavaCompile) {

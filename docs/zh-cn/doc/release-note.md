@@ -1,5 +1,11 @@
 # Release Note
 
+## 0.6.5
+- 修复`OmniConstructor`对某些系统类型的兼容问题（issue-145）
+- 修复`PrivateAccessor`无法调用仅有数组类型参数方法的问题（issue-152）
+- 修复当`scope`为`associated`时父类中的Mock方法不生效问题（issue-139）
+- 修复当`scope`为`associated`时空白的Mock方法会报错的问题（issue-154）
+
 ## 0.6.4
 - 移除`TestableNull`类型，让`OmniConstructor`更轻量
 - 支持JUnit 5的`@Nested`注解（issue-140）
