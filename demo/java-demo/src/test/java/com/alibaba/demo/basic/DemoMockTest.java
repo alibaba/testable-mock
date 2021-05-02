@@ -3,7 +3,6 @@ package com.alibaba.demo.basic;
 import com.alibaba.demo.basic.model.mock.BlackBox;
 import com.alibaba.testable.core.annotation.MockConstructor;
 import com.alibaba.testable.core.annotation.MockMethod;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.Executors;
@@ -94,7 +93,7 @@ class DemoMockTest {
 
     @Test
     void should_mock_static_method() {
-        Assertions.assertEquals("not_secret_box", demoMock.getBox().get());
+        assertEquals("not_secret_box", demoMock.getBox().get());
         verify("secretBox").withTimes(1);
     }
 

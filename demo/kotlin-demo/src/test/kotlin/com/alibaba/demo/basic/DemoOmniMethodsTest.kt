@@ -4,7 +4,8 @@ import com.alibaba.demo.basic.model.omni.Child
 import com.alibaba.demo.basic.model.omni.Parent
 import com.alibaba.testable.core.tool.OmniAccessor
 import com.alibaba.testable.core.tool.OmniConstructor
-import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Test
 
 /**
@@ -18,14 +19,14 @@ internal class DemoOmniMethodsTest {
         val parent = OmniConstructor.newInstance(Parent::class.java)
 
         // 任意深度的子孙成员对象都不为空
-        Assertions.assertNotNull(parent.child?.grandChild?.content)
+        assertNotNull(parent.child?.grandChild?.content)
 
         // 所有基础类型初始化为默认数值
-        Assertions.assertEquals(0, parent.child?.grandChild?.value)
-        Assertions.assertEquals("", parent.child?.grandChild?.content)
+        assertEquals(0, parent.child?.grandChild?.value)
+        assertEquals("", parent.child?.grandChild?.content)
 
         // 所有数组类型初始化为空数组
-        Assertions.assertEquals(0, parent.children?.size)
+        assertEquals(0, parent.children?.size)
     }
 
     @Test
@@ -39,23 +40,23 @@ internal class DemoOmniMethodsTest {
 
         // 使用成员名称快速读取成员对象
         var contents = OmniAccessor.get<String?>(parent, "content")
-        Assertions.assertEquals(4, contents.size)
-        Assertions.assertEquals("from child", contents[0])
-        Assertions.assertEquals("from 1st children", contents[1])
-        Assertions.assertEquals("from 2nd children", contents[2])
-        Assertions.assertEquals("from 3rd children", contents[3])
+        assertEquals(4, contents.size)
+        assertEquals("from child", contents[0])
+        assertEquals("from 1st children", contents[1])
+        assertEquals("from 2nd children", contents[2])
+        assertEquals("from 3rd children", contents[3])
 
         // 使用成员类型快速读取成员对象
         contents = OmniAccessor.get(parent, "{Child}/{GrandChild}/content")
-        Assertions.assertEquals(1, contents.size)
-        Assertions.assertEquals("from child", contents[0])
+        assertEquals(1, contents.size)
+        assertEquals("from child", contents[0])
 
         // 使用带下标的路径读取成员对象
-        Assertions.assertEquals("from 2nd children", OmniAccessor.getFirst(parent, "children[1]/{GrandChild}/content"))
-        Assertions.assertEquals("from 3rd children", OmniAccessor.getFirst(parent, "{Child[]}[2]/{GrandChild}/content"))
+        assertEquals("from 2nd children", OmniAccessor.getFirst(parent, "children[1]/{GrandChild}/content"))
+        assertEquals("from 3rd children", OmniAccessor.getFirst(parent, "{Child[]}[2]/{GrandChild}/content"))
 
         // 使用模糊路径快速读取成员对象
-        Assertions.assertEquals("from 1st children", OmniAccessor.getFirst(parent, "{C*[]}[0]/*/con*t"))
+        assertEquals("from 1st children", OmniAccessor.getFirst(parent, "{C*[]}[0]/*/con*t"))
     }
 
     @Test
@@ -65,22 +66,22 @@ internal class DemoOmniMethodsTest {
 
         // 使用指定路径快速给成员对象赋值
         OmniAccessor.set(parent, "child/grandChild/content", "demo child")
-        Assertions.assertEquals("demo child", parent.child?.grandChild?.content)
+        assertEquals("demo child", parent.child?.grandChild?.content)
 
         // 使用带下标的路径给成员对象赋值
         OmniAccessor.set(parent, "children[1]/grandChild/content", "demo children[1]")
-        Assertions.assertEquals("demo children[1]", parent.children?.get(1)?.grandChild?.content)
+        assertEquals("demo children[1]", parent.children?.get(1)?.grandChild?.content)
 
         // 使用模糊路径批量给成员对象赋值
         OmniAccessor.set(parent, "child*/*/content", "demo in batch")
-        Assertions.assertEquals("demo in batch", parent.child?.grandChild?.content)
-        Assertions.assertEquals("demo in batch", parent.children?.get(0)?.grandChild?.content)
-        Assertions.assertEquals("demo in batch", parent.children?.get(1)?.grandChild?.content)
-        Assertions.assertEquals("demo in batch", parent.children?.get(2)?.grandChild?.content)
+        assertEquals("demo in batch", parent.child?.grandChild?.content)
+        assertEquals("demo in batch", parent.children?.get(0)?.grandChild?.content)
+        assertEquals("demo in batch", parent.children?.get(1)?.grandChild?.content)
+        assertEquals("demo in batch", parent.children?.get(2)?.grandChild?.content)
 
         // 读写私有内部类类型的成员（使用类型名引用内部类时，无需带外部类名）
-        Assertions.assertEquals("", OmniAccessor.getFirst(parent, "subChild/secret"))
+        assertEquals("", OmniAccessor.getFirst(parent, "subChild/secret"))
         OmniAccessor.set(parent, "{InnerChild}/secret", "inner-class secret")
-        Assertions.assertEquals("inner-class secret", OmniAccessor.getFirst(parent, "subChild/secret"))
+        assertEquals("inner-class secret", OmniAccessor.getFirst(parent, "subChild/secret"))
     }
 }
