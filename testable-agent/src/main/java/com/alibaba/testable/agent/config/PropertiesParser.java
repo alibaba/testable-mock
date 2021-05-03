@@ -22,6 +22,7 @@ public class PropertiesParser {
     private static final String LOG_FILE = "log.file";
     private static final String LOG_LEVEL = "log.level";
     private static final String INNER_MOCK_CLASS_NAME = "mock.innerClass.name";
+    private static final String MOCK_PKG_MAPPING_PREFIX = "mock.package.mapping.";
     private static final String DEFAULT_MOCK_SCOPE = "mock.scope.default";
     private static final String ENABLE_OMNI_INJECT = "omni.constructor.enhance.enable";
     private static final String OMNI_INJECT_EXCLUDES = "omni.constructor.enhance.pkgPrefix.excludes";
@@ -62,6 +63,8 @@ public class PropertiesParser {
                 GlobalConfig.setLogLevel(v);
             } else if (k.equals(INNER_MOCK_CLASS_NAME)) {
                 GlobalConfig.setInnerMockClassName(v);
+            } else if (k.startsWith(MOCK_PKG_MAPPING_PREFIX)) {
+                GlobalConfig.addMockPackageMapping(k.substring(MOCK_PKG_MAPPING_PREFIX.length()), v);
             } else if (k.equals(DEFAULT_MOCK_SCOPE)) {
                 GlobalConfig.setDefaultMockScope(MockScope.of(v));
             } else if (k.equals(ENABLE_OMNI_INJECT)) {

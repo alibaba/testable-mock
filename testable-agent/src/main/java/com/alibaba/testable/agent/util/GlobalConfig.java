@@ -7,12 +7,13 @@ import com.alibaba.testable.core.util.LogUtil;
 import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static com.alibaba.testable.agent.constant.ConstPool.PROPERTY_TEMP_DIR;
 import static com.alibaba.testable.agent.constant.ConstPool.PROPERTY_USER_DIR;
-import static com.alibaba.testable.core.constant.ConstPool.COMMA;
-import static com.alibaba.testable.core.constant.ConstPool.DOT;
+import static com.alibaba.testable.core.constant.ConstPool.*;
 import static com.alibaba.testable.core.util.PathUtil.createFolder;
 
 /**
@@ -36,6 +37,7 @@ public class GlobalConfig {
     private static boolean enhanceThreadLocal = false;
     private static boolean enhanceOmniConstructor = false;
     private static String innerMockClassName = "Mock";
+    private static Map<String, String> mockPkgMapping = null;
 
     public static void setLogLevel(String level) {
         if (level.equals(MUTE)) {
@@ -103,7 +105,7 @@ public class GlobalConfig {
 
     private static String getBuildOutputFolder() {
         String contextFolder = System.getProperty(PROPERTY_USER_DIR);
-        URL rootResourceFolder = Object.class.getResource("/");
+        URL rootResourceFolder = Object.class.getResource(SLASH);
         if (rootResourceFolder != null) {
             return PathUtil.getFirstLevelFolder(contextFolder, rootResourceFolder.getPath());
         } else if (PathUtil.folderExists(PathUtil.join(contextFolder, DEFAULT_MAVEN_OUTPUT_FOLDER))) {
@@ -137,6 +139,17 @@ public class GlobalConfig {
 
     public static String getInnerMockClassName() {
         return innerMockClassName;
+    }
+
+    public static void addMockPackageMapping(String originPkg, String mockClassPkg) {
+        if (mockPkgMapping == null) {
+            mockPkgMapping = new HashMap<String, String>(5);
+        }
+        mockPkgMapping.put(originPkg + DOT, mockClassPkg + DOT);
+    }
+
+    public static Map<String, String> getMockPackageMapping() {
+        return mockPkgMapping;
     }
 
     private static List<String> parsePkgPrefixList(String prefixes) {

@@ -21,7 +21,6 @@ import java.security.ProtectionDomain;
 import java.util.List;
 
 import static com.alibaba.testable.agent.constant.ConstPool.*;
-import static com.alibaba.testable.agent.util.ClassUtil.toJavaStyleClassName;
 import static com.alibaba.testable.core.constant.ConstPool.DOLLAR;
 import static com.alibaba.testable.core.constant.ConstPool.TEST_POSTFIX;
 import static com.alibaba.testable.core.util.PathUtil.createFolder;
@@ -67,29 +66,26 @@ public class TestableClassTransformer implements ClassFileTransformer {
     }
 
     private byte[] transformMock(byte[] bytes, ClassNode cn) {
-        String className = cn.name;
+        String className = (GlobalConfig.getMockPackageMapping() == null) ? cn.name : mapPackage(cn.name);
         try {
             if (mockClassParser.isMockClass(cn)) {
                 // it's a mock class
                 LogUtil.diagnose("Found mock class %s", className);
                 bytes = new MockClassHandler(className).getBytes(bytes);
                 BytecodeUtil.dumpByte(className, GlobalConfig.getDumpPath(), bytes);
+            } else if (foundMockForTestClass(className) != null) {
+                // it's a test class with testable enabled
+                LogUtil.diagnose("Found test class %s", className);
+                bytes = new TestClassHandler().getBytes(bytes);
+                BytecodeUtil.dumpByte(className, GlobalConfig.getDumpPath(), bytes);
             } else {
-                String mockClass = foundMockForTestClass(className);
+                String mockClass = foundMockForSourceClass(className);
                 if (mockClass != null) {
-                    // it's a test class with testable enabled
-                    LogUtil.diagnose("Found test class %s", className);
-                    bytes = new TestClassHandler().getBytes(bytes);
+                    // it's a source class with testable enabled
+                    List<MethodInfo> injectMethods = mockClassParser.getTestableMockMethods(mockClass);
+                    LogUtil.diagnose("Found source class %s", className);
+                    bytes = new SourceClassHandler(injectMethods, mockClass).getBytes(bytes);
                     BytecodeUtil.dumpByte(className, GlobalConfig.getDumpPath(), bytes);
-                } else {
-                    mockClass = foundMockForSourceClass(className);
-                    if (mockClass != null) {
-                        // it's a source class with testable enabled
-                        List<MethodInfo> injectMethods = mockClassParser.getTestableMockMethods(mockClass);
-                        LogUtil.diagnose("Found source class %s", className);
-                        bytes = new SourceClassHandler(injectMethods, mockClass).getBytes(bytes);
-                        BytecodeUtil.dumpByte(className, GlobalConfig.getDumpPath(), bytes);
-                    }
                 }
             }
         } catch (Throwable t) {
@@ -101,6 +97,17 @@ public class TestableClassTransformer implements ClassFileTransformer {
         }
         BytecodeUtil.dumpByte(className, getDumpPathByAnnotation(cn), bytes);
         return bytes;
+    }
+
+    private String mapPackage(String name) {
+        String dotSeparatedName = ClassUtil.toDotSeparatedName(name);
+        for (String prefix : GlobalConfig.getMockPackageMapping().keySet()) {
+            if (dotSeparatedName.startsWith(prefix)) {
+                return ClassUtil.toSlashSeparatedName(GlobalConfig.getMockPackageMapping().get(prefix))
+                    + name.substring(prefix.length());
+            }
+        }
+        return name;
     }
 
     private String foundMockForSourceClass(String className) {
@@ -236,7 +243,7 @@ public class TestableClassTransformer implements ClassFileTransformer {
     private String parseMockWithAnnotation(ClassNode cn, ClassType expectedType) {
         if (cn.visibleAnnotations != null) {
             for (AnnotationNode an : cn.visibleAnnotations) {
-                if (toJavaStyleClassName(an.desc).equals(ConstPool.MOCK_WITH)) {
+                if (ClassUtil.toJavaStyleClassName(an.desc).equals(ConstPool.MOCK_WITH)) {
                     ClassType type = AnnotationUtil.getAnnotationParameter(an, FIELD_TREAT_AS, ClassType.GuessByName,
                         ClassType.class);
                     if (isExpectedType(cn.name, type, expectedType)) {
@@ -254,7 +261,7 @@ public class TestableClassTransformer implements ClassFileTransformer {
     private String getDumpPathByAnnotation(ClassNode cn) {
         if (cn.visibleAnnotations != null) {
             for (AnnotationNode an : cn.visibleAnnotations) {
-                if (toJavaStyleClassName(an.desc).equals(ConstPool.DUMP_TO)) {
+                if (ClassUtil.toJavaStyleClassName(an.desc).equals(ConstPool.DUMP_TO)) {
                     String path = AnnotationUtil.getAnnotationParameter(an, FIELD_VALUE, null, String.class);
                     String fullPath = PathUtil.join(System.getProperty(PROPERTY_USER_DIR), path);
                     if (createFolder(fullPath)) {

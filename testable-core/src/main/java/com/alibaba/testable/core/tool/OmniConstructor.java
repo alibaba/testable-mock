@@ -177,7 +177,6 @@ public class OmniConstructor {
             // don't travel null object
             return;
         }
-        LogUtil.verbose(classPool.size(), "Verifying %s", type.getName());
         classPool.put(type, instance);
         for (Field f : TypeUtil.getAllFields(type)) {
             if (f.getName().startsWith("$") || isStaticFinalField(f)) {
@@ -190,14 +189,14 @@ public class OmniConstructor {
             if (fieldType.isArray()) {
                 Class<?> componentType = fieldType.getComponentType();
                 if (fieldIns != null && !TypeUtil.isBasicType(componentType)) {
-                    LogUtil.verbose(classPool.size(), "Field(Array[%d]) %s", Array.getLength(fieldIns), f.getName());
+                    LogUtil.verbose(classPool.size(), "Verifying Field(Array[%d]) %s", Array.getLength(fieldIns), f.getName());
                     handleCircleReferenceOfArrayField(fieldIns, componentType, classPool);
                 }
             } else if (!TypeUtil.isBasicType(fieldType)) {
                 if (fieldIns == null && classPool.containsKey(fieldType)) {
                     f.set(instance, classPool.get(fieldType));
                 } else if (!classPool.containsKey(fieldType)) {
-                    LogUtil.verbose(classPool.size(), "Field %s", f.getName());
+                    LogUtil.verbose(classPool.size(), "Verifying Field %s", f.getName());
                     handleCircleReference(fieldIns, fieldType, classPool);
                 }
             }
