@@ -51,9 +51,11 @@ In actual scenarios, there are very few scenarios where methods in the `String` 
 
 #### 8. Can `TestableMock` be used for testing Android projects?
 
-It can be used in combination with [Roboelectric](https://github.com/robolectric/robolectric) testing framework.
+Yes, check `demo/android-demo` project for more information.
 
-The `Dalvik` and `ART` virtual machines of the Android system use a bytecode system different from the standard JVM, which will affect the normal functionality of `TestableMock`. The `Roboelectric` framework can run Android unit tests on a standard JVM virtual machine, which is much faster than running unit tests through the Android virtual machine. Recently, most Android App unit tests are written with the `Roboelectric` framework.
+Please note, the `Dalvik` and `ART` virtual machines of the Android system use a bytecode system different from the standard JVM, which will affect the normal functionality of `TestableMock`.
+If the test case require classes from Android SDK, it should be used in combination with [Roboelectric](https://github.com/robolectric/robolectric) testing framework.
+This framework will run Android unit tests on a standard JVM virtual machine, which is much faster than running unit tests through the Android virtual machine, thus many Android App unit tests are written with the `Roboelectric` framework.
 
 #### 9. Meet "Command Line is too Long. Shorten command line for ..." error when triggering test in IntelliJ IDE?
 

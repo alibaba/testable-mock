@@ -55,9 +55,9 @@ Kotlin语言中的`String`类型实际上是`kotlin.String`，而非`java.lang.S
 
 #### 8. `TestableMock`能否用于Android项目的测试？
 
-结合[Roboelectric](https://github.com/robolectric/robolectric)测试框架可使用。
+可以，见`demo/android-demo`示例。
 
-Android系统的`Dalvik`和`ART`虚拟机采用了与标准JVM不同的字节码体系，会影响`TestableMock`的正常工作。`Roboelectric`框架能在普通JVM虚拟机上运行Android单元测试，其速度比通过Android虚拟机运行单元测试快非常多，绝大多数Android App的单元测试都在使用`Roboelectric`框架。
+需注意的是，Android系统的`Dalvik`和`ART`虚拟机采用了与标准JVM不同的字节码体系，会影响`TestableMock`的正常工作。若测试中涉及Android SDK中的类型，请结合[Roboelectric](https://github.com/robolectric/robolectric)测试框架使用，该框架能在普通JVM虚拟机上运行Android单元测试，且速度比通过Android虚拟机运行单元测试快非常多，目前许多Android App的单元测试都在使用`Roboelectric`框架。
 
 #### 9. 在IntelliJ运行测试报"Command Line is too Long. Shorten command line for ..."错误？
 
