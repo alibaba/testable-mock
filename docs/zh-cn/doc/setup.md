@@ -7,6 +7,7 @@
 - [访问被测类私有成员](zh-cn/doc/private-accessor.md)：使单元测试能直接调用和访问被测类的私有成员，解决私有成员初始化和私有方法测试的问题
 - [快速构造参数对象](zh-cn/doc/omni-constructor.md)：生成任意复杂嵌套的对象实例，并简化其内部成员赋值方式，解决被测方法参数初始化代码冗长的问题
 - [辅助测试void方法](zh-cn/doc/test-void-method.md)：利用Mock校验器对方法的内部逻辑进行检查，解决无返回值方法难以实施单元测试的问题
+- [快速测试数据库SQL](zh-cn/doc/test-mybatis-sql.md)：通过内置针对性的Mock实现，解决基于Mybatis的数据访问层(DAO层)代码逻辑无法直接测试的问题
 
 ## 在Maven项目中使用
 
@@ -78,7 +79,7 @@ test {
 
 参见项目`java-demo`的[build.gradle](https://github.com/alibaba/testable-mock/blob/master/demo/java-demo/build.gradle)和`kotlin-demo`的[build.gradle.kts](https://github.com/alibaba/testable-mock/blob/master/demo/kotlin-demo/build.gradle.kts)文件。
 
-> 若是基于`Robolectric`框架的Android项目，则添加`TestableMock`依赖方法同上，添加javaagent配置方法如下：
+> 若用于Android项目，则添加`TestableMock`依赖方法同上，添加javaagent配置方法如下：
 >
 > ```groovy
 > android {
@@ -92,7 +93,7 @@ test {
 > }
 > ```
 >
-> 完整示例参考[issue-43](https://github.com/alibaba/testable-mock/issues/43)
+> 完整代码可参考`demo/android-demo`示例项目。
 
 > 若项目使用`Spock`测试框架，需指定`Groovy`编译生成的JVM 1.6或以上版本字节码，方法如下（请根据实际使用的JVM版本修改属性值）。
 > 
