@@ -44,6 +44,14 @@ public class LogUtil {
         write(text);
     }
 
+    public static void info(String msg, Object... args) {
+        String text = String.format("[INFO] " + msg + "\n", args);
+        if (currentLogLevel.level >= LogLevel.DEFAULT.level) {
+            System.out.print(text);
+        }
+        write(text);
+    }
+
     public static void warn(String msg, Object... args) {
         String text = String.format("[WARN] " + msg + "\n", args);
         if (currentLogLevel.level >= LogLevel.DEFAULT.level) {

@@ -9,6 +9,8 @@ import com.alibaba.ttl.threadpool.agent.TtlAgent;
 
 import java.lang.instrument.Instrumentation;
 
+import static com.alibaba.testable.agent.constant.ConstPool.PROPERTY_USER_DIR;
+
 /**
  * Agent entry, dynamically modify the byte code of classes under testing
  * @author flin
@@ -19,6 +21,7 @@ public class PreMain {
         ArgumentParser.parseArgs(agentArgs);
         PropertiesParser.parseFile(ArgumentParser.configFilePath);
         GlobalConfig.setupLogRootPath();
+        LogUtil.info("TestableMock start at %s", System.getProperty(PROPERTY_USER_DIR));
         if (GlobalConfig.shouldEnhanceThreadLocal()) {
             // add transmittable thread local transformer
             TtlAgent.premain(agentArgs, inst);
