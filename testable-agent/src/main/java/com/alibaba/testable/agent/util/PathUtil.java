@@ -37,4 +37,13 @@ public class PathUtil {
     public static boolean folderExists(String path) {
         return new File(path).isDirectory();
     }
+
+    /**
+     * Check whether a path string is represent for a absolute path
+     * @param path origin path
+     * @return absolute path or not
+     */
+    public static boolean isAbsolutePath(String path) {
+        return path.startsWith("/") || path.matches("^[a-zA-Z]:\\\\.+");
+    }
 }

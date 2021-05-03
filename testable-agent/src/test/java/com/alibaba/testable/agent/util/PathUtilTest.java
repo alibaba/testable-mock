@@ -14,4 +14,12 @@ class PathUtilTest {
         assertEquals("", PathUtil.getFirstLevelFolder("/ab/cd", "/ab"));
     }
 
+    @Test
+    void should_distinguish_absolute_and_relative_path() {
+        assertTrue(PathUtil.isAbsolutePath("/a/b/c"));
+        assertTrue(PathUtil.isAbsolutePath("c:\\a\\b\\c"));
+        assertFalse(PathUtil.isAbsolutePath("a/b/c"));
+        assertFalse(PathUtil.isAbsolutePath("a\\b\\c"));
+    }
+
 }

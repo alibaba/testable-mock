@@ -29,7 +29,8 @@ public class PropertiesParser {
 
     public static void parseFile(String configFilePath) {
         String path = (configFilePath == null) ? DEFAULT_CONFIG_FILE : configFilePath;
-        String fullPath = PathUtil.join(System.getProperty(PROPERTY_USER_DIR), path);
+        String fullPath = PathUtil.isAbsolutePath(path) ? path :
+            PathUtil.join(System.getProperty(PROPERTY_USER_DIR), path);
         Properties pps = new Properties();
         try {
             InputStream in = new BufferedInputStream(new FileInputStream(fullPath));

@@ -29,10 +29,10 @@ public class InvokeRecordUtil {
         String testCaseName = mockContext.testCaseName;
         if (isConstructor) {
             mockContext.invokeRecord.get(mockMethodName).add(args);
-            LogUtil.verbose("  Mock constructor \"%s\" invoked in %s::%s", mockMethodName, testClass, testCaseName);
+            LogUtil.verbose("   Mock constructor \"%s\" invoked in %s::%s", mockMethodName, testClass, testCaseName);
         } else {
             mockContext.invokeRecord.get(mockMethodName).add(CollectionUtil.slice(args, 1));
-            LogUtil.verbose("  Mock method \"%s\" invoked in %s::%s\"", mockMethodName, testClass, testCaseName);
+            LogUtil.verbose("   Mock method \"%s\" invoked in %s::%s\"", mockMethodName, testClass, testCaseName);
         }
     }
 
