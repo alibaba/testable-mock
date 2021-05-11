@@ -32,12 +32,13 @@ public class GlobalConfig {
     private static String logFile = null;
     private static String dumpPath = null;
     private static String[] pkgPrefixWhiteList = null;
-    private static String[] omniPkgPrefixBlackList = null;
-    private static MockScope defaultMockScope = MockScope.GLOBAL;
-    private static boolean enhanceThreadLocal = false;
-    private static boolean enhanceOmniConstructor = false;
-    private static String innerMockClassName = "Mock";
+    private static String[] pkgPrefixBlackList = null;
     private static Map<String, String> mockPkgMapping = null;
+    public static MockScope defaultMockScope = MockScope.GLOBAL;
+    public static boolean enhanceMock = true;
+    public static boolean enhanceOmniConstructor = false;
+    public static boolean enhanceThreadLocal = false;
+    public static String innerMockClassName = "Mock";
 
     public static void setLogLevel(String level) {
         if (level.equals(MUTE)) {
@@ -72,20 +73,12 @@ public class GlobalConfig {
         pkgPrefixWhiteList = parsePkgPrefixList(prefixes).toArray(new String[0]);
     }
 
-    public static String[] getOmniPkgPrefixBlackList() {
-        return omniPkgPrefixBlackList;
+    public static String[] getPkgPrefixBlackList() {
+        return pkgPrefixBlackList;
     }
 
-    public static void setOmniPkgPrefixBlackList(String prefixes) {
-        omniPkgPrefixBlackList = parsePkgPrefixList(prefixes).toArray(new String[0]);
-    }
-
-    public static MockScope getDefaultMockScope() {
-        return defaultMockScope;
-    }
-
-    public static void setDefaultMockScope(MockScope scope) {
-        defaultMockScope = scope;
+    public static void setPkgPrefixBlackList(String prefixes) {
+        pkgPrefixBlackList = parsePkgPrefixList(prefixes).toArray(new String[0]);
     }
 
     public static void setupLogRootPath() {
@@ -115,30 +108,6 @@ public class GlobalConfig {
         } else {
             return System.getProperty(PROPERTY_TEMP_DIR);
         }
-    }
-
-    public static void enableEnhanceThreadLocal(boolean enabled) {
-        enhanceThreadLocal = enabled;
-    }
-
-    public static boolean shouldEnhanceThreadLocal() {
-        return enhanceThreadLocal;
-    }
-
-    public static void enableEnhanceOmniConstructor(boolean enabled) {
-        enhanceOmniConstructor = enabled;
-    }
-
-    public static boolean shouldEnhanceOmniConstructor() {
-        return enhanceOmniConstructor;
-    }
-
-    public static void setInnerMockClassName(String name) {
-        innerMockClassName = name;
-    }
-
-    public static String getInnerMockClassName() {
-        return innerMockClassName;
     }
 
     public static void addMockPackageMapping(String originPkg, String mockClassPkg) {

@@ -22,7 +22,7 @@ public class PreMain {
         PropertiesParser.parseFile(ArgumentParser.configFilePath);
         GlobalConfig.setupLogRootPath();
         LogUtil.info("TestableMock start at %s", System.getProperty(PROPERTY_USER_DIR));
-        if (GlobalConfig.shouldEnhanceThreadLocal()) {
+        if (GlobalConfig.enhanceThreadLocal) {
             // add transmittable thread local transformer
             TtlAgent.premain(agentArgs, inst);
         }

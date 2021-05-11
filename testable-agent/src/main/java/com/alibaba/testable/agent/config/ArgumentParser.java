@@ -35,14 +35,14 @@ public class ArgumentParser {
                 } else if (k.equals(PKG_PREFIX)) {
                     GlobalConfig.setPkgPrefixWhiteList(v);
                 } else if (k.equals(MOCK_SCOPE)) {
-                    GlobalConfig.setDefaultMockScope(MockScope.of(v));
+                    GlobalConfig.defaultMockScope = MockScope.of(v);
                 } else if (k.equals(CONFIG_FILE)) {
                     configFilePath = v;
                 }
             } else {
                 // parameter with single value
                 if (a.equals(USE_THREAD_POOL)) {
-                    GlobalConfig.enableEnhanceThreadLocal(true);
+                    GlobalConfig.enhanceThreadLocal = true;
                 }
             }
         }

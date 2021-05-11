@@ -51,18 +51,15 @@ public class TestableClassTransformer implements ClassFileTransformer {
             // Ignore system class and reloaded class
             return null;
         }
-        byte[] bytes = shouldOmniEnhance(className) ? new OmniClassHandler().getBytes(classFileBuffer) : classFileBuffer;
-        ClassNode cn = ClassUtil.getClassNode(className);
-        if (cn != null) {
-            return transformMock(bytes, cn);
+        byte[] bytes = GlobalConfig.enhanceOmniConstructor ?
+            new OmniClassHandler().getBytes(classFileBuffer) : classFileBuffer;
+        if (GlobalConfig.enhanceMock) {
+            ClassNode cn = ClassUtil.getClassNode(className);
+            if (cn != null) {
+                return transformMock(bytes, cn);
+            }
         }
         return bytes;
-    }
-
-    private boolean shouldOmniEnhance(String className) {
-        String[] blackList = GlobalConfig.getOmniPkgPrefixBlackList();
-        return GlobalConfig.shouldEnhanceOmniConstructor() &&
-            (blackList == null || !isInPrefixList(className, blackList));
     }
 
     private byte[] transformMock(byte[] bytes, ClassNode cn) {
@@ -167,10 +164,14 @@ public class TestableClassTransformer implements ClassFileTransformer {
         if (null == className || className.contains(CGLIB_CLASS_PATTERN)) {
             return true;
         }
-        String[] pkgPrefixWhiteList = GlobalConfig.getPkgPrefixWhiteList();
-        if (pkgPrefixWhiteList != null) {
+        String[] blackList = GlobalConfig.getPkgPrefixBlackList();
+        if (blackList != null && isInPrefixList(className, blackList)) {
+            return true;
+        }
+        String[] whiteList = GlobalConfig.getPkgPrefixWhiteList();
+        if (whiteList != null) {
             // Only consider package in provided list as non-system class
-            return !isInPrefixList(className, pkgPrefixWhiteList);
+            return !isInPrefixList(className, whiteList);
         }
         return isInPrefixList(className, BLACKLIST_PREFIXES);
     }
@@ -282,7 +283,7 @@ public class TestableClassTransformer implements ClassFileTransformer {
     }
 
     private String getInnerMockClassName(String className) {
-        return className + DOLLAR + GlobalConfig.getInnerMockClassName();
+        return className + DOLLAR + GlobalConfig.innerMockClassName;
     }
 
 }

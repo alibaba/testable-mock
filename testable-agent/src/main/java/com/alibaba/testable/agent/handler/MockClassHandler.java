@@ -225,7 +225,7 @@ public class MockClassHandler extends BaseClassWithContextHandler {
         for (AnnotationNode an : mn.visibleAnnotations) {
             if (isMockMethodAnnotation(an) || isMockConstructorAnnotation(an)) {
                 MockScope scope = AnnotationUtil.getAnnotationParameter(an, ConstPool.FIELD_SCOPE,
-                    GlobalConfig.getDefaultMockScope(), MockScope.class);
+                    GlobalConfig.defaultMockScope, MockScope.class);
                 if (scope.equals(MockScope.GLOBAL)) {
                     return true;
                 }
