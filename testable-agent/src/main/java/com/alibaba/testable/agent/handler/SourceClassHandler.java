@@ -57,7 +57,7 @@ public class SourceClassHandler extends BaseClassHandler {
 
     private void transformMethod(MethodNode mn, Set<MethodInfo> memberInjectMethods,
                                  Set<MethodInfo> newOperatorInjectMethods) {
-        LogUtil.diagnose("  Found method %s", mn.name);
+        LogUtil.verbose("   Found method %s", mn.name);
         if (mn.name.startsWith("$")) {
             // skip methods e.g. "$jacocoInit"
             return;
@@ -237,7 +237,12 @@ public class SourceClassHandler extends BaseClassHandler {
                                             AbstractInsnNode[] instructions, int start, int end) {
         String mockMethodName = newOperatorInjectMethod.getMockName();
         int invokeOpcode = newOperatorInjectMethod.isStatic() ? INVOKESTATIC : INVOKEVIRTUAL;
-        LogUtil.diagnose("    Line %d, mock method \"%s\" used", getLineNum(instructions, start), mockMethodName);
+        String log = String.format("Line %d, mock method \"%s\" used", getLineNum(instructions, start), mockMethodName);
+        if (LogUtil.isVerboseEnabled()) {
+            LogUtil.verbose(5, log);
+        } else {
+            LogUtil.diagnose(2, log);
+        }
         String classType = ((TypeInsnNode)instructions[start]).desc;
         String constructorDesc = ((MethodInsnNode)instructions[end]).desc;
         if (!newOperatorInjectMethod.isStatic()) {
@@ -268,8 +273,13 @@ public class SourceClassHandler extends BaseClassHandler {
 
     private AbstractInsnNode[] replaceMemberCallOps(MethodNode mn, MethodInfo mockMethod, AbstractInsnNode[] instructions,
                                                    String ownerClass, int opcode, int start, int end) {
-        LogUtil.diagnose("    Line %d, mock method \"%s\" used", getLineNum(instructions, start),
+        String log = String.format("Line %d, mock method \"%s\" used", getLineNum(instructions, start),
             mockMethod.getMockName());
+        if (LogUtil.isVerboseEnabled()) {
+            LogUtil.verbose(5, log);
+        } else {
+            LogUtil.diagnose(2, log);
+        }
         if (!mockMethod.isStatic()) {
             mn.instructions.insertBefore(instructions[start], new MethodInsnNode(INVOKESTATIC, mockClassName,
                 GET_TESTABLE_REF, VOID_ARGS + ClassUtil.toByteCodeClassName(mockClassName), false));

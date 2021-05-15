@@ -110,7 +110,7 @@ public class LogUtil {
     }
 
     private static String space(int indent) {
-        return StringUtil.repeat("  ", indent);
+        return StringUtil.repeat(" ", indent);
     }
 
     private static void write(String text) {

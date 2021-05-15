@@ -54,7 +54,7 @@ public class OmniConstructor {
     }
 
     private static <T> T newInstance(Class<T> clazz, Set<Class<?>> classPool) {
-        LogUtil.verbose(classPool.size(), "Creating %s", clazz.getName());
+        LogUtil.verbose(classPool.size() * 2, "Creating %s", clazz.getName());
         if (classPool.contains(clazz)) {
             return null;
         }
@@ -156,6 +156,7 @@ public class OmniConstructor {
     }
 
     private static <T> T handleCircleReference(T instance) {
+        LogUtil.verbose("Verifying " + instance.getClass());
         try {
             if (instance.getClass().isArray()) {
                 for (int i = 0; i < Array.getLength(instance); i++) {
@@ -189,14 +190,14 @@ public class OmniConstructor {
             if (fieldType.isArray()) {
                 Class<?> componentType = fieldType.getComponentType();
                 if (fieldIns != null && !TypeUtil.isBasicType(componentType)) {
-                    LogUtil.verbose(classPool.size(), "Verifying Field(Array[%d]) %s", Array.getLength(fieldIns), f.getName());
+                    LogUtil.verbose(classPool.size() * 2, "Verifying Field(Array[%d]) %s", Array.getLength(fieldIns), f.getName());
                     handleCircleReferenceOfArrayField(fieldIns, componentType, classPool);
                 }
             } else if (!TypeUtil.isBasicType(fieldType)) {
                 if (fieldIns == null && classPool.containsKey(fieldType)) {
                     f.set(instance, classPool.get(fieldType));
                 } else if (!classPool.containsKey(fieldType)) {
-                    LogUtil.verbose(classPool.size(), "Verifying Field %s", f.getName());
+                    LogUtil.verbose(classPool.size() * 2, "Verifying Field %s", f.getName());
                     handleCircleReference(fieldIns, fieldType, classPool);
                 }
             }
