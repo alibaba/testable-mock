@@ -14,7 +14,7 @@ import org.junit.jupiter.api.Test
  */
 internal class DemoInheritTest {
 
-    private val demoInherit = com.alibaba.demo.basic.DemoInherit()
+    private val demoInherit = DemoInherit()
 
     class Mock {
         @MockMethod(targetMethod = "put")

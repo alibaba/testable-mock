@@ -8,6 +8,7 @@ import com.alibaba.testable.agent.util.ClassUtil;
 import com.alibaba.testable.agent.util.DiagnoseUtil;
 import com.alibaba.testable.agent.util.MethodUtil;
 import com.alibaba.testable.core.exception.TargetNotExistException;
+import com.alibaba.testable.core.util.LogUtil;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AnnotationNode;
 import org.objectweb.asm.tree.ClassNode;
@@ -36,7 +37,7 @@ public class MockClassParser {
             return new ArrayList<MethodInfo>();
         }
         for (MethodNode mn : getAllMethods(cn)) {
-            checkMethodAnnotation(cn, methodInfos, mn);
+            addMethodWithAnnotationCheck(methodInfos, cn, mn);
         }
         return methodInfos;
     }
@@ -77,7 +78,7 @@ public class MockClassParser {
         return mns;
     }
 
-    private void checkMethodAnnotation(ClassNode cn, List<MethodInfo> methodInfos, MethodNode mn) {
+    private void addMethodWithAnnotationCheck(List<MethodInfo> methodInfos, ClassNode cn, MethodNode mn) {
         if (mn.visibleAnnotations == null) {
             return;
         }
@@ -85,7 +86,8 @@ public class MockClassParser {
             String fullClassName = toJavaStyleClassName(an.desc);
             if (fullClassName.equals(ConstPool.MOCK_CONSTRUCTOR)) {
                 checkTargetConstructorExists(mn);
-                addMockConstructor(methodInfos, cn, mn);
+                methodInfos.add(new MethodInfo(ClassUtil.getSourceClassName(cn.name), CONSTRUCTOR, mn.desc, cn.name,
+                    mn.name, mn.desc, isStatic(mn)));
             } else if (fullClassName.equals(ConstPool.MOCK_METHOD) && isValidMockMethod(mn, an)) {
                 checkTargetMethodExists(mn, an);
                 String targetMethod = AnnotationUtil.getAnnotationParameter(
@@ -93,6 +95,8 @@ public class MockClassParser {
                 MethodInfo mi = getMethodInfo(cn, mn, an, targetMethod);
                 if (mi != null) {
                     methodInfos.add(mi);
+                } else {
+                    LogUtil.warn("Failed to parse method %s::%s", cn.name, mn.name);
                 }
                 break;
             }
@@ -118,11 +122,6 @@ public class MockClassParser {
         }
     }
 
-    private void addMockConstructor(List<MethodInfo> methodInfos, ClassNode cn, MethodNode mn) {
-        String sourceClassName = ClassUtil.getSourceClassName(cn.name);
-        methodInfos.add(new MethodInfo(sourceClassName, CONSTRUCTOR, mn.desc, cn.name, mn.name, mn.desc, isStatic(mn)));
-    }
-
     private void checkTargetMethodExists(MethodNode mn, AnnotationNode an) {
         String targetMethodName = AnnotationUtil.getAnnotationParameter(an, ConstPool.FIELD_TARGET_METHOD, null, String.class);
         if (targetMethodName == null) {
@@ -139,8 +138,7 @@ public class MockClassParser {
             ImmutablePair<String, String> parameterPair = MethodUtil.splitFirstAndRestParameters(mn.desc);
             targetClassName = ClassUtil.toDotSeparatedName(parameterPair.left);
             targetMethodDesc = parameterPair.right;
-            checkMethodExists(mn.name, targetClassName, targetMethodName,
-                MethodUtil.removeFirstParameter(targetMethodDesc));
+            checkMethodExists(mn.name, targetClassName, targetMethodName, targetMethodDesc);
         } else {
             throw new TargetNotExistException("target class not exist", mn.name);
         }
@@ -153,7 +151,7 @@ public class MockClassParser {
             throw new TargetNotExistException("target class not found", mockMethodName);
         }
         boolean targetFound = false;
-        for (MethodNode targetMethodNode : targetClassNode.methods) {
+        for (MethodNode targetMethodNode : getAllMethods(targetClassNode)) {
             if (targetMethodNode.name.equals(targetMethodName)) {
                 targetFound = true;
                 if (targetMethodNode.desc.equals(targetMethodDesc)) {
