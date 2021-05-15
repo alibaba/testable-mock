@@ -7,6 +7,7 @@ import com.alibaba.testable.agent.handler.SourceClassHandler;
 import com.alibaba.testable.agent.handler.TestClassHandler;
 import com.alibaba.testable.agent.model.MethodInfo;
 import com.alibaba.testable.agent.util.*;
+import com.alibaba.testable.core.exception.TargetNotExistException;
 import com.alibaba.testable.core.model.ClassType;
 import com.alibaba.testable.core.util.LogUtil;
 import com.alibaba.testable.core.util.MockAssociationUtil;
@@ -85,6 +86,9 @@ public class TestableClassTransformer implements ClassFileTransformer {
                     BytecodeUtil.dumpByte(className, GlobalConfig.getDumpPath(), bytes);
                 }
             }
+        } catch (TargetNotExistException e) {
+            LogUtil.error("Invalid mock method %s::%s - %s", className, e.getMethodName(), e.getMessage());
+            System.exit(0);
         } catch (Throwable t) {
             LogUtil.warn("Failed to transform class " + className);
             LogUtil.warn(t.toString());

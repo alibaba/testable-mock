@@ -4,6 +4,7 @@ import com.alibaba.testable.agent.constant.ByteCodeConst;
 import com.alibaba.testable.agent.constant.ConstPool;
 import com.alibaba.testable.agent.tool.ImmutablePair;
 import com.alibaba.testable.agent.util.*;
+import com.alibaba.testable.core.exception.TargetNotExistException;
 import com.alibaba.testable.core.model.MockScope;
 import com.alibaba.testable.core.util.MockAssociationUtil;
 import org.objectweb.asm.Label;
@@ -15,7 +16,6 @@ import java.util.List;
 import static com.alibaba.testable.agent.constant.ByteCodeConst.TYPE_ARRAY;
 import static com.alibaba.testable.agent.constant.ByteCodeConst.TYPE_CLASS;
 import static com.alibaba.testable.agent.constant.ConstPool.CLASS_OBJECT;
-import static com.alibaba.testable.agent.util.ClassUtil.toJavaStyleClassName;
 import static com.alibaba.testable.core.constant.ConstPool.CONSTRUCTOR;
 
 /**
@@ -239,13 +239,75 @@ public class MockClassHandler extends BaseClassWithContextHandler {
             return false;
         }
         for (AnnotationNode an : mn.visibleAnnotations) {
-            if (isMockMethodAnnotation(an) && AnnotationUtil.isValidMockMethod(mn, an)) {
+            if (isMockMethodAnnotation(an)) {
+                checkTargetMethodExists(mn, an);
                 return true;
             } else if (isMockConstructorAnnotation(an)) {
+                checkTargetConstructorExists(mn);
                 return true;
             }
         }
         return false;
+    }
+
+    private void checkTargetMethodExists(MethodNode mn, AnnotationNode an) {
+        String targetMethodName = AnnotationUtil.getAnnotationParameter(an, ConstPool.FIELD_TARGET_METHOD, null, String.class);
+        if (targetMethodName == null) {
+            targetMethodName = mn.name;
+        }
+        String targetClassName;
+        String targetMethodDesc;
+        Type targetClass = AnnotationUtil.getAnnotationParameter(an, ConstPool.FIELD_TARGET_CLASS, null, Type.class);
+        if (targetClass != null) {
+            targetClassName = targetClass.getClassName();
+            targetMethodDesc = mn.desc;
+            checkMethodExists(mn.name, targetClassName, targetMethodName, targetMethodDesc);
+        } else if (mn.desc.charAt(1) == TYPE_CLASS) {
+            ImmutablePair<String, String> parameterPair = MethodUtil.splitFirstAndRestParameters(mn.desc);
+            targetClassName = ClassUtil.toDotSeparatedName(parameterPair.left);
+            targetMethodDesc = parameterPair.right;
+            checkMethodExists(mn.name, targetClassName, targetMethodName,
+                MethodUtil.removeFirstParameter(targetMethodDesc));
+        } else {
+            throw new TargetNotExistException("target class not exist", mn.name);
+        }
+    }
+
+    private void checkMethodExists(String mockMethodName, String targetClassName, String targetMethodName,
+                                      String targetMethodDesc) {
+        ClassNode targetClassNode = ClassUtil.getClassNode(targetClassName);
+        if (targetClassNode == null) {
+            throw new TargetNotExistException("target class not found", mockMethodName);
+        }
+        boolean targetFound = false;
+        for (MethodNode targetMethodNode : targetClassNode.methods) {
+            if (targetMethodNode.name.equals(targetMethodName)) {
+                targetFound = true;
+                if (targetMethodNode.desc.equals(targetMethodDesc)) {
+                    return;
+                }
+            }
+        }
+        throw new TargetNotExistException(targetFound ?
+            "mock method does not match original method" : "no such method in target class", mockMethodName);
+    }
+
+    private void checkTargetConstructorExists(MethodNode mn) {
+        String returnType = MethodUtil.getReturnType(mn.desc);
+        if (returnType.charAt(0) != TYPE_CLASS) {
+            throw new TargetNotExistException("return type is not a class", mn.name);
+        }
+        ClassNode targetClassNode = ClassUtil.getClassNode(ClassUtil.toJavaStyleClassName(returnType));
+        if (targetClassNode == null) {
+            throw new TargetNotExistException("target class not found", mn.name);
+        }
+        for (MethodNode targetMethodNode : targetClassNode.methods) {
+            if (CONSTRUCTOR.equals(targetMethodNode.name) &&
+                MethodUtil.getParameters(targetMethodNode.desc).equals(MethodUtil.getParameters(mn.desc))) {
+                return;
+            }
+        }
+        throw new TargetNotExistException("no such constructor in target class", mn.name);
     }
 
     private boolean isMockConstructorAnnotation(AnnotationNode an) {
@@ -294,7 +356,7 @@ public class MockClassHandler extends BaseClassWithContextHandler {
 
     private boolean isMockForConstructor(MethodNode mn) {
         for (AnnotationNode an : mn.visibleAnnotations) {
-            String annotationName = toJavaStyleClassName(an.desc);
+            String annotationName = ClassUtil.toJavaStyleClassName(an.desc);
             if (ConstPool.MOCK_CONSTRUCTOR.equals(annotationName)) {
                 return true;
             } else if (ConstPool.MOCK_METHOD.equals(annotationName)) {

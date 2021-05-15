@@ -1,5 +1,6 @@
 package com.alibaba.testable.agent.util;
 
+import com.alibaba.testable.agent.tool.ImmutablePair;
 import org.objectweb.asm.tree.MethodNode;
 
 import java.util.ArrayList;
@@ -11,6 +12,7 @@ import static org.objectweb.asm.Opcodes.ACC_STATIC;
 public class MethodUtil {
 
     private static final String COMMA_SPACE = ", ";
+    private static final int MINIMAL_DESC_LENGTH_OF_TWO_PARAMETERS_METHOD = 4;
 
     /**
      * Judge whether a method is static
@@ -65,7 +67,7 @@ public class MethodUtil {
     }
 
     /**
-     * Parse method desc, fetch return value types
+     * Parse method desc, fetch return value type
      * @param desc method description
      * @return types of return value
      */
@@ -75,13 +77,40 @@ public class MethodUtil {
     }
 
     /**
+     * Parse method desc, fetch parameter types string
+     * @param desc method description
+     * @return parameter types
+     */
+    public static Object getParameters(String desc) {
+        int returnTypeEdge = desc.lastIndexOf(PARAM_END);
+        return desc.substring(1, returnTypeEdge);
+    }
+
+    /**
      * Parse method desc, fetch first parameter type (assume first parameter is an object type)
      * @param desc method description
      * @return types of first parameter
      */
     public static String getFirstParameter(String desc) {
-        int typeEdge = desc.indexOf(CLASS_END);
-        return typeEdge > 0 ? desc.substring(1, typeEdge + 1) : "";
+        // assume first parameter is class type
+        return desc.substring(1, desc.indexOf(CLASS_END) + 1);
+    }
+
+    /**
+     * Split desc to "first parameter" and "desc of rest parameters"
+     * @param desc method desc
+     * @return pair of [slash separated first parameter type, desc of rest parameters]
+     */
+    public static ImmutablePair<String, String> splitFirstAndRestParameters(String desc) {
+        if (desc.length() < MINIMAL_DESC_LENGTH_OF_TWO_PARAMETERS_METHOD) {
+            return ImmutablePair.of("", "");
+        }
+        if (desc.charAt(1) != TYPE_CLASS) {
+            return ImmutablePair.of(desc.substring(1, 2), "(" + desc.substring(2));
+        }
+        int pos = desc.indexOf(";");
+        return pos < 0 ? ImmutablePair.of("", "")
+            : ImmutablePair.of(desc.substring(2, pos), "(" + desc.substring(pos + 1));
     }
 
     /**

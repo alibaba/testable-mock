@@ -16,6 +16,7 @@ import org.objectweb.asm.tree.MethodNode;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.alibaba.testable.agent.constant.ByteCodeConst.TYPE_CLASS;
 import static com.alibaba.testable.agent.constant.ConstPool.CLASS_OBJECT;
 import static com.alibaba.testable.agent.util.ClassUtil.toJavaStyleClassName;
 import static com.alibaba.testable.agent.util.MethodUtil.isStatic;
@@ -89,7 +90,7 @@ public class MockClassParser {
                         ClassUtil.toJavaStyleClassName(MethodUtil.getReturnType(mn.desc)), mn.desc));
                 }
                 addMockConstructor(methodInfos, cn, mn);
-            } else if (fullClassName.equals(ConstPool.MOCK_METHOD) && AnnotationUtil.isValidMockMethod(mn, an)) {
+            } else if (fullClassName.equals(ConstPool.MOCK_METHOD) && isValidMockMethod(mn, an)) {
                 if (LogUtil.isVerboseEnabled()) {
                     LogUtil.verbose("   Mock method \"%s\" as \"%s\"", mn.name, MethodUtil.toJavaMethodDesc(
                         getTargetMethodOwner(mn, an), getTargetMethodName(mn, an), getTargetMethodDesc(mn, an)));
@@ -132,8 +133,8 @@ public class MockClassParser {
         boolean isStatic = isStatic(mn);
         if (targetType == null) {
             // "targetClass" unset, use first parameter as target class type
-            ImmutablePair<String, String> methodDescPair = extractFirstParameter(mn.desc);
-            if (methodDescPair == null) {
+            ImmutablePair<String, String> methodDescPair = MethodUtil.splitFirstAndRestParameters(mn.desc);
+            if (methodDescPair.left.isEmpty()) {
                 return null;
             }
             return new MethodInfo(methodDescPair.left, targetMethod, methodDescPair.right, cn.name, mn.name, mn.desc,
@@ -152,14 +153,18 @@ public class MockClassParser {
     }
 
     /**
-     * Split desc to "first parameter" and "desc of rest parameters"
-     * @param desc method desc
+     * Check is MockMethod annotation is used on a valid mock method
+     * @param mn mock method
+     * @param an MockMethod annotation
+     * @return valid or not
      */
-    private ImmutablePair<String, String> extractFirstParameter(String desc) {
-        // assume first parameter is a class
-        int pos = desc.indexOf(";");
-        return pos < 0 ? null : ImmutablePair.of(desc.substring(2, pos), "(" + desc.substring(pos + 1));
+    private boolean isValidMockMethod(MethodNode mn, AnnotationNode an) {
+        Type targetClass = AnnotationUtil.getAnnotationParameter(an, ConstPool.FIELD_TARGET_CLASS, null, Type.class);
+        if (targetClass != null) {
+            return true;
+        }
+        String firstParameter = MethodUtil.getFirstParameter(mn.desc);
+        return !firstParameter.isEmpty() && firstParameter.charAt(0) == TYPE_CLASS;
     }
-
 
 }
