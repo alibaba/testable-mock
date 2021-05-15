@@ -336,13 +336,13 @@ public class MockClassHandler extends BaseClassWithContextHandler {
         InsnList il = new InsnList();
         List<Byte> types = MethodUtil.getParameterTypes(mn.desc);
         int size = types.size();
-        il.add(getIntInsn(size));
+        il.add(BytecodeUtil.getIntInsn(size));
         il.add(new TypeInsnNode(ANEWARRAY, CLASS_OBJECT));
         int parameterOffset = MethodUtil.isStatic(mn) ? 0 : 1;
         for (int i = 0; i < size; i++) {
             il.add(new InsnNode(DUP));
-            il.add(getIntInsn(i));
-            ImmutablePair<Integer, Integer> code = getLoadParameterByteCode(types.get(i));
+            il.add(BytecodeUtil.getIntInsn(i));
+            ImmutablePair<Integer, Integer> code = BytecodeUtil.getLoadParameterByteCode(types.get(i));
             il.add(new VarInsnNode(code.left, parameterOffset));
             parameterOffset += code.right;
             MethodInsnNode typeConvertMethodNode = ClassUtil.getPrimaryTypeConvertMethod(types.get(i));
@@ -368,44 +368,6 @@ public class MockClassHandler extends BaseClassWithContextHandler {
             }
         }
         return false;
-    }
-
-    private static ImmutablePair<Integer, Integer> getLoadParameterByteCode(Byte type) {
-        switch (type) {
-            case ByteCodeConst.TYPE_BYTE:
-            case ByteCodeConst.TYPE_CHAR:
-            case ByteCodeConst.TYPE_SHORT:
-            case ByteCodeConst.TYPE_INT:
-            case ByteCodeConst.TYPE_BOOL:
-                return ImmutablePair.of(ILOAD, 1);
-            case ByteCodeConst.TYPE_DOUBLE:
-                return ImmutablePair.of(DLOAD, 2);
-            case ByteCodeConst.TYPE_FLOAT:
-                return ImmutablePair.of(FLOAD, 1);
-            case ByteCodeConst.TYPE_LONG:
-                return ImmutablePair.of(LLOAD, 2);
-            default:
-                return ImmutablePair.of(ALOAD, 1);
-        }
-    }
-
-    private AbstractInsnNode getIntInsn(int num) {
-        switch (num) {
-            case 0:
-                return new InsnNode(ICONST_0);
-            case 1:
-                return new InsnNode(ICONST_1);
-            case 2:
-                return new InsnNode(ICONST_2);
-            case 3:
-                return new InsnNode(ICONST_3);
-            case 4:
-                return new InsnNode(ICONST_4);
-            case 5:
-                return new InsnNode(ICONST_5);
-            default:
-                return new IntInsnNode(BIPUSH, num);
-        }
     }
 
 }

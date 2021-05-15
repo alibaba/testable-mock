@@ -1,6 +1,11 @@
 package com.alibaba.testable.agent.util;
 
+import com.alibaba.testable.agent.constant.ByteCodeConst;
+import com.alibaba.testable.agent.tool.ImmutablePair;
 import com.alibaba.testable.core.util.LogUtil;
+import org.objectweb.asm.tree.AbstractInsnNode;
+import org.objectweb.asm.tree.InsnNode;
+import org.objectweb.asm.tree.IntInsnNode;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -219,6 +224,54 @@ public class BytecodeUtil {
             stream.close();
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    /**
+     * get load ops-code of specified type
+     * @param type type symbol
+     * @return pair of [ops-code, stack occupation]
+     */
+    public static ImmutablePair<Integer, Integer> getLoadParameterByteCode(Byte type) {
+        switch (type) {
+            case ByteCodeConst.TYPE_BYTE:
+            case ByteCodeConst.TYPE_CHAR:
+            case ByteCodeConst.TYPE_SHORT:
+            case ByteCodeConst.TYPE_INT:
+            case ByteCodeConst.TYPE_BOOL:
+                return ImmutablePair.of(ILOAD, 1);
+            case ByteCodeConst.TYPE_DOUBLE:
+                return ImmutablePair.of(DLOAD, 2);
+            case ByteCodeConst.TYPE_FLOAT:
+                return ImmutablePair.of(FLOAD, 1);
+            case ByteCodeConst.TYPE_LONG:
+                return ImmutablePair.of(LLOAD, 2);
+            default:
+                return ImmutablePair.of(ALOAD, 1);
+        }
+    }
+
+    /**
+     * get ops code of load a int number
+     * @param num number to load
+     * @return ops code
+     */
+    public static AbstractInsnNode getIntInsn(int num) {
+        switch (num) {
+            case 0:
+                return new InsnNode(ICONST_0);
+            case 1:
+                return new InsnNode(ICONST_1);
+            case 2:
+                return new InsnNode(ICONST_2);
+            case 3:
+                return new InsnNode(ICONST_3);
+            case 4:
+                return new InsnNode(ICONST_4);
+            case 5:
+                return new InsnNode(ICONST_5);
+            default:
+                return new IntInsnNode(BIPUSH, num);
         }
     }
 }
