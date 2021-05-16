@@ -22,10 +22,11 @@ public class PropertiesParser {
     private static final String PKG_PREFIX_INCLUDES = "enhance.pkgPrefix.includes";
     private static final String LOG_FILE = "log.file";
     private static final String LOG_LEVEL = "log.level";
+    private static final String ENABLE_MOCK_INJECT = "mock.enhance.enable";
     private static final String INNER_MOCK_CLASS_NAME = "mock.innerClass.name";
     private static final String MOCK_PKG_MAPPING_PREFIX = "mock.package.mapping.";
     private static final String DEFAULT_MOCK_SCOPE = "mock.scope.default";
-    private static final String ENABLE_MOCK_INJECT = "mock.enhance.enable";
+    private static final String ENABLE_MOCK_TARGET_CHECK = "mock.target.checking.enable";
     private static final String ENABLE_OMNI_INJECT = "omni.constructor.enhance.enable";
     private static final String ENABLE_THREAD_POOL = "thread.pool.enhance.enable";
 
@@ -74,6 +75,8 @@ public class PropertiesParser {
                 GlobalConfig.enhanceOmniConstructor = Boolean.parseBoolean(v);
             } else if (k.equals(ENABLE_MOCK_INJECT)) {
                 GlobalConfig.enhanceMock = Boolean.parseBoolean(v);
+            } else if (k.equals(ENABLE_MOCK_TARGET_CHECK)) {
+                GlobalConfig.checkMockTargetExistence = Boolean.parseBoolean(v);
             } else if (k.equals(ENABLE_THREAD_POOL)) {
                 GlobalConfig.enhanceThreadLocal = Boolean.parseBoolean(v);
             }

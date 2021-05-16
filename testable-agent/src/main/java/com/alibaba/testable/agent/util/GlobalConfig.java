@@ -38,6 +38,7 @@ public class GlobalConfig {
     public static boolean enhanceMock = true;
     public static boolean enhanceOmniConstructor = false;
     public static boolean enhanceThreadLocal = false;
+    public static boolean checkMockTargetExistence = false;
     public static String innerMockClassName = "Mock";
 
     public static void setLogLevel(String level) {

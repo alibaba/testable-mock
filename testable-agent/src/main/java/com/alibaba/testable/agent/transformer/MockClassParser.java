@@ -3,10 +3,7 @@ package com.alibaba.testable.agent.transformer;
 import com.alibaba.testable.agent.constant.ConstPool;
 import com.alibaba.testable.agent.model.MethodInfo;
 import com.alibaba.testable.agent.tool.ImmutablePair;
-import com.alibaba.testable.agent.util.AnnotationUtil;
-import com.alibaba.testable.agent.util.ClassUtil;
-import com.alibaba.testable.agent.util.DiagnoseUtil;
-import com.alibaba.testable.agent.util.MethodUtil;
+import com.alibaba.testable.agent.util.*;
 import com.alibaba.testable.core.exception.TargetNotExistException;
 import com.alibaba.testable.core.util.LogUtil;
 import org.objectweb.asm.Type;
@@ -85,11 +82,15 @@ public class MockClassParser {
         for (AnnotationNode an : mn.visibleAnnotations) {
             String fullClassName = toJavaStyleClassName(an.desc);
             if (fullClassName.equals(ConstPool.MOCK_CONSTRUCTOR)) {
-                checkTargetConstructorExists(mn);
+                if (GlobalConfig.checkMockTargetExistence) {
+                    checkTargetConstructorExists(mn);
+                }
                 methodInfos.add(new MethodInfo(ClassUtil.getSourceClassName(cn.name), CONSTRUCTOR, mn.desc, cn.name,
                     mn.name, mn.desc, isStatic(mn)));
             } else if (fullClassName.equals(ConstPool.MOCK_METHOD) && isValidMockMethod(mn, an)) {
-                checkTargetMethodExists(mn, an);
+                if (GlobalConfig.checkMockTargetExistence) {
+                    checkTargetMethodExists(mn, an);
+                }
                 String targetMethod = AnnotationUtil.getAnnotationParameter(
                     an, ConstPool.FIELD_TARGET_METHOD, mn.name, String.class);
                 MethodInfo mi = getMethodInfo(cn, mn, an, targetMethod);
