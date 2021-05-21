@@ -20,9 +20,7 @@
 `TestableMock`正在持续迭代演进，以下版本计划可能在开发过程中发生调整
 
 - `0.6` 当前版本，正在开发中的功能包括：
-  - 支持全局参数配置Mock容器映射关系 [#105](https://github.com/alibaba/testable-mock/issues/105)
   - 支持Mock Lambada语句中的方法引用 [#36](https://github.com/alibaba/testable-mock/issues/36)
-  - 完善Mock功能的防代码重构机制 [#5](https://github.com/alibaba/testable-mock/issues/5)
   - 其他进行中的工作内容参考[Issue](https://github.com/alibaba/testable-mock/issues)清单
 - `0.7` 主要计划包括：
   - 增加DAO层逻辑的单元测试辅助 [介绍](https://alibaba.github.io/testable-mock/#/zh-cn/doc/verify-sql)

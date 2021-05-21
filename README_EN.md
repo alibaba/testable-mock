@@ -12,7 +12,7 @@ Usage Document: https://alibaba.github.io/testable-mock/#/en-us/
 `TestableMock` is still under heavy development, the following version plans may be adjusted during the iteration
 
 - `v0.6` it's the current version, refer to the [issue](https://github.com/alibaba/testable-mock/issues) list for the work in progress
-- `v0.7` better anti-refactor support of mocking, allow quick mock all method in specified class
+- `v0.7` better anti-refactoring support of mocking, allow quick mock all method in specified class
 - `v1.0` all functions are stable, a brand-new start
 
 ## Directory Structure

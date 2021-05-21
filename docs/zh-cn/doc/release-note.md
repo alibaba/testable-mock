@@ -1,5 +1,10 @@
 # Release Note
 
+## 0.6.6
+- 支持全局参数配置Mock容器的包路径映射，便于Mock三方包内的代码（issue-105）
+- 实现Mock功能的防代码重构机制（issue-5）
+- 解决Mock类的调试日志内容有时会错位的问题
+
 ## 0.6.5
 - 修复`OmniConstructor`对某些系统类型的兼容问题（issue-145）
 - 修复`PrivateAccessor`无法调用仅有数组类型参数方法的问题（issue-152）

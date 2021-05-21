@@ -1,5 +1,10 @@
 # Release Note
 
+## 0.6.6
+- support global package path mapping for easier mocking code of 3rd packages
+- complete mock target checking, improve resistance to code refactoring
+- fix a log disorder issue of mock class handler
+
 ## 0.6.5
 - fix an issue cause `OmniConstructor` fail to handle classes like Date and BigDecimal
 - fix an issue of `PrivateAccessor` fail to invoke method with single array parameter
