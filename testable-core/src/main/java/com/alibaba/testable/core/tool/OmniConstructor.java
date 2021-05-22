@@ -234,7 +234,7 @@ public class OmniConstructor {
         constructor.setAccessible(true);
         Class<?>[] types = constructor.getParameterTypes();
         if (types.length == 1 && types[0].equals(Void.class)) {
-            return constructor.newInstance(getVoidInstance());
+            return constructor.newInstance(new Object[]{ null });
         } else {
             Object[] args = new Object[types.length];
             for (int i = 0; i < types.length; i++) {
@@ -242,13 +242,6 @@ public class OmniConstructor {
             }
             return constructor.newInstance(args);
         }
-    }
-
-    private static Object getVoidInstance()
-        throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
-        Constructor<Void> constructor = Void.class.getDeclaredConstructor();
-        constructor.setAccessible(true);
-        return constructor.newInstance();
     }
 
     private static Constructor<?> getBestConstructor(Class<?> clazz) {
@@ -260,10 +253,9 @@ public class OmniConstructor {
             Class<?>[] exceptionTypes = constructor.getExceptionTypes();
             if (parameterTypes.length == 1 && parameterTypes[0].equals(Void.class)) {
                 return constructor;
-            } else if (exceptionTypes.length < minimalExceptionCount) {
+            } else if (exceptionTypes.length < minimalExceptionCount
+                || (exceptionTypes.length == minimalExceptionCount && parameterTypes.length < minimalParameterCount)) {
                 minimalExceptionCount = exceptionTypes.length;
-                bestConstructor = constructor;
-            } else if (parameterTypes.length < minimalParameterCount) {
                 minimalParameterCount = parameterTypes.length;
                 bestConstructor = constructor;
             }

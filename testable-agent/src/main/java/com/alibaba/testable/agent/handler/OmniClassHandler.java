@@ -2,7 +2,6 @@ package com.alibaba.testable.agent.handler;
 
 import com.alibaba.testable.agent.handler.test.JUnit4Framework;
 import com.alibaba.testable.agent.handler.test.JUnit5Framework;
-import com.alibaba.testable.agent.util.BytecodeUtil;
 import com.alibaba.testable.agent.util.ClassUtil;
 import com.alibaba.testable.agent.util.CollectionUtil;
 import org.objectweb.asm.Label;
@@ -39,22 +38,10 @@ public class OmniClassHandler extends BaseClassHandler {
 
     @Override
     protected void transform(ClassNode cn) {
-        if (isInterface(cn) || isJunitTestClass(cn) || isUninstantiableClass(cn) || hasSpecialAnnotation(cn)) {
+        if (isInterfaceOrAtom(cn) || isJunitTestClass(cn) || isUninstantiableClass(cn) || hasSpecialAnnotation(cn)) {
             return;
         }
-        if (VOID_TYPE.equals(cn.name)) {
-            exposePrivateConstructor(cn);
-        } else {
-            addConstructorWithVoidTypeParameter(cn);
-        }
-    }
-
-    private void exposePrivateConstructor(ClassNode cn) {
-        for (MethodNode method : cn.methods) {
-            if (method.name.equals(CONSTRUCTOR)) {
-                method.access = BytecodeUtil.toPublicAccess(method.access);
-            }
-        }
+        addConstructorWithVoidTypeParameter(cn);
     }
 
     private void addConstructorWithVoidTypeParameter(ClassNode cn) {
@@ -97,9 +84,9 @@ public class OmniClassHandler extends BaseClassHandler {
         return true;
     }
 
-    private boolean isInterface(ClassNode cn) {
-        // is interface or Object class
-        return (cn.access & ACC_INTERFACE) != 0 || cn.superName == null;
+    private boolean isInterfaceOrAtom(ClassNode cn) {
+        // is interface, Object class or Void class
+        return (cn.access & ACC_INTERFACE) != 0 || cn.superName == null || VOID_TYPE.equals(cn.name);
     }
 
     private boolean isJunitTestClass(ClassNode cn) {
