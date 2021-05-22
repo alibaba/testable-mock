@@ -42,6 +42,7 @@ public class MockClassHandler extends BaseClassWithContextHandler {
 
     @Override
     protected void transform(ClassNode cn) {
+        LogUtil.diagnose("Found mock class %s", cn.name);
         if (!CLASS_OBJECT.equals(cn.superName)) {
             MockAssociationUtil.recordSubMockContainer(ClassUtil.toDotSeparatedName(cn.superName),
                 ClassUtil.toDotSeparatedName(cn.name));

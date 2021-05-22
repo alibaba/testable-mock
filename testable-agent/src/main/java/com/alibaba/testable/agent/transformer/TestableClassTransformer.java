@@ -5,6 +5,7 @@ import com.alibaba.testable.agent.handler.MockClassHandler;
 import com.alibaba.testable.agent.handler.OmniClassHandler;
 import com.alibaba.testable.agent.handler.SourceClassHandler;
 import com.alibaba.testable.agent.handler.TestClassHandler;
+import com.alibaba.testable.agent.handler.test.Framework;
 import com.alibaba.testable.agent.model.MethodInfo;
 import com.alibaba.testable.agent.util.*;
 import com.alibaba.testable.core.exception.TargetNotExistException;
@@ -42,7 +43,8 @@ public class TestableClassTransformer implements ClassFileTransformer {
     private final String[] BLACKLIST_PREFIXES = new String[] { "sun/", "com/sun/", "javax/crypto/",
         "java/util/logging/", "org/gradle/", "org/robolectric/" };
 
-    public MockClassParser mockClassParser = new MockClassParser();
+    private final MockClassParser mockClassParser = new MockClassParser();
+    private final TestClassChecker testClassChecker = new TestClassChecker();
 
     @Override
     public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined,
@@ -68,23 +70,26 @@ public class TestableClassTransformer implements ClassFileTransformer {
         try {
             if (mockClassParser.isMockClass(cn)) {
                 // it's a mock class
-                LogUtil.diagnose("Found mock class %s", className);
                 bytes = new MockClassHandler(className).getBytes(bytes);
                 BytecodeUtil.dumpByte(className, GlobalConfig.getDumpPath(), bytes);
-            } else if (foundMockForTestClass(className) != null) {
-                // it's a test class with testable enabled
-                LogUtil.diagnose("Found test class %s", className);
-                bytes = new TestClassHandler().getBytes(bytes);
+                return bytes;
+            }
+            String mockClass = foundMockForSourceClass(className);
+            if (mockClass != null) {
+                // it's a source class with testable enabled
+                List<MethodInfo> injectMethods = mockClassParser.getTestableMockMethods(mockClass);
+                bytes = new SourceClassHandler(injectMethods, mockClass).getBytes(bytes);
                 BytecodeUtil.dumpByte(className, GlobalConfig.getDumpPath(), bytes);
-            } else {
-                String mockClass = foundMockForSourceClass(className);
-                if (mockClass != null) {
-                    // it's a source class with testable enabled
-                    List<MethodInfo> injectMethods = mockClassParser.getTestableMockMethods(mockClass);
-                    LogUtil.diagnose("Found source class %s", className);
-                    bytes = new SourceClassHandler(injectMethods, mockClass).getBytes(bytes);
-                    BytecodeUtil.dumpByte(className, GlobalConfig.getDumpPath(), bytes);
-                }
+                return bytes;
+            }
+            Framework framework = testClassChecker.checkFramework(cn);
+            if (framework != null) {
+                // it's a test class
+                bytes = new TestClassHandler(framework).getBytes(bytes);
+                BytecodeUtil.dumpByte(className, GlobalConfig.getDumpPath(), bytes);
+                return bytes;
+            } else if (cn.name.endsWith(TEST_POSTFIX)) {
+                LogUtil.verbose("Failed to detect test framework for %s", cn.name);
             }
         } catch (TargetNotExistException e) {
             LogUtil.error("Invalid mock method %s::%s - %s", className, e.getMethodName(), e.getMessage());

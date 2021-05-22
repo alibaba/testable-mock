@@ -1,12 +1,12 @@
 package com.alibaba.testable.agent.handler;
 
-import com.alibaba.testable.agent.handler.test.*;
+import com.alibaba.testable.agent.handler.test.Framework;
 import com.alibaba.testable.agent.model.TestCaseMethodType;
 import com.alibaba.testable.core.util.LogUtil;
-import org.objectweb.asm.tree.*;
-
-import java.util.HashSet;
-import java.util.Set;
+import org.objectweb.asm.tree.ClassNode;
+import org.objectweb.asm.tree.InsnList;
+import org.objectweb.asm.tree.MethodInsnNode;
+import org.objectweb.asm.tree.MethodNode;
 
 /**
  * @author flin
@@ -20,14 +20,11 @@ public class TestClassHandler extends BaseClassWithContextHandler {
 
     private int testCaseCount = 0;
     private boolean shouldGenerateCleanupMethod = true;
+    private final Framework framework;
 
-    private final Framework[] frameworkClasses = new Framework[] {
-        new JUnit4Framework(),
-        new JUnit5Framework(),
-        new TestNgFramework(),
-        new TestNgOnClassFramework(),
-        new SpockFramework()
-    };
+    public TestClassHandler(Framework framework) {
+        this.framework = framework;
+    }
 
     /**
      * Handle bytecode of test class
@@ -35,11 +32,7 @@ public class TestClassHandler extends BaseClassWithContextHandler {
      */
     @Override
     protected void transform(ClassNode cn) {
-        Framework framework = checkFramework(cn);
-        if (framework == null) {
-            LogUtil.warn("Failed to detect test framework for %s", cn.name);
-            return;
-        }
+        LogUtil.diagnose("Found test class %s", cn.name);
         for (MethodNode mn : cn.methods) {
             handleTestableUtil(mn);
             handleTestCaseMethod(mn, framework);
@@ -52,28 +45,6 @@ public class TestClassHandler extends BaseClassWithContextHandler {
         LogUtil.diagnose("  Found %d test cases", testCaseCount);
     }
 
-    private Framework checkFramework(ClassNode cn) {
-        Set<String> classAnnotationSet = new HashSet<String>();
-        Set<String> methodAnnotationSet = new HashSet<String>();
-        if (cn.visibleAnnotations != null) {
-            for (AnnotationNode an : cn.visibleAnnotations) {
-                classAnnotationSet.add(an.desc);
-            }
-        }
-        for (MethodNode mn : cn.methods) {
-            if (mn.visibleAnnotations != null) {
-                for (AnnotationNode an : mn.visibleAnnotations) {
-                    methodAnnotationSet.add(an.desc);
-                }
-            }
-        }
-        for (Framework i : frameworkClasses) {
-            if (i.fit(classAnnotationSet, methodAnnotationSet)) {
-                return i;
-            }
-        }
-        return null;
-    }
 
     private void handleTestCaseMethod(MethodNode mn, Framework framework) {
         TestCaseMethodType type = framework.checkMethodType(mn);

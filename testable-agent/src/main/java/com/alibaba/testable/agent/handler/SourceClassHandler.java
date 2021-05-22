@@ -41,6 +41,7 @@ public class SourceClassHandler extends BaseClassHandler {
      */
     @Override
     protected void transform(ClassNode cn) {
+        LogUtil.diagnose("Found source class %s", cn.name);
         Set<MethodInfo> memberInjectMethods = new HashSet<MethodInfo>();
         Set<MethodInfo> newOperatorInjectMethods = new HashSet<MethodInfo>();
         for (MethodInfo im : injectMethods) {
