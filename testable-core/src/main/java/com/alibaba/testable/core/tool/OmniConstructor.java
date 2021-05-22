@@ -253,13 +253,18 @@ public class OmniConstructor {
 
     private static Constructor<?> getBestConstructor(Class<?> clazz) {
         Constructor<?> bestConstructor = null;
-        int minimalParametersSize = 999;
+        int minimalExceptionCount = 999;
+        int minimalParameterCount = 999;
         for (Constructor<?> constructor : clazz.getDeclaredConstructors()) {
-            Class<?>[] types = constructor.getParameterTypes();
-            if (types.length == 1 && types[0].equals(Void.class)) {
+            Class<?>[] parameterTypes = constructor.getParameterTypes();
+            Class<?>[] exceptionTypes = constructor.getExceptionTypes();
+            if (parameterTypes.length == 1 && parameterTypes[0].equals(Void.class)) {
                 return constructor;
-            } else if (types.length < minimalParametersSize) {
-                minimalParametersSize = types.length;
+            } else if (exceptionTypes.length < minimalExceptionCount) {
+                minimalExceptionCount = exceptionTypes.length;
+                bestConstructor = constructor;
+            } else if (parameterTypes.length < minimalParameterCount) {
+                minimalParameterCount = parameterTypes.length;
                 bestConstructor = constructor;
             }
         }
