@@ -9,6 +9,7 @@ import com.alibaba.testable.core.util.LogUtil;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AnnotationNode;
 import org.objectweb.asm.tree.ClassNode;
+import org.objectweb.asm.tree.InnerClassNode;
 import org.objectweb.asm.tree.MethodNode;
 
 import java.util.ArrayList;
@@ -16,6 +17,7 @@ import java.util.List;
 
 import static com.alibaba.testable.agent.constant.ByteCodeConst.TYPE_CLASS;
 import static com.alibaba.testable.agent.constant.ConstPool.CLASS_OBJECT;
+import static com.alibaba.testable.agent.constant.ConstPool.KOTLIN_POSTFIX_COMPANION;
 import static com.alibaba.testable.agent.util.ClassUtil.toJavaStyleClassName;
 import static com.alibaba.testable.agent.util.MethodUtil.isStatic;
 import static com.alibaba.testable.core.constant.ConstPool.CONSTRUCTOR;
@@ -70,6 +72,14 @@ public class MockClassParser {
             ClassNode scn = ClassUtil.getClassNode(cn.superName);
             if (scn != null) {
                 mns.addAll(getAllMethods(scn));
+            }
+        }
+        for (InnerClassNode innerClass : cn.innerClasses) {
+            if (innerClass.name.equals(cn.name + KOTLIN_POSTFIX_COMPANION)) {
+                ClassNode scn = ClassUtil.getClassNode(innerClass.name);
+                if (scn != null) {
+                    mns.addAll(getAllMethods(scn));
+                }
             }
         }
         return mns;
