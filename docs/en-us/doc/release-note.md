@@ -4,6 +4,7 @@
 - support global package path mapping for easier mocking code of 3rd packages
 - complete mock target checking, improve resistance to code refactoring
 - fix a log disorder issue of mock class handler
+- fix an error of creating `Long` or `Integer` class with `OmniConstructor` in certain jvm version
 
 ## 0.6.5
 - fix an issue cause `OmniConstructor` fail to handle classes like Date and BigDecimal

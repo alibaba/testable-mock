@@ -10,6 +10,7 @@
   - [Mock的生效范围](zh-cn/doc/scope-of-mock.md)
   - [复用Mock类与方法](zh-cn/doc/mock-method-reusing.md)
   - [使用MockWith注解](zh-cn/doc/use-mock-with.md)
+  - [使用包路径映射](zh-cn/doc/use-package-mapping.md)
   - [常见使用问题](zh-cn/doc/frequently-asked-questions.md)
   - [在IDE运行单元测试](zh-cn/doc/use-in-ide.md)
   - [自助问题排查](zh-cn/doc/troubleshooting.md)

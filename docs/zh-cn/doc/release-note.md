@@ -4,6 +4,7 @@
 - 支持全局参数配置Mock容器的包路径映射，便于Mock三方包内的代码（issue-105）
 - 实现Mock功能的防代码重构机制（issue-5）
 - 解决Mock类的调试日志内容有时会错位的问题
+- 修复`OmniConstructor`在某些版本JVM下构造`Long`和`Integer`类报错的问题
 
 ## 0.6.5
 - 修复`OmniConstructor`对某些系统类型的兼容问题（issue-145）
