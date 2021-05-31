@@ -21,6 +21,7 @@ import static com.alibaba.testable.agent.constant.ConstPool.KOTLIN_POSTFIX_COMPA
 import static com.alibaba.testable.agent.util.ClassUtil.toJavaStyleClassName;
 import static com.alibaba.testable.agent.util.MethodUtil.isStatic;
 import static com.alibaba.testable.core.constant.ConstPool.CONSTRUCTOR;
+import static com.alibaba.testable.core.constant.ConstPool.MOCK_POSTFIX;
 
 public class MockClassParser {
 
@@ -52,7 +53,7 @@ public class MockClassParser {
             return false;
         }
         DiagnoseUtil.setupByClass(cn);
-        for (MethodNode mn : cn.methods) {
+        for (MethodNode mn : cn.name.endsWith(MOCK_POSTFIX) ? getAllMethods(cn) : cn.methods) {
             if (mn.visibleAnnotations != null) {
                 for (AnnotationNode an : mn.visibleAnnotations) {
                     String fullClassName = toJavaStyleClassName(an.desc);
