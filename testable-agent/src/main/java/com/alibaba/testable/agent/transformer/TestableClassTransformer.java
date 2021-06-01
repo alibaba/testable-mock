@@ -92,7 +92,7 @@ public class TestableClassTransformer implements ClassFileTransformer {
                 LogUtil.verbose("Failed to detect test framework for %s", cn.name);
             }
         } catch (TargetNotExistException e) {
-            LogUtil.error("Invalid mock method %s::%s - %s", className, e.getMethodName(), e.getMessage());
+            LogUtil.error("Invalid mock method %s::%s - %s", e.getClassName(), e.getMethodName(), e.getMessage());
             System.exit(0);
         } catch (Throwable t) {
             LogUtil.warn("Failed to transform class " + className);

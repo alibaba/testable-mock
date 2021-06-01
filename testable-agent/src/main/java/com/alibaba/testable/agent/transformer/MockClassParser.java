@@ -94,13 +94,13 @@ public class MockClassParser {
             String fullClassName = toJavaStyleClassName(an.desc);
             if (fullClassName.equals(ConstPool.MOCK_CONSTRUCTOR)) {
                 if (GlobalConfig.checkMockTargetExistence) {
-                    checkTargetConstructorExists(mn);
+                    checkTargetConstructorExists(cn, mn);
                 }
                 methodInfos.add(new MethodInfo(ClassUtil.getSourceClassName(cn.name), CONSTRUCTOR, mn.desc, cn.name,
                     mn.name, mn.desc, isStatic(mn)));
             } else if (fullClassName.equals(ConstPool.MOCK_METHOD) && isValidMockMethod(mn, an)) {
                 if (GlobalConfig.checkMockTargetExistence) {
-                    checkTargetMethodExists(mn, an);
+                    checkTargetMethodExists(cn, mn, an);
                 }
                 String targetMethod = AnnotationUtil.getAnnotationParameter(
                     an, ConstPool.FIELD_TARGET_METHOD, mn.name, String.class);
@@ -134,7 +134,7 @@ public class MockClassParser {
         }
     }
 
-    private void checkTargetMethodExists(MethodNode mn, AnnotationNode an) {
+    private void checkTargetMethodExists(ClassNode cn, MethodNode mn, AnnotationNode an) {
         String targetMethodName = AnnotationUtil.getAnnotationParameter(an, ConstPool.FIELD_TARGET_METHOD, null, String.class);
         if (targetMethodName == null) {
             targetMethodName = mn.name;
@@ -145,22 +145,22 @@ public class MockClassParser {
         if (targetClass != null) {
             targetClassName = targetClass.getClassName();
             targetMethodDesc = mn.desc;
-            checkMethodExists(mn.name, targetClassName, targetMethodName, targetMethodDesc);
+            checkMethodExists(cn.name, mn.name, targetClassName, targetMethodName, targetMethodDesc);
         } else if (mn.desc.charAt(1) == TYPE_CLASS) {
             ImmutablePair<String, String> parameterPair = MethodUtil.splitFirstAndRestParameters(mn.desc);
             targetClassName = ClassUtil.toDotSeparatedName(parameterPair.left);
             targetMethodDesc = parameterPair.right;
-            checkMethodExists(mn.name, targetClassName, targetMethodName, targetMethodDesc);
+            checkMethodExists(cn.name, mn.name, targetClassName, targetMethodName, targetMethodDesc);
         } else {
-            throw new TargetNotExistException("target class not exist", mn.name);
+            throw new TargetNotExistException("target class not exist", cn.name, mn.name);
         }
     }
 
-    private void checkMethodExists(String mockMethodName, String targetClassName, String targetMethodName,
-                                   String targetMethodDesc) {
+    private void checkMethodExists(String mockClassName, String mockMethodName, String targetClassName,
+                                   String targetMethodName, String targetMethodDesc) {
         ClassNode targetClassNode = ClassUtil.getClassNode(targetClassName);
         if (targetClassNode == null) {
-            throw new TargetNotExistException("target class not found", mockMethodName);
+            throw new TargetNotExistException("target class not found", mockClassName, mockMethodName);
         }
         boolean targetFound = false;
         for (MethodNode targetMethodNode : getAllMethods(targetClassNode)) {
@@ -171,18 +171,19 @@ public class MockClassParser {
                 }
             }
         }
-        throw new TargetNotExistException(targetFound ?
-            "mock method does not match original method" : "no such method in target class", mockMethodName);
+        throw new TargetNotExistException(
+            targetFound ? "mock method does not match original method" : "no such method in target class",
+            mockClassName, mockMethodName);
     }
 
-    private void checkTargetConstructorExists(MethodNode mn) {
+    private void checkTargetConstructorExists(ClassNode cn, MethodNode mn) {
         String returnType = MethodUtil.getReturnType(mn.desc);
         if (returnType.charAt(0) != TYPE_CLASS) {
-            throw new TargetNotExistException("return type is not a class", mn.name);
+            throw new TargetNotExistException("return type is not a class", cn.name, mn.name);
         }
         ClassNode targetClassNode = ClassUtil.getClassNode(ClassUtil.toJavaStyleClassName(returnType));
         if (targetClassNode == null) {
-            throw new TargetNotExistException("target class not found", mn.name);
+            throw new TargetNotExistException("target class not found", cn.name, mn.name);
         }
         for (MethodNode targetMethodNode : targetClassNode.methods) {
             if (CONSTRUCTOR.equals(targetMethodNode.name) &&
@@ -190,7 +191,7 @@ public class MockClassParser {
                 return;
             }
         }
-        throw new TargetNotExistException("no such constructor in target class", mn.name);
+        throw new TargetNotExistException("no such constructor in target class", cn.name, mn.name);
     }
 
     /**
