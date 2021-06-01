@@ -12,6 +12,7 @@
   - [Use MockWith Annotation](en-us/doc/use-mock-with.md)
   - [Use Package Mapping](en-us/doc/use-package-mapping.md)
   - [Frequently Asked Questions](en-us/doc/frequently-asked-questions.md)
+  - [Mock Invocation In Thread Pool](zh-cn/doc/with-thread-pool.md)
   - [Use TestableMock In IDE](en-us/doc/use-in-ide.md)
   - [Self-Help Troubleshooting](en-us/doc/troubleshooting.md)
   - [Testable Maven Plugin](en-us/doc/use-maven-plugin.md)

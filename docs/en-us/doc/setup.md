@@ -100,6 +100,7 @@ See the [build.gradle](https://github.com/alibaba/testable-mock/blob/master/demo
 > For Maven project, add `<maven.compiler.source>` and `<maven.compiler.target>` properties inside the `pom.xml` file, e.g.
 > ```xml
 > <properties>
+>   <!-- or 1.7/1.8/... -->
 >   <maven.compiler.source>1.6</maven.compiler.source>
 >   <maven.compiler.target>1.6</maven.compiler.target>
 > </properties>
@@ -107,7 +108,7 @@ See the [build.gradle](https://github.com/alibaba/testable-mock/blob/master/demo
 >
 > For Gradle project, add a `sourceCompatibility` property inside the `build.gradle` file, e.g.
 > ```groovy
-> sourceCompatibility = '6'
+> sourceCompatibility = '6'  // or 7/8/9/...
 > ```
 >
 > See project `demo/spock-demo` for a complete example.

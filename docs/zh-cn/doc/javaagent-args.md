@@ -58,4 +58,4 @@
 
 若项目测试中，既包含真实的单元测试，又包含了使用单元测试框架编写的集成测试时。为了让集成测试的执行过程不受Mock影响，可能需要使用`mock.scope.default`将默认的Mock方法范围限制为仅对所属类型的单元测试用例生效。
 
-若被测的逻辑是在线程池中执行的，且遇到`verify()`结果不正确的时候，则可能需要开启`thread.pool.enhance.enable`配置，这种情况极少见，通常无需关注。
+若需Mock的调用发生在线程池中，且遇到`verify()`结果或`MOCK_CONTEXT`内容不正确的时候，则需考虑开启`thread.pool.enhance.enable`配置，详见[Mock线程池内的调用](zh-cn/doc/with-thread-pool.md)。

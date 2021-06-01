@@ -95,11 +95,12 @@ test {
 >
 > 完整代码可参考`demo/android-demo`示例项目。
 
-> 若项目使用`Spock`测试框架，需指定`Groovy`编译生成的JVM 1.6或以上版本字节码，方法如下（请根据实际使用的JVM版本修改属性值）。
+> 若项目使用`Spock`测试框架，需指定`Groovy`编译生成的JVM **1.6或以上**版本字节码，方法如下（请根据实际使用的JVM版本修改属性值）。
 > 
 > Maven项目在`pom.xml`中添加`<maven.compiler.source>`和`<maven.compiler.target>`属性，例如：
 > ```xml
 > <properties>
+>   <!-- 或 1.7/1.8/... -->
 >   <maven.compiler.source>1.6</maven.compiler.source>
 >   <maven.compiler.target>1.6</maven.compiler.target>
 > </properties>
@@ -107,7 +108,7 @@ test {
 > 
 > Gradle项目在`build.gradle`中添加`sourceCompatibility`属性，例如：
 > ```groovy
-> sourceCompatibility = '6'
+> sourceCompatibility = '6'  // 或7/8/9/...
 > ```
 > 
 > 完整代码可参考`demo/spock-demo`示例项目。

@@ -12,6 +12,7 @@
   - [使用MockWith注解](zh-cn/doc/use-mock-with.md)
   - [使用包路径映射](zh-cn/doc/use-package-mapping.md)
   - [常见使用问题](zh-cn/doc/frequently-asked-questions.md)
+  - [Mock线程池内的调用](zh-cn/doc/with-thread-pool.md)
   - [在IDE运行单元测试](zh-cn/doc/use-in-ide.md)
   - [自助问题排查](zh-cn/doc/troubleshooting.md)
   - [使用Maven插件](zh-cn/doc/use-maven-plugin.md)
