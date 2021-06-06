@@ -1,11 +1,12 @@
 package com.alibaba.testable.agent.util;
 
 import com.alibaba.testable.agent.tool.ImmutablePair;
-import com.alibaba.testable.core.tool.PrivateAccessor;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static com.alibaba.testable.core.tool.PrivateAccessor.invokeStatic;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class MethodUtilTest {
 
@@ -67,12 +68,12 @@ class MethodUtilTest {
 
     @Test
     void should_convert_bytecode_parameters() {
-        assertEquals("", PrivateAccessor.invokeStatic(MethodUtil.class, "toJavaParameterDesc", ""));
-        assertEquals("void", PrivateAccessor.invokeStatic(MethodUtil.class, "toJavaParameterDesc", "V"));
-        assertEquals("int, long", PrivateAccessor.invokeStatic(MethodUtil.class, "toJavaParameterDesc", "IJ"));
-        assertEquals("int[], long[]", PrivateAccessor.invokeStatic(MethodUtil.class, "toJavaParameterDesc", "[I[J"));
-        assertEquals("int, java.lang.String", PrivateAccessor.invokeStatic(MethodUtil.class, "toJavaParameterDesc", "ILjava/lang/String;"));
-        assertEquals("java.lang.String, int, long[]", PrivateAccessor.invokeStatic(MethodUtil.class, "toJavaParameterDesc", "Ljava/lang/String;I[J"));
+        assertEquals("", invokeStatic(MethodUtil.class, "toJavaParameterDesc", ""));
+        assertEquals("void", invokeStatic(MethodUtil.class, "toJavaParameterDesc", "V"));
+        assertEquals("int, long", invokeStatic(MethodUtil.class, "toJavaParameterDesc", "IJ"));
+        assertEquals("int[], long[]", invokeStatic(MethodUtil.class, "toJavaParameterDesc", "[I[J"));
+        assertEquals("int, java.lang.String", invokeStatic(MethodUtil.class, "toJavaParameterDesc", "ILjava/lang/String;"));
+        assertEquals("java.lang.String, int, long[]", invokeStatic(MethodUtil.class, "toJavaParameterDesc", "Ljava/lang/String;I[J"));
     }
 
 }

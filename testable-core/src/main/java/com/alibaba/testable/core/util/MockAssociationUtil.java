@@ -1,6 +1,5 @@
 package com.alibaba.testable.core.util;
 
-import com.alibaba.testable.core.tool.PrivateAccessor;
 import com.alibaba.testable.core.model.MockContext;
 
 import java.util.HashSet;
@@ -8,6 +7,7 @@ import java.util.Map;
 import java.util.Set;
 
 import static com.alibaba.testable.core.constant.ConstPool.*;
+import static com.alibaba.testable.core.tool.PrivateAccessor.*;
 
 public class MockAssociationUtil {
 
@@ -67,11 +67,11 @@ public class MockAssociationUtil {
      */
     public static Object invokeOrigin(Class<?> originClass, String originMethod, Object... args) {
         if (originMethod.equals(CONSTRUCTOR)) {
-            return PrivateAccessor.construct(originClass, args);
+            return construct(originClass, args);
         } else if (args[0] == null) {
-            return PrivateAccessor.invokeStatic(originClass, originMethod, CollectionUtil.slice(args, 1));
+            return invokeStatic(originClass, originMethod, CollectionUtil.slice(args, 1));
         } else {
-            return PrivateAccessor.invoke(args[0], originMethod, CollectionUtil.slice(args, 1));
+            return invoke(args[0], originMethod, CollectionUtil.slice(args, 1));
         }
     }
 
