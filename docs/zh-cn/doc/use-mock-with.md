@@ -89,9 +89,3 @@ public class ServiceTest {
 完整代码示例见`java-demo`和`kotlin-demo`示例项目中`OneToMultiSvcTest`测试类的用例。
 
 > 由于测试类无法通过`@MockWith`与多个Mock容器关联，目前这种用法仅支持生效范围为`MockScope.GLOBAL`的Mock方法。
-
-### 4. 使用不包含Mock方法的Mock容器类
-
-为了加快搜索Mock容器类的速度，在扫描过程中，`TestableMock`只会将自身定义有Mock方法（包含`@MockMethod`或`@MockMockConstructor`注解的方法）以及明确被`@MockWith`指向的类识别为有效的Mock容器，而不会去遍历其父类。
-
-假如出于某些极特殊原因要使用无Mock方法的类型作为Mock容器，譬如希望将实际Mock方法均定义在父类，实际使用的子容器仅仅重载父类的某些特定方法。此时即使Mock容器类的位置符合约定，为了能够被识别，依然应该在相应的测试类上增加对Mock容器类的`@MockWith`引用。

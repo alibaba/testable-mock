@@ -17,7 +17,7 @@
 
 ```xml
 <properties>
-    <testable.version>0.6.6</testable.version>
+    <testable.version>0.6.7</testable.version>
 </properties>
 ```
 
@@ -64,8 +64,8 @@
 
 ```groovy
 dependencies {
-    testImplementation('com.alibaba.testable:testable-all:0.6.6')
-    testAnnotationProcessor('com.alibaba.testable:testable-processor:0.6.6')
+    testImplementation('com.alibaba.testable:testable-all:0.6.7')
+    testAnnotationProcessor('com.alibaba.testable:testable-processor:0.6.7')
 }
 ```
 

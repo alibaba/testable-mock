@@ -1,5 +1,9 @@
 # Release Note
 
+## 0.6.7
+- support empty mock container class which has all mock methods in its parent
+- fix an issue cause mock fail when parameter has array element accessing
+
 ## 0.6.6
 - support global package path mapping for easier mocking code of 3rd packages
 - complete mock target checking, improve resistance to code refactoring
