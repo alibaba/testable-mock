@@ -23,6 +23,7 @@ public class BytecodeUtil {
 
     /**
      * refer to https://en.wikipedia.org/wiki/Java_bytecode_instruction_listings
+     * positive for push stack, negative for pop stack
      */
     private static Map<Integer, Integer> bytecodeStackEffect = new HashMap<Integer, Integer>() {{
         put(NOP, 0);
@@ -49,27 +50,27 @@ public class BytecodeUtil {
         put(FLOAD, 1);
         put(DLOAD, 1);
         put(ALOAD, 1);
-        put(IALOAD, 1);
-        put(LALOAD, 1);
-        put(FALOAD, 1);
-        put(DALOAD, 1);
-        put(AALOAD, 1);
-        put(BALOAD, 1);
-        put(CALOAD, 1);
-        put(SALOAD, 1);
+        put(IALOAD, -1); // array operation eat 2 more stacks
+        put(LALOAD, -1); // array operation eat 2 more stacks
+        put(FALOAD, -1); // array operation eat 2 more stacks
+        put(DALOAD, -1); // array operation eat 2 more stacks
+        put(AALOAD, -1); // array operation eat 2 more stacks
+        put(BALOAD, -1); // array operation eat 2 more stacks
+        put(CALOAD, -1); // array operation eat 2 more stacks
+        put(SALOAD, -1); // array operation eat 2 more stacks
         put(ISTORE, -1);
         put(LSTORE, -1);
         put(FSTORE, -1);
         put(DSTORE, -1);
         put(ASTORE, -1);
-        put(IASTORE, -3);
-        put(LASTORE, -3);
-        put(FASTORE, -3);
-        put(DASTORE, -3);
-        put(AASTORE, -3);
-        put(BASTORE, -3);
-        put(CASTORE, -3);
-        put(SASTORE, -3);
+        put(IASTORE, -3); // array operation eat 2 more stacks
+        put(LASTORE, -3); // array operation eat 2 more stacks
+        put(FASTORE, -3); // array operation eat 2 more stacks
+        put(DASTORE, -3); // array operation eat 2 more stacks
+        put(AASTORE, -3); // array operation eat 2 more stacks
+        put(BASTORE, -3); // array operation eat 2 more stacks
+        put(CASTORE, -3); // array operation eat 2 more stacks
+        put(SASTORE, -3); // array operation eat 2 more stacks
         put(POP, -1);
         put(POP2, -2);
         put(DUP, 1);
