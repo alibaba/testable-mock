@@ -6,8 +6,6 @@ import com.alibaba.testable.core.util.LogUtil;
 import org.objectweb.asm.tree.AnnotationNode;
 import org.objectweb.asm.tree.ClassNode;
 
-import static com.alibaba.testable.agent.util.ClassUtil.toJavaStyleClassName;
-
 public class DiagnoseUtil {
 
     private static final String FIELD_VALUE = "value";
@@ -17,7 +15,7 @@ public class DiagnoseUtil {
             return;
         }
         for (AnnotationNode an : cn.visibleAnnotations) {
-            if (toJavaStyleClassName(an.desc).equals(ConstPool.MOCK_DIAGNOSE)) {
+            if (ClassUtil.toByteCodeClassName(ConstPool.MOCK_DIAGNOSE).equals(an.desc)) {
                 setupDiagnose(an, FIELD_VALUE);
             }
         }

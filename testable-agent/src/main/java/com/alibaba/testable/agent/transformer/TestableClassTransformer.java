@@ -253,7 +253,7 @@ public class TestableClassTransformer implements ClassFileTransformer {
     private String parseMockWithAnnotation(ClassNode cn, ClassType expectedType) {
         if (cn.visibleAnnotations != null) {
             for (AnnotationNode an : cn.visibleAnnotations) {
-                if (ClassUtil.toJavaStyleClassName(an.desc).equals(ConstPool.MOCK_WITH)) {
+                if ((ClassUtil.toByteCodeClassName(ConstPool.MOCK_WITH)).equals(an.desc)) {
                     ClassType type = AnnotationUtil.getAnnotationParameter(an, FIELD_TREAT_AS, ClassType.GuessByName,
                         ClassType.class);
                     if (isExpectedType(cn.name, type, expectedType)) {
@@ -271,7 +271,7 @@ public class TestableClassTransformer implements ClassFileTransformer {
     private String getDumpPathByAnnotation(ClassNode cn) {
         if (cn.visibleAnnotations != null) {
             for (AnnotationNode an : cn.visibleAnnotations) {
-                if (ClassUtil.toJavaStyleClassName(an.desc).equals(ConstPool.DUMP_TO)) {
+                if ((ClassUtil.toByteCodeClassName(ConstPool.DUMP_TO)).equals(an.desc)) {
                     String path = AnnotationUtil.getAnnotationParameter(an, FIELD_VALUE, null, String.class);
                     String fullPath = PathUtil.join(System.getProperty(PROPERTY_USER_DIR), path);
                     if (createFolder(fullPath)) {
