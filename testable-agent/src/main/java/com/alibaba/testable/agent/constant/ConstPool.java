@@ -8,6 +8,7 @@ public class ConstPool {
     public static final String FIELD_TARGET_METHOD = "targetMethod";
     public static final String FIELD_TARGET_CLASS = "targetClass";
     public static final String FIELD_SCOPE = "scope";
+    public static final String FIELD_VALUE = "value";
 
     public static final String PROPERTY_USER_DIR = "user.dir";
     public static final String PROPERTY_TEMP_DIR = "java.io.tmpdir";

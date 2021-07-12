@@ -22,10 +22,10 @@ import java.lang.instrument.ClassFileTransformer;
 import java.security.ProtectionDomain;
 import java.util.List;
 
-import static com.alibaba.testable.agent.constant.ConstPool.*;
+import static com.alibaba.testable.agent.constant.ConstPool.CGLIB_CLASS_PATTERN;
+import static com.alibaba.testable.agent.constant.ConstPool.KOTLIN_POSTFIX_COMPANION;
 import static com.alibaba.testable.core.constant.ConstPool.DOLLAR;
 import static com.alibaba.testable.core.constant.ConstPool.TEST_POSTFIX;
-import static com.alibaba.testable.core.util.PathUtil.createFolder;
 import static org.objectweb.asm.Opcodes.ACC_STATIC;
 
 /**
@@ -33,7 +33,6 @@ import static org.objectweb.asm.Opcodes.ACC_STATIC;
  */
 public class TestableClassTransformer implements ClassFileTransformer {
 
-    private static final String FIELD_VALUE = "value";
     private static final String FIELD_TREAT_AS = "treatAs";
     private static final String CLASS_JUNIT_5_NESTED = "Lorg/junit/jupiter/api/Nested;";
 
@@ -71,7 +70,7 @@ public class TestableClassTransformer implements ClassFileTransformer {
             if (mockClassParser.isMockClass(cn)) {
                 // it's a mock class
                 bytes = new MockClassHandler(className).getBytes(bytes);
-                BytecodeUtil.dumpByte(className, GlobalConfig.getDumpPath(), bytes);
+                BytecodeUtil.dumpByte(cn, GlobalConfig.getDumpPath(), bytes);
                 return bytes;
             }
             String mockClass = foundMockForSourceClass(className);
@@ -79,14 +78,14 @@ public class TestableClassTransformer implements ClassFileTransformer {
                 // it's a source class with testable enabled
                 List<MethodInfo> injectMethods = mockClassParser.getTestableMockMethods(mockClass);
                 bytes = new SourceClassHandler(injectMethods, mockClass).getBytes(bytes);
-                BytecodeUtil.dumpByte(className, GlobalConfig.getDumpPath(), bytes);
+                BytecodeUtil.dumpByte(cn, GlobalConfig.getDumpPath(), bytes);
                 return bytes;
             }
             Framework framework = testClassChecker.checkFramework(cn);
             if (framework != null) {
                 // it's a test class
                 bytes = new TestClassHandler(framework).getBytes(bytes);
-                BytecodeUtil.dumpByte(className, GlobalConfig.getDumpPath(), bytes);
+                BytecodeUtil.dumpByte(cn, GlobalConfig.getDumpPath(), bytes);
                 return bytes;
             } else if (cn.name.endsWith(TEST_POSTFIX)) {
                 LogUtil.verbose("Failed to detect test framework for %s", cn.name);
@@ -101,7 +100,7 @@ public class TestableClassTransformer implements ClassFileTransformer {
         } finally {
             LogUtil.resetLogLevel();
         }
-        BytecodeUtil.dumpByte(className, getDumpPathByAnnotation(cn), bytes);
+        BytecodeUtil.dumpByte(cn, null, bytes);
         return bytes;
     }
 
@@ -257,25 +256,10 @@ public class TestableClassTransformer implements ClassFileTransformer {
                     ClassType type = AnnotationUtil.getAnnotationParameter(an, FIELD_TREAT_AS, ClassType.GuessByName,
                         ClassType.class);
                     if (isExpectedType(cn.name, type, expectedType)) {
-                        Type clazz = AnnotationUtil.getAnnotationParameter(an, FIELD_VALUE,
+                        Type clazz = AnnotationUtil.getAnnotationParameter(an, ConstPool.FIELD_VALUE,
                             Type.getType(NullType.class), Type.class);
                         DiagnoseUtil.setupByClass(ClassUtil.getClassNode(clazz.getClassName()));
                         return clazz.getClassName();
-                    }
-                }
-            }
-        }
-        return null;
-    }
-
-    private String getDumpPathByAnnotation(ClassNode cn) {
-        if (cn.visibleAnnotations != null) {
-            for (AnnotationNode an : cn.visibleAnnotations) {
-                if ((ClassUtil.toByteCodeClassName(ConstPool.DUMP_TO)).equals(an.desc)) {
-                    String path = AnnotationUtil.getAnnotationParameter(an, FIELD_VALUE, null, String.class);
-                    String fullPath = PathUtil.join(System.getProperty(PROPERTY_USER_DIR), path);
-                    if (createFolder(fullPath)) {
-                        return fullPath;
                     }
                 }
             }

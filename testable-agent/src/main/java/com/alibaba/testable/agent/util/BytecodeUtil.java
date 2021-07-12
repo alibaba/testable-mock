@@ -1,25 +1,28 @@
 package com.alibaba.testable.agent.util;
 
 import com.alibaba.testable.agent.constant.ByteCodeConst;
+import com.alibaba.testable.agent.constant.ConstPool;
 import com.alibaba.testable.agent.tool.ImmutablePair;
 import com.alibaba.testable.core.util.LogUtil;
-import org.objectweb.asm.tree.AbstractInsnNode;
-import org.objectweb.asm.tree.InsnNode;
-import org.objectweb.asm.tree.IntInsnNode;
+import org.objectweb.asm.tree.*;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.alibaba.testable.agent.constant.ConstPool.FIELD_VALUE;
+import static com.alibaba.testable.agent.constant.ConstPool.PROPERTY_USER_DIR;
 import static com.alibaba.testable.core.constant.ConstPool.*;
-import static com.alibaba.testable.core.constant.ConstPool.UNDERLINE;
+import static com.alibaba.testable.core.util.PathUtil.createFolder;
 import static org.objectweb.asm.Opcodes.*;
 
 /**
  * @author flin
  */
 public class BytecodeUtil {
+
+    private static final String POSTFIX_CLASS = ".class";
 
     /**
      * refer to https://en.wikipedia.org/wiki/Java_bytecode_instruction_listings
@@ -208,17 +211,20 @@ public class BytecodeUtil {
 
     /**
      * Dump byte code to specified class file
-     * @param className original class name
+     * @param cn original class node
      * @param dumpPath folder to store class file
      * @param bytes original class bytes
      */
-    public static void dumpByte(String className, String dumpPath, byte[] bytes) {
+    public static void dumpByte(ClassNode cn, String dumpPath, byte[] bytes) {
         if (dumpPath == null) {
-            return;
+            dumpPath = getDumpPathByAnnotation(cn);
+            if (dumpPath == null) {
+                return;
+            }
         }
         try {
             String dumpFile = PathUtil.join(dumpPath,
-                className.replace(SLASH, DOT).replace(DOLLAR, UNDERLINE) + ".class");
+                cn.name.replace(SLASH, DOT).replace(DOLLAR, UNDERLINE) + POSTFIX_CLASS);
             LogUtil.verbose("Dump class: " + dumpFile);
             FileOutputStream stream = new FileOutputStream(dumpFile);
             stream.write(bytes);
@@ -274,5 +280,20 @@ public class BytecodeUtil {
             default:
                 return new IntInsnNode(BIPUSH, num);
         }
+    }
+
+    private static String getDumpPathByAnnotation(ClassNode cn) {
+        if (cn.visibleAnnotations != null) {
+            for (AnnotationNode an : cn.visibleAnnotations) {
+                if ((ClassUtil.toByteCodeClassName(ConstPool.DUMP_TO)).equals(an.desc)) {
+                    String path = AnnotationUtil.getAnnotationParameter(an, FIELD_VALUE, null, String.class);
+                    String fullPath = PathUtil.join(System.getProperty(PROPERTY_USER_DIR), path);
+                    if (createFolder(fullPath)) {
+                        return fullPath;
+                    }
+                }
+            }
+        }
+        return null;
     }
 }

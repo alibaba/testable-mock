@@ -8,15 +8,13 @@ import org.objectweb.asm.tree.ClassNode;
 
 public class DiagnoseUtil {
 
-    private static final String FIELD_VALUE = "value";
-
     public static void setupByClass(ClassNode cn) {
         if (cn == null || cn.visibleAnnotations == null) {
             return;
         }
         for (AnnotationNode an : cn.visibleAnnotations) {
             if (ClassUtil.toByteCodeClassName(ConstPool.MOCK_DIAGNOSE).equals(an.desc)) {
-                setupDiagnose(an, FIELD_VALUE);
+                setupDiagnose(an, ConstPool.FIELD_VALUE);
             }
         }
     }
