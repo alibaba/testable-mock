@@ -20,6 +20,7 @@
 | mock.target.checking.enable | 是否启用Mock目标有效性的前置检查 | 可用值为：`true` / `false`，当前默认值为`false` |
 | omni.constructor.enhance.enable | 是否启用`OmniConstructor`的字节码增强模式 | 可用值为：`true` / `false` |
 | omni.constructor.enhance.pkgPrefix.excludes | 对特定包禁用`OmniConstructor`的字节码增强模式 | 使用`,`分隔的包路径前缀列表，例如：`com.demo.model` |
+| private.access.enhance.enable | 是否启用`PrivateAccessor`的字节码增强模式 | 可用值为：`true` / `false` |
 | thread.pool.enhance.enable | 是否启用基于`TransmittableThreadLocal`的Mock上下文存储 | 可用值为：`true` / `false` |
 
 参见`demo`目录各示例项目中的`testable.properties`文件。

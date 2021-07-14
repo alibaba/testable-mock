@@ -28,6 +28,7 @@ public class PropertiesParser {
     private static final String DEFAULT_MOCK_SCOPE = "mock.scope.default";
     private static final String ENABLE_MOCK_TARGET_CHECK = "mock.target.checking.enable";
     private static final String ENABLE_OMNI_INJECT = "omni.constructor.enhance.enable";
+    private static final String ENABLE_FINAL_INJECT = "private.access.enhance.enable";
     private static final String ENABLE_THREAD_POOL = "thread.pool.enhance.enable";
 
     public static void parseFile(String configFilePath) {
@@ -75,6 +76,8 @@ public class PropertiesParser {
                 GlobalConfig.enhanceOmniConstructor = Boolean.parseBoolean(v);
             } else if (k.equals(ENABLE_MOCK_INJECT)) {
                 GlobalConfig.enhanceMock = Boolean.parseBoolean(v);
+            } else if (k.equals(ENABLE_FINAL_INJECT)) {
+                GlobalConfig.enhanceFinal = Boolean.parseBoolean(v);
             } else if (k.equals(ENABLE_MOCK_TARGET_CHECK)) {
                 GlobalConfig.checkMockTargetExistence = Boolean.parseBoolean(v);
             } else if (k.equals(ENABLE_THREAD_POOL)) {

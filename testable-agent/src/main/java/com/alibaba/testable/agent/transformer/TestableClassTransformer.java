@@ -1,10 +1,7 @@
 package com.alibaba.testable.agent.transformer;
 
 import com.alibaba.testable.agent.constant.ConstPool;
-import com.alibaba.testable.agent.handler.MockClassHandler;
-import com.alibaba.testable.agent.handler.OmniClassHandler;
-import com.alibaba.testable.agent.handler.SourceClassHandler;
-import com.alibaba.testable.agent.handler.TestClassHandler;
+import com.alibaba.testable.agent.handler.*;
 import com.alibaba.testable.agent.handler.test.Framework;
 import com.alibaba.testable.agent.model.MethodInfo;
 import com.alibaba.testable.agent.util.*;
@@ -55,6 +52,7 @@ public class TestableClassTransformer implements ClassFileTransformer {
         }
         byte[] bytes = GlobalConfig.enhanceOmniConstructor ?
             new OmniClassHandler().getBytes(classFileBuffer) : classFileBuffer;
+        bytes = GlobalConfig.enhanceFinal ? new FinalFieldClassHandler().getBytes(bytes) : bytes;
         if (GlobalConfig.enhanceMock) {
             ClassNode cn = ClassUtil.getClassNode(className);
             if (cn != null) {

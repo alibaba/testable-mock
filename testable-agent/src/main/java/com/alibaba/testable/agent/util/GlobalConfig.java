@@ -35,6 +35,7 @@ public class GlobalConfig {
     private static String[] pkgPrefixBlackList = null;
     private static Map<String, String> mockPkgMapping = null;
     public static MockScope defaultMockScope = MockScope.GLOBAL;
+    public static boolean enhanceFinal = false;
     public static boolean enhanceMock = true;
     public static boolean enhanceOmniConstructor = false;
     public static boolean enhanceThreadLocal = false;

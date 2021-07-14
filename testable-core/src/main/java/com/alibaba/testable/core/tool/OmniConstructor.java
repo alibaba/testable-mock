@@ -226,7 +226,7 @@ public class OmniConstructor {
     }
 
     private static Object createInstance(Class<?> clazz, Set<Class<?>> classPool)
-        throws InstantiationException, IllegalAccessException, InvocationTargetException, NoSuchMethodException {
+        throws InstantiationException, IllegalAccessException, InvocationTargetException {
         Constructor<?> constructor = getBestConstructor(clazz);
         if (constructor == null) {
             throw new ClassConstructionException("Fail to invoke constructor of " + clazz.getName());
