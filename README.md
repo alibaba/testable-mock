@@ -11,21 +11,13 @@
 
 <font size="5">**0.6版本已发布**</font>，从`0.5.x`升级到`0.6.x`版本请参考[版本升级指南](https://alibaba.github.io/testable-mock/#/zh-cn/doc/upgrade-guide)
 
-如果有遇到其他任何使用问题和建议，请直接在[Issues](https://github.com/alibaba/testable-mock/issues)中提出，也可通过[Pull Request](https://github.com/alibaba/testable-mock/pulls)提交您的代码，我们将在24小时内回复并处理
-
 -----
 
-## 版本计划
+## 项目维护说明
 
-`TestableMock`正在持续迭代演进，以下版本计划可能在开发过程中发生调整
+由于当前并行项目较多，此项目暂时转入维护阶段，在此期间`TestableMock`会继续提供不定期的版本更新。
 
-- `0.6` 当前版本，正在开发中的功能包括：
-  - 支持Mock Lambada语句中的方法引用 [#36](https://github.com/alibaba/testable-mock/issues/36)
-  - 其他进行中的工作内容参考[Issue](https://github.com/alibaba/testable-mock/issues)清单
-- `0.7` 主要计划包括：
-  - 增加DAO层逻辑的单元测试辅助 [介绍](https://alibaba.github.io/testable-mock/#/zh-cn/doc/verify-sql)
-  - 支持快速Mock指定类型的所有方法 [#82](https://github.com/alibaba/testable-mock/issues/82)
-- `1.0` 功能稳定，一个崭新的开始
+如果有遇到其他任何使用问题和建议，请直接在[Issues](https://github.com/alibaba/testable-mock/issues)中提出，也可通过[Pull Request](https://github.com/alibaba/testable-mock/pulls)提交您的代码，我们将尽快回复并处理。
 
 ## 目录结构
 
