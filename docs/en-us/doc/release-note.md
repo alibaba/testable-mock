@@ -1,5 +1,9 @@
 # Release Note
 
+## 0.6.8
+- support `@DumpTo` annotation to dump bytecode of any transformed class
+- `PrivateAccessor.setStatic()` method now able to update static final members
+
 ## 0.6.7
 - support empty mock container class which has all mock methods in its parent
 - fix an issue cause mock fail when parameter has array element accessing

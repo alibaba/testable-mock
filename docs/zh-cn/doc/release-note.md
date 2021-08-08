@@ -1,5 +1,9 @@
 # Release Note
 
+## 0.6.8
+- 支持使用`@DumpTo`注解导出任意类处理后的字节码
+- 支持使用`PrivateAccessor.setStatic()`方法修改静态常量成员
+
 ## 0.6.7
 - 支持所有Mock方法都定义在父类中的空Mock容器类（issue-167）
 - 修复一处导致参数包含数组下标读取的调用无法Mock的问题（issue-171）
