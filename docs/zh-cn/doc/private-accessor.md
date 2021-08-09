@@ -17,6 +17,9 @@
 - `PrivateAccessor.invokeStatic(任意类型, "私有静态方法名", 调用参数...)` ➜ 调用任意类的**静态**私有方法
 - `PrivateAccessor.construct(任意类型, 构造方法参数...)` ➜ 调用任意类的私有构造方法
 
+> 特别说明：默认情况下，`setStatic()`方法不支持修改`static final`修饰的成员变量。在Java中此类变量通常代表业务意义上的恒定常量值，不应当在单元测试中更改。
+> 在特殊场景下，如确实需要修改`static final`成员，请开启配置项`private.access.enhance.enable = true`，详见[全局运行参数](zh-cn/doc/javaagent-args.md)文档。
+
 详见`java-demo`和`kotlin-demo`示例项目`DemoPrivateAccessorTest`测试类中的用例。
 
 ### 1.2 防代码重构机制
