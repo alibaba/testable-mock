@@ -15,4 +15,4 @@ IntelliJ IDE对`TestableMock`所用到的`JSR-269`注释处理器以及`maven-su
 
 以使用`JUnit`为例，方法为从IDE工具栏的运行按钮旁边的小三角处下拉，选择"Run Configurations..."，左侧选择要运行单元测试的任务，在右侧切换到"arguments"标签页，在"VM Options"里添加`-javaagent:`参数，下图为示例，注意应修改`testable-agent`包为与实际情况匹配的本地Maven仓库路径。
 
-![eclipse-junit-configuration](https://testable-code.oss-cn-beijing.aliyuncs.com/eclipse-junit-configuration.png)
+![eclipse-junit-configuration.png](https://img.alicdn.com/imgextra/i3/O1CN01C7DwGs1dHgVRAhh3y_!!6000000003711-2-tps-1430-1004.png)

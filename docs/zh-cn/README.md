@@ -9,4 +9,4 @@ TestableMock简介
 
 于是，我们开发了`TestableMock`，**一款特立独行的轻量Mock工具**。
 
-![mock](https://testable-code.oss-cn-beijing.aliyuncs.com/mock-simpson.png)
+![mock-simpson-zh-cn.png](https://img.alicdn.com/imgextra/i2/O1CN01uPzi441cxzTZzhUWT_!!6000000003668-2-tps-500-761.png)

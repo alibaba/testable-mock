@@ -63,4 +63,4 @@ Kotlin语言中的`String`类型实际上是`kotlin.String`，而非`java.lang.S
 
 这个问题是由于系统ClassPath包含太多路径所致，与是否使用`TestableMock`无关。但需要注意的是，IntelliJ提供了两种辅助解决机制：`JAR manifest`和`classpath file`，若测试中使用了`TestableMock`，请选择`JAR manifest`。
 
-![jar-manifest](https://testable-code.oss-cn-beijing.aliyuncs.com/jar-manifest.png)
+![jar-manifest.png](https://img.alicdn.com/imgextra/i2/O1CN01hfC5YE1Kw0gBIlB2x_!!6000000001227-2-tps-752-171.png)

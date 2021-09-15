@@ -29,13 +29,13 @@ This is because the IDE usually only runs the `maven-surefire-plugin` plugin whe
 
 This problem can be bypassed by configuring the test parameters of the IDE additionally. Take IntelliJ as an example, open the "Edit Configuration..." option of the run menu, as shown in the position ①
 
-![modify-run-configuration](https://testable-code.oss-cn-beijing.aliyuncs.com/modify-run-configuration.png)
+![modify-run-configuration.png](https://img.alicdn.com/imgextra/i3/O1CN01HLlNyZ1gezVe4AOiE_!!6000000004168-2-tps-1036-184.png)
 
 Add JavaAgent startup parameters at the end of the "virtual machine parameters" attribute value: `-javaagent:${HOME}/.m2/repository/com/alibaba/testable/testable-agent/xyz/testable-agent-xyzjar`, as shown in the figure position ②
 
 > PS: Please replace `x.y.z` in the path with the actual version number
 
-![add-testable-javaagent](https://testable-code.oss-cn-beijing.aliyuncs.com/add-testable-javaagent.png)
+![add-testable-javaagent.png](https://img.alicdn.com/imgextra/i4/O1CN01pdxC8S1R2JpXX8aOJ_!!6000000002053-2-tps-2446-486.png)
 
 Finally, click to run the unit test, as shown in the position ③
 

@@ -61,4 +61,4 @@ This framework will run Android unit tests on a standard JVM virtual machine, wh
 
 This problem is caused by the system `Class Path` content is too long, and has nothing to do with `TestableMock`. However, it should be noted that IntelliJ provides two auxiliary solutions: `JAR manifest` and `classpath file`. If `TestableMock` is used in the test, please select `JAR manifest`.
 
-![jar-manifest](https://testable-code.oss-cn-beijing.aliyuncs.com/jar-manifest.png)
+![jar-manifest.png](https://img.alicdn.com/imgextra/i2/O1CN01hfC5YE1Kw0gBIlB2x_!!6000000001227-2-tps-752-171.png)

@@ -15,4 +15,4 @@ At the same time, because the built-in unit test executor of `Eclipse` completel
 
 Take the use of `JUnit` as an example. You need to pull down from the small triangle next to the run button on the IDE toolbar, select "Run Configurations...", select the task to run the unit test on the left side, and switch to "arguments" Tab on the right side, append a `-javaagent:` parameter in the "VM Options", the following figure is an example, note that the `testable-agent` package should be modified to match the actual situation of the local Maven repository path.
 
-![eclipse-junit-configuration](https://testable-code.oss-cn-beijing.aliyuncs.com/eclipse-junit-configuration.png)
+![eclipse-junit-configuration.png](https://img.alicdn.com/imgextra/i3/O1CN01C7DwGs1dHgVRAhh3y_!!6000000003711-2-tps-1430-1004.png)
