@@ -102,7 +102,9 @@ public class GlobalConfig {
         String contextFolder = System.getProperty(PROPERTY_USER_DIR);
         URL rootResourceFolder = Object.class.getResource(SLASH);
         if (rootResourceFolder != null) {
-            return PathUtil.getFirstLevelFolder(contextFolder, rootResourceFolder.getPath());
+            // if user pom.xml was set <directory>/other/path</directory>, then PathUtil.getFirstLevelFolder will return ""
+            String outputFolder = PathUtil.getFirstLevelFolder(contextFolder, rootResourceFolder.getPath());
+            return outputFolder.isEmpty() ? rootResourceFolder.getPath() + "../" : outputFolder;    
         } else if (PathUtil.folderExists(PathUtil.join(contextFolder, DEFAULT_MAVEN_OUTPUT_FOLDER))) {
             return PathUtil.join(contextFolder, DEFAULT_MAVEN_OUTPUT_FOLDER);
         } else if (PathUtil.folderExists(PathUtil.join(contextFolder, DEFAULT_GRADLE_OUTPUT_FOLDER))) {
