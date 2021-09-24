@@ -6,13 +6,17 @@ import com.alibaba.testable.agent.util.BytecodeUtil;
 import com.alibaba.testable.agent.util.ClassUtil;
 import com.alibaba.testable.agent.util.MethodUtil;
 import com.alibaba.testable.core.util.LogUtil;
+import org.objectweb.asm.Handle;
 import org.objectweb.asm.Label;
+import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.*;
+import sun.invoke.util.Wrapper;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.alibaba.testable.core.constant.ConstPool.CONSTRUCTOR;
 
@@ -21,6 +25,7 @@ import static com.alibaba.testable.core.constant.ConstPool.CONSTRUCTOR;
  */
 public class SourceClassHandler extends BaseClassHandler {
 
+    private AtomicInteger atomicInteger = new AtomicInteger();
     private final String mockClassName;
     private final List<MethodInfo> injectMethods;
     private final Set<Integer> invokeOps = new HashSet<Integer>() {{
@@ -51,13 +56,16 @@ public class SourceClassHandler extends BaseClassHandler {
                 memberInjectMethods.add(im);
             }
         }
+
+        resolveMethodReference(cn);
+
         for (MethodNode m : cn.methods) {
-            transformMethod(m, memberInjectMethods, newOperatorInjectMethods);
+            transformMethod(m, memberInjectMethods, newOperatorInjectMethods, cn);
         }
     }
 
     private void transformMethod(MethodNode mn, Set<MethodInfo> memberInjectMethods,
-                                 Set<MethodInfo> newOperatorInjectMethods) {
+                                 Set<MethodInfo> newOperatorInjectMethods, ClassNode cn) {
         LogUtil.verbose("   Found method %s", mn.name);
         if (mn.name.startsWith("$")) {
             // skip methods e.g. "$jacocoInit"
@@ -111,6 +119,7 @@ public class SourceClassHandler extends BaseClassHandler {
                     }
                 }
             }
+
             i++;
         } while (i < instructions.length);
     }
@@ -325,6 +334,236 @@ public class SourceClassHandler extends BaseClassHandler {
 
     private boolean isCompanionMethod(String ownerClass, int opcode) {
         return Opcodes.INVOKEVIRTUAL == opcode && ClassUtil.isCompanionClassName(ownerClass);
+    }
+
+    private void setFinalValue(Field ownerField, Object obj, Object value) throws Exception {
+        ownerField.setAccessible(true);
+        Field modifiersField = Field.class.getDeclaredField("modifiers");
+        modifiersField.setAccessible(true);
+        modifiersField.setInt(ownerField, ownerField.getModifiers() & ~Modifier.FINAL);
+        ownerField.set(obj, value);
+    }
+
+    private List<Handle> fetchInvokeDynamicHandle(MethodNode mn) {
+        List<Handle> handleList = new ArrayList<Handle>();
+        for (AbstractInsnNode instruction : mn.instructions) {
+            if (instruction.getOpcode() == Opcodes.INVOKEDYNAMIC) {
+                InvokeDynamicInsnNode invokeDynamicInsnNode = (InvokeDynamicInsnNode)instruction;
+                handleList.add((Handle) invokeDynamicInsnNode.bsmArgs[1]);
+            }
+        }
+        return handleList;
+    }
+
+    private void resolveMethodReference(ClassNode cn) {
+        List<Handle> invokeDynamicList = new ArrayList<Handle>();
+        for (MethodNode method : cn.methods) {
+            List<Handle> handleList = fetchInvokeDynamicHandle(method);
+            invokeDynamicList.addAll(handleList);
+        }
+
+        // process for method reference
+        for (Handle handle : invokeDynamicList) {
+            if (handle.getName().startsWith("lambda$")) {
+                continue;
+            }
+
+            int tag = handle.getTag();
+
+            if (tag == Opcodes.H_NEWINVOKESPECIAL) {
+                // lambda new method reference
+                continue;
+            }
+            boolean isStatic = tag == Opcodes.H_INVOKESTATIC;
+
+            String desc = handle.getDesc();
+            String parameters = desc.substring(desc.indexOf("(") + 1, desc.lastIndexOf(")"));
+            String returnType = desc.substring(desc.indexOf(")") + 1);
+            String[] parameterArray = parameters.split(";");
+            int len = parameterArray.length;
+            for (String s : parameterArray) {
+                if (s.isEmpty()) {
+                    len--;
+                }
+            }
+            String[] refineParameterArray = new String[len];
+            int index = 0;
+            for (String s : parameterArray) {
+                if (!s.isEmpty()) {
+                    refineParameterArray[index] = s;
+                    index++;
+                }
+            }
+
+            String lambdaName = String.format("Lambda$_%s_%d", handle.getName(), atomicInteger.incrementAndGet());
+            MethodVisitor mv = cn.visitMethod(isStatic ? ACC_PUBLIC + ACC_STATIC : ACC_PUBLIC, lambdaName, desc, null, null);
+
+
+            mv.visitCode();
+            Label l0 = new Label();
+            mv.visitLabel(l0);
+            if (!isStatic) {
+                mv.visitVarInsn(ALOAD, 0);
+            }
+            for (int i = 0; i < refineParameterArray.length; i++) {
+                String arg = refineParameterArray[i];
+                mv.visitVarInsn(getLoadType(arg), isStatic ? i : i + 1);
+            }
+
+            mv.visitMethodInsn(isStatic ? INVOKESTATIC : INVOKEVIRTUAL/*INVOKESPECIAL*/, handle.getOwner(), handle.getName(), desc, false);
+
+            mv.visitInsn(getReturnType(returnType));
+
+            Label l1 = new Label();
+            mv.visitLabel(l1);
+
+
+            String localVarOwner = handle.getOwner();
+
+            if (isStatic) {
+                for (int i = 0; i < refineParameterArray.length; i++) {
+                    String localVar = refineParameterArray[i];
+                    if (!isPrimitive(localVar)) {
+                        localVar = localVar.endsWith(";") ? localVar : localVar + ";";
+                    }
+
+                    if (localVar.isEmpty()) {
+                        continue;
+                    }
+
+                    mv.visitLocalVariable(String.format("o%d", i), localVar, null, l0, l1, i);
+                }
+            } else {
+                mv.visitLocalVariable("this", "L" + localVarOwner + ";", null, l0, l1, 0);
+                for (int i = 0; i < refineParameterArray.length; i++) {
+                    String localVar = refineParameterArray[i];
+                    if (!isPrimitive(localVar) && !isPrimitiveArray(localVar)) {
+                        localVar = localVar.endsWith(";") ? localVar : localVar + ";";
+                    }
+                    if (localVar.isEmpty()) {
+                        continue;
+                    }
+
+                    mv.visitLocalVariable(String.format("o%d", i), localVar, null, l0, l1, i + 1);
+                }
+            }
+            // auto compute max
+            mv.visitMaxs(-1, -1);
+            mv.visitEnd();
+
+            try {
+                setFinalValue(handle.getClass().getDeclaredField("name"), handle, lambdaName);
+                if (!handle.getOwner().equals(cn.name) && isStatic) {
+                    setFinalValue(handle.getClass().getDeclaredField("owner"), handle, cn.name);
+                }
+            } catch (Exception ignore) {
+            }
+        }
+    }
+
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
+    private boolean isPrimitive(String type) {
+        if (type.endsWith(";")) {
+            type = type.substring(0, type.length() - 1);
+        }
+        return BasicType.basicType(type.charAt(0)).isPrimitive();
+    }
+
+    private boolean isPrimitiveArray(String type) {
+        if (!type.startsWith("[")) {
+            return false;
+        }
+        if (type.endsWith(";")) {
+            type = type.substring(0, type.length() - 1);
+        }
+
+        type = type.replace("[", "");
+        return BasicType.basicType(type.charAt(0)).isPrimitive();
+    }
+
+    private int getReturnType(String returnType) {
+        return BasicType.basicType(returnType.charAt(0)).returnInsn;
+    }
+
+    private int getLoadType(String arg) {
+        return BasicType.basicType(arg.charAt(0)).loadVarInsn;
+    }
+
+    /**
+     * copy from java.lang.invoke.LambdaForm.BasicType
+     */
+    enum BasicType {
+        /**
+         * all reference types
+         */
+        L_TYPE('L', Object.class, Wrapper.OBJECT, ALOAD, ARETURN),
+        /**
+         * all primitive types
+         */
+        I_TYPE('I', int.class,    Wrapper.INT, ILOAD, IRETURN),
+        J_TYPE('J', long.class,   Wrapper.LONG, LLOAD, LRETURN),
+        F_TYPE('F', float.class,  Wrapper.FLOAT, FLOAD, FRETURN),
+        D_TYPE('D', double.class, Wrapper.DOUBLE, DLOAD, DRETURN),
+        V_TYPE('V', void.class,   Wrapper.VOID, null, RETURN),
+        A_TYPE('[', Object[].class,   Wrapper.OBJECT, ALOAD, ARETURN);
+
+        private final char btChar;
+        private final Class<?> btClass;
+        private final Wrapper btWrapper;
+        private final Integer loadVarInsn;
+        private final Integer returnInsn;
+
+        BasicType(char btChar, Class<?> btClass, Wrapper btWrapper, Integer loadVarInsn, Integer returnInsn) {
+            this.btChar = btChar;
+            this.btClass = btClass;
+            this.btWrapper = btWrapper;
+            this.loadVarInsn = loadVarInsn;
+            this.returnInsn = returnInsn;
+        }
+
+        public char getBtChar() {
+            return btChar;
+        }
+
+        public Class<?> getBtClass() {
+            return btClass;
+        }
+
+        public Integer getLoadVarInsn() {
+            return loadVarInsn;
+        }
+
+        public Integer getReturnInsn() {
+            return returnInsn;
+        }
+
+        public Wrapper getBtWrapper() {
+            return btWrapper;
+        }
+
+        public boolean isPrimitive() {
+            return this != L_TYPE && this != A_TYPE;
+        }
+
+        static BasicType basicType(char type) {
+            switch (type) {
+                case 'L': return L_TYPE;
+                case 'I': return I_TYPE;
+                case 'J': return J_TYPE;
+                case 'F': return F_TYPE;
+                case 'D': return D_TYPE;
+                case 'V': return V_TYPE;
+                case '[': return A_TYPE;
+                // all subword types are represented as ints
+                case 'Z':
+                case 'B':
+                case 'S':
+                case 'C':
+                    return I_TYPE;
+                default:
+                    throw new InternalError("Unknown type char: '"+type+"'");
+            }
+        }
     }
 
 }
