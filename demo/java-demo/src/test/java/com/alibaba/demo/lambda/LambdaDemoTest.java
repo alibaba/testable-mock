@@ -9,7 +9,7 @@ import static com.alibaba.testable.core.matcher.InvokeVerifier.verify;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
- * @author jim
+ * @author zcbbpo
  */
 public class LambdaDemoTest {
     private LambdaDemo lambdaDemo = new LambdaDemo();
