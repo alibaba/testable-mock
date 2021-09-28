@@ -1,5 +1,6 @@
 package com.alibaba.testable.agent.handler;
 
+import com.alibaba.testable.agent.model.BasicType;
 import com.alibaba.testable.agent.model.MethodInfo;
 import com.alibaba.testable.agent.model.TravelStatus;
 import com.alibaba.testable.agent.util.BytecodeUtil;
@@ -11,11 +12,13 @@ import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.*;
-import sun.invoke.util.Wrapper;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.alibaba.testable.core.constant.ConstPool.CONSTRUCTOR;
@@ -25,7 +28,7 @@ import static com.alibaba.testable.core.constant.ConstPool.CONSTRUCTOR;
  */
 public class SourceClassHandler extends BaseClassHandler {
 
-    private AtomicInteger atomicInteger = new AtomicInteger();
+    private final AtomicInteger atomicInteger = new AtomicInteger();
     private final String mockClassName;
     private final List<MethodInfo> injectMethods;
     private final Set<Integer> invokeOps = new HashSet<Integer>() {{
@@ -42,6 +45,7 @@ public class SourceClassHandler extends BaseClassHandler {
 
     /**
      * Handle bytecode of source class
+     *
      * @param cn original class node
      */
     @Override
@@ -79,11 +83,11 @@ public class SourceClassHandler extends BaseClassHandler {
         int i = 0;
         do {
             if (invokeOps.contains(instructions[i].getOpcode())) {
-                MethodInsnNode node = (MethodInsnNode)instructions[i];
+                MethodInsnNode node = (MethodInsnNode) instructions[i];
                 if (CONSTRUCTOR.equals(node.name)) {
                     if (LogUtil.isVerboseEnabled()) {
                         LogUtil.verbose("     Line %d, constructing \"%s\"", getLineNum(instructions, i),
-                            MethodUtil.toJavaMethodDesc(node.owner, node.desc));
+                                MethodUtil.toJavaMethodDesc(node.owner, node.desc));
                     }
                     MethodInfo newOperatorInjectMethod = getNewOperatorInjectMethod(newOperatorInjectMethods, node);
                     if (newOperatorInjectMethod != null) {
@@ -100,7 +104,7 @@ public class SourceClassHandler extends BaseClassHandler {
                 } else {
                     if (LogUtil.isVerboseEnabled()) {
                         LogUtil.verbose("     Line %d, invoking \"%s\"", getLineNum(instructions, i),
-                            MethodUtil.toJavaMethodDesc(node.owner, node.name, node.desc));
+                                MethodUtil.toJavaMethodDesc(node.owner, node.name, node.desc));
                     }
                     MethodInfo mockMethod = getMemberInjectMethodName(memberInjectMethods, node);
                     if (mockMethod != null) {
@@ -111,7 +115,7 @@ public class SourceClassHandler extends BaseClassHandler {
                                 handleFrameStackChange(mn, mockMethod, rangeStart, i);
                             }
                             instructions = replaceMemberCallOps(mn, mockMethod,
-                                instructions, node.owner, node.getOpcode(), rangeStart, i);
+                                    instructions, node.owner, node.getOpcode(), rangeStart, i);
                             i = rangeStart;
                         } else {
                             LogUtil.warn("Potential missed mocking at %s:%s", mn.name, getLineNum(instructions, i));
@@ -126,8 +130,9 @@ public class SourceClassHandler extends BaseClassHandler {
 
     /**
      * find the mock method fit for specified method node
+     *
      * @param memberInjectMethods mock methods available
-     * @param node method node to match for
+     * @param node                method node to match for
      * @return mock method info
      */
     private MethodInfo getMemberInjectMethodName(Set<MethodInfo> memberInjectMethods, MethodInsnNode node) {
@@ -154,12 +159,12 @@ public class SourceClassHandler extends BaseClassHandler {
 
     private String getConstructorInjectDesc(MethodInsnNode constructorNode) {
         return constructorNode.desc.substring(0, constructorNode.desc.length() - 1) +
-            ClassUtil.toByteCodeClassName(constructorNode.owner);
+                ClassUtil.toByteCodeClassName(constructorNode.owner);
     }
 
     private int getConstructorStart(AbstractInsnNode[] instructions, String target, int rangeEnd) {
         for (int i = rangeEnd - 1; i >= 0; i--) {
-            if (instructions[i].getOpcode() == Opcodes.NEW && ((TypeInsnNode)instructions[i]).desc.equals(target)) {
+            if (instructions[i].getOpcode() == Opcodes.NEW && ((TypeInsnNode) instructions[i]).desc.equals(target)) {
                 return i;
             }
         }
@@ -167,7 +172,7 @@ public class SourceClassHandler extends BaseClassHandler {
     }
 
     private int getMemberMethodStart(AbstractInsnNode[] instructions, int rangeEnd) {
-        int stackLevel = getInitialStackLevel((MethodInsnNode)instructions[rangeEnd]);
+        int stackLevel = getInitialStackLevel((MethodInsnNode) instructions[rangeEnd]);
         if (stackLevel < 0) {
             return rangeEnd;
         }
@@ -187,13 +192,13 @@ public class SourceClassHandler extends BaseClassHandler {
                     break;
                 case LookingForLabel:
                     if (instructions[i] instanceof LabelNode) {
-                        labelToJump = ((LabelNode)instructions[i]).getLabel();
+                        labelToJump = ((LabelNode) instructions[i]).getLabel();
                         status = TravelStatus.LookingForJump;
                     }
                     break;
                 case LookingForJump:
                     if (instructions[i] instanceof JumpInsnNode &&
-                        ((JumpInsnNode)instructions[i]).label.getLabel().equals(labelToJump)) {
+                            ((JumpInsnNode) instructions[i]).label.getLabel().equals(labelToJump)) {
                         stackLevel += getStackLevelChange(instructions[i]);
                         labelToJump = null;
                         status = TravelStatus.Normal;
@@ -226,11 +231,11 @@ public class SourceClassHandler extends BaseClassHandler {
             case Opcodes.INVOKESPECIAL:
             case Opcodes.INVOKEVIRTUAL:
             case Opcodes.INVOKEINTERFACE:
-                return stackEffectOfInvocation(((MethodInsnNode)instruction).desc) + 1;
+                return stackEffectOfInvocation(((MethodInsnNode) instruction).desc) + 1;
             case Opcodes.INVOKESTATIC:
-                return stackEffectOfInvocation(((MethodInsnNode)instruction).desc);
+                return stackEffectOfInvocation(((MethodInsnNode) instruction).desc);
             case Opcodes.INVOKEDYNAMIC:
-                return stackEffectOfInvocation(((InvokeDynamicInsnNode)instruction).desc);
+                return stackEffectOfInvocation(((InvokeDynamicInsnNode) instruction).desc);
             case -1:
                 // either LabelNode or LineNumberNode
                 return 0;
@@ -244,7 +249,7 @@ public class SourceClassHandler extends BaseClassHandler {
     }
 
     private AbstractInsnNode[] replaceNewOps(MethodNode mn, MethodInfo newOperatorInjectMethod,
-                                            AbstractInsnNode[] instructions, int start, int end) {
+                                             AbstractInsnNode[] instructions, int start, int end) {
         String mockMethodName = newOperatorInjectMethod.getMockName();
         int invokeOpcode = newOperatorInjectMethod.isStatic() ? INVOKESTATIC : INVOKEVIRTUAL;
         String log = String.format("Line %d, mock method \"%s\" used", getLineNum(instructions, start), mockMethodName);
@@ -253,14 +258,14 @@ public class SourceClassHandler extends BaseClassHandler {
         } else {
             LogUtil.diagnose(2, log);
         }
-        String classType = ((TypeInsnNode)instructions[start]).desc;
-        String constructorDesc = ((MethodInsnNode)instructions[end]).desc;
+        String classType = ((TypeInsnNode) instructions[start]).desc;
+        String constructorDesc = ((MethodInsnNode) instructions[end]).desc;
         if (!newOperatorInjectMethod.isStatic()) {
             mn.instructions.insertBefore(instructions[start], new MethodInsnNode(INVOKESTATIC, mockClassName,
-                GET_TESTABLE_REF, VOID_ARGS + ClassUtil.toByteCodeClassName(mockClassName), false));
+                    GET_TESTABLE_REF, VOID_ARGS + ClassUtil.toByteCodeClassName(mockClassName), false));
         }
         mn.instructions.insertBefore(instructions[end], new MethodInsnNode(invokeOpcode, mockClassName,
-            mockMethodName, getConstructorInjectDesc(constructorDesc, classType), false));
+                mockMethodName, getConstructorInjectDesc(constructorDesc, classType), false));
         mn.instructions.remove(instructions[start]);
         mn.instructions.remove(instructions[start + 1]);
         mn.instructions.remove(instructions[end]);
@@ -270,7 +275,7 @@ public class SourceClassHandler extends BaseClassHandler {
     private int getLineNum(AbstractInsnNode[] instructions, int start) {
         for (int i = start - 1; i >= 0; i--) {
             if (instructions[i] instanceof LineNumberNode) {
-                return ((LineNumberNode)instructions[i]).line;
+                return ((LineNumberNode) instructions[i]).line;
             }
         }
         return 0;
@@ -278,13 +283,13 @@ public class SourceClassHandler extends BaseClassHandler {
 
     private String getConstructorInjectDesc(String constructorDesc, String classType) {
         return constructorDesc.substring(0, constructorDesc.length() - 1) +
-            ClassUtil.toByteCodeClassName(classType);
+                ClassUtil.toByteCodeClassName(classType);
     }
 
     private AbstractInsnNode[] replaceMemberCallOps(MethodNode mn, MethodInfo mockMethod, AbstractInsnNode[] instructions,
-                                                   String ownerClass, int opcode, int start, int end) {
+                                                    String ownerClass, int opcode, int start, int end) {
         String log = String.format("Line %d, mock method \"%s\" used", getLineNum(instructions, start),
-            mockMethod.getMockName());
+                mockMethod.getMockName());
         if (LogUtil.isVerboseEnabled()) {
             LogUtil.verbose(5, log);
         } else {
@@ -292,7 +297,7 @@ public class SourceClassHandler extends BaseClassHandler {
         }
         if (!mockMethod.isStatic()) {
             mn.instructions.insertBefore(instructions[start], new MethodInsnNode(INVOKESTATIC, mockClassName,
-                GET_TESTABLE_REF, VOID_ARGS + ClassUtil.toByteCodeClassName(mockClassName), false));
+                    GET_TESTABLE_REF, VOID_ARGS + ClassUtil.toByteCodeClassName(mockClassName), false));
         }
         if (Opcodes.INVOKESTATIC == opcode || isCompanionMethod(ownerClass, opcode)) {
             // append a null value if it was a static invoke or in kotlin companion class
@@ -306,7 +311,7 @@ public class SourceClassHandler extends BaseClassHandler {
         // method with @MockMethod will be modified as public access
         int invokeOpcode = mockMethod.isStatic() ? INVOKESTATIC : INVOKEVIRTUAL;
         mn.instructions.insertBefore(instructions[end], new MethodInsnNode(invokeOpcode, mockClassName,
-            mockMethod.getMockName(), mockMethod.getMockDesc(), false));
+                mockMethod.getMockName(), mockMethod.getMockDesc(), false));
         mn.instructions.remove(instructions[end]);
         mn.maxStack++;
         return mn.instructions.toArray();
@@ -317,7 +322,7 @@ public class SourceClassHandler extends BaseClassHandler {
         AbstractInsnNode endInsn = mn.instructions.get(end);
         do {
             if (curInsn instanceof FrameNode) {
-                FrameNode fn = (FrameNode)curInsn;
+                FrameNode fn = (FrameNode) curInsn;
                 if (fn.type == F_FULL) {
                     fn.stack.add(0, mockMethod.getMockClass());
                     // remove label reference in stack of frame node
@@ -348,7 +353,7 @@ public class SourceClassHandler extends BaseClassHandler {
         List<Handle> handleList = new ArrayList<Handle>();
         for (AbstractInsnNode instruction : mn.instructions) {
             if (instruction.getOpcode() == Opcodes.INVOKEDYNAMIC) {
-                InvokeDynamicInsnNode invokeDynamicInsnNode = (InvokeDynamicInsnNode)instruction;
+                InvokeDynamicInsnNode invokeDynamicInsnNode = (InvokeDynamicInsnNode) instruction;
                 handleList.add((Handle) invokeDynamicInsnNode.bsmArgs[1]);
             }
         }
@@ -416,7 +421,6 @@ public class SourceClassHandler extends BaseClassHandler {
 
             Label l1 = new Label();
             mv.visitLabel(l1);
-
 
             String localVarOwner = handle.getOwner();
 
@@ -487,83 +491,6 @@ public class SourceClassHandler extends BaseClassHandler {
 
     private int getLoadType(String arg) {
         return BasicType.basicType(arg.charAt(0)).loadVarInsn;
-    }
-
-    /**
-     * copy from java.lang.invoke.LambdaForm.BasicType
-     */
-    enum BasicType {
-        /**
-         * all reference types
-         */
-        L_TYPE('L', Object.class, Wrapper.OBJECT, ALOAD, ARETURN),
-        /**
-         * all primitive types
-         */
-        I_TYPE('I', int.class,    Wrapper.INT, ILOAD, IRETURN),
-        J_TYPE('J', long.class,   Wrapper.LONG, LLOAD, LRETURN),
-        F_TYPE('F', float.class,  Wrapper.FLOAT, FLOAD, FRETURN),
-        D_TYPE('D', double.class, Wrapper.DOUBLE, DLOAD, DRETURN),
-        V_TYPE('V', void.class,   Wrapper.VOID, null, RETURN),
-        A_TYPE('[', Object[].class,   Wrapper.OBJECT, ALOAD, ARETURN);
-
-        private final char btChar;
-        private final Class<?> btClass;
-        private final Wrapper btWrapper;
-        private final Integer loadVarInsn;
-        private final Integer returnInsn;
-
-        BasicType(char btChar, Class<?> btClass, Wrapper btWrapper, Integer loadVarInsn, Integer returnInsn) {
-            this.btChar = btChar;
-            this.btClass = btClass;
-            this.btWrapper = btWrapper;
-            this.loadVarInsn = loadVarInsn;
-            this.returnInsn = returnInsn;
-        }
-
-        public char getBtChar() {
-            return btChar;
-        }
-
-        public Class<?> getBtClass() {
-            return btClass;
-        }
-
-        public Integer getLoadVarInsn() {
-            return loadVarInsn;
-        }
-
-        public Integer getReturnInsn() {
-            return returnInsn;
-        }
-
-        public Wrapper getBtWrapper() {
-            return btWrapper;
-        }
-
-        public boolean isPrimitive() {
-            return this != L_TYPE && this != A_TYPE;
-        }
-
-        static BasicType basicType(char type) {
-            switch (type) {
-                case 'L': return L_TYPE;
-                case 'I': return I_TYPE;
-                case 'J': return J_TYPE;
-                case 'F': return F_TYPE;
-                case 'D': return D_TYPE;
-                case 'V': return V_TYPE;
-                case '[': return A_TYPE;
-                // all subword types are represented as ints
-                case 'Z':
-                case 'B':
-                case 'S':
-                case 'C':
-                    return I_TYPE;
-                default:
-                    throw new InternalError("Unknown type char: '"+type+"'");
-            }
-        }
     }
 
 }
