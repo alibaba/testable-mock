@@ -19,9 +19,7 @@ abstract public class BaseClassHandler implements Opcodes {
         ClassNode cn = new ClassNode();
         cr.accept(cn, 0);
         transform(cn);
-
-        // flag 1 was auto compute max
-        ClassWriter cw = new ClassWriter( ClassWriter.COMPUTE_MAXS);
+        ClassWriter cw = new ClassWriter( 0);
         cn.accept(cw);
         return cw.toByteArray();
     }
