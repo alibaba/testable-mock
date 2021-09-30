@@ -2,6 +2,7 @@ package com.alibaba.testable.core.tool;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.HashSet;
 import java.util.List;
 
 import static com.alibaba.testable.core.tool.PrivateAccessor.*;
@@ -13,40 +14,43 @@ class OmniAccessorTest {
     void should_generate_member_index() {
         List<String> index = invokeStatic(OmniAccessor.class, "generateMemberIndex", DemoParent.class);
         assertEquals(34, index.size());
-        assertEquals("/c{DemoChild}", index.get(0));
-        assertEquals("/c{DemoChild}/gc{DemoGrandChild}", index.get(1));
-        assertEquals("/c{DemoChild}/gc{DemoGrandChild}/i{int}", index.get(2));
-        assertEquals("/c{DemoChild}/gc{DemoGrandChild}/l{long}", index.get(3));
-        assertEquals("/c{DemoChild}/gc{DemoGrandChild}/si{Integer}", index.get(4));
-        assertEquals("/c{DemoChild}/gc{DemoGrandChild}/sl{Long}", index.get(5));
-        assertEquals("/c{DemoChild}/gcs{DemoGrandChild[]}", index.get(6));
-        assertEquals("/c{DemoChild}/gcs{DemoGrandChild[]}/i{int}", index.get(7));
-        assertEquals("/c{DemoChild}/gcs{DemoGrandChild[]}/l{long}", index.get(8));
-        assertEquals("/c{DemoChild}/gcs{DemoGrandChild[]}/si{Integer}", index.get(9));
-        assertEquals("/c{DemoChild}/gcs{DemoGrandChild[]}/sl{Long}", index.get(10));
-        assertEquals("/cs{DemoChild[]}", index.get(11));
-        assertEquals("/cs{DemoChild[]}/gc{DemoGrandChild}", index.get(12));
-        assertEquals("/cs{DemoChild[]}/gc{DemoGrandChild}/i{int}", index.get(13));
-        assertEquals("/cs{DemoChild[]}/gc{DemoGrandChild}/l{long}", index.get(14));
-        assertEquals("/cs{DemoChild[]}/gc{DemoGrandChild}/si{Integer}", index.get(15));
-        assertEquals("/cs{DemoChild[]}/gc{DemoGrandChild}/sl{Long}", index.get(16));
-        assertEquals("/cs{DemoChild[]}/gcs{DemoGrandChild[]}", index.get(17));
-        assertEquals("/cs{DemoChild[]}/gcs{DemoGrandChild[]}/i{int}", index.get(18));
-        assertEquals("/cs{DemoChild[]}/gcs{DemoGrandChild[]}/l{long}", index.get(19));
-        assertEquals("/cs{DemoChild[]}/gcs{DemoGrandChild[]}/si{Integer}", index.get(20));
-        assertEquals("/cs{DemoChild[]}/gcs{DemoGrandChild[]}/sl{Long}", index.get(21));
-        assertEquals("/sc{SubChild}", index.get(22));
-        assertEquals("/sc{SubChild}/gc{DemoGrandChild}", index.get(23));
-        assertEquals("/sc{SubChild}/gc{DemoGrandChild}/i{int}", index.get(24));
-        assertEquals("/sc{SubChild}/gc{DemoGrandChild}/l{long}", index.get(25));
-        assertEquals("/sc{SubChild}/gc{DemoGrandChild}/si{Integer}", index.get(26));
-        assertEquals("/sc{SubChild}/gc{DemoGrandChild}/sl{Long}", index.get(27));
-        assertEquals("/ssc{StaticSubChild}", index.get(28));
-        assertEquals("/ssc{StaticSubChild}/gc{DemoGrandChild}", index.get(29));
-        assertEquals("/ssc{StaticSubChild}/gc{DemoGrandChild}/i{int}", index.get(30));
-        assertEquals("/ssc{StaticSubChild}/gc{DemoGrandChild}/l{long}", index.get(31));
-        assertEquals("/ssc{StaticSubChild}/gc{DemoGrandChild}/si{Integer}", index.get(32));
-        assertEquals("/ssc{StaticSubChild}/gc{DemoGrandChild}/sl{Long}", index.get(33));
+        HashSet<String> expected = new HashSet<String>(){{
+            add("/c{DemoChild}");
+            add("/c{DemoChild}/gc{DemoGrandChild}");
+            add("/c{DemoChild}/gc{DemoGrandChild}/i{int}");
+            add("/c{DemoChild}/gc{DemoGrandChild}/l{long}");
+            add("/c{DemoChild}/gc{DemoGrandChild}/si{Integer}");
+            add("/c{DemoChild}/gc{DemoGrandChild}/sl{Long}");
+            add("/c{DemoChild}/gcs{DemoGrandChild[]}");
+            add("/c{DemoChild}/gcs{DemoGrandChild[]}/i{int}");
+            add("/c{DemoChild}/gcs{DemoGrandChild[]}/l{long}");
+            add("/c{DemoChild}/gcs{DemoGrandChild[]}/si{Integer}");
+            add("/c{DemoChild}/gcs{DemoGrandChild[]}/sl{Long}");
+            add("/cs{DemoChild[]}");
+            add("/cs{DemoChild[]}/gc{DemoGrandChild}");
+            add("/cs{DemoChild[]}/gc{DemoGrandChild}/i{int}");
+            add("/cs{DemoChild[]}/gc{DemoGrandChild}/l{long}");
+            add("/cs{DemoChild[]}/gc{DemoGrandChild}/si{Integer}");
+            add("/cs{DemoChild[]}/gc{DemoGrandChild}/sl{Long}");
+            add("/cs{DemoChild[]}/gcs{DemoGrandChild[]}");
+            add("/cs{DemoChild[]}/gcs{DemoGrandChild[]}/i{int}");
+            add("/cs{DemoChild[]}/gcs{DemoGrandChild[]}/l{long}");
+            add("/cs{DemoChild[]}/gcs{DemoGrandChild[]}/si{Integer}");
+            add("/cs{DemoChild[]}/gcs{DemoGrandChild[]}/sl{Long}");
+            add("/sc{SubChild}");
+            add("/sc{SubChild}/gc{DemoGrandChild}");
+            add("/sc{SubChild}/gc{DemoGrandChild}/i{int}");
+            add("/sc{SubChild}/gc{DemoGrandChild}/l{long}");
+            add("/sc{SubChild}/gc{DemoGrandChild}/si{Integer}");
+            add("/sc{SubChild}/gc{DemoGrandChild}/sl{Long}");
+            add("/ssc{StaticSubChild}");
+            add("/ssc{StaticSubChild}/gc{DemoGrandChild}");
+            add("/ssc{StaticSubChild}/gc{DemoGrandChild}/i{int}");
+            add("/ssc{StaticSubChild}/gc{DemoGrandChild}/l{long}");
+            add("/ssc{StaticSubChild}/gc{DemoGrandChild}/si{Integer}");
+            add("/ssc{StaticSubChild}/gc{DemoGrandChild}/sl{Long}");
+        }};
+        assertEquals(expected, new HashSet<String>(index));
     }
 
     @Test
