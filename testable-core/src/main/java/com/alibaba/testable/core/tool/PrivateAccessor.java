@@ -109,10 +109,10 @@ public class PrivateAccessor {
         }
         Class<?> commonClass = cls[0];
         for (int i = 1; i < cls.length; i++) {
-            if (cls[i].isPrimitive()) {
-                return null;
-            } else if (cls[i] == null) {
+            if (cls[i] == null) {
                 continue;
+            } else if (cls[i].isPrimitive()) {
+                return null;
             }
             commonClass = getCommonClassOf(commonClass, cls[i]);
         }

@@ -52,7 +52,13 @@ class DemoPrivateAccessorTest {
     void should_use_null_parameter() {
         set(demoPrivateAccess, "pi", null);
         assertNull(get(demoPrivateAccess, "pi"));
-        assertEquals("null + 1", invokeStatic(DemoPrivateAccess.class, "privateStaticFuncWithArgs", null, 1));
+
+        List<String> list = new ArrayList<String>() {{ add("a"); add("b"); add("c"); }};
+        String value = invoke(demoPrivateAccess, "privateFuncWithArgs", list, null, 0);
+        assertEquals("abc + null + 0", value);
+
+        value = invokeStatic(DemoPrivateAccess.class, "privateStaticFuncWithArgs", null, 1);
+        assertEquals("null + 1", value);
     }
 
 }
