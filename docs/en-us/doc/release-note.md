@@ -1,5 +1,9 @@
 # Release Note
 
+## 0.6.9
+- support mock invocation in lambda method or via function reference
+- fix a `NullPointerException` issue when `PrivateAccessor.invoke()` has `null` parameter
+
 ## 0.6.8
 - support `@DumpTo` annotation to dump bytecode of any transformed class
 - `PrivateAccessor.setStatic()` method now able to update static final members

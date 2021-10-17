@@ -1,5 +1,9 @@
 # Release Note
 
+## 0.6.9
+- 支持Lambda方法中的调用和方法引用（issue-36）
+- 修复`PrivateAccessor.invoke()`调用参数为`null`时的空指针异常（issue-226）
+
 ## 0.6.8
 - 支持使用`@DumpTo`注解导出任意类处理后的字节码
 - 支持使用`PrivateAccessor.setStatic()`方法修改静态常量成员
