@@ -1,10 +1,11 @@
 package com.alibaba.testable.agent.handler;
 
-import com.alibaba.testable.agent.constant.ByteCodeConst;
 import com.alibaba.testable.agent.constant.ConstPool;
 import com.alibaba.testable.agent.tool.ImmutablePair;
 import com.alibaba.testable.agent.util.*;
 import com.alibaba.testable.core.model.MockScope;
+import com.alibaba.testable.core.util.LogUtil;
+import com.alibaba.testable.core.util.MockAssociationUtil;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.*;
@@ -13,7 +14,7 @@ import java.util.List;
 
 import static com.alibaba.testable.agent.constant.ByteCodeConst.TYPE_ARRAY;
 import static com.alibaba.testable.agent.constant.ByteCodeConst.TYPE_CLASS;
-import static com.alibaba.testable.agent.util.ClassUtil.toJavaStyleClassName;
+import static com.alibaba.testable.agent.constant.ConstPool.CLASS_OBJECT;
 import static com.alibaba.testable.core.constant.ConstPool.CONSTRUCTOR;
 
 /**
@@ -41,9 +42,16 @@ public class MockClassHandler extends BaseClassWithContextHandler {
 
     @Override
     protected void transform(ClassNode cn) {
+        LogUtil.diagnose("Found mock class %s", cn.name);
+        if (!CLASS_OBJECT.equals(cn.superName)) {
+            MockAssociationUtil.recordSubMockContainer(ClassUtil.toDotSeparatedName(cn.superName),
+                ClassUtil.toDotSeparatedName(cn.name));
+        }
         injectRefFieldAndGetInstanceMethod(cn);
+        int mockMethodCount = 0;
         for (MethodNode mn : cn.methods) {
             if (isMockMethod(mn)) {
+                mockMethodCount++;
                 mn.access = BytecodeUtil.toPublicAccess(mn.access);
                 // firstly, unfold target class from annotation to parameter
                 unfoldTargetClass(mn);
@@ -55,6 +63,7 @@ public class MockClassHandler extends BaseClassWithContextHandler {
                 handleTestableUtil(mn);
             }
         }
+        LogUtil.diagnose("  Found %d mock methods", mockMethodCount);
     }
 
     /**
@@ -101,7 +110,8 @@ public class MockClassHandler extends BaseClassWithContextHandler {
             // must get label before method description changed
             ImmutablePair<LabelNode, LabelNode> labels = getStartAndEndLabel(mn);
             mn.desc = MethodUtil.addParameterAtBegin(mn.desc, targetClassName);
-            int parameterOffset = MethodUtil.isStatic(mn) ? 0 : 1;
+            // in certain case, local variable table of non-static method can be empty (issue-136)
+            int parameterOffset = MethodUtil.isStatic(mn) ? 0 : Math.min(mn.localVariables.size(), 1);
             mn.localVariables.add(parameterOffset, new LocalVariableNode(SELF_REF, targetClassName, null,
                 labels.left, labels.right, parameterOffset));
             for (int i = parameterOffset + 1; i < mn.localVariables.size(); i++) {
@@ -113,7 +123,9 @@ public class MockClassHandler extends BaseClassWithContextHandler {
                 } else if (in instanceof VarInsnNode && ((VarInsnNode)in).var >= parameterOffset) {
                     ((VarInsnNode)in).var++;
                 } else if (in instanceof FrameNode && ((FrameNode)in).type == F_FULL) {
-                    ((FrameNode)in).local.add(parameterOffset, ClassUtil.toSlashSeparateJavaStyleName(targetClassName));
+                    // For groovy adaptation (issue-121)
+                    int pos = ((FrameNode)in).local.size() == 0 ? 0 : parameterOffset;
+                    ((FrameNode)in).local.add(pos, ClassUtil.toSlashSeparateJavaStyleName(targetClassName));
                 }
             }
             mn.maxLocals++;
@@ -121,7 +133,8 @@ public class MockClassHandler extends BaseClassWithContextHandler {
     }
 
     private ImmutablePair<LabelNode, LabelNode> getStartAndEndLabel(MethodNode mn) {
-        if (MethodUtil.isStatic(mn)) {
+        // in certain case, local variable table of non-static method can be empty (issue-136)
+        if (MethodUtil.isStatic(mn) || mn.localVariables.isEmpty()) {
             LabelNode startLabel = null, endLabel = null;
             for (AbstractInsnNode n = mn.instructions.getFirst(); n != null; n = n.getNext()) {
                 if (n instanceof LabelNode) {
@@ -161,6 +174,7 @@ public class MockClassHandler extends BaseClassWithContextHandler {
         il.add(invokeOriginalMethod(mn));
         il.add(firstLine);
         il.add(new FrameNode(F_SAME, 0, null, 0, null));
+        mn.maxStack = Math.max(6, mn.maxStack);
         mn.instructions.insertBefore(mn.instructions.getFirst(), il);
     }
 
@@ -214,7 +228,7 @@ public class MockClassHandler extends BaseClassWithContextHandler {
         for (AnnotationNode an : mn.visibleAnnotations) {
             if (isMockMethodAnnotation(an) || isMockConstructorAnnotation(an)) {
                 MockScope scope = AnnotationUtil.getAnnotationParameter(an, ConstPool.FIELD_SCOPE,
-                    GlobalConfig.getDefaultMockScope(), MockScope.class);
+                    GlobalConfig.defaultMockScope, MockScope.class);
                 if (scope.equals(MockScope.GLOBAL)) {
                     return true;
                 }
@@ -228,13 +242,39 @@ public class MockClassHandler extends BaseClassWithContextHandler {
             return false;
         }
         for (AnnotationNode an : mn.visibleAnnotations) {
-            if (isMockMethodAnnotation(an) && AnnotationUtil.isValidMockMethod(mn, an)) {
+            if (isMockMethodAnnotation(an)) {
+                if (LogUtil.isVerboseEnabled()) {
+                    LogUtil.verbose("   Mock method \"%s\" as \"%s\"", mn.name, MethodUtil.toJavaMethodDesc(
+                        getTargetMethodOwner(mn, an), getTargetMethodName(mn, an), getTargetMethodDesc(mn, an)));
+                }
                 return true;
             } else if (isMockConstructorAnnotation(an)) {
+                if (LogUtil.isVerboseEnabled()) {
+                    LogUtil.verbose("   Mock constructor \"%s\" as \"%s\"", mn.name, MethodUtil.toJavaMethodDesc(
+                        ClassUtil.toJavaStyleClassName(MethodUtil.getReturnType(mn.desc)), mn.desc));
+                }
                 return true;
             }
         }
         return false;
+    }
+
+    private String getTargetMethodOwner(MethodNode mn, AnnotationNode mockMethodAnnotation) {
+        Type type = AnnotationUtil.getAnnotationParameter(mockMethodAnnotation, ConstPool.FIELD_TARGET_CLASS,
+            null, Type.class);
+        return type == null ? MethodUtil.getFirstParameter(mn.desc) : type.getClassName();
+    }
+
+    private String getTargetMethodName(MethodNode mn, AnnotationNode mockMethodAnnotation) {
+        String name = AnnotationUtil.getAnnotationParameter(mockMethodAnnotation, ConstPool.FIELD_TARGET_METHOD,
+            null, String.class);
+        return name == null ? mn.name : name;
+    }
+
+    private String getTargetMethodDesc(MethodNode mn, AnnotationNode mockMethodAnnotation) {
+        Type type = AnnotationUtil.getAnnotationParameter(mockMethodAnnotation, ConstPool.FIELD_TARGET_CLASS,
+            null, Type.class);
+        return type == null ? MethodUtil.removeFirstParameter(mn.desc) : mn.desc;
     }
 
     private boolean isMockConstructorAnnotation(AnnotationNode an) {
@@ -263,13 +303,13 @@ public class MockClassHandler extends BaseClassWithContextHandler {
         InsnList il = new InsnList();
         List<Byte> types = MethodUtil.getParameterTypes(mn.desc);
         int size = types.size();
-        il.add(getIntInsn(size));
-        il.add(new TypeInsnNode(ANEWARRAY, ClassUtil.CLASS_OBJECT));
+        il.add(BytecodeUtil.getIntInsn(size));
+        il.add(new TypeInsnNode(ANEWARRAY, CLASS_OBJECT));
         int parameterOffset = MethodUtil.isStatic(mn) ? 0 : 1;
         for (int i = 0; i < size; i++) {
             il.add(new InsnNode(DUP));
-            il.add(getIntInsn(i));
-            ImmutablePair<Integer, Integer> code = getLoadParameterByteCode(types.get(i));
+            il.add(BytecodeUtil.getIntInsn(i));
+            ImmutablePair<Integer, Integer> code = BytecodeUtil.getLoadParameterByteCode(types.get(i));
             il.add(new VarInsnNode(code.left, parameterOffset));
             parameterOffset += code.right;
             MethodInsnNode typeConvertMethodNode = ClassUtil.getPrimaryTypeConvertMethod(types.get(i));
@@ -283,7 +323,7 @@ public class MockClassHandler extends BaseClassWithContextHandler {
 
     private boolean isMockForConstructor(MethodNode mn) {
         for (AnnotationNode an : mn.visibleAnnotations) {
-            String annotationName = toJavaStyleClassName(an.desc);
+            String annotationName = ClassUtil.toJavaStyleClassName(an.desc);
             if (ConstPool.MOCK_CONSTRUCTOR.equals(annotationName)) {
                 return true;
             } else if (ConstPool.MOCK_METHOD.equals(annotationName)) {
@@ -295,44 +335,6 @@ public class MockClassHandler extends BaseClassWithContextHandler {
             }
         }
         return false;
-    }
-
-    private static ImmutablePair<Integer, Integer> getLoadParameterByteCode(Byte type) {
-        switch (type) {
-            case ByteCodeConst.TYPE_BYTE:
-            case ByteCodeConst.TYPE_CHAR:
-            case ByteCodeConst.TYPE_SHORT:
-            case ByteCodeConst.TYPE_INT:
-            case ByteCodeConst.TYPE_BOOL:
-                return ImmutablePair.of(ILOAD, 1);
-            case ByteCodeConst.TYPE_DOUBLE:
-                return ImmutablePair.of(DLOAD, 2);
-            case ByteCodeConst.TYPE_FLOAT:
-                return ImmutablePair.of(FLOAD, 1);
-            case ByteCodeConst.TYPE_LONG:
-                return ImmutablePair.of(LLOAD, 2);
-            default:
-                return ImmutablePair.of(ALOAD, 1);
-        }
-    }
-
-    private AbstractInsnNode getIntInsn(int num) {
-        switch (num) {
-            case 0:
-                return new InsnNode(ICONST_0);
-            case 1:
-                return new InsnNode(ICONST_1);
-            case 2:
-                return new InsnNode(ICONST_2);
-            case 3:
-                return new InsnNode(ICONST_3);
-            case 4:
-                return new InsnNode(ICONST_4);
-            case 5:
-                return new InsnNode(ICONST_5);
-            default:
-                return new IntInsnNode(BIPUSH, num);
-        }
     }
 
 }

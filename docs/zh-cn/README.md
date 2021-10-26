@@ -1,7 +1,7 @@
 TestableMock简介
 ---
 
-单元测试中的Mock方法，通常是为了绕开那些依赖外部资源或无关功能的方法调用，使得测试重点能够集中在需要验证和保障的代码逻辑上。某个调用需要被Mock，往往只与其自身特征有关，而与调用的来源无关。
+单元测试中的Mock方法，通常是为了绕开那些依赖外部资源或无关功能的方法调用，使得测试重点能够集中在需要验证和保障的代码逻辑上。
 
 在定义Mock方法时，开发者真正关心的只有一件事："<u>这个调用，在测试的时候要换成那个假的Mock方法</u>"。
 
@@ -9,4 +9,4 @@ TestableMock简介
 
 于是，我们开发了`TestableMock`，**一款特立独行的轻量Mock工具**。
 
-![mock](https://testable-code.oss-cn-beijing.aliyuncs.com/mock-simpson.png)
+![mock-simpson-zh-cn.png](https://img.alicdn.com/imgextra/i2/O1CN01uPzi441cxzTZzhUWT_!!6000000003668-2-tps-500-761.png)

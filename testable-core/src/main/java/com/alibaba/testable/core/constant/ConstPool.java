@@ -21,5 +21,6 @@ public class ConstPool {
     public static final String SLASH = "/";
     public static final String DOLLAR = "$";
     public static final String UNDERLINE = "_";
+    public static final String COMMA = ",";
 
 }

@@ -1,5 +1,51 @@
 # Release Note
 
+## 0.6.9
+- support mock invocation in lambda method or via function reference
+- fix a `NullPointerException` issue when `PrivateAccessor.invoke()` has `null` parameter
+
+## 0.6.8
+- support `@DumpTo` annotation to dump bytecode of any transformed class
+- `PrivateAccessor.setStatic()` method now able to update static final members
+
+## 0.6.7
+- support empty mock container class which has all mock methods in its parent
+- fix an issue cause mock fail when parameter has array element accessing
+
+## 0.6.6
+- support global package path mapping for easier mocking code of 3rd packages
+- complete mock target checking, improve resistance to code refactoring
+- fix a log disorder issue of mock class handler
+- fix an error of creating `Long` or `Integer` class with `OmniConstructor` in certain jvm version
+
+## 0.6.5
+- fix an issue cause `OmniConstructor` fail to handle classes like Date and BigDecimal
+- fix an issue of `PrivateAccessor` fail to invoke method with single array parameter
+- fix an issue of mock methods in super class are ignored when `scope` is `associated`
+- fix an issue of empty mock method not works when `scope` is `associated`
+
+## 0.6.4
+- `TestableNull` class removed, let `OmniConstructor` even lighter
+- support `@Nested` annotation of JUnit 5
+- fix several `OmniConstructor` compatibility issues（thanks to [@ddatsh](https://github.com/ddatsh)）
+
+## 0.6.3
+- support custom inner `Mock` class name
+- support skip specified packages from `OmniConstructor` enhancement
+- fix 2 circle construction cases in `OmniConstructor`
+- fix an index out-of-range issue caused by non-static method without `this` reference
+- fix a null pointer exception caused by resource folder unavailable at runtime
+
+## 0.6.2
+- support setup global testable agent configure via properties file
+- disable OmniConstructor bytecode enhancement by default
+- fix a `Spring` framework compatibility issue with OmniConstructor
+
+## 0.6.1
+- generate mock scanning log file automatically, for self-troubleshooting
+- fix a `Spock` test framework compatibility issue
+- fix a `Gradle` unit test runtime compatibility issue
+
 ## 0.6.0
 - add `OmniConstructor` and `OmniAccessor` tool for parameter preparation
 - fix a `ClassFormatError` caused by incorrect `FRAME FULL` operation

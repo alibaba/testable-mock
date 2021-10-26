@@ -1,7 +1,6 @@
 package com.alibaba.testable.agent.handler;
 
 import com.alibaba.testable.agent.model.MethodInfo;
-import com.alibaba.testable.core.tool.PrivateAccessor;
 import org.junit.jupiter.api.Test;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.InsnNode;
@@ -10,6 +9,7 @@ import org.objectweb.asm.tree.VarInsnNode;
 
 import java.util.ArrayList;
 
+import static com.alibaba.testable.core.tool.PrivateAccessor.invoke;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.objectweb.asm.Opcodes.*;
 
@@ -31,8 +31,8 @@ class SourceClassHandlerTest {
             new MethodInsnNode(INVOKEVIRTUAL, "com/alibaba/testable/demo/BlackBox", "callMe", "()Ljava/lang/String;", false),
             new MethodInsnNode(INVOKEVIRTUAL, "java/lang/String", "startsWith", "(Ljava/lang/String;)Z", false)
         };
-        assertEquals(2, PrivateAccessor.invoke(handler, "getMemberMethodStart", instructions, 3));
-        assertEquals(2, PrivateAccessor.invoke(handler, "getMemberMethodStart", instructions, 6));
-        assertEquals(0, PrivateAccessor.invoke(handler, "getMemberMethodStart", instructions, 9));
+        assertEquals(2, invoke(handler, "getMemberMethodStart", instructions, 3));
+        assertEquals(2, invoke(handler, "getMemberMethodStart", instructions, 6));
+        assertEquals(0, invoke(handler, "getMemberMethodStart", instructions, 9));
     }
 }

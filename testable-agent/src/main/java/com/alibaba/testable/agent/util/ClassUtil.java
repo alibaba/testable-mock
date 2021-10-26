@@ -6,7 +6,6 @@ import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.MethodInsnNode;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -19,7 +18,6 @@ import static org.objectweb.asm.Opcodes.*;
  */
 public class ClassUtil {
 
-    public static final String CLASS_OBJECT = "java/lang/Object";
     private static final String CLASS_BYTE = "java/lang/Byte";
     private static final String CLASS_CHARACTER = "java/lang/Character";
     private static final String CLASS_DOUBLE = "java/lang/Double";
@@ -227,14 +225,25 @@ public class ClassUtil {
         ClassNode cn = new ClassNode();
         try {
             new ClassReader(className).accept(cn, 0);
-        } catch (IOException e) {
+        } catch (Throwable e) {
+            // Could be IOException, ClassCircularityError or NullPointerException
+            // Ignore all of them
             return null;
         }
         return cn;
     }
 
+    /**
+     * Get outer class name from a inner class name
+     * @param name inner class name
+     * @return outer class name
+     */
+    public static String toOuterClassName(String name) {
+        int pos = name.lastIndexOf("$");
+        return (pos > 0) ? name.substring(0, pos) : name;
+    }
+
     private static String toDescriptor(Byte type, String objectType) {
         return "(" + (char)type.byteValue() + ")L" + objectType + ";";
     }
-
 }

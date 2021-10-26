@@ -1,7 +1,9 @@
 Fast Mocking
 ---
 
-Compared with the class-granularity mocking practices of existing mock tools, `TestableMock` allows developers to directly define a single method and use it for mocking. With the principle of convention over configuration, mock method replacement will automatically happen when the specified method in the test class match an invocation in the class under test.
+In unit testing, the main role of the mock method is to replace those methods with **need external dependencies**, **with time-consuming**, **has random results**, or other effects that affect the development of the test, but do not affect the key the logic to be tested. Generally speaking, a certain call needs to be mocked, which is usually only related to its own characteristics, and has nothing to do with the source of the invocation.
+
+Based on the above information, `TestableMock` has designed a minimalist mock mechanism. Unlike the common mock tools that uses **class** as the definition granularity of mocking, and repeats the description of mock behavior in each test case, `TestableMock` allows each business class (class under test) to be associated with a set of reusable collection of mock methods (carried by the mock container class), following the principle of "convention over configuration", and mock method replacement will automatically happen when the specified method in the test class match an invocation in the class under test.
 
 > In summary, there are two simple rules:
 > - Mock non-constructive method, copy the original method definition to the mock class, add a `@MockMethod` annotation
@@ -55,7 +57,7 @@ private String use_any_mock_method_name(int i, int j) {
 
 Sometimes, the mock method need to access the member variables in the original object that initiated the invocation, or invoke other methods of the original object. At this point, you can remove the `targetClass` parameter in the `@MockMethod` annotation, and then add a extra parameter whose type is the original object type of the method to the first index of the method parameter list.
 
-The `TestableMock` convention is that when the `targetClass` parameter value of the `@MockMethod` annotation is empty, the first parameter of the mock method is the type of the target method, and the parameter name is arbitrary. In order to facilitate code reading, it is recommended to name this parameter as `self` or `src`. Example as follows:
+The `TestableMock` convention is that when the `targetClass` parameter of the `@MockMethod` annotation is not defined, the first parameter of the mock method is the type of the target method, and the parameter name is arbitrary. In order to facilitate code reading, it is recommended to name this parameter as `self` or `src`. Example as follows:
 
 ```java
 // Adds a `String` type parameter to the first position the mock method parameter list (parameter name is arbitrary)
@@ -67,7 +69,7 @@ private String substring(String self, int i, int j) {
 }
 ```
 
-For complete code examples, see the `should_mock_common_method()` test cases in the `java-demo` and `kotlin-demo` sample projects. (Because Kotlin has made magical changes to the String type, the method under test in the Kotlin example adds a layer of encapsulation to the `BlackBox` class)
+For complete code examples, see the `should_mock_common_method()` test cases in the `java-demo` and `kotlin-demo` sample projects. (Because `Kotlin` has made magical changes to the String type, the method under test in the `Kotlin` example adds a layer of encapsulation to the `BlackBox` class)
 
 ### 1.2 Mock the member method of the class under test itself
 
@@ -161,7 +163,17 @@ For complete code examples, see the `should_get_source_method_name()` and `shoul
 
 ### 3. Verify the sequence and parameters of the mock method being invoked
 
-In test cases, you can use the `TestableTool.verify()` method, and cooperate with `with()`, `withInOrder()`, `without()`, `withTimes()` and other methods to verify the mock call situation.
+In test cases, you can use the `InvokeVerifier.verify()` method, and cooperate with `with()`, `withInOrder()`, `without()`, `withTimes()` and other methods to verify the mock call situation.
 
 For details, please refer to the [Check Mock Call](en-us/doc/matcher.md) document.
 
+### 4. Special instructions
+
+> **Naming Conventions for Test Classes and Mock Containers**
+>
+> By default, `TestableMock` assumes that the <u>package path of the test class and the class under test are the same, and the name is `<ClassUnderTest>+Test`</u> (usually Java project with `Maven` or `Gradle` conform to this convention).
+> At the same time, it is agreed that the mock container associated with the test class is <u>in its internal static class named `Mock`</u>, or <u>an independent class named `<ClassUnderTest>+Mock` under the same package path</u>.
+>
+> When the test class or mock container path does not follow to this convention, you can use the `@MockWith` annotation to specify it explicitly. For details, see [Use MockWith Annotation](en-us/doc/use-mock-with.md).
+
+For more implementation details of `TestableMock`, please refer to the [Design and Principle](en-us/doc/design-and-mechanism.md) document.

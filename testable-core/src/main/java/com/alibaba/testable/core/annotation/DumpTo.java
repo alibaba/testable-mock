@@ -14,8 +14,8 @@ public @interface DumpTo {
 
     /**
      * dump class byte code to specified folder
-     * @return an exist folder
+     * @return folder path relate to the project root path
      */
-    String path() default "";
+    String value();
 
 }

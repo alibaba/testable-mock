@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Refer to: https://github.com/spockframework/spock-example/blob/master/pom.xml -->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>com.alibaba.testable</groupId>
+	<artifactId>spock-demo</artifactId>
+	<version>1.0.0-SNAPSHOT</version>
+	<name>spock-demo</name>
+	<description>Spock demo for Testable</description>
+	<properties>
+		<java.version>1.8</java.version>
+		<maven.compiler.source>1.8</maven.compiler.source>
+		<maven.compiler.target>1.8</maven.compiler.target>
+		<testable.version>0.6.9</testable.version>
+	</properties>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.spockframework</groupId>
+				<artifactId>spock-bom</artifactId>
+				<version>2.0-M5-groovy-3.0</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.codehaus.groovy</groupId>
+			<artifactId>groovy</artifactId>
+			<version>3.0.7</version>
+		</dependency>
+		<dependency>
+			<groupId>org.spockframework</groupId>
+			<artifactId>spock-core</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.spockframework</groupId>
+			<artifactId>spock-junit4</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.alibaba.testable</groupId>
+			<artifactId>testable-all</artifactId>
+			<version>${testable.version}</version>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<!-- The gmavenplus plugin is used to compile Groovy code -->
+				<groupId>org.codehaus.gmavenplus</groupId>
+				<artifactId>gmavenplus-plugin</artifactId>
+				<version>1.12.0</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>compile</goal>
+							<goal>compileTests</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>3.0.0-M5</version>
+				<configuration>
+					<argLine>-javaagent:${settings.localRepository}/com/alibaba/testable/testable-agent/${testable.version}/testable-agent-${testable.version}.jar</argLine>
+					<useFile>false</useFile>
+					<includes>
+						<include>**/*Test.java</include>
+						<include>**/*Spec.java</include>
+					</includes>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>

@@ -46,7 +46,9 @@ public class DemoPrivateAccess {
      * private member method with arguments
      */
     private String privateFuncWithArgs(List<String> list, String str, int i) {
-        return list.stream().reduce((a, s) -> a + s).orElse("") + " + " + str + " + " + i;
+        return list.stream().reduce((a, s) -> a + s).orElse("")
+                + " + " + (str == null ? "null" : str)
+                + " + " + i;
     }
 
 }

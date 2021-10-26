@@ -5,7 +5,7 @@ import com.alibaba.testable.core.matcher.InvokeVerifier.verify
 import org.junit.jupiter.api.Test
 import java.io.File
 
-class PathUtilTest {
+class PathDemoTest {
 
     class Mock {
         @MockMethod
@@ -42,7 +42,7 @@ class PathUtilTest {
 
     @Test
     fun should_mock_java_method_invoke_in_kotlin() {
-        PathUtil.deleteRecursively(File("/a/b/"))
+        PathDemo.deleteRecursively(File("/a/b/"))
         verify("listFiles").withTimes(2)
         verify("delete").withTimes(4)
     }

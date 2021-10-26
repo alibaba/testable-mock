@@ -1,13 +1,15 @@
 快速Mock被测类的任意方法调用
 ---
 
-相比以往Mock工具以类为粒度的Mock方式，`TestableMock`允许用户直接定义需要Mock的单个方法，并遵循约定优于配置的原则，按照规则自动在测试运行时替换被测方法中的指定方法调用。
+在单元测试中，Mock方法的主要作用是替代某些**需要外部依赖**、**执行过程耗时**、**执行结果随机**或其他影响测试正常开展，却并不影响关键待测逻辑的调用。通常来说，某个调用需要被Mock，往往只与其自身特征有关，而与调用的来源无关。
 
-> 规则归纳起来就两条：
+基于上述特点，`TestableMock`设计了一种极简的Mock机制。与以往Mock工具以**类**作为Mock的定义粒度，在每个测试用例里各自重复描述Mock行为的方式不同，`TestableMock`让每个业务类（被测类）关联一组可复用的Mock方法集合（使用Mock容器类承载），并遵循约定优于配置的原则，按照规则自动在测试运行时替换被测类中的指定方法调用。
+
+> 实际规则约定归纳起来只有两条：
 > - Mock非构造方法，拷贝原方法定义到Mock容器类，加`@MockMethod`注解
 > - Mock构造方法，拷贝原方法定义到Mock容器类，返回值换成构造的类型，方法名随意，加`@MockContructor`注解
 
-具体的Mock方法定义约定如下。
+具体使用方法如下。
 
 ### 0. 前置步骤，准备Mock容器
 
@@ -29,11 +31,11 @@ public class DemoTest {
 
 此时被测类中所有对该需覆写方法的调用，将在单元测试运行时，将自动被替换为对上述自定义Mock方法的调用。
 
-例如，被测类中有一处`"anything".substring(1, 2)`调用，我们希望在运行测试的时候将它换成一个固定字符串，则只需在Mock容器类定义如下方法：
+例如，被测类中有一处`"something".substring(0, 4)`调用，我们希望在运行测试的时候将它换成一个固定字符串，则只需在Mock容器类定义如下方法：
 
 ```java
 // 原方法签名为`String substring(int, int)`
-// 调用此方法的对象`"anything"`类型为`String`
+// 调用此方法的对象`"something"`类型为`String`
 @MockMethod(targetClass = String.class)
 private String substring(int i, int j) {
     return "sub_string";
@@ -55,7 +57,7 @@ private String use_any_mock_method_name(int i, int j) {
 
 有时，在Mock方法里会需要访问发起调用的原始对象中的成员变量，或是调用原始对象的其他方法。此时，可以将`@MockMethod`注解中的`targetClass`参数去除，然后在方法参数列表首位增加一个类型为该方法原本所属对象类型的参数。
 
-`TestableMock`约定，当`@MockMethod`注解的`targetClass`参数值为空时，Mock方法的首位参数即为目标方法所属类型，参数名称随意。通常为了便于代码阅读，建议将此参数统一命名为`self`或`src`。举例如下：
+`TestableMock`约定，当`@MockMethod`注解的`targetClass`参数未定义时，Mock方法的首位参数即为目标方法所属类型，参数名称随意。通常为了便于代码阅读，建议将此参数统一命名为`self`或`src`。举例如下：
 
 ```java
 // Mock方法在参数列表首位增加一个类型为`String`的参数（名字随意）
@@ -67,7 +69,7 @@ private String substring(String self, int i, int j) {
 }
 ```
 
-完整代码示例见`java-demo`和`kotlin-demo`示例项目中的`should_mock_common_method()`测试用例。(由于Kotlin对String类型进行了魔改，故Kotlin示例中将被测方法在`BlackBox`类里加了一层封装)
+完整代码示例见`java-demo`和`kotlin-demo`示例项目中的`should_mock_common_method()`测试用例。(由于`Kotlin`对String类型进行了魔改，故`Kotlin`示例中将被测方法在`BlackBox`类里加了一层封装)
 
 ### 1.2 覆写被测类自身的成员方法
 
@@ -161,16 +163,15 @@ private Data mockDemo() {
 
 ### 3. 验证Mock方法被调用的顺序和参数
 
-在测试用例中可用通过`TestableTool.verify()`方法，配合`with()`、`withInOrder()`、`without()`、`withTimes()`等方法实现对Mock调用情况的验证。
+在测试用例中可用通过`InvokeVerifier.verify()`方法，配合`with()`、`withInOrder()`、`without()`、`withTimes()`等方法实现对Mock调用情况的验证。
 
 详见[校验Mock调用](zh-cn/doc/matcher.md)文档。
-
 
 ### 4. 特别说明
 
 > **Mock只对被测类的代码有效**
 >
-> 在`TestableMock`的[Issues](https://github.com/alibaba/testable-mock/issues)列表中，最常见的一类问题是“Mock为什么没生效”，其中最多的一种情况是“在测试用例里直接调用了Mock的方法，发现没有替换”。这是因为<u>Mock替换只会作用在**被测类**的代码里</u>哦(～￣▽￣)～。知道大家是想快速验证一下`TestableMock`的功能，不过测试用例的代码真滴无需被Mock（这心意我们领了👻）。
+> 在`TestableMock`的[Issues](https://github.com/alibaba/testable-mock/issues)列表中，最常见的一类问题是“Mock为什么没生效”，其中最多的一种情况是“在测试用例里直接调用了Mock的方法，发现没有替换”。这是因为<u>Mock替换只会作用在**被测类**的代码里</u>。知道大家是想快速验证一下`TestableMock`的功能（这心意我们领了👻），不过测试用例的代码真的无需被Mock哦(～￣▽￣)～。
 >
 > 除去这种情况，若Mock未生效，请参考[自助问题排查](zh-cn/doc/troubleshooting.md)提供的方法对比<u>Mock方法签名</u>和<u>目标位置的调用方法签名</u>。若依然无法定位原因，欢迎提交Issues告诉我们。
 
@@ -180,3 +181,5 @@ private Data mockDemo() {
 > 同时约定测试类关联的Mock容器为<u>在其内部且名为`Mock`的静态类</u>，或<u>相同包路径下名为`被测类名+Mock`的独立类</u>。
 > 
 > 当测试类或Mock容器路径不符合此约定时，可使用`@MockWith`注解显式指定，详见[使用MockWith注解](zh-cn/doc/use-mock-with.md)。
+
+关于`TestableMock`的更多实现细节可参考[设计和原理](zh-cn/doc/design-and-mechanism.md)文档。

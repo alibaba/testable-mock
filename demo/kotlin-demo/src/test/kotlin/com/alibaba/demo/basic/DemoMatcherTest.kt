@@ -14,19 +14,19 @@ import org.junit.jupiter.api.Test
  */
 internal class DemoMatcherTest {
 
-    private val demoMatcher = com.alibaba.demo.basic.DemoMatcher()
+    private val demoMatcher = DemoMatcher()
 
     class Mock {
         @MockMethod(targetMethod = "methodToBeMocked")
-        private fun methodWithoutArgument(self: com.alibaba.demo.basic.DemoMatcher) {
+        private fun methodWithoutArgument(self: DemoMatcher) {
         }
 
         @MockMethod(targetMethod = "methodToBeMocked")
-        private fun methodWithArguments(self: com.alibaba.demo.basic.DemoMatcher, a1: Any, a2: Any) {
+        private fun methodWithArguments(self: DemoMatcher, a1: Any, a2: Any) {
         }
 
         @MockMethod(targetMethod = "methodToBeMocked")
-        private fun methodWithArrayArgument(self: com.alibaba.demo.basic.DemoMatcher, a: Array<Any>) {
+        private fun methodWithArrayArgument(self: DemoMatcher, a: Array<Any>) {
         }
     }
 

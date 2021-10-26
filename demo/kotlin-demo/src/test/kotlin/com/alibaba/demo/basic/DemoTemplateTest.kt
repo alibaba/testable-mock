@@ -2,9 +2,8 @@ package com.alibaba.demo.basic
 
 import com.alibaba.testable.core.annotation.MockConstructor
 import com.alibaba.testable.core.annotation.MockMethod
-import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
-import java.util.*
 
 /**
  * 演示模板方法的Mock场景
@@ -42,22 +41,22 @@ internal class DemoTemplateTest {
     @Test
     fun should_mock_single_template_method() {
         val res = demoTemplate.singleTemplateMethod()
-        Assertions.assertEquals("demo_mock_list", res)
+        assertEquals("demo_mock_list", res)
     }
 
     @Test
     fun should_mock_double_template_method() {
         val res = demoTemplate.doubleTemplateMethod()
-        Assertions.assertEquals("testable_mock_map", res)
+        assertEquals("testable_mock_map", res)
     }
 
     @Test
     fun should_mock_new_template_method() {
         val res = demoTemplate.newTemplateMethod()
-        Assertions.assertEquals(2, res.size)
+        assertEquals(2, res.size)
         val iterator = res.stream().iterator()
-        Assertions.assertEquals("insert_mock", iterator.next())
-        Assertions.assertEquals("world_mocked", iterator.next())
+        assertEquals("insert_mock", iterator.next())
+        assertEquals("world_mocked", iterator.next())
     }
 
 }

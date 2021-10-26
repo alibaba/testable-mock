@@ -1,11 +1,11 @@
 package com.alibaba.demo.basic;
 
-import com.alibaba.testable.core.tool.PrivateAccessor;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.alibaba.testable.core.tool.PrivateAccessor.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
@@ -20,39 +20,45 @@ class DemoPrivateAccessorTest {
     @Test
     void should_access_private_method() {
         List<String> list = new ArrayList<String>() {{ add("a"); add("b"); add("c"); }};
-        assertEquals("member", PrivateAccessor.invoke(demoPrivateAccess, "privateFunc"));
-        assertEquals("abc + hello + 1", PrivateAccessor.invoke(demoPrivateAccess, "privateFuncWithArgs", list, "hello", 1));
+        assertEquals("member", invoke(demoPrivateAccess, "privateFunc"));
+        assertEquals("abc + hello + 1", invoke(demoPrivateAccess, "privateFuncWithArgs", list, "hello", 1));
     }
 
     @Test
     void should_access_private_field() {
-        PrivateAccessor.set(demoPrivateAccess, "count", 3);
-        assertEquals(Integer.valueOf(3), PrivateAccessor.get(demoPrivateAccess, "count"));
+        set(demoPrivateAccess, "count", 3);
+        assertEquals(Integer.valueOf(3), get(demoPrivateAccess, "count"));
     }
 
     @Test
     void should_access_private_static_method() {
-        assertEquals("static", PrivateAccessor.invokeStatic(DemoPrivateAccess.class, "privateStaticFunc"));
-        assertEquals("hello + 1", PrivateAccessor.invokeStatic(DemoPrivateAccess.class, "privateStaticFuncWithArgs", "hello", 1));
+        assertEquals("static", invokeStatic(DemoPrivateAccess.class, "privateStaticFunc"));
+        assertEquals("hello + 1", invokeStatic(DemoPrivateAccess.class, "privateStaticFuncWithArgs", "hello", 1));
     }
 
     @Test
     void should_access_private_static_field() {
-        PrivateAccessor.setStatic(DemoPrivateAccess.class, "staticCount", 3);
-        assertEquals(Integer.valueOf(3), PrivateAccessor.getStatic(DemoPrivateAccess.class, "staticCount"));
+        setStatic(DemoPrivateAccess.class, "staticCount", 3);
+        assertEquals(Integer.valueOf(3), getStatic(DemoPrivateAccess.class, "staticCount"));
     }
 
     @Test
     void should_update_final_field() {
-        PrivateAccessor.set(demoPrivateAccess, "pi", 3.14);
-        assertEquals(Double.valueOf(3.14), PrivateAccessor.get(demoPrivateAccess, "pi"));
+        set(demoPrivateAccess, "pi", 3.14);
+        assertEquals(Double.valueOf(3.14), get(demoPrivateAccess, "pi"));
     }
 
     @Test
     void should_use_null_parameter() {
-        PrivateAccessor.set(demoPrivateAccess, "pi", null);
-        assertNull(PrivateAccessor.get(demoPrivateAccess, "pi"));
-        assertEquals("null + 1", PrivateAccessor.invokeStatic(DemoPrivateAccess.class, "privateStaticFuncWithArgs", null, 1));
+        set(demoPrivateAccess, "pi", null);
+        assertNull(get(demoPrivateAccess, "pi"));
+
+        List<String> list = new ArrayList<String>() {{ add("a"); add("b"); add("c"); }};
+        String value = invoke(demoPrivateAccess, "privateFuncWithArgs", list, null, 0);
+        assertEquals("abc + null + 0", value);
+
+        value = invokeStatic(DemoPrivateAccess.class, "privateStaticFuncWithArgs", null, 1);
+        assertEquals("null + 1", value);
     }
 
 }

@@ -1,17 +1,12 @@
 package com.alibaba.testable.agent.handler;
 
-import com.alibaba.testable.agent.handler.test.*;
+import com.alibaba.testable.agent.handler.test.Framework;
 import com.alibaba.testable.agent.model.TestCaseMethodType;
-import com.alibaba.testable.agent.util.ClassUtil;
 import com.alibaba.testable.core.util.LogUtil;
-import org.objectweb.asm.Label;
-import org.objectweb.asm.tree.*;
-
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
-
-import static com.alibaba.testable.core.constant.ConstPool.THIS_REF;
+import org.objectweb.asm.tree.ClassNode;
+import org.objectweb.asm.tree.InsnList;
+import org.objectweb.asm.tree.MethodInsnNode;
+import org.objectweb.asm.tree.MethodNode;
 
 /**
  * @author flin
@@ -24,13 +19,12 @@ public class TestClassHandler extends BaseClassWithContextHandler {
     private static final String DESC_METHOD_CLEAN = "()V";
 
     private int testCaseCount = 0;
+    private boolean shouldGenerateCleanupMethod = true;
+    private final Framework framework;
 
-    private final Framework[] frameworkClasses = new Framework[] {
-        new JUnit4Framework(),
-        new JUnit5Framework(),
-        new TestNgFramework(),
-        new TestNgOnClassFramework()
-    };
+    public TestClassHandler(Framework framework) {
+        this.framework = framework;
+    }
 
     /**
      * Handle bytecode of test class
@@ -38,69 +32,29 @@ public class TestClassHandler extends BaseClassWithContextHandler {
      */
     @Override
     protected void transform(ClassNode cn) {
-        Framework framework = checkFramework(cn);
-        if (framework == null) {
-            LogUtil.warn("Failed to detect test framework for " + cn.name);
-            return;
-        }
-        if (!framework.hasTestAfterMethod) {
-            addTestAfterMethod(cn, framework.getTestAfterAnnotation());
-        }
+        LogUtil.diagnose("Found test class %s", cn.name);
         for (MethodNode mn : cn.methods) {
             handleTestableUtil(mn);
             handleTestCaseMethod(mn, framework);
         }
-        LogUtil.diagnose(String.format("  Found %d test cases", testCaseCount));
+        if (shouldGenerateCleanupMethod) {
+            MethodNode cleanupMethod = framework.getCleanupMethod(cn.name);
+            injectMockContextClean(cleanupMethod);
+            cn.methods.add(cleanupMethod);
+        }
+        LogUtil.diagnose("  Found %d test cases", testCaseCount);
     }
 
-    private Framework checkFramework(ClassNode cn) {
-        Set<String> classAnnotationSet = new HashSet<String>();
-        Set<String> methodAnnotationSet = new HashSet<String>();
-        if (cn.visibleAnnotations != null) {
-            for (AnnotationNode an : cn.visibleAnnotations) {
-                classAnnotationSet.add(an.desc);
-            }
-        }
-        for (MethodNode mn : cn.methods) {
-            if (mn.visibleAnnotations != null) {
-                for (AnnotationNode an : mn.visibleAnnotations) {
-                    methodAnnotationSet.add(an.desc);
-                }
-            }
-        }
-        for (Framework i : frameworkClasses) {
-            if (i.fit(classAnnotationSet, methodAnnotationSet)) {
-                return i;
-            }
-        }
-        return null;
-    }
-
-    private void addTestAfterMethod(ClassNode cn, String testAfterAnnotation) {
-        MethodNode afterTestMethod = new MethodNode(ACC_PUBLIC, "testableAfterTestCase", "()V", null, null);
-        afterTestMethod.visibleAnnotations = Collections.singletonList(new AnnotationNode(testAfterAnnotation));
-        InsnList il = new InsnList();
-        LabelNode startLabel = new LabelNode(new Label());
-        LabelNode endLabel = new LabelNode(new Label());
-        il.add(startLabel);
-        il.add(new InsnNode(RETURN));
-        il.add(endLabel);
-        afterTestMethod.instructions = il;
-        afterTestMethod.localVariables = Collections.singletonList(new LocalVariableNode(THIS_REF,
-            ClassUtil.toByteCodeClassName(cn.name), null, startLabel, endLabel, 0));
-        afterTestMethod.maxLocals = 1;
-        afterTestMethod.maxStack = 0;
-        cn.methods.add(afterTestMethod);
-    }
 
     private void handleTestCaseMethod(MethodNode mn, Framework framework) {
         TestCaseMethodType type = framework.checkMethodType(mn);
         if (type.equals(TestCaseMethodType.TEST)) {
-            LogUtil.verbose(String.format("   Test case \"%s\"", mn.name));
+            LogUtil.verbose("   Test case \"%s\"", mn.name);
             injectMockContextInit(mn);
             testCaseCount++;
         } else if (type.equals(TestCaseMethodType.AFTER_TEST)) {
             injectMockContextClean(mn);
+            shouldGenerateCleanupMethod = false;
         }
     }
 

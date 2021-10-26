@@ -11,17 +11,13 @@
 
 <font size="5">**0.6版本已发布**</font>，从`0.5.x`升级到`0.6.x`版本请参考[版本升级指南](https://alibaba.github.io/testable-mock/#/zh-cn/doc/upgrade-guide)
 
-如果有遇到其他任何使用问题和建议，请直接在[Issue](https://github.com/alibaba/testable-mock/issues)中提出，也可通过[Pull Request](https://github.com/alibaba/testable-mock/pulls)提交您的代码，我们将在24小时内回复并处理
-
 -----
 
-## 版本计划
+## 项目维护说明
 
-`TestableMock`正在持续迭代演进，以下版本计划可能在开发过程中发生调整
+由于当前并行项目较多，此项目暂时转入维护阶段，在此期间`TestableMock`会继续提供不定期的版本更新。
 
-- `0.6` 当前版本，进行中的工作内容参考[Issue](https://github.com/alibaba/testable-mock/issues)清单
-- `0.7` 完善Mock功能的防代码重构机制，支持快速Mock指定类型的所有方法
-- `1.0` 功能稳定，一个崭新的开始
+如果有遇到其他任何使用问题和建议，请直接在[Issues](https://github.com/alibaba/testable-mock/issues)中提出，也可通过[Pull Request](https://github.com/alibaba/testable-mock/pulls)提交您的代码，我们将尽快回复并处理。
 
 ## 目录结构
 
@@ -32,6 +28,7 @@
 |-- testable-agent        ➜ JavaAgent模块，提供Mock测试相关功能
 |-- testable-core         ➜ 基础功能模块，提供Mock相关注解和工具类
 |-- testable-maven-plugin ➜ Maven插件模块，用于简化JavaAgent注入
+|-- tool                  ➜ 项目开发过程中的工具脚本
 |-- demo
 |   |-- java-demo         ➜ Java语言的示例代码
 |   `-- kotlin-demo       ➜ Kotlin语言的示例代码

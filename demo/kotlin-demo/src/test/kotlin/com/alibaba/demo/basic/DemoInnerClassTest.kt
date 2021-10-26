@@ -1,7 +1,7 @@
 package com.alibaba.demo.basic
 
 import com.alibaba.testable.core.annotation.MockMethod
-import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 
 /**
@@ -21,8 +21,8 @@ internal class DemoInnerClassTest {
     @Throws(Exception::class)
     fun should_mock_invoke_inside_inner_class() {
         val demo = DemoInnerClass()
-        Assertions.assertEquals("MockedCall", demo.callInnerDemo())
-        Assertions.assertEquals("MockedCall", demo.callAnonymousInner())
-        Assertions.assertEquals("MockedCall", DemoInnerClass.StaticInner().demo())
+        assertEquals("MockedCall", demo.callInnerDemo())
+        assertEquals("MockedCall", demo.callAnonymousInner())
+        assertEquals("MockedCall", DemoInnerClass.StaticInner().demo())
     }
 }

@@ -12,6 +12,7 @@
   <modules>
     <module>java-demo</module>
     <module>kotlin-demo</module>
+    <module>spock-demo</module>
   </modules>
 
 </project>

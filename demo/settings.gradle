@@ -1,0 +1,5 @@
+rootProject.name = 'demos'
+
+include 'java-demo'
+include 'kotlin-demo'
+include 'spock-demo'

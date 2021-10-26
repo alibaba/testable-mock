@@ -1,6 +1,5 @@
 package com.alibaba.testable.core.util;
 
-import com.alibaba.testable.core.tool.PrivateAccessor;
 import com.alibaba.testable.core.model.MockContext;
 
 import java.util.HashSet;
@@ -8,6 +7,7 @@ import java.util.Map;
 import java.util.Set;
 
 import static com.alibaba.testable.core.constant.ConstPool.*;
+import static com.alibaba.testable.core.tool.PrivateAccessor.*;
 
 public class MockAssociationUtil {
 
@@ -15,6 +15,12 @@ public class MockAssociationUtil {
      * [0]Thread → [1]MockAssociationUtil → [2]MockClass
      */
     public static final int INDEX_OF_MOCK_CLASS = 2;
+
+    /**
+     * Sub-class of specified mock class
+     * SuperMockClassName (dot-separated) → Set of [SubMockClassName (dot-separated)]
+     */
+    public static Map<String, Set<String>> subMockContainers = UnnullableMap.of(new HashSet<String>());
 
     /**
      * Mock class referred by @MockWith annotation to list of its test classes
@@ -35,9 +41,24 @@ public class MockAssociationUtil {
         }
         String testClassName = mockContext.testClassName;
         String mockClassName = Thread.currentThread().getStackTrace()[INDEX_OF_MOCK_CLASS].getClassName();
+        return recursiveAssociationCheck(testClassName, mockClassName);
+    }
+
+    private static boolean recursiveAssociationCheck(String testClassName, String mockClassName) {
         return isAssociatedByInnerMockClass(testClassName, mockClassName) ||
             isAssociatedByOuterMockClass(testClassName, mockClassName) ||
-            isAssociatedByMockWithAnnotation(testClassName, mockClassName);
+            isAssociatedByMockWithAnnotation(testClassName, mockClassName) ||
+            (subMockContainers.containsKey(mockClassName) &&
+                recursiveAssociationCheck(testClassName, subMockContainers.get(mockClassName)));
+    }
+
+    private static boolean recursiveAssociationCheck(String testClassName, Set<String> mockClassNames) {
+        for (String name : mockClassNames) {
+            if (recursiveAssociationCheck(testClassName, name)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -46,12 +67,16 @@ public class MockAssociationUtil {
      */
     public static Object invokeOrigin(Class<?> originClass, String originMethod, Object... args) {
         if (originMethod.equals(CONSTRUCTOR)) {
-            return PrivateAccessor.construct(originClass, args);
+            return construct(originClass, args);
         } else if (args[0] == null) {
-            return PrivateAccessor.invokeStatic(originClass, originMethod, CollectionUtil.slice(args, 1));
+            return invokeStatic(originClass, originMethod, CollectionUtil.slice(args, 1));
         } else {
-            return PrivateAccessor.invoke(args[0], originMethod, CollectionUtil.slice(args, 1));
+            return invoke(args[0], originMethod, CollectionUtil.slice(args, 1));
         }
+    }
+
+    public static void recordSubMockContainer(String superClassName, String subClassName) {
+        subMockContainers.get(superClassName).add(subClassName);
     }
 
     private static boolean isAssociatedByInnerMockClass(String testClassName, String mockClassName) {

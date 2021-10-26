@@ -23,5 +23,13 @@ class ClassUtilTest {
             ClassUtil.fitCompanionClassName("com/alibaba/testable/demo/BlackBox$Companion"));
     }
 
+    @Test
+    void should_get_outer_class_name() {
+        assertEquals("com/alibaba/demo/basic/DemoMockTest",
+            ClassUtil.toOuterClassName("com/alibaba/demo/basic/DemoMockTest$Inner"));
+        assertEquals("com/alibaba/demo/basic/DemoMockTest",
+            ClassUtil.toOuterClassName("com/alibaba/demo/basic/DemoMockTest"));
+    }
+
 }
 

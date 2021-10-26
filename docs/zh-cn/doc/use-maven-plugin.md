@@ -31,13 +31,13 @@
 
 该问题可以通过额外配置IDE的测试参数绕过。以IntelliJ为例，打开运行菜单的"编辑配置..."选型，如图中位置①
 
-![modify-run-configuration](https://testable-code.oss-cn-beijing.aliyuncs.com/modify-run-configuration.png)
+![modify-run-configuration.png](https://img.alicdn.com/imgextra/i3/O1CN01HLlNyZ1gezVe4AOiE_!!6000000004168-2-tps-1036-184.png)
 
 在"虚拟机参数"属性值末尾添加JavaAgent启动参数：`-javaagent:${HOME}/.m2/repository/com/alibaba/testable/testable-agent/x.y.z/testable-agent-x.y.z.jar`，如图中位置②
 
 > PS：请将路径中的`x.y.z`替换成实际使用的版本号
 
-![add-testable-javaagent](https://testable-code.oss-cn-beijing.aliyuncs.com/add-testable-javaagent.png)
+![add-testable-javaagent.png](https://img.alicdn.com/imgextra/i4/O1CN01pdxC8S1R2JpXX8aOJ_!!6000000002053-2-tps-2446-486.png)
 
 最后点击运行单元测试，如图中位置③
 

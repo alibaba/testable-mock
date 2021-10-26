@@ -1,11 +1,6 @@
 package com.alibaba.testable.agent.util;
 
-import com.alibaba.testable.agent.constant.ConstPool;
-import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AnnotationNode;
-import org.objectweb.asm.tree.MethodNode;
-
-import static com.alibaba.testable.agent.constant.ByteCodeConst.TYPE_CLASS;
 
 /**
  * @author flin
@@ -65,15 +60,4 @@ public class AnnotationUtil {
         return false;
     }
 
-    /**
-     * Check is MockMethod annotation is used on a valid mock method
-     * @param mn mock method
-     * @param an MockMethod annotation
-     * @return valid or not
-     */
-    public static boolean isValidMockMethod(MethodNode mn, AnnotationNode an) {
-        Type targetClass = AnnotationUtil.getAnnotationParameter(an, ConstPool.FIELD_TARGET_CLASS, null, Type.class);
-        String firstParameter = MethodUtil.getFirstParameter(mn.desc);
-        return targetClass != null || firstParameter.charAt(0) == TYPE_CLASS;
-    }
 }

@@ -5,6 +5,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -104,10 +105,10 @@ public class TypeUtil {
      * @param clazz type to check
      */
     public static boolean isBasicType(Class<?> clazz) {
-        return clazz.isEnum() || clazz.equals(Integer.class) || clazz.equals(Short.class) || clazz.equals(Long.class)
-            || clazz.equals(Byte.class) || clazz.equals(Character.class) || clazz.equals(Float.class)
-            || clazz.equals(Double.class) || clazz.equals(Boolean.class) || clazz.equals(Class.class)
-            || clazz.equals(String.class);
+        return clazz.isPrimitive() || clazz.isEnum() || clazz.equals(Integer.class) || clazz.equals(Short.class)
+            || clazz.equals(Long.class) || clazz.equals(Byte.class) || clazz.equals(Character.class)
+            || clazz.equals(Float.class) || clazz.equals(Double.class) || clazz.equals(Boolean.class)
+            || clazz.equals(Class.class) || clazz.equals(String.class);
     }
 
     /**

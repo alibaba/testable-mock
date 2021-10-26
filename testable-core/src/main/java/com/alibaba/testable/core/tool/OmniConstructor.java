@@ -1,14 +1,16 @@
 package com.alibaba.testable.core.tool;
 
 import com.alibaba.testable.core.exception.ClassConstructionException;
-import com.alibaba.testable.core.model.TestableNull;
+import com.alibaba.testable.core.model.ConstructionOption;
+import com.alibaba.testable.core.util.CollectionUtil;
+import com.alibaba.testable.core.util.LogUtil;
 import com.alibaba.testable.core.util.TypeUtil;
 
-import javax.lang.model.type.NullType;
 import java.lang.reflect.*;
 import java.util.*;
 
 import static com.alibaba.testable.core.constant.ConstPool.DOLLAR;
+import static com.alibaba.testable.core.model.ConstructionOption.EXCEPT_LOOP_NESTING;
 
 /**
  * @author flin
@@ -16,6 +18,7 @@ import static com.alibaba.testable.core.constant.ConstPool.DOLLAR;
 public class OmniConstructor {
 
     private static final int INITIAL_CAPACITY = 6;
+    private static final int FIRST = 1;
 
     private OmniConstructor() {}
 
@@ -23,10 +26,15 @@ public class OmniConstructor {
      * 快速创建任意指定类型的测试对象
      *
      * @param clazz 期望的对象类型
+     * @param options 可选参数
      * @return 返回新创建的对象
      */
-    public static <T> T newInstance(Class<T> clazz) {
-        return handleCircleReference(newInstance(clazz, new HashSet<Class<?>>(INITIAL_CAPACITY)));
+    public static <T> T newInstance(Class<T> clazz, ConstructionOption... options) {
+        T ins = newInstance(clazz, new HashSet<Class<?>>(INITIAL_CAPACITY));
+        if (ins == null || CollectionUtil.contains(options, EXCEPT_LOOP_NESTING)) {
+            return ins;
+        }
+        return handleCircleReference(ins);
     }
 
     /**
@@ -34,13 +42,19 @@ public class OmniConstructor {
      *
      * @param clazz 期望的对象类型
      * @param size 数组大小
+     * @param options 可选参数
      * @return 返回新创建的对象数组
      */
-    public static <T> T[] newArray(Class<T> clazz, int size) {
-        return (T[])handleCircleReference(newArray(clazz, size, new HashSet<Class<?>>(INITIAL_CAPACITY)));
+    public static <T> T[] newArray(Class<T> clazz, int size, ConstructionOption... options) {
+        T[] array = (T[])newArray(clazz, size, new HashSet<Class<?>>(INITIAL_CAPACITY));
+        if (CollectionUtil.contains(options, EXCEPT_LOOP_NESTING)) {
+            return array;
+        }
+        return handleCircleReference(array);
     }
 
     private static <T> T newInstance(Class<T> clazz, Set<Class<?>> classPool) {
+        LogUtil.verbose(classPool.size() * 2, "Creating %s", clazz.getName());
         if (classPool.contains(clazz)) {
             return null;
         }
@@ -48,6 +62,8 @@ public class OmniConstructor {
         try {
             if (clazz.isPrimitive()) {
                 return newPrimitive(clazz);
+            } else if (clazz.equals(Class.class)) {
+                return (T)Object.class;
             } else if (clazz.isArray()) {
                 return (T)newArray(clazz.getComponentType(), 0, classPool);
             } else if (clazz.isEnum()) {
@@ -75,7 +91,7 @@ public class OmniConstructor {
 
     private static <T> T newObject(Class<T> clazz, Set<Class<?>> classPool)
         throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
-        Object ins = createInstance(getBestConstructor(clazz), classPool);
+        Object ins = createInstance(clazz, classPool);
         if (!TypeUtil.isBasicType(clazz)) {
             for (Field f : TypeUtil.getAllFields(clazz)) {
                 f.setAccessible(true);
@@ -140,13 +156,15 @@ public class OmniConstructor {
     }
 
     private static <T> T handleCircleReference(T instance) {
+        LogUtil.verbose("Verifying " + instance.getClass());
         try {
             if (instance.getClass().isArray()) {
                 for (int i = 0; i < Array.getLength(instance); i++) {
-                    handleCircleReference(Array.get(instance, i), new HashMap<Class<?>, Object>(INITIAL_CAPACITY));
+                    handleCircleReference(Array.get(instance, i), instance.getClass().getComponentType(),
+                        new HashMap<Class<?>, Object>(INITIAL_CAPACITY));
                 }
             } else {
-                handleCircleReference(instance, new HashMap<Class<?>, Object>(INITIAL_CAPACITY));
+                handleCircleReference(instance, instance.getClass(), new HashMap<Class<?>, Object>(INITIAL_CAPACITY));
             }
         } catch (IllegalAccessException e) {
             throw new ClassConstructionException("Failed to access field", e);
@@ -154,40 +172,73 @@ public class OmniConstructor {
         return instance;
     }
 
-    private static <T> void handleCircleReference(T instance, Map<Class<?>, Object> classPool)
+    private static void handleCircleReference(Object instance, Class<?> type, Map<Class<?>, Object> classPool)
         throws IllegalAccessException {
-        classPool.put(instance.getClass(), instance);
-        for (Field f : TypeUtil.getAllFields(instance.getClass())) {
+        if (instance == null) {
+            // don't travel null object
+            return;
+        }
+        classPool.put(type, instance);
+        for (Field f : TypeUtil.getAllFields(type)) {
+            if (f.getName().startsWith("$") || isStaticFinalField(f)) {
+                // skip static-final fields and fields e.g. "$jacocoData"
+                continue;
+            }
             f.setAccessible(true);
             Object fieldIns = f.get(instance);
             Class<?> fieldType = f.getType();
             if (fieldType.isArray()) {
-                if (fieldIns != null) {
-                    for (int i = 0; i < Array.getLength(fieldIns); i++) {
-                        handleCircleReference(Array.get(fieldIns, i), classPool);
-                    }
+                Class<?> componentType = fieldType.getComponentType();
+                if (fieldIns != null && !TypeUtil.isBasicType(componentType)) {
+                    LogUtil.verbose(classPool.size() * 2, "Verifying Field(Array[%d]) %s", Array.getLength(fieldIns), f.getName());
+                    handleCircleReferenceOfArrayField(fieldIns, componentType, classPool);
                 }
-            } else if (!fieldType.isPrimitive() && !TypeUtil.isBasicType(fieldType)) {
+            } else if (!TypeUtil.isBasicType(fieldType)) {
                 if (fieldIns == null && classPool.containsKey(fieldType)) {
                     f.set(instance, classPool.get(fieldType));
-                } else if (fieldIns != null && !classPool.containsKey(fieldType)) {
-                    handleCircleReference(fieldIns, classPool);
+                } else if (!classPool.containsKey(fieldType)) {
+                    LogUtil.verbose(classPool.size() * 2, "Verifying Field %s", f.getName());
+                    handleCircleReference(fieldIns, fieldType, classPool);
                 }
             }
         }
-        classPool.remove(instance.getClass());
+        classPool.remove(type);
     }
 
-    private static Object createInstance(Constructor<?> constructor, Set<Class<?>> classPool)
+    private static boolean isStaticFinalField(Field field) {
+        return Modifier.isFinal(field.getModifiers()) && Modifier.isStatic(field.getModifiers());
+    }
+
+    private static void handleCircleReferenceOfArrayField(Object instance, Class<?> type, Map<Class<?>, Object> classPool)
+        throws IllegalAccessException {
+        if (type.isArray()) {
+            for (int i = 0; i < Math.min(Array.getLength(instance), FIRST); i++) {
+                Object arrayIns = Array.get(instance, i);
+                if (arrayIns != null) {
+                    handleCircleReferenceOfArrayField(arrayIns, arrayIns.getClass().getComponentType(), classPool);
+                }
+            }
+        } else if (!classPool.containsKey(type)) {
+            for (int i = 0; i < Math.min(Array.getLength(instance), FIRST); i++) {
+                handleCircleReference(Array.get(instance, i), type, classPool);
+            }
+        }
+    }
+
+    private static Object createInstance(Class<?> clazz, Set<Class<?>> classPool)
         throws InstantiationException, IllegalAccessException, InvocationTargetException {
+        Constructor<?> constructor = getBestConstructor(clazz);
+        if (constructor == null) {
+            throw new ClassConstructionException("Fail to invoke constructor of " + clazz.getName());
+        }
         constructor.setAccessible(true);
         Class<?>[] types = constructor.getParameterTypes();
-        if (types.length == 1 && types[0].equals(NullType.class)) {
-            return constructor.newInstance(new TestableNull());
+        if (types.length == 1 && types[0].equals(Void.class)) {
+            return constructor.newInstance(new Object[]{ null });
         } else {
             Object[] args = new Object[types.length];
             for (int i = 0; i < types.length; i++) {
-                args[i] = newInstance(types[i], classPool);
+                args[i] = types[i].equals(clazz) ? null : newInstance(types[i], classPool);
             }
             return constructor.newInstance(args);
         }
@@ -195,13 +246,17 @@ public class OmniConstructor {
 
     private static Constructor<?> getBestConstructor(Class<?> clazz) {
         Constructor<?> bestConstructor = null;
-        int minimalParametersSize = 999;
+        int minimalExceptionCount = 999;
+        int minimalParameterCount = 999;
         for (Constructor<?> constructor : clazz.getDeclaredConstructors()) {
-            Class<?>[] types = constructor.getParameterTypes();
-            if (types.length == 1 && types[0].equals(NullType.class)) {
+            Class<?>[] parameterTypes = constructor.getParameterTypes();
+            Class<?>[] exceptionTypes = constructor.getExceptionTypes();
+            if (parameterTypes.length == 1 && parameterTypes[0].equals(Void.class)) {
                 return constructor;
-            } else if (types.length < minimalParametersSize) {
-                minimalParametersSize = types.length;
+            } else if (exceptionTypes.length < minimalExceptionCount
+                || (exceptionTypes.length == minimalExceptionCount && parameterTypes.length < minimalParameterCount)) {
+                minimalExceptionCount = exceptionTypes.length;
+                minimalParameterCount = parameterTypes.length;
                 bestConstructor = constructor;
             }
         }

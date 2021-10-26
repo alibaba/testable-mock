@@ -3,19 +3,19 @@ package com.alibaba.testable.agent.handler.test;
 import java.util.Arrays;
 import java.util.List;
 
-public class JUnit5Framework extends Framework {
+public class JUnit5Framework extends CommonFramework {
 
     public static final String ANNOTATION_TEST = "Lorg/junit/jupiter/api/Test;";
     public static final String ANNOTATION_PARAMETERIZED_TEST = "Lorg/junit/jupiter/params/ParameterizedTest;";
-    private static final String ANNOTATION_AFTER_TEST = "Lorg/junit/jupiter/api/AfterEach;";
+    private static final String ANNOTATION_CLEANUP = "Lorg/junit/jupiter/api/AfterEach;";
 
     @Override
-    public List<String> getTestAnnotations() {
+    public List<String> getTestMethodAnnotations() {
         return Arrays.asList(ANNOTATION_TEST, ANNOTATION_PARAMETERIZED_TEST);
     }
 
     @Override
-    public String getTestAfterAnnotation() {
-        return ANNOTATION_AFTER_TEST;
+    public String getCleanupMethodAnnotation() {
+        return ANNOTATION_CLEANUP;
     }
 }
