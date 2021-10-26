@@ -59,4 +59,12 @@ public class DemoInherit {
         BlackBox box = new BlackBox("");
         return box.getColor();
     }
+
+    /**
+     * call method defined in interface via sub class variable
+     */
+    public String getColorIdxViaColor() {
+        Color color = new BlackBox("");
+        return color.getColorIndex();
+    }
 }
