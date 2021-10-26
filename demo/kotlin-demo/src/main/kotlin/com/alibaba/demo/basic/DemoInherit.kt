@@ -11,7 +11,7 @@ import com.alibaba.demo.basic.model.mock.Color
 class DemoInherit {
 
     /**
-     * call method overridden by sub class via parent class variable
+     * call method overridden by subclass via parent class variable
      */
     fun putIntoBox(): Box {
         val box: Box = BlackBox("")
@@ -20,7 +20,7 @@ class DemoInherit {
     }
 
     /**
-     * call method overridden by sub class via sub class variable
+     * call method overridden by subclass via subclass variable
      */
     fun putIntoBlackBox(): BlackBox {
         val box = BlackBox("")
@@ -38,7 +38,7 @@ class DemoInherit {
         }
 
     /**
-     * call method defined in parent class via sub class variable
+     * call method defined in parent class via subclass variable
      */
     val fromBlackBox: String?
         get() {
@@ -56,7 +56,7 @@ class DemoInherit {
         }
 
     /**
-     * call method defined in interface via sub class variable
+     * call method defined in interface via subclass variable
      */
     val colorViaBox: String
         get() {

@@ -11,7 +11,7 @@ import com.alibaba.demo.basic.model.mock.Color;
 public class DemoInherit {
 
     /**
-     * call method overridden by sub class via parent class variable
+     * call method overridden by subclass via parent class variable
      */
     public Box putIntoBox() {
         Box box = new BlackBox("");
@@ -20,7 +20,7 @@ public class DemoInherit {
     }
 
     /**
-     * call method overridden by sub class via sub class variable
+     * call method overridden by subclass via subclass variable
      */
     public BlackBox putIntoBlackBox() {
         BlackBox box = new BlackBox("");
@@ -37,7 +37,7 @@ public class DemoInherit {
     }
 
     /**
-     * call method defined in parent class via sub class variable
+     * call method defined in parent class via subclass variable
      */
     public String getFromBlackBox() {
         BlackBox box = new BlackBox("data");
@@ -53,7 +53,7 @@ public class DemoInherit {
     }
 
     /**
-     * call method defined in interface via sub class variable
+     * call method defined in interface via subclass variable
      */
     public String getColorViaBox() {
         BlackBox box = new BlackBox("");
@@ -61,7 +61,7 @@ public class DemoInherit {
     }
 
     /**
-     * call method defined in interface via sub class variable
+     * call method defined in interface via subclass variable
      */
     public String getColorIdxViaColor() {
         Color color = new BlackBox("");
