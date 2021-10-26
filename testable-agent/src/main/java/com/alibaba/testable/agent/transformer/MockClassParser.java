@@ -75,6 +75,12 @@ public class MockClassParser {
                 mns.addAll(getAllMethods(scn));
             }
         }
+        for(String interfaceClass : cn.interfaces) {
+            ClassNode scn = ClassUtil.getClassNode(interfaceClass);
+            if (scn != null) {
+                mns.addAll(getAllMethods(scn));
+            }
+        }
         for (InnerClassNode innerClass : cn.innerClasses) {
             if (innerClass.name.equals(cn.name + KOTLIN_POSTFIX_COMPANION)) {
                 ClassNode scn = ClassUtil.getClassNode(innerClass.name);

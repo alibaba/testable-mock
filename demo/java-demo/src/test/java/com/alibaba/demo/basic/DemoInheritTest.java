@@ -47,6 +47,11 @@ class DemoInheritTest {
         private String get_color_from_blackbox(BlackBox self) {
         return "color_from_blackbox";
     }
+
+        @MockMethod(targetMethod = "getColorIndex")
+        private String get_colorIdx_from_color(Color self) {
+            return "colorIdx_from_color";
+        }
     }
 
     @Test
@@ -91,4 +96,10 @@ class DemoInheritTest {
         assertEquals("color_from_blackbox", color);
     }
 
+    @Test
+    void should_mock_call_interface_method_by_sub_interface_object() {
+        String colorIdx = demoInherit.getColorIdxViaColor();
+        verify("get_colorIdx_from_color").withTimes(1);
+        assertEquals("colorIdx_from_color", colorIdx);
+    }
 }

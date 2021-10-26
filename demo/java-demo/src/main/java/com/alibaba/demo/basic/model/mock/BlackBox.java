@@ -20,4 +20,8 @@ public class BlackBox extends Box implements Color {
         return "black";
     }
 
+    @Override
+    public String getColorIndex() {
+        return "idx";
+    }
 }
