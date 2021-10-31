@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * @author zcbbpo
  */
 public class LambdaDemoTest {
-    private LambdaDemo lambdaDemo = new LambdaDemo();
+    private final LambdaDemo lambdaDemo = new LambdaDemo();
 
     @SuppressWarnings("unused")
     @MockDiagnose(LogLevel.VERBOSE)

@@ -369,6 +369,7 @@ public class SourceClassHandler extends BaseClassHandler {
 
         // process for method reference
         for (Handle handle : invokeDynamicList) {
+            // the jdk auto generation method
             if (handle.getName().startsWith("lambda$")) {
                 continue;
             }
@@ -379,7 +380,15 @@ public class SourceClassHandler extends BaseClassHandler {
                 // lambda new method reference
                 continue;
             }
-            boolean isStatic = tag == Opcodes.H_INVOKESTATIC;
+
+            // external mean:
+            // public void foo() {
+            //        String s = "";
+            //        consumes(s::contains);
+            //}
+            boolean external = tag == Opcodes.H_INVOKEVIRTUAL;
+
+            boolean isStatic = tag == Opcodes.H_INVOKESTATIC || external;
 
             String desc = handle.getDesc();
             String parameters = desc.substring(desc.indexOf("(") + 1, desc.lastIndexOf(")"));
@@ -391,8 +400,15 @@ public class SourceClassHandler extends BaseClassHandler {
                     len--;
                 }
             }
+
+            len = external ? len + 1 : len;
+
             String[] refineParameterArray = new String[len];
-            int index = 0;
+            int index = external ? 1 : 0;
+            if (external) {
+                // The type should was reference type
+                refineParameterArray[0] = "L" + handle.getOwner();
+            }
             for (String s : parameterArray) {
                 if (!s.isEmpty()) {
                     refineParameterArray[index] = s;
@@ -400,14 +416,16 @@ public class SourceClassHandler extends BaseClassHandler {
                 }
             }
 
+            String externalDesc = buildDesc(refineParameterArray, returnType);
+
             String lambdaName = String.format("Lambda$_%s_%d", handle.getName(), atomicInteger.incrementAndGet());
-            MethodVisitor mv = cn.visitMethod(isStatic ? ACC_PUBLIC + ACC_STATIC : ACC_PUBLIC, lambdaName, desc, null, null);
-
-
+            MethodVisitor mv = cn.visitMethod(isStatic ? ACC_PUBLIC + ACC_STATIC : ACC_PUBLIC, lambdaName, external ? externalDesc : desc, null, null);
             mv.visitCode();
+
             Label l0 = new Label();
             mv.visitLabel(l0);
             if (!isStatic) {
+                // add this
                 mv.visitVarInsn(ALOAD, 0);
             }
             for (int i = 0; i < refineParameterArray.length; i++) {
@@ -415,19 +433,19 @@ public class SourceClassHandler extends BaseClassHandler {
                 mv.visitVarInsn(getLoadType(arg), isStatic ? i : i + 1);
             }
 
-            mv.visitMethodInsn(isStatic ? INVOKESTATIC : INVOKEVIRTUAL/*INVOKESPECIAL*/, handle.getOwner(), handle.getName(), desc, false);
+            mv.visitMethodInsn(isStatic ? INVOKESTATIC : INVOKEVIRTUAL, handle.getOwner(), handle.getName(), desc, false);
 
             mv.visitInsn(getReturnType(returnType));
 
             Label l1 = new Label();
             mv.visitLabel(l1);
 
-            String localVarOwner = handle.getOwner();
-
+            // static function was not required add this to first parameter
             if (isStatic) {
                 for (int i = 0; i < refineParameterArray.length; i++) {
                     String localVar = refineParameterArray[i];
                     if (!isPrimitive(localVar)) {
+                        // primitive type and reference type difference
                         localVar = localVar.endsWith(";") ? localVar : localVar + ";";
                     }
 
@@ -435,10 +453,11 @@ public class SourceClassHandler extends BaseClassHandler {
                         continue;
                     }
 
+                    // add local var
                     mv.visitLocalVariable(String.format("o%d", i), localVar, null, l0, l1, i);
                 }
             } else {
-                mv.visitLocalVariable("this", "L" + localVarOwner + ";", null, l0, l1, 0);
+                mv.visitLocalVariable("this", "L" + handle.getOwner() + ";", null, l0, l1, 0);
                 for (int i = 0; i < refineParameterArray.length; i++) {
                     String localVar = refineParameterArray[i];
                     if (!isPrimitive(localVar) && !isPrimitiveArray(localVar)) {
@@ -456,13 +475,34 @@ public class SourceClassHandler extends BaseClassHandler {
             mv.visitEnd();
 
             try {
+                // modify handle to the generation method
                 setFinalValue(handle.getClass().getDeclaredField("name"), handle, lambdaName);
+                // mark: should merge the below two if.
                 if (!handle.getOwner().equals(cn.name) && isStatic) {
                     setFinalValue(handle.getClass().getDeclaredField("owner"), handle, cn.name);
+                }
+                if (external) {
+                    setFinalValue(handle.getClass().getDeclaredField("owner"), handle, cn.name);
+                    setFinalValue(handle.getClass().getDeclaredField("descriptor"), handle, externalDesc);
+                    setFinalValue(handle.getClass().getDeclaredField("tag"), handle, H_INVOKESTATIC);
                 }
             } catch (Exception ignore) {
             }
         }
+    }
+
+    private String buildDesc(String[] refineParameterArray, String returnType) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("(");
+        for (String s : refineParameterArray) {
+            sb.append(s);
+            if (!isPrimitive(s)) {
+                sb.append(";");
+            }
+        }
+        sb.append(")");
+        sb.append(returnType);
+        return sb.toString();
     }
 
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
