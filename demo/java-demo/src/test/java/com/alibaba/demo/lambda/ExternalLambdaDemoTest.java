@@ -1,8 +1,6 @@
 package com.alibaba.demo.lambda;
 
-import com.alibaba.testable.core.annotation.MockDiagnose;
 import com.alibaba.testable.core.annotation.MockMethod;
-import com.alibaba.testable.core.model.LogLevel;
 import org.junit.jupiter.api.Test;
 
 import static com.alibaba.testable.core.matcher.InvokeVerifier.verify;
@@ -14,7 +12,6 @@ public class ExternalLambdaDemoTest {
     private final ExternalLambdaDemo lambdaDemo = new ExternalLambdaDemo();
 
     @SuppressWarnings("unused")
-    @MockDiagnose(LogLevel.VERBOSE)
     public static class Mock {
 
         @MockMethod(targetClass = String.class, targetMethod = "contains")
