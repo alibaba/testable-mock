@@ -1,7 +1,11 @@
 # Release Note
 
+## 0.6.10
+- 支持Mock通过方法引用执行的调用（issue-233 / pr-234）
+- 支持Mock基类接口中的方法（pr-231）
+
 ## 0.6.9
-- 支持Lambda方法中的调用和方法引用（issue-36）
+- 支持Mock匿名方法体内部的方法调用（issue-36 / pr-208）
 - 修复`PrivateAccessor.invoke()`调用参数为`null`时的空指针异常（issue-226）
 
 ## 0.6.8

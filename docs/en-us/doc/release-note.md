@@ -1,7 +1,11 @@
 # Release Note
 
+## 0.6.10
+- support mock invocation via function reference
+- support mock method defined in a base interface
+
 ## 0.6.9
-- support mock invocation in lambda method or via function reference
+- support mock invocation in lambda method
 - fix a `NullPointerException` issue when `PrivateAccessor.invoke()` has `null` parameter
 
 ## 0.6.8
