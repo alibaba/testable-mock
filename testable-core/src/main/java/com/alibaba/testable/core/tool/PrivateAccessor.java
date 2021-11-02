@@ -189,13 +189,13 @@ public class PrivateAccessor {
         } catch (IllegalAccessException e) {
             throw new MemberAccessException("Failed to access private method \"" + method + "\"", e);
         } catch (NoSuchFieldException e) {
-            throw new MemberAccessException("Private method \"" + method + "\" not exist");
+            throw new MemberAccessException("Private method \"" + method + "\" not exist", e);
         } catch (InvocationTargetException e) {
             if (e.getTargetException() instanceof RuntimeException) {
                 throw (RuntimeException)e.getTargetException();
             }
             throw new MemberAccessException("Invoke private method \"" + method + "\" failed with exception", e);
         }
-        throw new MemberAccessException("Private method \"" + method + "\" not exist");
+        throw new MemberAccessException("Private method \"" + method + "\" not found");
     }
 }

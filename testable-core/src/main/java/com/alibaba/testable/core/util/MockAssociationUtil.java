@@ -1,5 +1,6 @@
 package com.alibaba.testable.core.util;
 
+import com.alibaba.testable.core.exception.MemberAccessException;
 import com.alibaba.testable.core.model.MockContext;
 
 import java.util.HashSet;
@@ -69,7 +70,14 @@ public class MockAssociationUtil {
         if (originMethod.equals(CONSTRUCTOR)) {
             return construct(originClass, args);
         } else if (args[0] == null) {
-            return invokeStatic(originClass, originMethod, CollectionUtil.slice(args, 1));
+            try {
+                return invokeStatic(originClass, originMethod, CollectionUtil.slice(args, 1));
+            } catch (RuntimeException e) {
+                if (e instanceof MemberAccessException && e.getCause() instanceof NoSuchFieldException) {
+                    throw new NullPointerException("Invoking method \"" + originMethod + "\" of null object");
+                }
+                throw e;
+            }
         } else {
             return invoke(args[0], originMethod, CollectionUtil.slice(args, 1));
         }

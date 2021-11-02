@@ -139,7 +139,7 @@ public class SourceClassHandler extends BaseClassHandler {
         for (MethodInfo m : memberInjectMethods) {
             String nodeOwner = ClassUtil.fitCompanionClassName(node.owner);
             String nodeName = ClassUtil.fitKotlinAccessorName(node.name);
-            // Kotlin accessor method will append a extra type parameter
+            // Kotlin accessor method will append an extra type parameter
             String nodeDesc = nodeName.equals(node.name) ? node.desc : MethodUtil.removeFirstParameter(node.desc);
             if (m.getClazz().equals(nodeOwner) && m.getName().equals(nodeName) && m.getDesc().equals(nodeDesc)) {
                 return m;
