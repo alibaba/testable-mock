@@ -3,7 +3,7 @@ Mock线程池内的调用
 
 `TestableMock`采用来自[transmittable-thread-local](https://github.com/alibaba/transmittable-thread-local)项目的`TransmittableThreadLocal`类型存储测试用例运行期的`MOCK_CONTEXT`内容和Mock方法调用过程。
 
-当线程池中的执行对象未经过`TtlRunnable`或`TtlCallable`处理时，`TransmittableThreadLocal`将自动降级为与`InheritableThreadLocal`等效的类型，即只对父子线程有效，无法在线程池上下文中正常传递存储数据。因而会导致`MOCK_CONTEXT`内容丢失和`verify()`方法校验结果不正确的情况。
+当线程池中的执行对象未经过`TtlRunnable`或`TtlCallable`处理时，`TransmittableThreadLocal`将自动降级为与`InheritableThreadLocal`等效的类型，即只对父子线程有效，无法在线程池上下文中正常传递存储数据。因而会导致`MOCK_CONTEXT`内容丢失和`verifyInvoked()`方法校验结果不正确的情况。
 
 为此，可以启用[Testable全局配置](zh-cn/doc/javaagent-args.md)`thread.pool.enhance.enable=true`，来自动在测试启动时自动封装程序中的普通`Runnable`和`Callable`对象，使`TransmittableThreadLocal`恢复跨线程池存储数据的能力。
 

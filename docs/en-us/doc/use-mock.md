@@ -163,7 +163,7 @@ For complete code examples, see the `should_get_source_method_name()` and `shoul
 
 ### 3. Verify the sequence and parameters of the mock method being invoked
 
-In test cases, you can use the `InvokeVerifier.verify()` method, and cooperate with `with()`, `withInOrder()`, `without()`, `withTimes()` and other methods to verify the mock call situation.
+In test cases, you can use the `InvocationVerifier.verifyInvoked()` method, and cooperate with `with()`, `withInOrder()`, `without()`, `withTimes()` and other methods to verify the mock call situation.
 
 For details, please refer to the [Check Mock Call](en-us/doc/matcher.md) document.
 

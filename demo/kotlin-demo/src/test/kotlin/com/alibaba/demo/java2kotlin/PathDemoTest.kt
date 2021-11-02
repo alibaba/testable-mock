@@ -1,7 +1,7 @@
 package com.alibaba.demo.java2kotlin
 
 import com.alibaba.testable.core.annotation.MockMethod
-import com.alibaba.testable.core.matcher.InvokeVerifier.verify
+import com.alibaba.testable.core.matcher.InvocationVerifier.verifyInvoked
 import org.junit.jupiter.api.Test
 import java.io.File
 
@@ -43,8 +43,8 @@ class PathDemoTest {
     @Test
     fun should_mock_java_method_invoke_in_kotlin() {
         PathDemo.deleteRecursively(File("/a/b/"))
-        verify("listFiles").withTimes(2)
-        verify("delete").withTimes(4)
+        verifyInvoked("listFiles").withTimes(2)
+        verifyInvoked("delete").withTimes(4)
     }
 
 }

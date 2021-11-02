@@ -9,7 +9,7 @@ import org.junit.Test;
 
 import java.util.concurrent.Executors;
 
-import static com.alibaba.testable.core.matcher.InvokeVerifier.verify;
+import static com.alibaba.testable.core.matcher.InvocationVerifier.verifyInvoked;
 import static com.alibaba.testable.core.tool.TestableTool.MOCK_CONTEXT;
 import static com.alibaba.testable.core.tool.TestableTool.SOURCE_METHOD;
 import static org.junit.Assert.assertEquals;
@@ -75,28 +75,28 @@ public class DemoBasicTest {
     @Test
     public void should_mock_new_object() {
         assertEquals("mock_something", demoBasic.newFunc());
-        verify("createBlackBox").with("something");
+        verifyInvoked("createBlackBox").with("something");
     }
 
     @Test
     public void should_mock_member_method() throws Exception {
         assertEquals("{ \"res\": \"mock_hello_MOCK_TAIL\"}", demoBasic.outerFunc("hello"));
-        verify("innerFunc").with("hello");
-        verify("staticFunc").with();
+        verifyInvoked("innerFunc").with("hello");
+        verifyInvoked("staticFunc").with();
     }
 
     @Test
     public void should_mock_common_method() {
         assertEquals("trim_string__sub_string__false", demoBasic.commonFunc());
-        verify("trim").withTimes(1);
-        verify("sub").withTimes(1);
-        verify("startsWith").withTimes(1);
+        verifyInvoked("trim").withTimes(1);
+        verifyInvoked("sub").withTimes(1);
+        verifyInvoked("startsWith").withTimes(1);
     }
 
     @Test
     public void should_mock_static_method() {
         assertEquals("not_secret_box", demoBasic.getBox().get());
-        verify("secretBox").withTimes(1);
+        verifyInvoked("secretBox").withTimes(1);
     }
 
     @Test
@@ -106,7 +106,7 @@ public class DemoBasicTest {
         // asynchronous
         assertEquals("mock_one_mock_others",
             Executors.newSingleThreadExecutor().submit(() -> demoBasic.callerOne() + "_" + demoBasic.callerTwo()).get());
-        verify("callFromDifferentMethod").withTimes(4);
+        verifyInvoked("callFromDifferentMethod").withTimes(4);
     }
 
     @Test
@@ -116,7 +116,7 @@ public class DemoBasicTest {
         assertEquals("mock_special", demoBasic.callerOne());
         // asynchronous
         assertEquals("mock_special", Executors.newSingleThreadExecutor().submit(() -> demoBasic.callerOne()).get());
-        verify("callFromDifferentMethod").withTimes(2);
+        verifyInvoked("callFromDifferentMethod").withTimes(2);
     }
 
 }

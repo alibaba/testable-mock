@@ -9,7 +9,7 @@
 @Test
 public test_case() {
     int res = insToTest.methodToTest();
-    verify("mockMethod").with(123, "abc");
+    verifyInvoked("mockMethod").with(123, "abc");
 }
 ```
 

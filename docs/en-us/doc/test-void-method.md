@@ -70,7 +70,7 @@ class Demo {
 
 To test this method, you can use `TestableMock` to quickly mock out the `System.out.println` method. In the mock method body, you can simply call the original method (equivalent to not affecting the original method function, only used for call recording), or leave it blank (equivalent to removing the side effects of the original method).
 
-After executing the void type method under test, use `InvokeVerifier.verify()` to verify whether the incoming print content meets expectations:
+After executing the void type method under test, use `InvocationVerifier.verifyInvoked()` to verify whether the incoming print content meets expectations:
 
 ```java
 class DemoTest {
@@ -90,7 +90,7 @@ class DemoTest {
         Action action = new Action("click", ":download");
         demo.recordAction();
         // Verify mock method `println` is invoked, and passing parameters in line with expectations 
-        verify("println").with(matches("\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2} \\[click\\] :download"));
+        verifyInvoked("println").with(matches("\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2} \\[click\\] :download"));
     }
 }
 ```

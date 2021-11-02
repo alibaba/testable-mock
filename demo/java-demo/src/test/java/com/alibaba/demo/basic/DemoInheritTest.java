@@ -6,7 +6,7 @@ import com.alibaba.demo.basic.model.mock.Color;
 import com.alibaba.testable.core.annotation.MockMethod;
 import org.junit.jupiter.api.Test;
 
-import static com.alibaba.testable.core.matcher.InvokeVerifier.verify;
+import static com.alibaba.testable.core.matcher.InvocationVerifier.verifyInvoked;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
@@ -57,49 +57,49 @@ class DemoInheritTest {
     @Test
     void should_mock_call_sub_object_method_by_parent_object() {
         BlackBox box = (BlackBox)demoInherit.putIntoBox();
-        verify("put_into_box").withTimes(1);
+        verifyInvoked("put_into_box").withTimes(1);
         assertEquals("put_data_into_box", box.get());
     }
 
     @Test
     void should_mock_call_sub_object_method_by_sub_object() {
         BlackBox box = demoInherit.putIntoBlackBox();
-        verify("put_into_blackbox").withTimes(1);
+        verifyInvoked("put_into_blackbox").withTimes(1);
         assertEquals("put_data_into_blackbox", box.get());
     }
 
     @Test
     void should_mock_call_parent_object_method_by_parent_object() {
         String content = demoInherit.getFromBox();
-        verify("get_from_box").withTimes(1);
+        verifyInvoked("get_from_box").withTimes(1);
         assertEquals("get_from_box", content);
     }
 
     @Test
     void should_mock_call_parent_object_method_by_sub_object() {
         String content = demoInherit.getFromBlackBox();
-        verify("get_from_blackbox").withTimes(1);
+        verifyInvoked("get_from_blackbox").withTimes(1);
         assertEquals("get_from_blackbox", content);
     }
 
     @Test
     void should_mock_call_interface_method_by_interface_object() {
         String color = demoInherit.getColorViaColor();
-        verify("get_color_from_color").withTimes(1);
+        verifyInvoked("get_color_from_color").withTimes(1);
         assertEquals("color_from_color", color);
     }
 
     @Test
     void should_mock_call_interface_method_by_sub_class_object() {
         String color = demoInherit.getColorViaBox();
-        verify("get_color_from_blackbox").withTimes(1);
+        verifyInvoked("get_color_from_blackbox").withTimes(1);
         assertEquals("color_from_blackbox", color);
     }
 
     @Test
     void should_mock_call_interface_method_by_sub_interface_object() {
         String colorIdx = demoInherit.getColorIdxViaColor();
-        verify("get_colorIdx_from_color").withTimes(1);
+        verifyInvoked("get_colorIdx_from_color").withTimes(1);
         assertEquals("colorIdx_from_color", colorIdx);
     }
 }

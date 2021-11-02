@@ -10,19 +10,19 @@ import java.util.Set;
 /**
  * @author flin
  */
-public class InvokeMatcher {
+public class InvocationMatcher {
 
     public MatchFunction matchFunction;
 
-    private InvokeMatcher(MatchFunction matchFunction) {
+    private InvocationMatcher(MatchFunction matchFunction) {
         this.matchFunction = matchFunction;
     }
 
-    public static InvokeMatcher any(MatchFunction matcher) {
-        return new InvokeMatcher(matcher);
+    public static InvocationMatcher any(MatchFunction matcher) {
+        return new InvocationMatcher(matcher);
     }
 
-    public static InvokeMatcher any() {
+    public static InvocationMatcher any() {
         return any(new MatchFunction() {
             @Override
             public boolean check(Object value) {
@@ -31,47 +31,47 @@ public class InvokeMatcher {
         });
     }
 
-    public static InvokeMatcher anyString() {
+    public static InvocationMatcher anyString() {
         return any(String.class);
     }
 
-    public static InvokeMatcher anyNumber() {
+    public static InvocationMatcher anyNumber() {
         return anyTypeOf(Short.class, Integer.class, Long.class, Float.class, Double.class);
     }
 
-    public static InvokeMatcher anyBoolean() {
+    public static InvocationMatcher anyBoolean() {
         return any(Boolean.class);
     }
 
-    public static InvokeMatcher anyByte() {
+    public static InvocationMatcher anyByte() {
         return any(Byte.class);
     }
 
-    public static InvokeMatcher anyChar() {
+    public static InvocationMatcher anyChar() {
         return any(Character.class);
     }
 
-    public static InvokeMatcher anyInt() {
+    public static InvocationMatcher anyInt() {
         return any(Integer.class);
     }
 
-    public static InvokeMatcher anyLong() {
+    public static InvocationMatcher anyLong() {
         return any(Long.class);
     }
 
-    public static InvokeMatcher anyFloat() {
+    public static InvocationMatcher anyFloat() {
         return any(Float.class);
     }
 
-    public static InvokeMatcher anyDouble() {
+    public static InvocationMatcher anyDouble() {
         return any(Double.class);
     }
 
-    public static InvokeMatcher anyShort() {
+    public static InvocationMatcher anyShort() {
         return any(Short.class);
     }
 
-    public static InvokeMatcher anyArray() {
+    public static InvocationMatcher anyArray() {
         return any(new MatchFunction() {
             @Override
             public boolean check(Object value) {
@@ -81,7 +81,7 @@ public class InvokeMatcher {
         });
     }
 
-    public static InvokeMatcher anyArrayOf(final Class<?> clazz) {
+    public static InvocationMatcher anyArrayOf(final Class<?> clazz) {
         return any(new MatchFunction() {
             @Override
             public boolean check(Object value) {
@@ -92,47 +92,47 @@ public class InvokeMatcher {
         });
     }
 
-    public static InvokeMatcher anyList() {
+    public static InvocationMatcher anyList() {
         return any(List.class);
     }
 
-    public static InvokeMatcher anyListOf(final Class<?> clazz) {
+    public static InvocationMatcher anyListOf(final Class<?> clazz) {
         return anyClassWithCollectionOf(List.class, clazz);
     }
 
-    public static InvokeMatcher anySet() {
+    public static InvocationMatcher anySet() {
         return any(Set.class);
     }
 
-    public static InvokeMatcher anySetOf(final Class<?> clazz) {
+    public static InvocationMatcher anySetOf(final Class<?> clazz) {
         return anyClassWithCollectionOf(Set.class, clazz);
     }
 
-    public static InvokeMatcher anyMap() {
+    public static InvocationMatcher anyMap() {
         return any(Map.class);
     }
 
-    public static InvokeMatcher anyMapOf(final Class<?> keyClass, final Class<?> valueClass) {
+    public static InvocationMatcher anyMapOf(final Class<?> keyClass, final Class<?> valueClass) {
         return anyClassWithMapOf(keyClass, valueClass);
     }
 
-    public static InvokeMatcher anyCollection() {
+    public static InvocationMatcher anyCollection() {
         return any(Collection.class);
     }
 
-    public static InvokeMatcher anyCollectionOf(final Class<?> clazz) {
+    public static InvocationMatcher anyCollectionOf(final Class<?> clazz) {
         return anyClassWithCollectionOf(Collection.class, clazz);
     }
 
-    public static InvokeMatcher anyIterable() {
+    public static InvocationMatcher anyIterable() {
         return any(Iterable.class);
     }
 
-    public static InvokeMatcher anyIterableOf(final Class<?> clazz) {
+    public static InvocationMatcher anyIterableOf(final Class<?> clazz) {
         return anyClassWithCollectionOf(Iterable.class, clazz);
     }
 
-    public static InvokeMatcher any(final Class<?> clazz) {
+    public static InvocationMatcher any(final Class<?> clazz) {
         return any(new MatchFunction() {
             @Override
             public boolean check(Object value) {
@@ -141,7 +141,7 @@ public class InvokeMatcher {
         });
     }
 
-    public static InvokeMatcher anyTypeOf(final Class<?>... classes) {
+    public static InvocationMatcher anyTypeOf(final Class<?>... classes) {
         return any(new MatchFunction() {
             @Override
             public boolean check(Object value) {
@@ -158,7 +158,7 @@ public class InvokeMatcher {
         });
     }
 
-    public static InvokeMatcher eq(final Object obj) {
+    public static InvocationMatcher eq(final Object obj) {
         return any(new MatchFunction() {
             @Override
             public boolean check(Object value) {
@@ -167,7 +167,7 @@ public class InvokeMatcher {
         });
     }
 
-    public static InvokeMatcher refEq(final Object obj) {
+    public static InvocationMatcher refEq(final Object obj) {
         return any(new MatchFunction() {
             @Override
             public boolean check(Object value) {
@@ -176,7 +176,7 @@ public class InvokeMatcher {
         });
     }
 
-    public static InvokeMatcher isNull() {
+    public static InvocationMatcher isNull() {
         return any(new MatchFunction() {
             @Override
             public boolean check(Object value) {
@@ -185,7 +185,7 @@ public class InvokeMatcher {
         });
     }
 
-    public static InvokeMatcher notNull() {
+    public static InvocationMatcher notNull() {
         return any(new MatchFunction() {
             @Override
             public boolean check(Object value) {
@@ -194,7 +194,7 @@ public class InvokeMatcher {
         });
     }
 
-    public static InvokeMatcher nullable(final Class<?> clazz) {
+    public static InvocationMatcher nullable(final Class<?> clazz) {
         return any(new MatchFunction() {
             @Override
             public boolean check(Object value) {
@@ -203,7 +203,7 @@ public class InvokeMatcher {
         });
     }
 
-    public static InvokeMatcher contains(final String substring) {
+    public static InvocationMatcher contains(final String substring) {
         return any(new MatchFunction() {
             @Override
             public boolean check(Object value) {
@@ -212,7 +212,7 @@ public class InvokeMatcher {
         });
     }
 
-    public static InvokeMatcher matches(final String regex) {
+    public static InvocationMatcher matches(final String regex) {
         return any(new MatchFunction() {
             @Override
             public boolean check(Object value) {
@@ -221,7 +221,7 @@ public class InvokeMatcher {
         });
     }
 
-    public static InvokeMatcher endsWith(final String suffix) {
+    public static InvocationMatcher endsWith(final String suffix) {
         return any(new MatchFunction() {
             @Override
             public boolean check(Object value) {
@@ -230,7 +230,7 @@ public class InvokeMatcher {
         });
     }
 
-    public static InvokeMatcher startsWith(final String prefix) {
+    public static InvocationMatcher startsWith(final String prefix) {
         return any(new MatchFunction() {
             @Override
             public boolean check(Object value) {
@@ -239,7 +239,7 @@ public class InvokeMatcher {
         });
     }
 
-    private static InvokeMatcher anyClassWithCollectionOf(final Class<?> collectionClass, final Class<?> clazz) {
+    private static InvocationMatcher anyClassWithCollectionOf(final Class<?> collectionClass, final Class<?> clazz) {
         return any(new MatchFunction() {
             @Override
             public boolean check(Object value) {
@@ -250,7 +250,7 @@ public class InvokeMatcher {
         });
     }
 
-    private static InvokeMatcher anyClassWithMapOf(final Class<?> keyClass, final Class<?> valueClass) {
+    private static InvocationMatcher anyClassWithMapOf(final Class<?> keyClass, final Class<?> valueClass) {
         return any(new MatchFunction() {
             @Override
             public boolean check(Object value) {

@@ -11,12 +11,12 @@ import java.util.List;
 /**
  * @author flin
  */
-public class InvokeVerifier {
+public class InvocationVerifier {
 
     private final List<Object[]> records;
     private Verification lastVerification = null;
 
-    private InvokeVerifier(List<Object[]> records) {
+    private InvocationVerifier(List<Object[]> records) {
         this.records = records;
     }
 
@@ -25,8 +25,8 @@ public class InvokeVerifier {
      * @param mockMethodName name of a mock method
      * @return the verifier object
      */
-    public static InvokeVerifier verify(String mockMethodName) {
-        return new InvokeVerifier(MockContextUtil.context.get().invokeRecord.get(mockMethodName));
+    public static InvocationVerifier verifyInvoked(String mockMethodName) {
+        return new InvocationVerifier(MockContextUtil.context.get().invokeRecord.get(mockMethodName));
     }
 
     /**
@@ -34,7 +34,7 @@ public class InvokeVerifier {
      * @param args parameters to compare
      * @return the verifier object
      */
-    public InvokeVerifier with(Object... args) {
+    public InvocationVerifier with(Object... args) {
         boolean found = false;
         for (int i = 0; i < records.size(); i++) {
             try {
@@ -57,7 +57,7 @@ public class InvokeVerifier {
      * @param args parameters to compare
      * @return the verifier object
      */
-    public InvokeVerifier withInOrder(Object... args) {
+    public InvocationVerifier withInOrder(Object... args) {
         withInternal(args, 0);
         lastVerification = new Verification(args, true);
         return this;
@@ -68,7 +68,7 @@ public class InvokeVerifier {
      * @param args parameters to compare
      * @return the verifier object
      */
-    public InvokeVerifier without(Object... args) {
+    public InvocationVerifier without(Object... args) {
         for (Object[] r : records) {
             if (r.length == args.length) {
                 for (int i = 0; i < r.length; i++) {
@@ -90,7 +90,7 @@ public class InvokeVerifier {
      * @param expectedCount times to compare
      * @return the verifier object
      */
-    public InvokeVerifier withTimes(int expectedCount) {
+    public InvocationVerifier withTimes(int expectedCount) {
         if (expectedCount != records.size()) {
             throw new VerifyFailedError("times: " + expectedCount, "times: " + records.size());
         }
@@ -103,7 +103,7 @@ public class InvokeVerifier {
      * @param count number of invocations
      * @return the verifier object
      */
-    public InvokeVerifier times(int count) {
+    public InvocationVerifier times(int count) {
         if (lastVerification == null) {
             // when used independently, equals to `withTimes()`
             System.out.println("Warning: [" + TestableUtil.previousStackLocation() + "] using \"times()\" method "
@@ -133,7 +133,7 @@ public class InvokeVerifier {
             throw new VerifyFailedError(desc(args), desc(record));
         }
         for (int i = 0; i < args.length; i++) {
-            if (!(args[i] instanceof InvokeMatcher || args[i].getClass().equals(record[i].getClass()))) {
+            if (!(args[i] instanceof InvocationMatcher || args[i].getClass().equals(record[i].getClass()))) {
                 throw new VerifyFailedError("parameter " + (i + 1) + " type mismatch",
                     ": " + args[i].getClass(), ": " + record[i].getClass());
             }
@@ -145,8 +145,8 @@ public class InvokeVerifier {
     }
 
     private boolean matches(Object expectValue, Object realValue) {
-        return expectValue instanceof InvokeMatcher ?
-                ((InvokeMatcher) expectValue).matchFunction.check(realValue) :
+        return expectValue instanceof InvocationMatcher ?
+                ((InvocationMatcher) expectValue).matchFunction.check(realValue) :
                 expectValue.equals(realValue);
     }
 

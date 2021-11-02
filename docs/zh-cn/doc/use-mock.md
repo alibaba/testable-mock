@@ -163,7 +163,7 @@ private Data mockDemo() {
 
 ### 3. 验证Mock方法被调用的顺序和参数
 
-在测试用例中可用通过`InvokeVerifier.verify()`方法，配合`with()`、`withInOrder()`、`without()`、`withTimes()`等方法实现对Mock调用情况的验证。
+在测试用例中可用通过`InvocationVerifier.verifyInvoked()`方法，配合`with()`、`withInOrder()`、`without()`、`withTimes()`等方法实现对Mock调用情况的验证。
 
 详见[校验Mock调用](zh-cn/doc/matcher.md)文档。
 

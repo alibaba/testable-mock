@@ -3,7 +3,7 @@ package com.alibaba.demo.lambda;
 import com.alibaba.testable.core.annotation.MockMethod;
 import org.junit.jupiter.api.Test;
 
-import static com.alibaba.testable.core.matcher.InvokeVerifier.verify;
+import static com.alibaba.testable.core.matcher.InvocationVerifier.verifyInvoked;
 
 /**
  * @author zcbbpo
@@ -44,37 +44,37 @@ public class ExternalLambdaDemoTest {
     @Test
     public void shouldMockString1() {
         lambdaDemo.string1();
-        verify("mockContains").withTimes(1);
+        verifyInvoked("mockContains").withTimes(1);
     }
 
     @Test
     public void shouldMockByte1() {
         lambdaDemo.byte1();
-        verify("mockFloatValue").withTimes(1);
+        verifyInvoked("mockFloatValue").withTimes(1);
     }
 
     @Test
     public void shouldMockDouble2() {
         lambdaDemo.double2();
-        verify("mockCompareTo").withTimes(1);
+        verifyInvoked("mockCompareTo").withTimes(1);
     }
 
     @Test
     public void testMul() {
         lambdaDemo.mul();
-        verify("mockContains").withTimes(2);
+        verifyInvoked("mockContains").withTimes(2);
     }
 
     @Test
     public void testExternalClass() {
         lambdaDemo.externalClass();
-        verify("mockMethodReference0").withTimes(1);
+        verifyInvoked("mockMethodReference0").withTimes(1);
     }
 
     @Test
     public void testFunction3() {
         lambdaDemo.function3();
-        verify("mockF3").withTimes(1);
+        verifyInvoked("mockF3").withTimes(1);
     }
 
 }

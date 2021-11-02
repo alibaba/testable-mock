@@ -71,7 +71,7 @@ class Demo {
 
 若要测试此方法，可以利用`TestableMock`快速Mock掉`System.out.println`方法。在Mock方法体里可以继续执行原调用（相当于并不影响本来方法功能，仅用于做调用记录），也可以直接留空（相当于去除了原方法的副作用）。
 
-在执行完被测的void类型方法以后，用`InvokeVerifier.verify()`校验传入的打印内容是否符合预期：
+在执行完被测的void类型方法以后，用`InvocationVerifier.verifyInvoked()`校验传入的打印内容是否符合预期：
 
 ```java
 class DemoTest {
@@ -91,7 +91,7 @@ class DemoTest {
         Action action = new Action("click", ":download");
         demo.recordAction();
         // 验证Mock方法println被调用，且传入参数格式符合预期
-        verify("println").with(matches("\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2} \\[click\\] :download"));
+        verifyInvoked("println").with(matches("\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2} \\[click\\] :download"));
     }
 }
 ```

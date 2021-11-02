@@ -4,7 +4,7 @@ import com.alibaba.testable.core.annotation.MockWith;
 import org.junit.jupiter.api.Test;
 
 
-import static com.alibaba.testable.core.matcher.InvokeVerifier.verify;
+import static com.alibaba.testable.core.matcher.InvocationVerifier.verifyInvoked;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @MockWith
@@ -19,9 +19,9 @@ public class OneToMultiSvcTest {
         assertEquals("a_mock", aSvc.demo("test"));
         assertEquals("b_mock", bSvc.demo("test"));
         assertEquals("c_mock", cSvc.demo("test"));
-        verify("a_format").withTimes(1);
-        verify("b_format").withTimes(1);
-        verify("c_format").withTimes(1);
+        verifyInvoked("a_format").withTimes(1);
+        verifyInvoked("b_format").withTimes(1);
+        verifyInvoked("c_format").withTimes(1);
     }
 
 }

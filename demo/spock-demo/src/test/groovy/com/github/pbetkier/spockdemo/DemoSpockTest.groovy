@@ -6,7 +6,7 @@ import com.github.pbetkier.spockdemo.model.SpockBox
 import spock.lang.Shared
 import spock.lang.Specification
 
-import static com.alibaba.testable.core.matcher.InvokeVerifier.verify;
+import static com.alibaba.testable.core.matcher.InvocationVerifier.verifyInvoked;
 
 class DemoSpockTest extends Specification {
 
@@ -37,8 +37,8 @@ class DemoSpockTest extends Specification {
         box.pop() == "mock 2"
         box.pop() == "mock 1"
         box.pop() == "mock zero"
-        verify("createBox").withTimes(1)
-        verify("putBox").withInOrder("1").withInOrder("2").withInOrder("3")
+        verifyInvoked("createBox").withTimes(1)
+        verifyInvoked("putBox").withInOrder("1").withInOrder("2").withInOrder("3")
     }
 
 }

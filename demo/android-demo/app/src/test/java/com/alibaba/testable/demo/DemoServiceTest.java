@@ -12,7 +12,7 @@ import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 
-import static com.alibaba.testable.core.matcher.InvokeVerifier.verify;
+import static com.alibaba.testable.core.matcher.InvocationVerifier.verifyInvoked;
 
 @RunWith(RobolectricTestRunner.class)
 @Config(sdk = 30)
@@ -38,10 +38,10 @@ public class DemoServiceTest {
 
         intent.setAction("start_foreground");
         demoService.onStartCommand(intent, 0, 1);
-        verify("log").with("DemoService", "start service.");
+        verifyInvoked("log").with("DemoService", "start service.");
 
         intent.setAction("stop_foreground");
         demoService.onStartCommand(intent, 0, 1);
-        verify("log").with("DemoService", "stop service.");
+        verifyInvoked("log").with("DemoService", "stop service.");
     }
 }

@@ -5,8 +5,8 @@ import com.alibaba.testable.core.annotation.MockMethod;
 import com.alibaba.testable.core.error.VerifyFailedError;
 import org.junit.jupiter.api.Test;
 
-import static com.alibaba.testable.core.matcher.InvokeMatcher.*;
-import static com.alibaba.testable.core.matcher.InvokeVerifier.verify;
+import static com.alibaba.testable.core.matcher.InvocationMatcher.*;
+import static com.alibaba.testable.core.matcher.InvocationVerifier.verifyInvoked;
 import static org.junit.jupiter.api.Assertions.fail;
 
 /**
@@ -31,49 +31,49 @@ class DemoMatcherTest {
     @Test
     void should_match_no_argument() {
         demoMatcher.callMethodWithoutArgument();
-        verify("methodWithoutArgument").withTimes(1);
+        verifyInvoked("methodWithoutArgument").withTimes(1);
         demoMatcher.callMethodWithoutArgument();
-        verify("methodWithoutArgument").withTimes(2);
+        verifyInvoked("methodWithoutArgument").withTimes(2);
     }
 
     @Test
     void should_match_number_arguments() {
         demoMatcher.callMethodWithNumberArguments();
-        verify("methodWithArguments").without(anyString(), 2);
-        verify("methodWithArguments").withInOrder(anyInt(), 2);
-        verify("methodWithArguments").withInOrder(anyLong(), anyNumber());
-        verify("methodWithArguments").with(1.0, anyMapOf(Integer.class, Float.class));
-        verify("methodWithArguments").with(anyList(), anySetOf(Float.class));
-        verify("methodWithArguments").with(anyList(), anyListOf(Float.class));
-        verify("methodWithArrayArgument").with(anyArrayOf(Long.class));
-        verify("methodWithArrayArgument").with(anyArray());
+        verifyInvoked("methodWithArguments").without(anyString(), 2);
+        verifyInvoked("methodWithArguments").withInOrder(anyInt(), 2);
+        verifyInvoked("methodWithArguments").withInOrder(anyLong(), anyNumber());
+        verifyInvoked("methodWithArguments").with(1.0, anyMapOf(Integer.class, Float.class));
+        verifyInvoked("methodWithArguments").with(anyList(), anySetOf(Float.class));
+        verifyInvoked("methodWithArguments").with(anyList(), anyListOf(Float.class));
+        verifyInvoked("methodWithArrayArgument").with(anyArrayOf(Long.class));
+        verifyInvoked("methodWithArrayArgument").with(anyArray());
     }
 
     @Test
     void should_match_string_arguments() {
         demoMatcher.callMethodWithStringArgument();
-        verify("methodWithArguments").with(startsWith("he"), endsWith("ld"));
-        verify("methodWithArguments").with(contains("stab"), matches("m.[cd]k"));
-        verify("methodWithArrayArgument").with(anyArrayOf(String.class));
+        verifyInvoked("methodWithArguments").with(startsWith("he"), endsWith("ld"));
+        verifyInvoked("methodWithArguments").with(contains("stab"), matches("m.[cd]k"));
+        verifyInvoked("methodWithArrayArgument").with(anyArrayOf(String.class));
     }
 
     @Test
     void should_match_object_arguments() {
         demoMatcher.callMethodWithObjectArgument();
-        verify("methodWithArguments").withInOrder(any(BlackBox.class), any(BlackBox.class));
-        verify("methodWithArguments").withInOrder(nullable(BlackBox.class), nullable(BlackBox.class));
-        verify("methodWithArguments").withInOrder(isNull(), notNull());
+        verifyInvoked("methodWithArguments").withInOrder(any(BlackBox.class), any(BlackBox.class));
+        verifyInvoked("methodWithArguments").withInOrder(nullable(BlackBox.class), nullable(BlackBox.class));
+        verifyInvoked("methodWithArguments").withInOrder(isNull(), notNull());
     }
 
     @Test
     void should_match_with_times() {
         demoMatcher.callMethodWithNumberArguments();
-        verify("methodWithArguments").with(anyNumber(), any()).times(3);
+        verifyInvoked("methodWithArguments").with(anyNumber(), any()).times(3);
 
         demoMatcher.callMethodWithNumberArguments();
         boolean gotError = false;
         try {
-            verify("methodWithArguments").with(anyNumber(), any()).times(4);
+            verifyInvoked("methodWithArguments").with(anyNumber(), any()).times(4);
         } catch (VerifyFailedError e) {
             gotError = true;
         }

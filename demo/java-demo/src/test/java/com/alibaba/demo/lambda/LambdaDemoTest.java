@@ -1,11 +1,9 @@
 package com.alibaba.demo.lambda;
 
-import com.alibaba.testable.core.annotation.MockDiagnose;
 import com.alibaba.testable.core.annotation.MockMethod;
-import com.alibaba.testable.core.model.LogLevel;
 import org.junit.jupiter.api.Test;
 
-import static com.alibaba.testable.core.matcher.InvokeVerifier.verify;
+import static com.alibaba.testable.core.matcher.InvocationVerifier.verifyInvoked;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
@@ -15,7 +13,6 @@ public class LambdaDemoTest {
     private final LambdaDemo lambdaDemo = new LambdaDemo();
 
     @SuppressWarnings("unused")
-    @MockDiagnose(LogLevel.VERBOSE)
     public static class Mock {
         @MockMethod(targetClass = LambdaDemo.class, targetMethod = "run")
         private void mockRun() {
@@ -53,7 +50,7 @@ public class LambdaDemoTest {
     @Test
     public void shouldMockRun() {
         lambdaDemo.methodReference();
-        verify("mockRun").withTimes(1);
+        verifyInvoked("mockRun").withTimes(1);
     }
 
     @Test
