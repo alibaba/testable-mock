@@ -12,7 +12,7 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
 @Documented
-public @interface MockConstructor {
+public @interface MockNew {
 
     /**
      * specify the effective scope of the mock method

@@ -93,12 +93,12 @@ public class MockClassHandler extends BaseClassWithContextHandler {
     }
 
     /**
-     * put targetClass parameter in @MockMethod to first parameter of the mock method
+     * put targetClass parameter in @MockInvoke to first parameter of the mock method
      */
     private void unfoldTargetClass(MethodNode mn) {
         String targetClassName = null;
         for (AnnotationNode an : mn.visibleAnnotations) {
-            if (ClassUtil.toByteCodeClassName(ConstPool.MOCK_METHOD).equals(an.desc)) {
+            if (ClassUtil.toByteCodeClassName(ConstPool.MOCK_INVOKE).equals(an.desc)) {
                 Type type = AnnotationUtil.getAnnotationParameter(an, ConstPool.FIELD_TARGET_CLASS, null, Type.class);
                 if (type != null) {
                     targetClassName = ClassUtil.toByteCodeClassName(type.getClassName());
@@ -212,7 +212,7 @@ public class MockClassHandler extends BaseClassWithContextHandler {
                 if (name != null) {
                     methodName = name;
                 }
-            } else if (isMockConstructorAnnotation(an)) {
+            } else if (isMockNewAnnotation(an)) {
                 methodName = CONSTRUCTOR;
             }
         }
@@ -226,7 +226,7 @@ public class MockClassHandler extends BaseClassWithContextHandler {
 
     private boolean isGlobalScope(MethodNode mn) {
         for (AnnotationNode an : mn.visibleAnnotations) {
-            if (isMockMethodAnnotation(an) || isMockConstructorAnnotation(an)) {
+            if (isMockMethodAnnotation(an) || isMockNewAnnotation(an)) {
                 MockScope scope = AnnotationUtil.getAnnotationParameter(an, ConstPool.FIELD_SCOPE,
                     GlobalConfig.defaultMockScope, MockScope.class);
                 if (scope.equals(MockScope.GLOBAL)) {
@@ -248,7 +248,7 @@ public class MockClassHandler extends BaseClassWithContextHandler {
                         getTargetMethodOwner(mn, an), getTargetMethodName(mn, an), getTargetMethodDesc(mn, an)));
                 }
                 return true;
-            } else if (isMockConstructorAnnotation(an)) {
+            } else if (isMockNewAnnotation(an)) {
                 if (LogUtil.isVerboseEnabled()) {
                     LogUtil.verbose("   Mock constructor \"%s\" as \"%s\"", mn.name, MethodUtil.toJavaMethodDesc(
                         ClassUtil.toJavaStyleClassName(MethodUtil.getReturnType(mn.desc)), mn.desc));
@@ -277,12 +277,12 @@ public class MockClassHandler extends BaseClassWithContextHandler {
         return type == null ? MethodUtil.removeFirstParameter(mn.desc) : mn.desc;
     }
 
-    private boolean isMockConstructorAnnotation(AnnotationNode an) {
-        return ClassUtil.toByteCodeClassName(ConstPool.MOCK_CONSTRUCTOR).equals(an.desc);
+    private boolean isMockNewAnnotation(AnnotationNode an) {
+        return ClassUtil.toByteCodeClassName(ConstPool.MOCK_NEW).equals(an.desc);
     }
 
     private boolean isMockMethodAnnotation(AnnotationNode an) {
-        return ClassUtil.toByteCodeClassName(ConstPool.MOCK_METHOD).equals(an.desc);
+        return ClassUtil.toByteCodeClassName(ConstPool.MOCK_INVOKE).equals(an.desc);
     }
 
     private void injectInvokeRecorder(MethodNode mn) {
@@ -324,9 +324,9 @@ public class MockClassHandler extends BaseClassWithContextHandler {
     private boolean isMockForConstructor(MethodNode mn) {
         for (AnnotationNode an : mn.visibleAnnotations) {
             String annotationName = ClassUtil.toJavaStyleClassName(an.desc);
-            if (ConstPool.MOCK_CONSTRUCTOR.equals(annotationName)) {
+            if (ConstPool.MOCK_NEW.equals(annotationName)) {
                 return true;
-            } else if (ConstPool.MOCK_METHOD.equals(annotationName)) {
+            } else if (ConstPool.MOCK_INVOKE.equals(annotationName)) {
                 String method = AnnotationUtil.getAnnotationParameter
                     (an, ConstPool.FIELD_TARGET_METHOD, null, String.class);
                 if (CONSTRUCTOR.equals(method)) {

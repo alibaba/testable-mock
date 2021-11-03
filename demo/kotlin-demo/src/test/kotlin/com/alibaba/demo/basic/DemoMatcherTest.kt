@@ -1,6 +1,6 @@
 package com.alibaba.demo.basic
 
-import com.alibaba.testable.core.annotation.MockMethod
+import com.alibaba.testable.core.annotation.MockInvoke
 import com.alibaba.testable.core.error.VerifyFailedError
 import com.alibaba.testable.core.matcher.InvocationMatcher
 import com.alibaba.testable.core.matcher.InvocationVerifier
@@ -17,15 +17,15 @@ internal class DemoMatcherTest {
     private val demoMatcher = DemoMatcher()
 
     class Mock {
-        @MockMethod(targetMethod = "methodToBeMocked")
+        @MockInvoke(targetMethod = "methodToBeMocked")
         private fun methodWithoutArgument(self: DemoMatcher) {
         }
 
-        @MockMethod(targetMethod = "methodToBeMocked")
+        @MockInvoke(targetMethod = "methodToBeMocked")
         private fun methodWithArguments(self: DemoMatcher, a1: Any, a2: Any) {
         }
 
-        @MockMethod(targetMethod = "methodToBeMocked")
+        @MockInvoke(targetMethod = "methodToBeMocked")
         private fun methodWithArrayArgument(self: DemoMatcher, a: Array<Any>) {
         }
     }

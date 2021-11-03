@@ -79,7 +79,7 @@ class DemoTest {
 
     public static class Mock {
         // 拦截System.out.println调用
-        @MockMethod
+        @MockInvoke
         public void println(PrintStream ps, String msg) {
             // 执行原调用
             ps.println(msg);

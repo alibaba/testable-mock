@@ -1,7 +1,7 @@
 package com.alibaba.demo.basic;
 
 import com.alibaba.demo.basic.model.mock.BlackBox;
-import com.alibaba.testable.core.annotation.MockMethod;
+import com.alibaba.testable.core.annotation.MockInvoke;
 import com.alibaba.testable.core.error.VerifyFailedError;
 import org.junit.jupiter.api.Test;
 
@@ -18,13 +18,13 @@ class DemoMatcherTest {
     private DemoMatcher demoMatcher = new DemoMatcher();
 
     public static class Mock {
-        @MockMethod(targetMethod = "methodToBeMocked")
+        @MockInvoke(targetMethod = "methodToBeMocked")
         private void methodWithoutArgument(DemoMatcher self) {}
 
-        @MockMethod(targetMethod = "methodToBeMocked")
+        @MockInvoke(targetMethod = "methodToBeMocked")
         private void methodWithArguments(DemoMatcher self, Object a1, Object a2) {}
 
-        @MockMethod(targetMethod = "methodToBeMocked")
+        @MockInvoke(targetMethod = "methodToBeMocked")
         private void methodWithArrayArgument(DemoMatcher self, Object[] a) {}
     }
 

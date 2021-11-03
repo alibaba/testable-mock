@@ -3,7 +3,7 @@ package com.alibaba.demo.basic;
 import com.alibaba.demo.basic.model.mock.BlackBox;
 import com.alibaba.demo.basic.model.mock.Box;
 import com.alibaba.demo.basic.model.mock.Color;
-import com.alibaba.testable.core.annotation.MockMethod;
+import com.alibaba.testable.core.annotation.MockInvoke;
 import org.junit.jupiter.api.Test;
 
 import static com.alibaba.testable.core.matcher.InvocationVerifier.verifyInvoked;
@@ -18,37 +18,37 @@ class DemoInheritTest {
     private DemoInherit demoInherit = new DemoInherit();
 
     public static class Mock {
-        @MockMethod(targetMethod = "put")
+        @MockInvoke(targetMethod = "put")
         private void put_into_box(Box self, String something) {
             self.put("put_" + something + "_into_box");
         }
 
-        @MockMethod(targetMethod = "put")
+        @MockInvoke(targetMethod = "put")
         private void put_into_blackbox(BlackBox self, String something) {
             self.put("put_" + something + "_into_blackbox");
         }
 
-        @MockMethod(targetMethod = "get")
+        @MockInvoke(targetMethod = "get")
         private String get_from_box(Box self) {
             return "get_from_box";
         }
 
-        @MockMethod(targetMethod = "get")
+        @MockInvoke(targetMethod = "get")
         private String get_from_blackbox(BlackBox self) {
             return "get_from_blackbox";
         }
 
-        @MockMethod(targetMethod = "getColor")
+        @MockInvoke(targetMethod = "getColor")
         private String get_color_from_color(Color self) {
             return "color_from_color";
         }
 
-        @MockMethod(targetMethod = "getColor")
+        @MockInvoke(targetMethod = "getColor")
         private String get_color_from_blackbox(BlackBox self) {
         return "color_from_blackbox";
     }
 
-        @MockMethod(targetMethod = "getColorIndex")
+        @MockInvoke(targetMethod = "getColorIndex")
         private String get_colorIdx_from_color(Color self) {
             return "colorIdx_from_color";
         }

@@ -308,7 +308,7 @@ public class SourceClassHandler extends BaseClassHandler {
                 mn.instructions.remove(instructions[end - 1]);
             }
         }
-        // method with @MockMethod will be modified as public access
+        // method with @MockInvoke will be modified as public access
         int invokeOpcode = mockMethod.isStatic() ? INVOKESTATIC : INVOKEVIRTUAL;
         mn.instructions.insertBefore(instructions[end], new MethodInsnNode(invokeOpcode, mockClassName,
                 mockMethod.getMockName(), mockMethod.getMockDesc(), false));

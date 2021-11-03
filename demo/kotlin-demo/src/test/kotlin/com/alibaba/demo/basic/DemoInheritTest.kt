@@ -1,6 +1,6 @@
 package com.alibaba.demo.basic
 
-import com.alibaba.testable.core.annotation.MockMethod
+import com.alibaba.testable.core.annotation.MockInvoke
 import com.alibaba.testable.core.matcher.InvocationVerifier
 import com.alibaba.demo.basic.model.mock.BlackBox
 import com.alibaba.demo.basic.model.mock.Box
@@ -17,32 +17,32 @@ internal class DemoInheritTest {
     private val demoInherit = DemoInherit()
 
     class Mock {
-        @MockMethod(targetMethod = "put")
+        @MockInvoke(targetMethod = "put")
         private fun put_into_box(self: Box, something: String) {
             self.put("put_" + something + "_into_box")
         }
 
-        @MockMethod(targetMethod = "put")
+        @MockInvoke(targetMethod = "put")
         private fun put_into_blackbox(self: BlackBox, something: String) {
             self.put("put_" + something + "_into_blackbox")
         }
 
-        @MockMethod(targetMethod = "get")
+        @MockInvoke(targetMethod = "get")
         private fun get_from_box(self: Box): String {
             return "get_from_box"
         }
 
-        @MockMethod(targetMethod = "get")
+        @MockInvoke(targetMethod = "get")
         private fun get_from_blackbox(self: BlackBox): String {
             return "get_from_blackbox"
         }
 
-        @MockMethod(targetMethod = "getColor")
+        @MockInvoke(targetMethod = "getColor")
         private fun get_color_from_color(self: Color): String {
             return "color_from_color"
         }
 
-        @MockMethod(targetMethod = "getColor")
+        @MockInvoke(targetMethod = "getColor")
         private fun get_color_from_blackbox(self: BlackBox): String {
             return "color_from_blackbox"
         }

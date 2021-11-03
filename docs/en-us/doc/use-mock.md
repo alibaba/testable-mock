@@ -6,8 +6,8 @@ In unit testing, the main role of the mock method is to replace those methods wi
 Based on the above information, `TestableMock` has designed a minimalist mock mechanism. Unlike the common mock tools that uses **class** as the definition granularity of mocking, and repeats the description of mock behavior in each test case, `TestableMock` allows each business class (class under test) to be associated with a set of reusable collection of mock methods (carried by the mock container class), following the principle of "convention over configuration", and mock method replacement will automatically happen when the specified method in the test class match an invocation in the class under test.
 
 > In summary, there are two simple rules:
-> - Mock non-constructive method, copy the original method definition to the mock class, add a `@MockMethod` annotation
-> - Mock construction method, copy the original method definition to the mock class, replace the return value with the constructed type, the method name is arbitrary, and add a `@MockContructor` annotation
+> - Mock non-constructive method, copy the original method definition to the mock class, add a `@MockInvoke` annotation
+> - Mock construction method, copy the original method definition to the mock class, replace the return value with the constructed type, the method name is arbitrary, and add a `@MockNew` annotation
 
 The detail mock method definition convention is as follows.
 
@@ -27,7 +27,7 @@ public class DemoTest {
 
 ### 1.1 Mock method calls of any class
 
-Define an ordinary method annotated with `@MockMethod` in the mock class with exactly the same signature (name, parameter, and return value type) as the method to be mocked, and then add the type of target object (which the method originally belongs to) as `targetMethod` parameter of `@MockMethod` annotation.
+Define an ordinary method annotated with `@MockInvoke` in the mock class with exactly the same signature (name, parameter, and return value type) as the method to be mocked, and then add the type of target object (which the method originally belongs to) as `targetMethod` parameter of `@MockInvoke` annotation.
 
 At this time, all invocations to that original method in the class under test will be automatically replaced with invocations to the above-mentioned mock method when the unit test is running.
 
@@ -36,33 +36,33 @@ For example, there is a call to `"anything".substring(1, 2)` in the class under 
 ```java
 // The original method signature is `String substring(int, int)`
 // The object `"anything"` that invokes this method is of type `String`
-@MockMethod(targetClass = String.class)
+@MockInvoke(targetClass = String.class)
 private String substring(int i, int j) {
     return "sub_string";
 }
 ```
 
-When several methods to be mocked have the same name, you can put the name of the method to be mocked in the `targetMethod` parameter of `@MockMethod` annotation, so that the mock method itself can be named at will.
+When several methods to be mocked have the same name, you can put the name of the method to be mocked in the `targetMethod` parameter of `@MockInvoke` annotation, so that the mock method itself can be named at will.
 
 The following example shows the usage of the `targetMethod` parameter, and its effect is the same as the above example:
 
 ```java
 // Use `targetMethod` to specify the name of the method that needs to be mocked
 // The method itself can now be named arbitrarily, but the method parameters still need to follow the same matching rules
-@MockMethod(targetClass = String.class, targetMethod = "substring")
+@MockInvoke(targetClass = String.class, targetMethod = "substring")
 private String use_any_mock_method_name(int i, int j) {
     return "sub_string";
 }
 ```
 
-Sometimes, the mock method need to access the member variables in the original object that initiated the invocation, or invoke other methods of the original object. At this point, you can remove the `targetClass` parameter in the `@MockMethod` annotation, and then add a extra parameter whose type is the original object type of the method to the first index of the method parameter list.
+Sometimes, the mock method need to access the member variables in the original object that initiated the invocation, or invoke other methods of the original object. At this point, you can remove the `targetClass` parameter in the `@MockInvoke` annotation, and then add a extra parameter whose type is the original object type of the method to the first index of the method parameter list.
 
-The `TestableMock` convention is that when the `targetClass` parameter of the `@MockMethod` annotation is not defined, the first parameter of the mock method is the type of the target method, and the parameter name is arbitrary. In order to facilitate code reading, it is recommended to name this parameter as `self` or `src`. Example as follows:
+The `TestableMock` convention is that when the `targetClass` parameter of the `@MockInvoke` annotation is not defined, the first parameter of the mock method is the type of the target method, and the parameter name is arbitrary. In order to facilitate code reading, it is recommended to name this parameter as `self` or `src`. Example as follows:
 
 ```java
 // Adds a `String` type parameter to the first position the mock method parameter list (parameter name is arbitrary)
 // This parameter can be used to get the value and context of the actual invoker at runtime
-@MockMethod
+@MockInvoke
 private String substring(String self, int i, int j) {
     // Call the original method is also allowed
     return self.substring(i, j);
@@ -81,7 +81,7 @@ For example, there is a private method with the signature `String innerFunc(Stri
 
 ```java
 // The type to test is `DemoMock`
-@MockMethod(targetClass = DemoMock.class)
+@MockInvoke(targetClass = DemoMock.class)
 private String innerFunc(String text) {
     return "mock_" + text;
 }
@@ -98,7 +98,7 @@ Mock for static methods is the same as for any ordinary methods.
 For example, if the static method `secretBox()` of the `BlackBox` type is invoked in the class under test, and the method signature is `BlackBox secretBox()`, then the mock method is as follows:
 
 ```java
-@MockMethod(targetClass = BlackBox.class)
+@MockInvoke(targetClass = BlackBox.class)
 private BlackBox secretBox() {
     return new BlackBox("not_secret_box");
 }
@@ -108,7 +108,7 @@ For complete code examples, see the `should_mock_static_method()` test case in t
 
 ### 1.4 Mock `new` operation of any type
 
-Define an ordinary method annotated with `@MockContructor` in the mock class, make the return value type of the method the type of the object to be created, and the method parameters are exactly the same as the constructor parameters to be mocked, the method name is arbitrary.
+Define an ordinary method annotated with `@MockNew` in the mock class, make the return value type of the method the type of the object to be created, and the method parameters are exactly the same as the constructor parameters to be mocked, the method name is arbitrary.
 
 At this time, all operations in the class under test that use `new` to create the specified class (and use the constructor that is consistent with the mock method parameters) will be replaced with calls to the custom method.
 
@@ -117,13 +117,13 @@ For example, if there is a call to `new BlackBox("something")` in the class unde
 ```java
 // The signature of the constructor to be mocked is `BlackBox(String)`
 // No need to add additional parameters to the mock method parameter list, and the name of the mock method is arbitrary 
-@MockContructor
+@MockNew
 private BlackBox createBlackBox(String text) {
     return new BlackBox("mock_" + text);
 }
 ```
 
-> You can still use the `@MockMethod` annotation, and configure the `targetMethod` parameter value to `"<init>"`, and the rest is the same as above. The effect is the same as using the `@MockContructor` annotation
+> You can still use the `@MockInvoke` annotation, and configure the `targetMethod` parameter value to `"<init>"`, and the rest is the same as above. The effect is the same as using the `@MockNew` annotation
 
 For complete code examples, see the `should_mock_new_object()` test case in the `java-demo` and `kotlin-demo` sample projects.
 
@@ -146,7 +146,7 @@ public void testDemo() {
 Take out the injected parameters in the mock method and return different results according to the situation:
 
 ```java
-@MockMethod
+@MockInvoke
 private Data mockDemo() {
     switch((String)MOCK_CONTEXT.get("case")) {
         case "data-ready":

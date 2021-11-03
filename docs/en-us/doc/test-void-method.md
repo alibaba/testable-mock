@@ -78,7 +78,7 @@ class DemoTest {
 
     public static class Mock {
         // Intercept `System.out.println` invocation
-        @MockMethod
+        @MockInvoke
         public void println(PrintStream ps, String msg) {
             // Execute the original call
             ps.println(msg);

@@ -1,6 +1,6 @@
 package com.alibaba.demo.basic;
 
-import com.alibaba.testable.core.annotation.MockMethod;
+import com.alibaba.testable.core.annotation.MockInvoke;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class DemoInnerClassTest {
 
     public static class Mock {
-        @MockMethod(targetClass = DemoInnerClass.class)
+        @MockInvoke(targetClass = DemoInnerClass.class)
         String methodToBeMock() {
             return "MockedCall";
         }

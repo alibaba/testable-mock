@@ -1,8 +1,7 @@
 package com.alibaba.demo.basic;
 
-import com.alibaba.testable.core.annotation.MockConstructor;
-import com.alibaba.testable.core.annotation.MockMethod;
-import com.alibaba.demo.basic.DemoTemplate;
+import com.alibaba.testable.core.annotation.MockNew;
+import com.alibaba.testable.core.annotation.MockInvoke;
 import org.junit.jupiter.api.Test;
 
 import java.util.*;
@@ -21,24 +20,24 @@ class DemoTemplateTest {
         /* 第一种写法：使用泛型定义 */
         /* First solution: use generics type */
 
-        @MockMethod
+        @MockInvoke
         private <T> List<T> getList(DemoTemplate self, T value) {
             return new ArrayList<T>() {{ add((T)(value.toString() + "_mock_list")); }};
         }
 
-        @MockMethod
+        @MockInvoke
         private <K, V> Map<K, V> getMap(DemoTemplate self, K key, V value) {
             return new HashMap<K, V>() {{ put(key, (V)(value.toString() + "_mock_map")); }};
         }
 
-        @MockConstructor
+        @MockNew
         private <T> HashSet<T> newHashSet() {
             HashSet<T> set = new HashSet<>();
             set.add((T)"insert_mock");
             return set;
         }
 
-        @MockMethod
+        @MockInvoke
         private <E> boolean add(Set s, E e) {
             s.add(e.toString() + "_mocked");
             return true;
@@ -47,24 +46,24 @@ class DemoTemplateTest {
         /* 第二种写法：使用Object类型 */
         /* Second solution: use object type */
 
-        //@MockMethod
+        //@MockInvoke
         //private List<Object> getList(DemoTemplate self, Object value) {
         //    return new ArrayList<Object>() {{ add(value.toString() + "_mock_list"); }};
         //}
         //
-        //@MockMethod
+        //@MockInvoke
         //private Map<Object, Object> getMap(DemoTemplate self, Object key, Object value) {
         //    return new HashMap<Object, Object>() {{ put(key, value.toString() + "_mock_map"); }};
         //}
         //
-        //@MockConstructor
+        //@MockNew
         //private HashSet newHashSet() {
         //    HashSet<Object> set = new HashSet<>();
         //    set.add("insert_mock");
         //    return set;
         //}
         //
-        //@MockMethod
+        //@MockInvoke
         //private boolean add(Set s, Object e) {
         //    s.add(e.toString() + "_mocked");
         //    return true;

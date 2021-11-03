@@ -1,5 +1,11 @@
 # Release Note
 
+## 0.7.0
+- fix an improper exception issue when mock method with `associated` scope invoked
+- rename type `InvokeVerifier`/`InvockeMatcher` to `InvocationVerifier`/`InvocationMatcher`
+- rename method `verify` in `InvocationVerifier` type to `verifyInvoked`
+- rename annotation `@MockMethod`/`@MockConstructor` to `@MockInvoke`/`@MockNew`
+
 ## 0.6.10
 - support mock invocation via function reference
 - support mock method defined in a base interface
@@ -65,6 +71,13 @@
 - support parameterized test of JUnit 5
 - fix an exception caused by method parameter with ternary operator
 - fix a bug cause log message lost when `@MockWith` annotation used
+
+## 0.5.0
+- split test class and mock class, let the mock class and method reusable
+- support use mock when package path of the test class is different from the class under test
+- support limit the mock effective scope to the cases of class under test it bound
+- use `TransmittableThreadLocal` to store mock context
+- add annotation `@MockDiagnose` to print debug logs
 
 ## 0.4.12
 - support verbose diagnose log for better self-troubleshooting

@@ -57,8 +57,8 @@ public class MockClassParser {
             if (mn.visibleAnnotations != null) {
                 for (AnnotationNode an : mn.visibleAnnotations) {
                     String fullClassName = toJavaStyleClassName(an.desc);
-                    if (fullClassName.equals(ConstPool.MOCK_METHOD) ||
-                        fullClassName.equals(ConstPool.MOCK_CONSTRUCTOR)) {
+                    if (fullClassName.equals(ConstPool.MOCK_INVOKE) ||
+                        fullClassName.equals(ConstPool.MOCK_NEW)) {
                         return true;
                     }
                 }
@@ -98,13 +98,13 @@ public class MockClassParser {
         }
         for (AnnotationNode an : mn.visibleAnnotations) {
             String fullClassName = toJavaStyleClassName(an.desc);
-            if (fullClassName.equals(ConstPool.MOCK_CONSTRUCTOR)) {
+            if (fullClassName.equals(ConstPool.MOCK_NEW)) {
                 if (GlobalConfig.checkMockTargetExistence) {
                     checkTargetConstructorExists(cn, mn);
                 }
                 methodInfos.add(new MethodInfo(ClassUtil.getSourceClassName(cn.name), CONSTRUCTOR, mn.desc, cn.name,
                     mn.name, mn.desc, isStatic(mn)));
-            } else if (fullClassName.equals(ConstPool.MOCK_METHOD) && isValidMockMethod(mn, an)) {
+            } else if (fullClassName.equals(ConstPool.MOCK_INVOKE) && isValidMockMethod(mn, an)) {
                 if (GlobalConfig.checkMockTargetExistence) {
                     checkTargetMethodExists(cn, mn, an);
                 }

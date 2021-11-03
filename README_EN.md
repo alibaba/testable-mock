@@ -3,7 +3,7 @@
 Write mock faster, make unit testing easier.
 
 Any test framework, no initialization, no matter private method, static method, construction method, or any other method of any class, and no matter how the object created.
-Write a mock method, add an `@MockMethod` annotation, everything is done.
+Write a mock method, add an `@MockInvoke` annotation, everything is done.
 
 Usage Document: https://alibaba.github.io/testable-mock/#/en-us/
 

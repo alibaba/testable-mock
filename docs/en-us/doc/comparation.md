@@ -19,7 +19,7 @@ Besides `TestableMock`, there are also several other community mock tools, such 
 
 `JMockit` is a mock tool whose functionality and convenience are between `Mockito` and `PowerMock`, and it makes up for their respective shortcomings. The project tried to launch a rewritten version of JMockit2 in 2017 but failed to complete, and is currently in an inactive maintenance state.
 
-The functionality of `TestabledMock` is basically the same as that of `PowerMock`, and it is extremely easy to use. You can complete most tasks only by mastering the annotations of `@MockMethod`.
+The functionality of `TestabledMock` is basically the same as that of `PowerMock`, and it is extremely easy to use. You can complete most tasks only by mastering the annotations of `@MockInvoke`.
 
 The main disadvantage of the current `TestableMock` is that the IDE cannot promptly prompt whether the method parameters are matched correctly when writing the mock method. If the mocking effect does not meet expectation, it has to be verified during runtime through the method provided in the [self-help troubleshooting](en-us/doc/troubleshooting.md) document. This feature needs to be provided by extending IDE plugins in the future.
 

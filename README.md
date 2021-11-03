@@ -2,7 +2,7 @@
 
 换种思路写Mock，让单元测试更简单。
 
-无需初始化，不挑服务框架，甭管要换的是私有方法、静态方法、构造方法还是其他任何类的任何方法，也甭管要换的对象是怎么创建的。写好Mock定义，加个`@MockMethod`注解，一切统统搞定。
+无需初始化，不挑服务框架，甭管要换的是私有方法、静态方法、构造方法还是其他任何类的任何方法，也甭管要换的对象是怎么创建的。写好Mock定义，加个`@MockInvoke`注解，一切统统搞定。
 
 - 文档：https://alibaba.github.io/testable-mock/
 - 国内文档镜像：http://freyrlin.gitee.io/testable-mock/

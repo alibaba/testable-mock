@@ -1,6 +1,6 @@
 package com.alibaba.demo.lambda;
 
-import com.alibaba.testable.core.annotation.MockMethod;
+import com.alibaba.testable.core.annotation.MockInvoke;
 import org.junit.jupiter.api.Test;
 
 import static com.alibaba.testable.core.matcher.InvocationVerifier.verifyInvoked;
@@ -14,27 +14,27 @@ public class ExternalLambdaDemoTest {
     @SuppressWarnings("unused")
     public static class Mock {
 
-        @MockMethod(targetClass = String.class, targetMethod = "contains")
+        @MockInvoke(targetClass = String.class, targetMethod = "contains")
         public boolean mockContains(CharSequence s) {
             return false;
         }
 
-        @MockMethod(targetClass = Byte.class, targetMethod = "floatValue")
+        @MockInvoke(targetClass = Byte.class, targetMethod = "floatValue")
         public float mockFloatValue() {
             return 0.1f;
         }
 
-        @MockMethod(targetClass = Double.class, targetMethod = "compareTo")
+        @MockInvoke(targetClass = Double.class, targetMethod = "compareTo")
         public int mockCompareTo(Double anotherDouble) {
             return 1;
         }
 
-        @MockMethod(targetClass = LambdaDemo.class, targetMethod = "methodReference0")
+        @MockInvoke(targetClass = LambdaDemo.class, targetMethod = "methodReference0")
         public String mockMethodReference0() {
             return "";
         }
 
-        @MockMethod(targetClass = ExternalLambdaDemo.class, targetMethod = "f3")
+        @MockInvoke(targetClass = ExternalLambdaDemo.class, targetMethod = "f3")
         public Boolean mockF3(String s1, Long l) {
             return true;
         }

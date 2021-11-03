@@ -1,14 +1,14 @@
 Mock的生效范围
 ---
 
-在`@MockMethod`和`@MockConstructor`注解上都有一个`scope`参数，其可选值有两种
+在`@MockInvoke`和`@MockNew`注解上都有一个`scope`参数，其可选值有两种
 
 - `MockScope.GLOBAL`：该Mock方法将全局生效
 - `MockScope.ASSOCIATED`：该Mock方法仅对Mock容器关联测试类中的测试用例生效
 
 对于常规项目而言，单元测试里需要被Mock的调用都是由于其中包含了不需要或不便于测试的逻辑，譬如“依赖外部系统”、“包含随机结果”、“执行非常耗时”等等，这类调用在整个单元测试的生命周期里都应该被Mock方法置换，不论调用的发起者是谁。因此`TestableMock`默认所有Mock方法都是全局生效的，即`scope`默认值为`MockScope.GLOBAL`。
 
-> 举例来说，`CookerService`和`SellerService`是两个需要被测试的类，假设`CookerService`的代码里的`hireXxx()`和`cookXxx()`方法都需要依赖外部系统。因此在进行单元测试时，开发者在`CookerService`关联的Mock容器里使用`@MockMethod`注解定义了这些调用的替代方法。
+> 举例来说，`CookerService`和`SellerService`是两个需要被测试的类，假设`CookerService`的代码里的`hireXxx()`和`cookXxx()`方法都需要依赖外部系统。因此在进行单元测试时，开发者在`CookerService`关联的Mock容器里使用`@MockInvoke`注解定义了这些调用的替代方法。
 > 
 > 此时，若该Mock方法的`scope`值为`MockScope.GLOBAL`，则不论是在`SellerServiceTest`测试类还是在`CookerServiceTest`测试类的测试用例，只要直接或间接的执行到这行调用，都会被置换为调用Mock方法。若该Mock方法的`scope`值为`MockScope.ASSOCIATED`，则Mock只对`CookerServiceTest`类中的测试用例生效，而`SellerServiceTest`类中的测试用例在运行过程中执行到了`CookerService`类的相关代码，将会执行原本的调用。
 > 
@@ -24,7 +24,7 @@ Mock的生效范围
 > ```
 > 若默认的`scope`参数不是`MockScope.GLOBAL`，则相应Mock方法应当显式的声明`scope`值，例如：
 > ```java
-> @MockMethod(targetClass = System.class, scope = MockScope.GLOBAL)
+> @MockInvoke(targetClass = System.class, scope = MockScope.GLOBAL)
 > private void loadLibrary(String libname) {
 >     System.err.println("loadLibrary " + libname);
 > }

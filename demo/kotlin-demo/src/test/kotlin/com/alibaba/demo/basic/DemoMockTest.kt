@@ -1,7 +1,7 @@
 package com.alibaba.demo.basic
 
-import com.alibaba.testable.core.annotation.MockConstructor
-import com.alibaba.testable.core.annotation.MockMethod
+import com.alibaba.testable.core.annotation.MockNew
+import com.alibaba.testable.core.annotation.MockInvoke
 import com.alibaba.testable.core.matcher.InvocationVerifier.verifyInvoked
 import com.alibaba.testable.core.tool.TestableTool.SOURCE_METHOD
 import com.alibaba.testable.core.tool.TestableTool.MOCK_CONTEXT
@@ -20,37 +20,37 @@ internal class DemoMockTest {
     private val demoMock = DemoMock()
 
     class Mock {
-        @MockConstructor
+        @MockNew
         private fun createBlackBox(text: String) = BlackBox("mock_$text")
 
-        @MockMethod(targetClass = DemoMock::class)
+        @MockInvoke(targetClass = DemoMock::class)
         private fun innerFunc(text: String) = "mock_$text"
 
-        @MockMethod(targetClass = DemoMock::class)
+        @MockInvoke(targetClass = DemoMock::class)
         private fun staticFunc(): String {
             return "_MOCK_TAIL";
         }
 
-        @MockMethod(targetClass = BlackBox::class)
+        @MockInvoke(targetClass = BlackBox::class)
         private fun trim() = "trim_string"
 
-        @MockMethod(targetClass = BlackBox::class, targetMethod = "substring")
+        @MockInvoke(targetClass = BlackBox::class, targetMethod = "substring")
         private fun sub(i: Int, j: Int) = "sub_string"
 
-        @MockMethod(targetClass = BlackBox::class)
+        @MockInvoke(targetClass = BlackBox::class)
         private fun startsWith(s: String) = false
 
-        @MockMethod(targetClass = BlackBox::class)
+        @MockInvoke(targetClass = BlackBox::class)
         private fun secretBox(): BlackBox {
             return BlackBox("not_secret_box")
         }
 
-        @MockMethod(targetClass = ColorBox::class)
+        @MockInvoke(targetClass = ColorBox::class)
         private fun createBox(color: String, box: BlackBox): BlackBox {
             return BlackBox("White_${box.get()}")
         }
 
-        @MockMethod(targetClass = DemoMock::class)
+        @MockInvoke(targetClass = DemoMock::class)
         private fun callFromDifferentMethod(): String {
             return if (MOCK_CONTEXT["case"] == "special_case") {
                 "mock_special"

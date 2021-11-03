@@ -1,7 +1,7 @@
 package com.github.pbetkier.spockdemo
 
-import com.alibaba.testable.core.annotation.MockConstructor
-import com.alibaba.testable.core.annotation.MockMethod
+import com.alibaba.testable.core.annotation.MockNew
+import com.alibaba.testable.core.annotation.MockInvoke
 import com.github.pbetkier.spockdemo.model.SpockBox
 import spock.lang.Shared
 import spock.lang.Specification
@@ -14,14 +14,14 @@ class DemoSpockTest extends Specification {
     def demoSpock = new DemoSpock()
 
     static class Mock {
-        @MockConstructor
+        @MockNew
         SpockBox createBox() {
             SpockBox box = new SpockBox()
             box.put("mock zero")
             return box
         }
 
-        @MockMethod(targetMethod = "put")
+        @MockInvoke(targetMethod = "put")
         void putBox(SpockBox self, String data) {
             self.put("mock " + data)
         }

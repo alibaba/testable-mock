@@ -1,5 +1,11 @@
 # Release Note
 
+## 0.7.0
+- 修复当`scope`为`associated`的Mock方法被`null`对象调用，且上下文与测试用例未关联时抛错不合理的问题（issue-163）
+- 类型`InvokeVerifier`和`InvockeMatcher`更名为`InvocationVerifier`和`InvocationMatcher`
+- 类型`InvocationVerifier`中的`verify`方法与`com.sun`包中的方法重名，更名为`verifyInvoked`
+- 注解`@MockMethod`和`@MockConstructor`更名为`@MockInvoke`和`@MockNew`
+
 ## 0.6.10
 - 支持Mock通过方法引用执行的调用（issue-233 / pr-234）
 - 支持Mock基类接口中的方法（pr-231）

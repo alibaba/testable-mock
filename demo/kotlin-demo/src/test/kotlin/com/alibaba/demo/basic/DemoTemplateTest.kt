@@ -1,7 +1,7 @@
 package com.alibaba.demo.basic
 
-import com.alibaba.testable.core.annotation.MockConstructor
-import com.alibaba.testable.core.annotation.MockMethod
+import com.alibaba.testable.core.annotation.MockNew
+import com.alibaba.testable.core.annotation.MockInvoke
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 
@@ -14,24 +14,24 @@ internal class DemoTemplateTest {
     private val demoTemplate = DemoTemplate()
 
     class Mock {
-        @MockMethod
+        @MockInvoke
         private fun <T> getList(self: DemoTemplate, value: T): List<T> {
             return mutableListOf((value.toString() + "_mock_list") as T)
         }
 
-        @MockMethod
+        @MockInvoke
         private fun <K, V> getMap(self: DemoTemplate, key: K, value: V): Map<K, V> {
             return mutableMapOf(key to (value.toString() + "_mock_map") as V)
         }
 
-        @MockConstructor
+        @MockNew
         private fun newHashSet(): HashSet<*> {
             val set = HashSet<Any>()
             set.add("insert_mock")
             return set
         }
 
-        @MockMethod
+        @MockInvoke
         private fun <E> add(s: MutableSet<E>, e: E): Boolean {
             s.add((e.toString() + "_mocked") as E)
             return true

@@ -19,7 +19,7 @@
 
 `JMockit`是一款功能性与易用性均居于`Mockito`与`PowerMock`之间的Mock工具，较好的弥补了两者各自的不足。该项目在2017年尝试推出JMockit2重写版本但未能完成，目前处于不活跃的维护状态。
 
-相比之下，`TestabledMock`的功能与`PowerMock`基本平齐，且极易上手，只需掌握`@MockMethod`注解就可以完成绝大多数任务。
+相比之下，`TestabledMock`的功能与`PowerMock`基本平齐，且极易上手，只需掌握`@MockInvoke`注解就可以完成绝大多数任务。
 
 当前`TestableMock`的主要不足在于，编写Mock方法时IDE无法即时提示方法参数是否正确匹配。若发现匹配效果不符合预期，需要通过[自助问题排查](zh-cn/doc/troubleshooting.md)文档提供的方法在运行期进行校验。这个功能理论上能够通过扩展主流IDE插件来补充，但目前暂无相关开发计划，参见[Issue-104](https://github.com/alibaba/testable-mock/issues/104)。
 

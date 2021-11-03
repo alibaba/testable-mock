@@ -14,7 +14,7 @@
 | srcClass              | Class   | 否      | N/A   | 当测试类命名不符合约定时，指定实际被测类 |
 | verifyTargetOnCompile | boolean | 否      | true  | 是否启用私有目标的编译期存在性校验 |
 
-#### @MockMethod
+#### @MockInvoke
 
 将当前方法标识为待匹配的Mock成员方法。
 
@@ -26,7 +26,7 @@
 | targetMethod | String    | 否      | N/A              | 指定Mock目标的方法名 |
 | scope        | MockScope | 否      | MockScope.GLOBAL | 指定Mock的生效范围 |
 
-#### @MockConstructor
+#### @MockNew
 
 将当前方法标识为待匹配的Mock构造方法。
 

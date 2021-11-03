@@ -13,7 +13,7 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
 @Documented
-public @interface MockMethod {
+public @interface MockInvoke {
 
     /**
      * mock specified method instead of method with same name

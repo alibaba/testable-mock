@@ -51,7 +51,7 @@ public class BbbServiceTest {
 }
 
 public class BasicMock {
-    @MockMethod(targetClass = UserDao.class)
+    @MockInvoke(targetClass = UserDao.class)
     protected String getById(int id) {
         ...
     }

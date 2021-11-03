@@ -16,8 +16,8 @@ public class ConstPool {
     public static final String MOCK_WITH = "com.alibaba.testable.core.annotation.MockWith";
     public static final String DUMP_TO = "com.alibaba.testable.core.annotation.DumpTo";
     public static final String MOCK_DIAGNOSE = "com.alibaba.testable.core.annotation.MockDiagnose";
-    public static final String MOCK_METHOD = "com.alibaba.testable.core.annotation.MockMethod";
-    public static final String MOCK_CONSTRUCTOR = "com.alibaba.testable.core.annotation.MockConstructor";
+    public static final String MOCK_INVOKE = "com.alibaba.testable.core.annotation.MockInvoke";
+    public static final String MOCK_NEW = "com.alibaba.testable.core.annotation.MockNew";
 
     public static final String CGLIB_CLASS_PATTERN = "$$EnhancerBy";
     public static final String KOTLIN_POSTFIX_COMPANION = "$Companion";

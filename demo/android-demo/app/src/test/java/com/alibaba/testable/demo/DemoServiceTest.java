@@ -3,7 +3,7 @@ package com.alibaba.testable.demo;
 import android.content.Intent;
 import android.util.Log;
 
-import com.alibaba.testable.core.annotation.MockMethod;
+import com.alibaba.testable.core.annotation.MockInvoke;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -21,7 +21,7 @@ public class DemoServiceTest {
     private DemoService demoService;
 
     public static class Mock {
-        @MockMethod(targetClass = Log.class, targetMethod = "d")
+        @MockInvoke(targetClass = Log.class, targetMethod = "d")
         public static int log(String tag, String msg) {
             return 0;
         }

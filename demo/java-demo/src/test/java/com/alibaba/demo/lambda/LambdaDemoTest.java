@@ -1,6 +1,6 @@
 package com.alibaba.demo.lambda;
 
-import com.alibaba.testable.core.annotation.MockMethod;
+import com.alibaba.testable.core.annotation.MockInvoke;
 import org.junit.jupiter.api.Test;
 
 import static com.alibaba.testable.core.matcher.InvocationVerifier.verifyInvoked;
@@ -14,32 +14,32 @@ public class LambdaDemoTest {
 
     @SuppressWarnings("unused")
     public static class Mock {
-        @MockMethod(targetClass = LambdaDemo.class, targetMethod = "run")
+        @MockInvoke(targetClass = LambdaDemo.class, targetMethod = "run")
         private void mockRun() {
         }
 
-        @MockMethod(targetClass = LambdaDemo.class)
+        @MockInvoke(targetClass = LambdaDemo.class)
         private String function0() {
             return "mock_function0";
         }
 
-        @MockMethod(targetClass = LambdaDemo.class)
+        @MockInvoke(targetClass = LambdaDemo.class)
         private String function1(Integer i) {
             return "mock_function1";
         }
 
-        @MockMethod(targetClass = LambdaDemo.class)
+        @MockInvoke(targetClass = LambdaDemo.class)
         private String function2(Integer i, Double d) {
             return "mock_function2";
         }
 
         @SuppressWarnings("RedundantThrows")
-        @MockMethod(targetClass = LambdaDemo.class)
+        @MockInvoke(targetClass = LambdaDemo.class)
         private String function1Throwable(Integer i) throws Throwable{
             return "mock_function1Throwable";
         }
 
-        @MockMethod(targetClass = StaticMethod.class, targetMethod = "function1")
+        @MockInvoke(targetClass = StaticMethod.class, targetMethod = "function1")
         public static String staticFunction1(Integer i) {
             return "mock_staticFunction1";
         }

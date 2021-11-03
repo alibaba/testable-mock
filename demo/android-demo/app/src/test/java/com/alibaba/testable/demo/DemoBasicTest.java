@@ -1,8 +1,8 @@
 package com.alibaba.testable.demo;
 
 import com.alibaba.testable.demo.model.BlackBox;
-import com.alibaba.testable.core.annotation.MockConstructor;
-import com.alibaba.testable.core.annotation.MockMethod;
+import com.alibaba.testable.core.annotation.MockNew;
+import com.alibaba.testable.core.annotation.MockInvoke;
 
 
 import org.junit.Test;
@@ -23,42 +23,42 @@ public class DemoBasicTest {
     private DemoBasic demoBasic = new DemoBasic();
 
     public static class Mock {
-        @MockConstructor
+        @MockNew
         private BlackBox createBlackBox(String text) {
             return new BlackBox("mock_" + text);
         }
 
-        @MockMethod(targetClass = DemoBasic.class)
+        @MockInvoke(targetClass = DemoBasic.class)
         private String innerFunc(String text) {
             return "mock_" + text;
         }
 
-        @MockMethod(targetClass = DemoBasic.class)
+        @MockInvoke(targetClass = DemoBasic.class)
         private String staticFunc() {
             return "_MOCK_TAIL";
         }
 
-        @MockMethod(targetClass = String.class)
+        @MockInvoke(targetClass = String.class)
         private String trim() {
             return "trim_string";
         }
 
-        @MockMethod(targetClass = String.class, targetMethod = "substring")
+        @MockInvoke(targetClass = String.class, targetMethod = "substring")
         private String sub(int i, int j) {
             return "sub_string";
         }
 
-        @MockMethod(targetClass = String.class)
+        @MockInvoke(targetClass = String.class)
         private boolean startsWith(String s) {
             return false;
         }
 
-        @MockMethod(targetClass = BlackBox.class)
+        @MockInvoke(targetClass = BlackBox.class)
         private BlackBox secretBox() {
             return new BlackBox("not_secret_box");
         }
 
-        @MockMethod(targetClass = DemoBasic.class)
+        @MockInvoke(targetClass = DemoBasic.class)
         private String callFromDifferentMethod() {
             if ("special_case".equals(MOCK_CONTEXT.get("case"))) {
                 return "mock_special";
