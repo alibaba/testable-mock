@@ -1,6 +1,15 @@
 Upgrade Guide
 ---
 
+#### Upgrade to 0.7
+
+In version `0.7` mock related annotations and methods are renamed, in order to avoid naming conflict and misunderstanding.
+
+1. The `verify()` used for check mock method invocation status has been renamed to `verifyInvoked()`, as there are several static methods also named `verify()` in `com.sun` package.
+2. The annotation `@MockMethod` and `@MockConstructor` used for mark mock replacement method has been renamed to `@MockInvoke` and `@MockNew`, which is more suitable for its real usage.
+
+The usage of those annotations and method has no change for below and above version `0.7.0`, so during the upgrading only rename is required.
+
 ### Upgrade to v0.6
 
 In version `0.6`，`TestableMock` provided a new [quick complicated class construction](en-us/doc/omni-constructor.md) capability. Meanwhile, it includes a modification that is incompatible with the `0.5` version: class `PrivateAccessor` have been moved from `com.alibaba.testable.core.accessor` package to `com.alibaba.testable.core.tool` package.

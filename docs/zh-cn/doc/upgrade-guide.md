@@ -1,6 +1,15 @@
 版本升级说明
 ---
 
+#### 升级到0.7.x版本
+
+在`0.7`版本重命名了Mock相关的注解和方法，以避免命名冲突和由于名字带来的理解歧义，包括两部分变化。
+
+1. 用于验证Mock方法调用的`verify()`方法与包括`com.sun`包在内的多个JVM内置静态方法重名，在IDE自动添加`import`时会有误选的情况，该方法在新版本中更名为`verifyInvoked()`，同时所属的类型更名为`InvocationVerifier`。
+2. 注解`@MockMethod`和`@MockConstructor`的实际作用是对方法调用和New操作进行Mock，而其名称容易使人误解为是对方法和构造器本身进行了Mock，在新版本中这两个注解分别已被分别更名为`@MockInvoke`和`@MockNew`。
+
+这些注解和方法的使用与之前版本并无差异，从`0.6.x`版本升级到`0.7.0`及以上版本时，请全局替换相关名称即可。
+
 ### 升级到0.6.x版本
 
 在`0.6`版本中，`TestableMock`提供了[快速构造复杂参数对象](zh-cn/doc/omni-constructor.md)的能力，同时包含一处与`0.5`版本不兼容的修改，`PrivateAccessor`类型的包路径从`com.alibaba.testable.core.accessor`移到了`com.alibaba.testable.core.tool`。

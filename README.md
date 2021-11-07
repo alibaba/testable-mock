@@ -9,7 +9,7 @@
 
 阅读[这里](https://mp.weixin.qq.com/s/KyU6Eu7mDkZU8FspfSqfMw)了解更多故事。
 
-<font size="5">**0.6版本已发布**</font>，从`0.5.x`升级到`0.6.x`版本请参考[版本升级指南](https://alibaba.github.io/testable-mock/#/zh-cn/doc/upgrade-guide)
+<font size="5">**0.7版本已发布**</font>，从`0.6.x`升级到`0.7.x`版本请参考[版本升级指南](https://alibaba.github.io/testable-mock/#/zh-cn/doc/upgrade-guide)
 
 -----
 
