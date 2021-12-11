@@ -1,5 +1,8 @@
 # Release Note
 
+## 0.7.1
+- fix an issue cause mock class unrecognized after package-mapping
+
 ## 0.7.0
 - fix an improper exception issue when mock method with `associated` scope invoked
 - rename type `InvokeVerifier`/`InvockeMatcher` to `InvocationVerifier`/`InvocationMatcher`

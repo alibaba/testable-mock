@@ -1,5 +1,8 @@
 # Release Note
 
+## 0.7.1
+- 修复包路径映射时后识别不到Mock类的问题（issue-248）
+
 ## 0.7.0
 - 修复当`scope`为`associated`的Mock方法被`null`对象调用，且上下文与测试用例未关联时抛错不合理的问题（issue-163）
 - 类型`InvokeVerifier`和`InvockeMatcher`更名为`InvocationVerifier`和`InvocationMatcher`

@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.alibaba.testable</groupId>
     <artifactId>testable-parent</artifactId>
-    <version>0.7.0</version>
+    <version>0.7.1</version>
     <packaging>pom</packaging>
     <name>testable-parent</name>
     <description>Unit test enhancement toolkit</description>
@@ -42,7 +42,7 @@
         <plugin.gpg.version>1.6</plugin.gpg.version>
         <plugin.staging.version>1.6.8</plugin.staging.version>
         <plugin.maven.version>3.6.0</plugin.maven.version>
-        <testable.version>0.7.0</testable.version>
+        <testable.version>0.7.1</testable.version>
     </properties>
 
     <profiles>
