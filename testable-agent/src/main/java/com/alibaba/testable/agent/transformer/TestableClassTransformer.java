@@ -63,15 +63,14 @@ public class TestableClassTransformer implements ClassFileTransformer {
     }
 
     private byte[] transformMock(byte[] bytes, ClassNode cn) {
-        String className = (GlobalConfig.getMockPackageMapping() == null) ? cn.name : mapPackage(cn.name);
         try {
             if (mockClassParser.isMockClass(cn)) {
                 // it's a mock class
-                bytes = new MockClassHandler(className).getBytes(bytes);
+                bytes = new MockClassHandler(cn.name).getBytes(bytes);
                 BytecodeUtil.dumpByte(cn, GlobalConfig.getDumpPath(), bytes);
                 return bytes;
             }
-            String mockClass = foundMockForSourceClass(className);
+            String mockClass = foundMockForSourceClass(cn.name);
             if (mockClass != null) {
                 // it's a source class with testable enabled
                 List<MethodInfo> injectMethods = mockClassParser.getTestableMockMethods(mockClass);
@@ -92,7 +91,7 @@ public class TestableClassTransformer implements ClassFileTransformer {
             LogUtil.error("Invalid mock method %s::%s - %s", e.getClassName(), e.getMethodName(), e.getMessage());
             System.exit(0);
         } catch (Throwable t) {
-            LogUtil.warn("Failed to transform class " + className);
+            LogUtil.warn("Failed to transform class " + cn.name);
             LogUtil.warn(t.toString());
             LogUtil.warn(ThreadUtil.getFirstRelatedStackLine(t));
         } finally {
@@ -102,18 +101,8 @@ public class TestableClassTransformer implements ClassFileTransformer {
         return bytes;
     }
 
-    private String mapPackage(String name) {
-        String dotSeparatedName = ClassUtil.toDotSeparatedName(name);
-        for (String prefix : GlobalConfig.getMockPackageMapping().keySet()) {
-            if (dotSeparatedName.startsWith(prefix)) {
-                return ClassUtil.toSlashSeparatedName(GlobalConfig.getMockPackageMapping().get(prefix))
-                    + name.substring(prefix.length());
-            }
-        }
-        return name;
-    }
-
-    private String foundMockForSourceClass(String className) {
+    private String foundMockForSourceClass(String name) {
+        String className = (GlobalConfig.getMockPackageMapping() == null) ? name : mapPackage(name);
         String mockClass = lookForMockWithAnnotationAsSourceClass(className);
         if (mockClass != null) {
             return mockClass;
@@ -123,6 +112,17 @@ public class TestableClassTransformer implements ClassFileTransformer {
             return mockClass;
         }
         return foundMockForInnerSourceClass(className);
+    }
+
+    private String mapPackage(String name) {
+        String dotSeparatedName = ClassUtil.toDotSeparatedName(name);
+        for (String prefix : GlobalConfig.getMockPackageMapping().keySet()) {
+            if (dotSeparatedName.startsWith(prefix)) {
+                return ClassUtil.toSlashSeparatedName(GlobalConfig.getMockPackageMapping().get(prefix))
+                        + name.substring(prefix.length());
+            }
+        }
+        return name;
     }
 
     private String foundMockForInnerSourceClass(String className) {
