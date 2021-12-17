@@ -433,7 +433,8 @@ public class SourceClassHandler extends BaseClassHandler {
                 mv.visitVarInsn(getLoadType(arg), isStatic ? i : i + 1);
             }
 
-            mv.visitMethodInsn(isStatic ? INVOKESTATIC : INVOKEVIRTUAL, handle.getOwner(), handle.getName(), desc, false);
+            // the method call is static ?
+            mv.visitMethodInsn(Opcodes.H_INVOKESTATIC == tag ? INVOKESTATIC : INVOKEVIRTUAL, handle.getOwner(), handle.getName(), desc, false);
 
             mv.visitInsn(getReturnType(returnType));
 
