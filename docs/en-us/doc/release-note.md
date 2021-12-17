@@ -1,5 +1,8 @@
 # Release Note
 
+## 0.7.2
+- fix an issue cause mock failed with static method reference
+
 ## 0.7.1
 - fix an issue cause mock class unrecognized after package-mapping
 
