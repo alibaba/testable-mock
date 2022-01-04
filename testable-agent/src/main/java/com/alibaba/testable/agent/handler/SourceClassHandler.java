@@ -386,7 +386,7 @@ public class SourceClassHandler extends BaseClassHandler {
             //        String s = "";
             //        consumes(s::contains);
             //}
-            boolean external = tag == Opcodes.H_INVOKEVIRTUAL;
+            boolean external = tag == Opcodes.H_INVOKEVIRTUAL || tag == H_INVOKEINTERFACE;
 
             boolean isStatic = tag == Opcodes.H_INVOKESTATIC || external;
 
@@ -434,7 +434,11 @@ public class SourceClassHandler extends BaseClassHandler {
             }
 
             // the method call is static ?
-            mv.visitMethodInsn(Opcodes.H_INVOKESTATIC == tag ? INVOKESTATIC : INVOKEVIRTUAL, handle.getOwner(), handle.getName(), desc, false);
+            if (handle.isInterface() && tag == H_INVOKEINTERFACE) {
+                mv.visitMethodInsn(INVOKEINTERFACE, handle.getOwner(), handle.getName(), desc, true);
+            } else {
+                mv.visitMethodInsn(Opcodes.H_INVOKESTATIC == tag ? INVOKESTATIC : INVOKEVIRTUAL, handle.getOwner(), handle.getName(), desc, false);
+            }
 
             mv.visitInsn(getReturnType(returnType));
 
