@@ -5,6 +5,9 @@ import com.alibaba.testable.core.annotation.MockInvoke;
 import com.alibaba.testable.core.model.LogLevel;
 import org.junit.jupiter.api.Test;
 
+import java.util.Collection;
+import java.util.stream.Stream;
+
 import static com.alibaba.testable.core.matcher.InvocationVerifier.verifyInvoked;
 
 
@@ -22,24 +25,40 @@ public class StaticInstanceReferenceTest {
         }
 
         @MockInvoke(targetClass = StaticInstanceReference.ILambda.class, targetMethod = "run")
-        private void mockFooRun() {
+        private void mockILambdaRun() {
         }
 
         @MockInvoke(targetClass = StaticInstanceReference.ILambda.class, targetMethod = "function1")
-        private void mockIFunction1(String s) {
+        private void mockILambdaFunction1(String s) {
+        }
+
+        @MockInvoke(targetClass = Collection.class, targetMethod = "stream")
+        <E> Stream<E> mockStream() {
+            return null;
         }
     }
 
     @Test
-    public void shouldMockT1() {
+    public void shouldMockDoIt() {
         instance.staticMethodReference();
-        verifyInvoked("mockDoIt").withTimes(2);
+        verifyInvoked("mockDoIt").withTimes(1);
     }
 
     @Test
-    public void shouldMockFooRun() {
+    public void shouldMockCollectionStream() {
+        instance.collectionInterfaceDefaultOrStatic();
+        verifyInvoked("mockStream").withTimes(1);
+    }
+
+    @Test
+    public void shouldMockInterfaceDefault() {
         instance.interfaceDefault();
-        verifyInvoked("mockFooRun").withTimes(1);
-        verifyInvoked("mockIFunction1").withTimes(1);
+        verifyInvoked("mockILambdaRun").withTimes(1);
+        verifyInvoked("mockILambdaFunction1").withTimes(1);
+    }
+
+    @Test
+    public void shouldMockInterfaceStatic() {
+        instance.interfaceStatic();
     }
 }

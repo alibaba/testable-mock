@@ -1,10 +1,7 @@
 package com.alibaba.demo.lambda;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -18,19 +15,29 @@ public class StaticInstanceReference {
     private static final StaticClassA STATIC_CLASS_A = new StaticClassA();
 
     public void staticMethodReference() {
-        StaticClassA a = new StaticClassA();
-        consumesRun(a::doIt);
+        //StaticClassA a = new StaticClassA();
+        //consumesRun(a::doIt);
         consumesRun(STATIC_CLASS_A::doIt);
         consumesFunction1(STATIC_CLASS_A::function1);
         consumesFunction2(STATIC_CLASS_A::function2);
         consumesFunction3(STATIC_CLASS_A::function3);
+
+    }
+
+    public void collectionInterfaceDefaultOrStatic() {
         blackHole(invokeInterfaceTest());
+        blackHole(interfaceStaticMethodTest());
     }
 
     public void interfaceDefault() {
         ILambda l = new LambdaFoo();
         consumesRun(l::run);
         consumesFunction1(l::function1);
+    }
+
+    public void interfaceStatic() {
+        consumesRun(ILambda::staticRun);
+        consumesFunction1(ILambda::staticFunction1);
     }
 
     private void consumesRun(Runnable r) {
@@ -96,6 +103,16 @@ public class StaticInstanceReference {
                 .reduce(BigDecimal::add);
     }
 
+    public Object interfaceStaticMethodTest() {
+        List<String[]> zz = new ArrayList<>();
+        zz.add(new String[]{"1"});
+        return zz.stream()
+                .flatMap(Arrays::stream)
+                .map(Double::valueOf)
+                .map(BigDecimal::new)
+                .reduce(BigDecimal::add);
+    }
+
     private void blackHole(Object... ignore) {}
 
     public interface ILambda {
@@ -104,6 +121,14 @@ public class StaticInstanceReference {
         }
 
         default void function1(String s) {
+
+        }
+
+        static void staticRun() {
+
+        }
+
+        static void staticFunction1(String s) {
 
         }
     }
