@@ -113,6 +113,14 @@ public class StaticInstanceReference {
                 .reduce(BigDecimal::add);
     }
 
+    public Object objectStaticMethodReference() {
+        List<List<Boolean>> zz = new ArrayList<>();
+        zz.add(new ArrayList<>());
+        return zz.stream()
+                .flatMap(Collection::stream)
+                .reduce(Boolean::logicalAnd);
+    }
+
     private void blackHole(Object... ignore) {}
 
     public interface ILambda {

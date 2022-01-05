@@ -18,7 +18,7 @@ public class StaticInstanceReferenceTest {
 
     private final StaticInstanceReference instance = new StaticInstanceReference();
 
-    //@MockDiagnose(LogLevel.VERBOSE)
+    @MockDiagnose(LogLevel.VERBOSE)
     public static class Mock {
         @MockInvoke(targetClass = StaticInstanceReference.StaticClassA.class, targetMethod = "doIt")
         private void mockDoIt() {
@@ -55,6 +55,11 @@ public class StaticInstanceReferenceTest {
         instance.interfaceDefault();
         verifyInvoked("mockILambdaRun").withTimes(1);
         verifyInvoked("mockILambdaFunction1").withTimes(1);
+    }
+
+    @Test
+    public void shouldMockObjectStaticMethodReference() {
+        instance.objectStaticMethodReference();
     }
 
     @Test
