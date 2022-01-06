@@ -8,8 +8,8 @@ import static com.alibaba.testable.core.matcher.InvocationVerifier.verifyInvoked
 /**
  * @author zcbbpo
  */
-public class ExternalLambdaDemoTest {
-    private final ExternalLambdaDemo lambdaDemo = new ExternalLambdaDemo();
+public class InvokeVirtualDemoTest {
+    private final InvokeVirtualDemo lambdaDemo = new InvokeVirtualDemo();
 
     @SuppressWarnings("unused")
     public static class Mock {
@@ -34,7 +34,7 @@ public class ExternalLambdaDemoTest {
             return "";
         }
 
-        @MockInvoke(targetClass = ExternalLambdaDemo.class, targetMethod = "f3")
+        @MockInvoke(targetClass = InvokeVirtualDemo.class, targetMethod = "f3")
         public Boolean mockF3(String s1, Long l) {
             return true;
         }

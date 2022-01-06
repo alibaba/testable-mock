@@ -9,7 +9,7 @@ import java.util.function.Supplier;
  * @author jimca
  */
 @SuppressWarnings({"WrapperTypeMayBePrimitive", "ResultOfMethodCallIgnored", "MismatchedReadAndWriteOfArray", "unused"})
-public class ExternalLambdaDemo {
+public class InvokeVirtualDemo {
 
     public void string1() {
         String s = "";
@@ -197,8 +197,8 @@ public class ExternalLambdaDemo {
     }
 
     public void function3() {
-        ExternalLambdaDemo externalLambdaDemo = new ExternalLambdaDemo();
-        consumesFunction3(externalLambdaDemo::f3);
+        InvokeVirtualDemo invokeVirtualDemo = new InvokeVirtualDemo();
+        consumesFunction3(invokeVirtualDemo::f3);
     }
 
     public Boolean f3(String s1, Long l) {
