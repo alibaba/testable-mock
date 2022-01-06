@@ -31,10 +31,14 @@ public class StaticInstanceReferenceTest {
         @MockInvoke(targetClass = StaticInstanceReference.ILambda.class, targetMethod = "function1")
         private void mockILambdaFunction1(String s) {
         }
-
         @MockInvoke(targetClass = Collection.class, targetMethod = "stream")
         <E> Stream<E> mockStream() {
             return null;
+        }
+
+        @MockInvoke(targetClass = Boolean.class, targetMethod = "logicalAnd")
+        public static boolean mockLogicalAnd(boolean a, boolean b) {
+            return false;
         }
     }
 
@@ -60,6 +64,7 @@ public class StaticInstanceReferenceTest {
     @Test
     public void shouldMockObjectStaticMethodReference() {
         instance.objectStaticMethodReference();
+        verifyInvoked("mockLogicalAnd").withTimes(2);
     }
 
     @Test

@@ -95,14 +95,12 @@ public class StaticInstanceReference {
         List<List<String>> zz = new ArrayList<>();
         zz.add(new ArrayList<>());
         return zz.stream()
-                //.flatMap(Collection::stream)
                 //.flatMap(v -> v.stream())
                 .flatMap(Collection::stream)
                 .map(Double::valueOf)
                 .map(BigDecimal::new)
                 .reduce(BigDecimal::add);
     }
-
     public Object interfaceStaticMethodTest() {
         List<String[]> zz = new ArrayList<>();
         zz.add(new String[]{"1"});
@@ -113,12 +111,15 @@ public class StaticInstanceReference {
                 .reduce(BigDecimal::add);
     }
 
-    public Object objectStaticMethodReference() {
-        List<List<Boolean>> zz = new ArrayList<>();
-        zz.add(new ArrayList<>());
-        return zz.stream()
-                .flatMap(Collection::stream)
-                .reduce(Boolean::logicalAnd);
+    public void objectStaticMethodReference() {
+        List<Boolean> f = new ArrayList<>();
+        f.add(false);
+        f.add(false);
+        f.add(false);
+        blackHole(f.stream()
+                .reduce(Boolean::logicalAnd)
+                .get()
+        );
     }
 
     private void blackHole(Object... ignore) {}

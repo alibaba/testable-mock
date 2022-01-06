@@ -3,7 +3,11 @@ package com.alibaba.demo.lambda;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.BiFunction;
+import java.util.function.Function;
+import java.util.function.Supplier;
+import java.util.stream.Stream;
 
 /**
  * @author jim
@@ -11,17 +15,17 @@ import java.util.function.BiFunction;
 public class Fzo {
 
     public void objectStaticMethodReference() {
-        consumesFunction3(Boolean::logicalAnd);
-        //consumesFunction3((v1, v2) -> Boolean.logicalAnd(v1, v2));
+        Boolean aBoolean = zz().get();
+        System.out.println(aBoolean);
     }
 
-    private <R> void consumesFunction3(BiFunction<Boolean, Boolean, R> r) {
-        r.apply(true, true);
-    }
-
-    public Object zz() {
+    public Optional<Boolean> zz() {
         List<List<Boolean>> zz = new ArrayList<>();
-        zz.add(new ArrayList<>());
+        List<Boolean> f = new ArrayList<>();
+        f.add(false);
+        f.add(false);
+        f.add(false);
+        zz.add(f);
         return zz.stream()
                 .flatMap(Collection::stream)
                 .reduce(Boolean::logicalAnd);

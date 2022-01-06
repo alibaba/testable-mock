@@ -1,16 +1,15 @@
 package com.alibaba.testable.agent.handler;
 
 import com.alibaba.testable.agent.model.BasicType;
+import com.alibaba.testable.agent.model.BsmArg;
 import com.alibaba.testable.agent.model.MethodInfo;
 import com.alibaba.testable.agent.model.TravelStatus;
 import com.alibaba.testable.agent.util.BytecodeUtil;
 import com.alibaba.testable.agent.util.ClassUtil;
 import com.alibaba.testable.agent.util.MethodUtil;
+import com.alibaba.testable.agent.util.WrapperUtil;
 import com.alibaba.testable.core.util.LogUtil;
-import org.objectweb.asm.Handle;
-import org.objectweb.asm.Label;
-import org.objectweb.asm.MethodVisitor;
-import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.*;
 import org.objectweb.asm.tree.*;
 
 import java.lang.reflect.Field;
@@ -341,7 +340,7 @@ public class SourceClassHandler extends BaseClassHandler {
         return Opcodes.INVOKEVIRTUAL == opcode && ClassUtil.isCompanionClassName(ownerClass);
     }
 
-    private void setFinalValue(Field ownerField, Object obj, Object value) throws Exception {
+    public static void setFinalValue(Field ownerField, Object obj, Object value) throws Exception {
         ownerField.setAccessible(true);
         Field modifiersField = Field.class.getDeclaredField("modifiers");
         modifiersField.setAccessible(true);
@@ -349,77 +348,48 @@ public class SourceClassHandler extends BaseClassHandler {
         ownerField.set(obj, value);
     }
 
-    private List<Handle> fetchInvokeDynamicHandle(MethodNode mn) {
-        List<Handle> handleList = new ArrayList<Handle>();
+    private List<BsmArg> fetchInvokeDynamicHandle(MethodNode mn) {
+        List<BsmArg> handleList = new ArrayList<BsmArg>();
         for (AbstractInsnNode instruction : mn.instructions) {
             if (instruction.getOpcode() == Opcodes.INVOKEDYNAMIC) {
                 InvokeDynamicInsnNode invokeDynamicInsnNode = (InvokeDynamicInsnNode) instruction;
-                handleList.add((Handle) invokeDynamicInsnNode.bsmArgs[1]);
+                //handleList.add((Handle) invokeDynamicInsnNode.bsmArgs[1]);
+                BsmArg bsmArg = new BsmArg(invokeDynamicInsnNode.bsmArgs);
+                handleList.add(bsmArg);
             }
         }
         return handleList;
     }
 
     private void resolveMethodReference(ClassNode cn) {
-        List<Handle> invokeDynamicList = new ArrayList<Handle>();
+        List<BsmArg> invokeDynamicList = new ArrayList<BsmArg>();
         for (MethodNode method : cn.methods) {
-            List<Handle> handleList = fetchInvokeDynamicHandle(method);
+            List<BsmArg> handleList = fetchInvokeDynamicHandle(method);
             invokeDynamicList.addAll(handleList);
         }
 
         // process for method reference
-        for (Handle handle : invokeDynamicList) {
+        for (BsmArg bsmArg : invokeDynamicList) {
             // the jdk auto generation method
-            if (handle.getName().startsWith("lambda$")) {
+            if (bsmArg.getHandle().getName().startsWith("lambda$")) {
                 continue;
             }
 
-            int tag = handle.getTag();
+            int tag = bsmArg.getHandle().getTag();
 
             if (tag == Opcodes.H_NEWINVOKESPECIAL) {
                 // lambda new method reference
                 continue;
             }
 
-            // external mean:
-            // public void foo() {
-            //        String s = "";
-            //        consumes(s::contains);
-            //}
-            boolean external = tag == Opcodes.H_INVOKEVIRTUAL || tag == Opcodes.H_INVOKEINTERFACE;
+            boolean isStatic = bsmArg.isStatic();
+            Handle handle = bsmArg.getHandle();
+            Type handleDesc = bsmArg.getHandleDesc();
+            Type methodDesc = bsmArg.getMethodDesc();
 
-            boolean isStatic = tag == Opcodes.H_INVOKESTATIC || external;
-
-            String desc = handle.getDesc();
-            String parameters = desc.substring(desc.indexOf("(") + 1, desc.lastIndexOf(")"));
-            String returnType = desc.substring(desc.indexOf(")") + 1);
-            String[] parameterArray = parameters.split(";");
-            int len = parameterArray.length;
-            for (String s : parameterArray) {
-                if (s.isEmpty()) {
-                    len--;
-                }
-            }
-
-            len = external ? len + 1 : len;
-
-            String[] refineParameterArray = new String[len];
-            int index = external ? 1 : 0;
-            if (external) {
-                // The type should was reference type
-                refineParameterArray[0] = "L" + handle.getOwner();
-            }
-            for (String s : parameterArray) {
-                if (!s.isEmpty()) {
-                    refineParameterArray[index] = s;
-                    index++;
-                }
-            }
-
-            String externalDesc = buildDesc(refineParameterArray, returnType);
 
             String lambdaName = String.format("Lambda$_%s_%d", handle.getName(), atomicInteger.incrementAndGet());
-            MethodVisitor mv = cn.visitMethod(isStatic ? ACC_PUBLIC + ACC_STATIC : ACC_PUBLIC, lambdaName, external ? externalDesc : desc, null, null);
+            MethodVisitor mv = cn.visitMethod(isStatic ? ACC_PUBLIC + ACC_STATIC : ACC_PUBLIC, lambdaName, handleDesc.getDescriptor(), null, null);
             mv.visitCode();
 
             Label l0 = new Label();
@@ -428,46 +398,52 @@ public class SourceClassHandler extends BaseClassHandler {
                 // add this
                 mv.visitVarInsn(ALOAD, 0);
             }
-            for (int i = 0; i < refineParameterArray.length; i++) {
-                String arg = refineParameterArray[i];
-                mv.visitVarInsn(getLoadType(arg), isStatic ? i : i + 1);
+            Type[] argumentTypes = handleDesc.getArgumentTypes();
+            Type[] methodArgs = methodDesc.getArgumentTypes();
+            for (int i = 0; i < argumentTypes.length; i++) {
+                String arg = argumentTypes[i].getDescriptor();
+                String methodArg = methodArgs[i].getDescriptor();
+
+                WrapperUtil.Boxed boxed = WrapperUtil.wrapper2Primitive(methodArg, arg);
+                if (boxed != null) {
+                    mv.visitVarInsn(getLoadType(methodArg), isStatic ? i : i + 1);
+                    mv.visitMethodInsn(INVOKEVIRTUAL, boxed.getOwner(), boxed.getW2pMethod(), boxed.getW2pMethodDesc(), false);
+                } else {
+                    mv.visitVarInsn(getLoadType(arg), isStatic ? i : i + 1);
+                }
             }
 
             // the method call is static ?
-            mv.visitMethodInsn(Opcodes.H_INVOKESTATIC == tag ? INVOKESTATIC : INVOKEVIRTUAL, handle.getOwner(), handle.getName(), desc, false);
+            if (tag == H_INVOKEINTERFACE) {
+                mv.visitMethodInsn(INVOKEINTERFACE, handle.getOwner(), handle.getName(), bsmArg.getOriginalHandleDesc(), handle.isInterface());
+            } else {
+                mv.visitMethodInsn(Opcodes.H_INVOKESTATIC == tag ? INVOKESTATIC : INVOKEVIRTUAL, handle.getOwner(), handle.getName(), bsmArg.getOriginalHandleDesc(), handle.isInterface());
+            }
 
-            mv.visitInsn(getReturnType(returnType));
+            WrapperUtil.Boxed boxed = WrapperUtil.primitive2Wrapper(handleDesc.getReturnType().getDescriptor(), methodDesc.getReturnType().getDescriptor());
+            if (boxed != null) {
+                mv.visitMethodInsn(INVOKESTATIC, boxed.getOwner(), boxed.getP2wMethod(), boxed.getP2wMethodDesc(), false);
+                mv.visitInsn(getReturnType(methodDesc.getReturnType().getDescriptor()));
+            } else {
+                mv.visitInsn(getReturnType(handleDesc.getReturnType().getDescriptor()));
+            }
+
 
             Label l1 = new Label();
             mv.visitLabel(l1);
 
             // static function was not required add this to first parameter
             if (isStatic) {
-                for (int i = 0; i < refineParameterArray.length; i++) {
-                    String localVar = refineParameterArray[i];
-                    if (!isPrimitive(localVar)) {
-                        // primitive type and reference type difference
-                        localVar = localVar.endsWith(";") ? localVar : localVar + ";";
-                    }
-
-                    if (localVar.isEmpty()) {
-                        continue;
-                    }
+                for (int i = 0; i < argumentTypes.length; i++) {
+                    String localVar = argumentTypes[i].getDescriptor();
 
                     // add local var
                     mv.visitLocalVariable(String.format("o%d", i), localVar, null, l0, l1, i);
                 }
             } else {
                 mv.visitLocalVariable("this", "L" + handle.getOwner() + ";", null, l0, l1, 0);
-                for (int i = 0; i < refineParameterArray.length; i++) {
-                    String localVar = refineParameterArray[i];
-                    if (!isPrimitive(localVar) && !isPrimitiveArray(localVar)) {
-                        localVar = localVar.endsWith(";") ? localVar : localVar + ";";
-                    }
-                    if (localVar.isEmpty()) {
-                        continue;
-                    }
-
+                for (int i = 0; i < argumentTypes.length; i++) {
+                    String localVar = argumentTypes[i].getDescriptor();
                     mv.visitLocalVariable(String.format("o%d", i), localVar, null, l0, l1, i + 1);
                 }
             }
@@ -475,7 +451,9 @@ public class SourceClassHandler extends BaseClassHandler {
             mv.visitMaxs(-1, -1);
             mv.visitEnd();
 
-            try {
+            bsmArg.complete(cn.name, lambdaName);
+            /*try {
+
                 // modify handle to the generation method
                 setFinalValue(handle.getClass().getDeclaredField("name"), handle, lambdaName);
                 // mark: should merge the below two if.
@@ -488,7 +466,7 @@ public class SourceClassHandler extends BaseClassHandler {
                     setFinalValue(handle.getClass().getDeclaredField("tag"), handle, H_INVOKESTATIC);
                 }
             } catch (Exception ignore) {
-            }
+            }*/
         }
     }
 
