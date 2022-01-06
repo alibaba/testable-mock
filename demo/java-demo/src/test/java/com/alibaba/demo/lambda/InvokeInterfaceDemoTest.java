@@ -20,7 +20,7 @@ public class InvokeInterfaceDemoTest {
 
     private final InvokeInterfaceDemo instance = new InvokeInterfaceDemo();
 
-    @MockDiagnose(LogLevel.VERBOSE)
+    //@MockDiagnose(LogLevel.VERBOSE)
     public static class Mock {
 
         @MockInvoke(targetClass = InvokeInterfaceDemo.ILambda.class, targetMethod = "run")

@@ -15,7 +15,7 @@ public class StaticInstanceReferenceTest {
 
     private final StaticInstanceReference instance = new StaticInstanceReference();
 
-    @MockDiagnose(LogLevel.VERBOSE)
+    //@MockDiagnose(LogLevel.VERBOSE)
     public static class Mock {
         @MockInvoke(targetClass = StaticInstanceReference.StaticClassA.class, targetMethod = "doIt")
         private void mockDoIt() {

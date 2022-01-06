@@ -30,6 +30,8 @@ public class InvokeInterfaceDemo implements BaseDemo {
     public Object collectionStreamTest() {
         List<List<String>> testList = new ArrayList<>();
         List<String> fooList = new ArrayList<>();
+        fooList.add("123");
+        fooList.add("456");
         testList.add(fooList);
         return testList.stream()
                 //.flatMap(v -> v.stream())
