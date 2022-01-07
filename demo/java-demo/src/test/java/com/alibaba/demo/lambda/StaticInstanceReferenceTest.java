@@ -13,17 +13,17 @@ import static com.alibaba.testable.core.matcher.InvocationVerifier.verifyInvoked
  */
 public class StaticInstanceReferenceTest {
 
-    private StaticInstanceReference instance = new StaticInstanceReference();
+    private final StaticInstanceReference instance = new StaticInstanceReference();
 
     //@MockDiagnose(LogLevel.VERBOSE)
     public static class Mock {
-        @MockInvoke(targetClass = StaticInstanceReference.A.class, targetMethod = "doIt")
+        @MockInvoke(targetClass = StaticInstanceReference.StaticClassA.class, targetMethod = "doIt")
         private void mockDoIt() {
         }
     }
 
     @Test
-    public void shouldMockT1() {
+    public void shouldMockDoIt() {
         instance.staticMethodReference();
         verifyInvoked("mockDoIt").withTimes(1);
     }

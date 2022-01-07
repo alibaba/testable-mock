@@ -19,4 +19,15 @@ public class StringUtil {
         return sb.toString();
     }
 
+    public static String join(String delimiter, String[] s) {
+        StringBuilder stringBuilder = new StringBuilder();
+        for (int i = 0; i < s.length; i++) {
+            stringBuilder.append(s[i]);
+            if (i != s.length - 1) {
+                stringBuilder.append(delimiter);
+            }
+        }
+        return stringBuilder.toString();
+    }
+
 }
