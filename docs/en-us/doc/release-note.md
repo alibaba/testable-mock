@@ -1,5 +1,8 @@
 # Release Note
 
+## 0.7.3
+- fix an issue cause mock failed with referring to method defined in interface
+
 ## 0.7.2
 - fix an issue cause mock failed with static method reference
 
