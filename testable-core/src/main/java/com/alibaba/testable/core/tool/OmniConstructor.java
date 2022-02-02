@@ -227,6 +227,10 @@ public class OmniConstructor {
 
     private static Object createInstance(Class<?> clazz, Set<Class<?>> classPool)
         throws InstantiationException, IllegalAccessException, InvocationTargetException {
+        Object ins = createSpecialClass(clazz);
+        if (ins != null) {
+            return ins;
+        }
         Constructor<?> constructor = getBestConstructor(clazz);
         if (constructor == null) {
             throw new ClassConstructionException("Fail to invoke constructor of " + clazz.getName());
@@ -242,6 +246,18 @@ public class OmniConstructor {
             }
             return constructor.newInstance(args);
         }
+    }
+
+    private static Object createSpecialClass(Class<?> clazz) throws InstantiationException, IllegalAccessException, InvocationTargetException {
+        try {
+            // java.net.URL is loaded before OmniClassHandler, cannot be instrumented
+            if (clazz.getName().equals("java.net.URL")) {
+                return clazz.getDeclaredConstructor(String.class).newInstance("https://");
+            }
+        } catch (NoSuchMethodException e) {
+            return null;
+        }
+        return null;
     }
 
     private static Constructor<?> getBestConstructor(Class<?> clazz) {
