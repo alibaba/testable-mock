@@ -11,6 +11,7 @@
   - [复用Mock类与方法](zh-cn/doc/mock-method-reusing.md)
   - [使用MockWith注解](zh-cn/doc/use-mock-with.md)
   - [使用包路径映射](zh-cn/doc/use-package-mapping.md)
+  - [使用IntelliJ插件](zh-cn/doc/use-intellij-plugin.md)
   - [常见使用问题](zh-cn/doc/frequently-asked-questions.md)
   - [Mock线程池内的调用](zh-cn/doc/with-thread-pool.md)
   - [在IDE运行单元测试](zh-cn/doc/use-in-ide.md)

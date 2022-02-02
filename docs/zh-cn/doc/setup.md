@@ -16,7 +16,7 @@
 
 ```xml
 <properties>
-    <testable.version>0.7.3</testable.version>
+    <testable.version>0.7.4</testable.version>
 </properties>
 ```
 
@@ -63,8 +63,8 @@
 
 ```groovy
 dependencies {
-    testImplementation('com.alibaba.testable:testable-all:0.7.3')
-    testAnnotationProcessor('com.alibaba.testable:testable-processor:0.7.3')
+    testImplementation('com.alibaba.testable:testable-all:0.7.4')
+    testAnnotationProcessor('com.alibaba.testable:testable-processor:0.7.4')
 }
 ```
 
@@ -109,5 +109,7 @@ test {
 > ```groovy
 > sourceCompatibility = '6'  // 或7/8/9/...
 > ```
+> 
+> **注意**：由于`Spock`采用基于字符串解析的特殊执行方式，`TestableTool`工具类在`Spock`框架中无法使用。
 > 
 > 完整代码可参考`demo/spock-demo`示例项目。

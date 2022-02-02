@@ -31,7 +31,9 @@
 |-- tool                  ➜ 项目开发过程中的工具脚本
 |-- demo
 |   |-- java-demo         ➜ Java语言的示例代码
-|   `-- kotlin-demo       ➜ Kotlin语言的示例代码
+|   |-- kotlin-demo       ➜ Kotlin语言的示例代码
+|   |-- android-demo      ➜ Android项目的示例代码
+|   `-- spock-demo        ➜ Spock测试框架的示例代码
 `-- docs                  ➜ 项目使用文档
 ```
 

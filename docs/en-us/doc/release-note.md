@@ -1,5 +1,8 @@
 # Release Note
 
+## 0.7.4
+- fix an `OmniConstructor.newInstance()` fail issue caused by `java.net.URL` class cannot be instrumented
+
 ## 0.7.3
 - fix an issue cause mock failed with referring to method defined in interface
 
