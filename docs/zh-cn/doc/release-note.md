@@ -1,5 +1,8 @@
 # Release Note
 
+## 0.7.4
+- 修复`java.net.URL`类无法被instrument导致使用`OmniConstructor`构造报错的问题（issue-261）
+
 ## 0.7.3
 - 修复接口方法引用导致Mock报错的问题（issue-254）
 
