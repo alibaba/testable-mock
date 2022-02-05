@@ -33,7 +33,7 @@
 
 本地准备JDK 11环境，然后执行以下命令：
 
-```text
+```bash
 git clone https://github.com/zcbbpo/testable-idea
 cd testable-idea
 ./gradlew clean build
