@@ -62,3 +62,9 @@ This framework will run Android unit tests on a standard JVM virtual machine, wh
 This problem is caused by the system `Class Path` content is too long, and has nothing to do with `TestableMock`. However, it should be noted that IntelliJ provides two auxiliary solutions: `JAR manifest` and `classpath file`. If `TestableMock` is used in the test, please select `JAR manifest`.
 
 ![jar-manifest.png](https://img.alicdn.com/imgextra/i2/O1CN01hfC5YE1Kw0gBIlB2x_!!6000000001227-2-tps-752-171.png)
+
+#### 10. Getting "no unique public constructor for [xxx]" error with `OmniConstructor`?
+
+When the `omni.constructor.enhance.enable` configuration is enabled, `TestableMock` will dynamically add a constructor with a parameter of `java.lang.Void` when each class is loaded into memory to avoid the original type constructor exceptions that may be thrown. The above error occurs when some frameworks do not allow multiple constructors for some classes.
+
+The solution is to add the package path where the error class is located to the `omni.constructor.enhance.pkgPrefix.excludes` configuration, which tell `TestableMock` not to dynamically add constructors to these classes. For details, please refer to the [Global Run Arguments](en-us/doc/javaagent-args.md) document.

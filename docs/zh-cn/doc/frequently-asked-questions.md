@@ -64,3 +64,9 @@ Kotlin语言中的`String`类型实际上是`kotlin.String`，而非`java.lang.S
 这个问题是由于系统ClassPath包含太多路径所致，与是否使用`TestableMock`无关。但需要注意的是，IntelliJ提供了两种辅助解决机制：`JAR manifest`和`classpath file`，若测试中使用了`TestableMock`，请选择`JAR manifest`。
 
 ![jar-manifest.png](https://img.alicdn.com/imgextra/i2/O1CN01hfC5YE1Kw0gBIlB2x_!!6000000001227-2-tps-752-171.png)
+
+#### 10. 使用`OmniConstructor`遇到"no unique public constructor for [xxx]"错误？
+
+当启用`omni.constructor.enhance.enable`配置时，`TestableMock`会在每个类加载进内存时动态添加一个参数为`java.lang.Void`的构造方法，用于避开原类型构造方法里可能抛出的异常。若遇到某些框架不允许类型存在多个构造方法的时候，就会出现上述错误。
+
+解决办法是将报错类所在的包路径添加到`omni.constructor.enhance.pkgPrefix.excludes`配置中，告知`TestableMock`不要对这些类动态添加构造方法即可。配置方法详见[全局运行参数](zh-cn/doc/javaagent-args.md)文档。
