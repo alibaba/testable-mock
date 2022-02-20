@@ -38,7 +38,7 @@ public class OmniClassHandler extends BaseClassHandler {
 
     @Override
     protected void transform(ClassNode cn) {
-        if (isInterfaceOrAtom(cn) || isJunitTestClass(cn) || isUninstantiableClass(cn) || hasSpecialAnnotation(cn)) {
+        if (isInterfaceOrAtom(cn) || isUniqueConstructorClass(cn) || isUninstantiableClass(cn) || hasSpecialAnnotation(cn)) {
             return;
         }
         addConstructorWithVoidTypeParameter(cn);
@@ -89,7 +89,11 @@ public class OmniClassHandler extends BaseClassHandler {
         return (cn.access & ACC_INTERFACE) != 0 || cn.superName == null || VOID_TYPE.equals(cn.name);
     }
 
-    private boolean isJunitTestClass(ClassNode cn) {
+    private boolean isUniqueConstructorClass(ClassNode cn) {
+        // elastic plugin class should contain only one constructor
+        if ("org/elasticsearch/plugins/Plugin".equals(cn.superName)) {
+            return true;
+        }
         // junit require test class contains only one constructor
         for (MethodNode mn : cn.methods) {
             if (mn.visibleAnnotations == null) {
