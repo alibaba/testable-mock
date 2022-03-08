@@ -1,5 +1,8 @@
 # Release Note
 
+## 0.7.5
+- 修复Mock数组类型返回值方法报错的问题（issue-267）
+
 ## 0.7.4
 - 修复`java.net.URL`类无法被instrument导致使用`OmniConstructor`构造报错的问题（issue-261）
 

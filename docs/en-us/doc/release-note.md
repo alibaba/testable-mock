@@ -1,5 +1,8 @@
 # Release Note
 
+## 0.7.5
+- fix an issue cause mocking method with array return type fails
+
 ## 0.7.4
 - fix an `OmniConstructor.newInstance()` fail issue caused by `java.net.URL` class cannot be instrumented
 
