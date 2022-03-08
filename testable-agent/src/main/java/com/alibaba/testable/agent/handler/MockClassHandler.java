@@ -190,7 +190,10 @@ public class MockClassHandler extends BaseClassWithContextHandler {
         if (VOID_RES.equals(returnType)) {
             il.add(new InsnNode(POP));
             il.add(new InsnNode(RETURN));
-        } else if (returnType.charAt(0) == TYPE_ARRAY || returnType.charAt(0) == TYPE_CLASS) {
+        } else if (returnType.charAt(0) == TYPE_ARRAY) {
+            il.add(new TypeInsnNode(CHECKCAST, returnType));
+            il.add(new InsnNode(ARETURN));
+        } else if (returnType.charAt(0) == TYPE_CLASS) {
             il.add(new TypeInsnNode(CHECKCAST, ClassUtil.toSlashSeparateJavaStyleName(returnType)));
             il.add(new InsnNode(ARETURN));
         } else {
