@@ -342,7 +342,12 @@ public class SourceClassHandler extends BaseClassHandler {
         for (AbstractInsnNode instruction : mn.instructions) {
             if (instruction.getOpcode() == Opcodes.INVOKEDYNAMIC) {
                 InvokeDynamicInsnNode invokeDynamicInsnNode = (InvokeDynamicInsnNode) instruction;
-                //handleList.add((Handle) invokeDynamicInsnNode.bsmArgs[1]);
+                // java9+ String makeConcatWithConstants will ues INVOKEDYNAMIC to optimize.
+                // When the mock source method has like  <code>"abc" + "def"</code> the bsmArgs length was 1
+                // https://openjdk.java.net/jeps/280
+                if (invokeDynamicInsnNode.bsmArgs.length < 3) {
+                    continue;
+                }
                 BsmArg bsmArg = new BsmArg(invokeDynamicInsnNode.bsmArgs);
                 handleList.add(bsmArg);
             }
