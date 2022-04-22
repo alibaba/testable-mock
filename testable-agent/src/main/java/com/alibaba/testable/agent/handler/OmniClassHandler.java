@@ -94,6 +94,10 @@ public class OmniClassHandler extends BaseClassHandler {
         if ("org/elasticsearch/plugins/Plugin".equals(cn.superName)) {
             return true;
         }
+        // should skip mockito generated class
+        if (cn.name.contains("$MockitoMock$")) {
+            return true;
+        }
         // junit require test class contains only one constructor
         for (MethodNode mn : cn.methods) {
             if (mn.visibleAnnotations == null) {
