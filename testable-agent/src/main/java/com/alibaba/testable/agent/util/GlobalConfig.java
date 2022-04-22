@@ -6,10 +6,7 @@ import com.alibaba.testable.core.util.LogUtil;
 
 import java.io.File;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static com.alibaba.testable.agent.constant.ConstPool.PROPERTY_TEMP_DIR;
 import static com.alibaba.testable.agent.constant.ConstPool.PROPERTY_USER_DIR;
@@ -114,7 +111,7 @@ public class GlobalConfig {
 
     public static void addMockPackageMapping(String originPkg, String mockClassPkg) {
         if (mockPkgMapping == null) {
-            mockPkgMapping = new HashMap<String, String>(5);
+            mockPkgMapping = new LinkedHashMap<String, String>(5);
         }
         mockPkgMapping.put(originPkg + DOT, mockClassPkg + DOT);
     }
