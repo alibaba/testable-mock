@@ -1,5 +1,10 @@
 # Release Note
 
+## 0.7.6
+- 依据定义顺序匹配包映射规则，防止短路径覆盖长路径（issue-275）
+- 修复JDK 9+的兼容性问题（issue-270 / pr-274）
+- 在`OmniConstructor`字节码增强时忽略Mockito生成的类型（issue-197）
+
 ## 0.7.5
 - 修复Mock数组类型返回值方法报错的问题（issue-267）
 
