@@ -165,7 +165,7 @@ For complete code examples, see the `should_get_source_method_name()` and `shoul
 
 In test cases, you can use the `InvocationVerifier.verifyInvoked()` method, and cooperate with `with()`, `withInOrder()`, `without()`, `withTimes()` and other methods to verify the mock call situation.
 
-For details, please refer to the [Check Mock Call](en-us/doc/matcher.md) document.
+For details, please refer to the [Check Mock Call](en-us/doc/invoke-matcher.md) document.
 
 ### 4. Special instructions
 

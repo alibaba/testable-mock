@@ -165,7 +165,7 @@ private Data mockDemo() {
 
 在测试用例中可用通过`InvocationVerifier.verifyInvoked()`方法，配合`with()`、`withInOrder()`、`without()`、`withTimes()`等方法实现对Mock调用情况的验证。
 
-详见[校验Mock调用](zh-cn/doc/matcher.md)文档。
+详见[校验Mock调用](zh-cn/doc/invoke-matcher.md)文档。
 
 ### 4. 特别说明
 
