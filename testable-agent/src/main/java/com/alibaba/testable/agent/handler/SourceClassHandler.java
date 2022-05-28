@@ -11,10 +11,7 @@ import com.alibaba.testable.core.util.LogUtil;
 import org.objectweb.asm.*;
 import org.objectweb.asm.tree.*;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.alibaba.testable.core.constant.ConstPool.CONSTRUCTOR;
@@ -47,6 +44,10 @@ public class SourceClassHandler extends BaseClassHandler {
     @Override
     protected void transform(ClassNode cn) {
         LogUtil.diagnose("Found source class %s", cn.name);
+        if (injectMethods.isEmpty()) {
+            return;
+        }
+
         Set<MethodInfo> memberInjectMethods = new HashSet<MethodInfo>();
         Set<MethodInfo> newOperatorInjectMethods = new HashSet<MethodInfo>();
         for (MethodInfo im : injectMethods) {
@@ -57,7 +58,9 @@ public class SourceClassHandler extends BaseClassHandler {
             }
         }
 
-        resolveMethodReference(cn);
+        if (!memberInjectMethods.isEmpty()) {
+            resolveMethodReference(cn, memberInjectMethods);
+        }
 
         for (MethodNode m : cn.methods) {
             transformMethod(m, memberInjectMethods, newOperatorInjectMethods);
@@ -355,11 +358,17 @@ public class SourceClassHandler extends BaseClassHandler {
         return handleList;
     }
 
-    private void resolveMethodReference(ClassNode cn) {
+    private void resolveMethodReference(ClassNode cn, Set<MethodInfo> mockedMethods) {
         List<BsmArg> invokeDynamicList = new ArrayList<BsmArg>();
         for (MethodNode method : cn.methods) {
             List<BsmArg> handleList = fetchInvokeDynamicHandle(method);
-            invokeDynamicList.addAll(handleList);
+            for (BsmArg arg : handleList) {
+                for (MethodInfo mi : mockedMethods) {
+                    if (isMethodMocked(arg.getHandle(), mi)) {
+                        invokeDynamicList.add(arg);
+                    }
+                }
+            }
         }
 
         // process for method reference
@@ -422,6 +431,19 @@ public class SourceClassHandler extends BaseClassHandler {
 
             bsmArg.complete(cn.name, lambdaName);
         }
+    }
+
+    private boolean isMethodMocked(Handle targetHandle, MethodInfo mockMethodInfo) {
+        if (targetHandle.getTag() == Opcodes.H_INVOKEINTERFACE || targetHandle.getTag() == Opcodes.H_INVOKEVIRTUAL) {
+            String targetMockDesc = MethodUtil.addParameterAtBegin(mockMethodInfo.getDesc(),
+                    ClassUtil.toByteCodeClassName(mockMethodInfo.getClazz()));
+            return mockMethodInfo.getClazz().equals(targetHandle.getOwner()) &&
+                    mockMethodInfo.getName().equals(targetHandle.getName()) &&
+                    targetMockDesc.equals(targetHandle.getDesc());
+        }
+        return mockMethodInfo.getClazz().equals(targetHandle.getOwner()) &&
+                mockMethodInfo.getName().equals(targetHandle.getName()) &&
+                mockMethodInfo.getDesc().equals(targetHandle.getDesc());
     }
 
     private void visitLocalVariableByArguments(MethodVisitor mv, final int initVar, Type[] argumentTypes, Label l0, Label l1) {

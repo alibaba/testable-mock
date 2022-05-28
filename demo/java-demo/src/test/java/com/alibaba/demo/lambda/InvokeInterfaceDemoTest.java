@@ -1,8 +1,6 @@
 package com.alibaba.demo.lambda;
 
-import com.alibaba.testable.core.annotation.MockDiagnose;
 import com.alibaba.testable.core.annotation.MockInvoke;
-import com.alibaba.testable.core.model.LogLevel;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -20,7 +18,6 @@ public class InvokeInterfaceDemoTest {
 
     private final InvokeInterfaceDemo instance = new InvokeInterfaceDemo();
 
-    //@MockDiagnose(LogLevel.VERBOSE)
     public static class Mock {
 
         @MockInvoke(targetClass = InvokeInterfaceDemo.ILambda.class, targetMethod = "run")

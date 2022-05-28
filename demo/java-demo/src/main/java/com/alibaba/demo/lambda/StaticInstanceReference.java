@@ -1,12 +1,5 @@
 package com.alibaba.demo.lambda;
 
-import java.math.BigDecimal;
-import java.util.*;
-import java.util.function.BiFunction;
-import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-
 /**
  * @author jim
  */
