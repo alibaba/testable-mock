@@ -2,6 +2,7 @@
 
 ## 0.7.7
 
+- skip bytecode process for classes which not associated to any mock class, speed up test initialization
 - only generate substitution method for mocked method references
 - fix compatibility issue with jdk 17
 
