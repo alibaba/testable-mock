@@ -1,5 +1,10 @@
 # Release Note
 
+## 0.7.7
+
+- only generate substitution method for mocked method references
+- fix compatibility issue with jdk 17
+
 ## 0.7.6
 - define package mapping rule according to order in config, to avoid a short path overwrite longer ones
 - fix compatibility issue with jdk 9+
