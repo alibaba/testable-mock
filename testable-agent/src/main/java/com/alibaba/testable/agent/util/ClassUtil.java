@@ -239,7 +239,7 @@ public class ClassUtil {
      * @return outer class name
      */
     public static String toOuterClassName(String name) {
-        int pos = name.lastIndexOf("$");
+        int pos = name.lastIndexOf(DOLLAR);
         return (pos > 0) ? name.substring(0, pos) : name;
     }
 

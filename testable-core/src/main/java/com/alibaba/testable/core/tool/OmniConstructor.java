@@ -3,6 +3,7 @@ package com.alibaba.testable.core.tool;
 import com.alibaba.testable.core.exception.ClassConstructionException;
 import com.alibaba.testable.core.model.ConstructionOption;
 import com.alibaba.testable.core.util.CollectionUtil;
+import com.alibaba.testable.core.util.ConstructionUtil;
 import com.alibaba.testable.core.util.LogUtil;
 import com.alibaba.testable.core.util.TypeUtil;
 
@@ -180,7 +181,7 @@ public class OmniConstructor {
         }
         classPool.put(type, instance);
         for (Field f : TypeUtil.getAllFields(type)) {
-            if (f.getName().startsWith("$") || isStaticFinalField(f)) {
+            if (f.getName().startsWith(DOLLAR) || isStaticFinalField(f)) {
                 // skip static-final fields and fields e.g. "$jacocoData"
                 continue;
             }

@@ -15,6 +15,7 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.alibaba.testable.core.constant.ConstPool.CONSTRUCTOR;
+import static com.alibaba.testable.core.constant.ConstPool.DOLLAR;
 
 /**
  * @author flin
@@ -70,7 +71,7 @@ public class SourceClassHandler extends BaseClassHandler {
     private void transformMethod(MethodNode mn, Set<MethodInfo> memberInjectMethods,
                                  Set<MethodInfo> newOperatorInjectMethods) {
         LogUtil.verbose("   Found method %s", mn.name);
-        if (mn.name.startsWith("$")) {
+        if (mn.name.startsWith(DOLLAR)) {
             // skip methods e.g. "$jacocoInit"
             return;
         }
