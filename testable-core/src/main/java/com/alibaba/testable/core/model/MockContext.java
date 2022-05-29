@@ -2,22 +2,28 @@ package com.alibaba.testable.core.model;
 
 import com.alibaba.testable.core.util.UnnullableMap;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class MockContext {
 
     /**
-     * dot separated class name
+     * current test class (dot separated) name
      */
     public final String testClassName;
 
+    /**
+     * current test case name
+     */
     public final String testCaseName;
 
+    /**
+     * store of MOCK_CONTEXT.get() and MOCK_CONTEXT.set()
+     */
     public final Map<String, Object> parameters;
 
+    /**
+     * invocation record of mock method and arguments
+     */
     public final Map<String, List<Object[]>> invokeRecord;
 
     public MockContext(String testClassName, String testCaseName) {
