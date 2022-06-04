@@ -76,7 +76,7 @@ public class InMemoryJavaCompiler {
 		for (int i = 0; i < code.length; i++) {
 			code[i] = new CompiledCode(iter.next().getClassName());
 		}
-		DiagnosticCollector<JavaFileObject> collector = new DiagnosticCollector<>();
+		DiagnosticCollector<JavaFileObject> collector = new DiagnosticCollector<JavaFileObject>();
 		ExtendedStandardJavaFileManager fileManager = new ExtendedStandardJavaFileManager(javac.getStandardFileManager(null, null, null), classLoader);
 		JavaCompiler.CompilationTask task = javac.getTask(null, fileManager, collector, options, null, compilationUnits);
 		boolean result = task.call();

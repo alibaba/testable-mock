@@ -29,7 +29,7 @@ public class ConstructionUtil {
     }
 
     private static String getSubclassName(Class<?> clazz) {
-        return clazz.getName() + TESTABLE_IMPL;
+        return clazz.getSimpleName() + TESTABLE_IMPL;
     }
 
 }
