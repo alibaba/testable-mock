@@ -15,6 +15,14 @@ public class Child {
 
     private InnerChild subChild;
 
+    /**
+     * 这是一个私有内部类
+     * An private inner class
+     */
+    private class InnerChild {
+        private String secret;
+    }
+
     /* ---------------------------------------
     以下Getters/Setters方法仅为便于功能演示而添加
     并非OmniConstructor或OmniAccessor功能所需
@@ -34,14 +42,6 @@ public class Child {
 
     public void setSubChild(InnerChild subChild) {
         this.subChild = subChild;
-    }
-
-    /**
-     * 这是一个私有内部类
-     * An private inner class
-     */
-    private class InnerChild {
-        private String secret;
     }
 
 }

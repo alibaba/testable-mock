@@ -114,11 +114,11 @@ public class OmniConstructor {
         return array;
     }
 
-    private static <T> T newAbstractClass(Class<T> clazz) {
-        return null;
+    private static <T> T newAbstractClass(Class<T> clazz) throws InstantiationException {
+        return ConstructionUtil.generateSubClassOf(clazz);
     }
 
-    private static <T> T newInterface(Class<T> clazz) {
+    private static <T> T newInterface(Class<T> clazz) throws InstantiationException {
         if (clazz.equals(List.class)) {
             return (T)Collections.emptyList();
         } else if (clazz.equals(Map.class)) {
@@ -126,7 +126,7 @@ public class OmniConstructor {
         } else if (clazz.equals(Set.class)) {
             return (T)Collections.emptySet();
         }
-        return null;
+        return ConstructionUtil.generateSubClassOf(clazz);
     }
 
     private static <T> T newEnum(Class<T> clazz)
