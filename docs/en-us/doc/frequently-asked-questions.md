@@ -25,7 +25,7 @@ In the code, there are often cases of using <u>interface variables or parent cla
 
 At this time, follow a principle that the type of the first parameter of the mock method is always the same as the type of the variable that initiated the call.
 
-Therefore, regardless of whether the actually called method comes from the parent class or the subclass, and whether the subclass overrides the method. If the calling variable is of the parent type (or interface type), the first parameter type of the mock method should use the corresponding parent type (or interface) type.
+Therefore, regardless of whether the actually called method comes from the parent class or the subclass, and whether the subclass overrides the method. If the calling variable is of the parent type (or interface type), the `targetClass` value of `@MockInvoke` annotation (or the first parameter type of the mock method) should use the corresponding parent type / interface type.
 
 See the use case of the `DemoInheritTest` test class in the Java and Kotlin examples.
 

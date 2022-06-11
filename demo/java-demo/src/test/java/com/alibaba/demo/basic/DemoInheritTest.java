@@ -18,6 +18,12 @@ class DemoInheritTest {
     private DemoInherit demoInherit = new DemoInherit();
 
     public static class Mock {
+
+        /**
+         * 当需要引用原对象时，不加`targetClass`参数，将原类型作为Mock方法的首个参数，建议将参数命名为`self`
+         * When method body need to refer the invoked object, skip the use `targetClass` parameter,
+         * and add a parameter `self` with target class type before other paramter of the target method
+         */
         @MockInvoke(targetMethod = "put")
         private void put_into_box(Box self, String something) {
             self.put("put_" + something + "_into_box");
@@ -28,28 +34,32 @@ class DemoInheritTest {
             self.put("put_" + something + "_into_blackbox");
         }
 
-        @MockInvoke(targetMethod = "get")
-        private String get_from_box(Box self) {
+        /**
+         * 当不需要引用原对象时，将目标类型作为`@MockInvoke`注解的`targetClass`参数值即可
+         * When the invoked object is not used in the mock method, set `targetClass` value to the type who owns the mocked method
+         */
+        @MockInvoke(targetClass = Box.class, targetMethod = "get")
+        private String get_from_box() {
             return "get_from_box";
         }
 
-        @MockInvoke(targetMethod = "get")
-        private String get_from_blackbox(BlackBox self) {
+        @MockInvoke(targetClass = BlackBox.class, targetMethod = "get")
+        private String get_from_blackbox() {
             return "get_from_blackbox";
         }
 
-        @MockInvoke(targetMethod = "getColor")
-        private String get_color_from_color(Color self) {
+        @MockInvoke(targetClass = Color.class, targetMethod = "getColor")
+        private String get_color_from_color() {
             return "color_from_color";
         }
 
-        @MockInvoke(targetMethod = "getColor")
-        private String get_color_from_blackbox(BlackBox self) {
+        @MockInvoke(targetClass = BlackBox.class, targetMethod = "getColor")
+        private String get_color_from_blackbox() {
         return "color_from_blackbox";
     }
 
-        @MockInvoke(targetMethod = "getColorIndex")
-        private String get_colorIdx_from_color(Color self) {
+        @MockInvoke(targetClass = Color.class, targetMethod = "getColorIndex")
+        private String get_colorIdx_from_color() {
             return "colorIdx_from_color";
         }
     }
