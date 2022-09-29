@@ -2,6 +2,7 @@ package com.alibaba.testable;
 
 import com.google.common.base.Strings;
 import org.apache.maven.artifact.Artifact;
+import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
@@ -35,6 +36,12 @@ public class TestableMojo extends AbstractMojo
     private Map<String, Artifact> pluginArtifactMap;
 
     /**
+     * Location of local maven repository
+     */
+    @Parameter(defaultValue = "${localRepository}", readonly = true, required = true)
+    private ArtifactRepository localRepository;
+
+    /**
      * JavaAgent log level (mute/debug/verbose)
      */
     @Parameter
@@ -56,6 +63,11 @@ public class TestableMojo extends AbstractMojo
      * Name of the Testable Agent artifact.
      */
     private static final String AGENT_ARTIFACT_NAME = "com.alibaba.testable:testable-agent";
+    /**
+     * Testable agent jar path in local repository
+     */
+    private static final String AGENT_LOCAL_REPOSITORY_PATH =
+            "/com/alibaba/testable/testable-agent/${testable.version}/testable-agent-${testable.version}.jar";
     /**
      * Name of the property used in maven-osgi-test-plugin.
      */
@@ -104,7 +116,12 @@ public class TestableMojo extends AbstractMojo
             getLog().error("failed to find testable agent jar");
             return "";
         }
-        return " -javaagent:" + testableAgentArtifact.getFile().getAbsolutePath();
+        String agentJarPath = testableAgentArtifact.getFile().getAbsolutePath();
+        if (agentJarPath.endsWith("target/classes")) {
+            // Just for testcases within testable project itself
+            agentJarPath = localRepository.getBasedir() + AGENT_LOCAL_REPOSITORY_PATH;
+        }
+        return " -javaagent:" + agentJarPath;
     }
 
     private String getEffectivePropertyKey() {
