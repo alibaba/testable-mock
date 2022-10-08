@@ -1,4 +1,4 @@
-This part of code is under [Apache License Version 2.0](LICENSE), modified from [InMemoryJavaCompiler](https://github.com/trung/InMemoryJavaCompiler) with several PRs merged and other refactorings (e.g. dropping unnecessary dependence and avoid throwing raw Exception).
+This part of code is under [Apache License Version 2.0](LICENSE), modified from [InMemoryJavaCompiler](https://github.com/trung/InMemoryJavaCompiler) with modification (e.g. dropping unnecessary dependence and avoid throwing raw Exception).
 
 Many thanks to the origin author and contributors of this lovely library:
 - [trung](https://github.com/trung)

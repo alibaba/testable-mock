@@ -69,9 +69,7 @@ public class InMemoryJavaCompiler {
 			throw new CompilationException("No source code to compile");
 		}
 		Collection<SourceCode> compilationUnits = sourceCodes.values();
-		CompiledCode[] code;
-
-		code = new CompiledCode[compilationUnits.size()];
+		CompiledCode[] code = new CompiledCode[compilationUnits.size()];
 		Iterator<SourceCode> iter = compilationUnits.iterator();
 		for (int i = 0; i < code.length; i++) {
 			code[i] = new CompiledCode(iter.next().getClassName());
@@ -81,7 +79,7 @@ public class InMemoryJavaCompiler {
 		JavaCompiler.CompilationTask task = javac.getTask(null, fileManager, collector, options, null, compilationUnits);
 		boolean result = task.call();
 		if (!result || collector.getDiagnostics().size() > 0) {
-			StringBuffer exceptionMsg = new StringBuffer();
+			StringBuilder exceptionMsg = new StringBuilder();
 			exceptionMsg.append("Unable to compile the source");
 			boolean hasWarnings = false;
 			boolean hasErrors = false;
