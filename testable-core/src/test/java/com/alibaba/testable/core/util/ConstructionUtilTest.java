@@ -13,6 +13,7 @@ class ConstructionUtilTest {
         int func2(double d, boolean b);
         String fun3(String s, byte[] b);
         EmptyInterface fun4(RealInterface i);
+        <T> T fun5(T i);
     }
 
     public static abstract class AbstractClazz implements RealInterface {
