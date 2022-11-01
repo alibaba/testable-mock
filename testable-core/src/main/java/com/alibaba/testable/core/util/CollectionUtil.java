@@ -59,6 +59,13 @@ public class CollectionUtil {
     }
 
     /**
+     * Create a set
+     */
+    public static <T> Set<T> setOf(T... items) {
+        return new HashSet<T>(Arrays.asList(items));
+    }
+
+    /**
      * Create a map
      */
     public static <K, V> Map<K, V> mapOf(Pair<K, V>... pair) {
