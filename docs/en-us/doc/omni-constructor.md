@@ -35,9 +35,7 @@ Parent parent = OmniConstructor.newInstance(Parent.class);
 parent.getChild().getGrandChild().getContent();
 ```
 
-> **Note 1**: In the current version, the member fields of type interface or abstract class will still be initialized to `null`, this problem will be fixed in the future.
->
-> **Note 2**: Based on the light-weight principle, in the default mode, `OmniConstructor` will only uses the original constructor of the class to create objects. For POJO and most model layer objects, this mode has been able to meet the needs.
+> **Note**: Based on the light-weight principle, in the default mode, `OmniConstructor` will only uses the original constructor of the class to create objects. For POJO and most model layer objects, this mode has been able to meet the needs.
 > But for more complex situations, such as when certain class have constructors throwing exceptions or contain other statements that hinder the normal execution of the construction, the object construction may fail.
 > In those situations, you can use the [Testable global configuration](en-us/doc/javaagent-args.md) `omni.constructor.enhance.enable = true` to enable bytecode enhancement mode of `OmniConstructor`, in this mode, any Java class can be constructed.
 

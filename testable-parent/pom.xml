@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.alibaba.testable</groupId>
     <artifactId>testable-parent</artifactId>
-    <version>0.7.7</version>
+    <version>0.7.8</version>
     <packaging>pom</packaging>
     <name>testable-parent</name>
     <description>Unit test enhancement toolkit</description>
@@ -33,16 +33,16 @@
         <java.version>1.6</java.version>
         <project.compiler.level>1.6</project.compiler.level>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <plugin.compiler.version>3.8.1</plugin.compiler.version>
-        <plugin.surefire.version>3.0.0-M5</plugin.surefire.version>
-        <plugin.jar.version>3.2.0</plugin.jar.version>
-        <plugin.shade.version>3.2.4</plugin.shade.version>
-        <plugin.source.version>3.2.0</plugin.source.version>
-        <plugin.javadoc.version>3.2.0</plugin.javadoc.version>
-        <plugin.gpg.version>1.6</plugin.gpg.version>
-        <plugin.staging.version>1.6.8</plugin.staging.version>
-        <plugin.maven.version>3.6.0</plugin.maven.version>
-        <testable.version>0.7.7</testable.version>
+        <plugin.compiler.version>3.10.1</plugin.compiler.version>
+        <plugin.surefire.version>3.0.0-M7</plugin.surefire.version>
+        <plugin.jar.version>3.3.0</plugin.jar.version>
+        <plugin.shade.version>3.4.1</plugin.shade.version>
+        <plugin.source.version>3.2.1</plugin.source.version>
+        <plugin.javadoc.version>3.4.1</plugin.javadoc.version>
+        <plugin.gpg.version>3.0.1</plugin.gpg.version>
+        <plugin.staging.version>1.6.13</plugin.staging.version>
+        <plugin.maven.version>3.7.0</plugin.maven.version>
+        <testable.version>0.7.8</testable.version>
     </properties>
 
     <profiles>
@@ -73,6 +73,9 @@
                                 <goals>
                                     <goal>jar</goal>
                                 </goals>
+                                <configuration>
+                                    <additionalOptions>-Xdoclint:none</additionalOptions>
+                                </configuration>
                             </execution>
                         </executions>
                     </plugin>
@@ -87,6 +90,13 @@
                                 <goals>
                                     <goal>sign</goal>
                                 </goals>
+                                <configuration>
+                                    <!-- Prevent `gpg` from using pinentry programs -->
+                                    <gpgArguments>
+                                        <arg>--pinentry-mode</arg>
+                                        <arg>loopback</arg>
+                                    </gpgArguments>
+                                </configuration>
                             </execution>
                         </executions>
                     </plugin>

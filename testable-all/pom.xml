@@ -6,7 +6,7 @@
     <parent>
         <groupId>com.alibaba.testable</groupId>
         <artifactId>testable-parent</artifactId>
-        <version>0.7.7</version>
+        <version>0.7.8</version>
         <relativePath>../testable-parent</relativePath>
     </parent>
     <artifactId>testable-all</artifactId>
@@ -59,6 +59,9 @@
                                 <goals>
                                     <goal>jar</goal>
                                 </goals>
+                                <configuration>
+                                    <additionalOptions>-Xdoclint:none</additionalOptions>
+                                </configuration>
                             </execution>
                         </executions>
                     </plugin>
@@ -73,6 +76,13 @@
                                 <goals>
                                     <goal>sign</goal>
                                 </goals>
+                                <configuration>
+                                    <!-- Prevent `gpg` from using pinentry programs -->
+                                    <gpgArguments>
+                                        <arg>--pinentry-mode</arg>
+                                        <arg>loopback</arg>
+                                    </gpgArguments>
+                                </configuration>
                             </execution>
                         </executions>
                     </plugin>

@@ -1,10 +1,14 @@
 # Release Note
 
-## 0.7.7
+## 0.7.8
+- support use `OmniConstructor` class to create instance of interface type or abstract class
+- provide a `CollectionUtil` class which contains many utility collection creation methods
+- fix a compatibility issue with jdk 1.6
 
+## 0.7.7
 - skip bytecode process for classes which not associated to any mock class, speed up test initialization
 - only generate substitution method for mocked method references
-- fix compatibility issue with jdk 17
+- fix compatibility issues with jdk 17
 
 ## 0.7.6
 - define package mapping rule according to order in config, to avoid a short path overwrite longer ones
