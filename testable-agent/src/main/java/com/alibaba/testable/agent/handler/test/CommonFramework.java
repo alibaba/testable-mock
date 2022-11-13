@@ -2,7 +2,7 @@ package com.alibaba.testable.agent.handler.test;
 
 import com.alibaba.testable.agent.model.TestCaseMethodType;
 import com.alibaba.testable.agent.util.ClassUtil;
-import com.alibaba.testable.agent.util.CollectionUtil;
+import com.alibaba.testable.core.util.CollectionUtil;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.tree.*;
 

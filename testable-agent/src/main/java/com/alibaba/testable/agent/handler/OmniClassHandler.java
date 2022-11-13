@@ -3,7 +3,7 @@ package com.alibaba.testable.agent.handler;
 import com.alibaba.testable.agent.handler.test.JUnit4Framework;
 import com.alibaba.testable.agent.handler.test.JUnit5Framework;
 import com.alibaba.testable.agent.util.ClassUtil;
-import com.alibaba.testable.agent.util.CollectionUtil;
+import com.alibaba.testable.core.util.CollectionUtil;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.tree.*;
 
@@ -139,7 +139,7 @@ public class OmniClassHandler extends BaseClassHandler {
     }
 
     private List<LocalVariableNode> createLocalVariables(ClassNode cn, LabelNode start, LabelNode end) {
-        return CollectionUtil.listOf(
+        return CollectionUtil.mutableListOf(
             new LocalVariableNode(THIS_REF, ClassUtil.toByteCodeClassName(cn.name), null, start, end, 0),
             new LocalVariableNode(IGNORE, ClassUtil.toByteCodeClassName(VOID_TYPE), null, start, end, 1)
         );
