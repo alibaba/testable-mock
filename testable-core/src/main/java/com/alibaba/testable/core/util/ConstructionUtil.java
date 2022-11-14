@@ -78,10 +78,8 @@ public class ConstructionUtil {
     private static String getClassName(Type clazz) {
         if (clazz instanceof Class) {
             return ((Class<?>)clazz).getName().replace(DOLLAR, DOT);
-        } else if (clazz instanceof TypeVariable) {
-            return ((TypeVariable<?>)clazz).getName();
         }
-        return clazz.toString().replaceAll("@.*$", "").replaceAll("^.* ", "");
+        return clazz.toString();
     }
 
     private static String getParameterName(Type parameter) {
