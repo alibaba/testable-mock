@@ -18,31 +18,16 @@ public class ConstructionUtil {
     public static <T> T generateSubClassOf(Class<T> clazz) throws InstantiationException {
         StringBuilder sourceCode = new StringBuilder();
         sourceCode.append("package ").append(clazz.getPackage().getName()).append(";\n")
-                .append("public class ").append(getSubclassName(clazz))
-                .append(clazz.isInterface() ? " implements " : " extends ")
-                .append(getClassName(clazz))
-                .append(" {\n");
+                .append("public class ").append(getSubclassName(clazz));
+        appendTypeParameters(sourceCode, clazz.getTypeParameters(), true);
+        sourceCode.append(clazz.isInterface() ? " implements " : " extends ")
+                .append(getClassName(clazz));
+        appendTypeParameters(sourceCode, clazz.getTypeParameters(), false);
+        sourceCode.append(" {\n");
         for (Method m : clazz.getMethods()) {
             if (!Modifier.isStatic(m.getModifiers()) && !Modifier.isFinal(m.getModifiers())) {
                 sourceCode.append("\tpublic ");
-                TypeVariable<Method>[] typeParameters = m.getTypeParameters();
-                if (typeParameters.length > 0) {
-                    sourceCode.append("<");
-                    for (int i = 0; i < typeParameters.length; i++) {
-                        sourceCode.append(typeParameters[i].getName()).append(" extends ");
-                        Type[] bounds = typeParameters[i].getBounds();
-                        for (int j = 0; j < bounds.length; j++) {
-                            sourceCode.append(getClassName(bounds[j]));
-                            if (j < bounds.length - 1) {
-                                sourceCode.append(" & ");
-                            }
-                        }
-                        if (i < typeParameters.length - 1) {
-                            sourceCode.append(", ");
-                        }
-                    }
-                    sourceCode.append("> ");
-                }
+                appendTypeParameters(sourceCode, m.getTypeParameters(), true);
                 sourceCode.append(getClassName(m.getGenericReturnType())).append(" ")
                         .append(m.getName()).append("(");
                 Type[] parameters = m.getGenericParameterTypes();
@@ -72,6 +57,29 @@ public class ConstructionUtil {
                     .newInstance();
         } catch (Exception e) {
             throw new InstantiationException(e.toString());
+        }
+    }
+
+    private static void appendTypeParameters(StringBuilder sourceCode, TypeVariable<?>[] typeParameters, boolean withScope) {
+        if (typeParameters.length > 0) {
+            sourceCode.append("<");
+            for (int i = 0; i < typeParameters.length; i++) {
+                sourceCode.append(typeParameters[i].getName());
+                if (withScope) {
+                    sourceCode.append(" extends ");
+                    Type[] bounds = typeParameters[i].getBounds();
+                    for (int j = 0; j < bounds.length; j++) {
+                        sourceCode.append(getClassName(bounds[j]));
+                        if (j < bounds.length - 1) {
+                            sourceCode.append(" & ");
+                        }
+                    }
+                }
+                if (i < typeParameters.length - 1) {
+                    sourceCode.append(", ");
+                }
+            }
+            sourceCode.append("> ");
         }
     }
 

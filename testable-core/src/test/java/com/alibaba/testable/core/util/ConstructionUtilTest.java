@@ -36,15 +36,15 @@ class ConstructionUtilTest {
     public static abstract class AbstractClazz implements RealInterface {
         @Override
         public void noParameterMethod() {}
-        public abstract <T extends String> T getById(T id);
+        public abstract <T extends String> T getByName(T name);
         public abstract String getByTags(List<? extends String> tags);
         public static <T> T useless() { return null; }
     }
 
-    public static abstract class ParameterizedClazz<T> extends AbstractClazz implements RealInterface, EmptyInterface {
-        public abstract int getById(T id);
-        public abstract int getByIds(List<T> id);
-        public abstract int getByMap(Map<String, T> m);
+    public static abstract class ParameterizedClazz<S extends String, P> extends AbstractClazz implements RealInterface, EmptyInterface {
+        public abstract S getById(S id);
+        public abstract S getByIds(List<S> ids);
+        public abstract P getByMap(Map<String, P> m);
     }
 
     @Test
