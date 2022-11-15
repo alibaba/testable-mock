@@ -85,7 +85,7 @@ public class ConstructionUtil {
 
     private static String getClassName(Type clazz) {
         if (clazz instanceof Class) {
-            return ((Class<?>)clazz).getName().replace(DOLLAR, DOT);
+            return ((Class<?>)clazz).getCanonicalName();
         }
         return clazz.toString();
     }

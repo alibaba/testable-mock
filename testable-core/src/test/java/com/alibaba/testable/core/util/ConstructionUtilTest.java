@@ -47,6 +47,10 @@ class ConstructionUtilTest {
         public abstract P getByMap(Map<String, P> m);
     }
 
+    public interface StringMap extends Map<String, Object> {}
+
+    public interface Inner$Interface {}
+
     @Test
     void should_generate_empty_interface() throws Exception {
         EmptyInterface ins = ConstructionUtil.generateSubClassOf(EmptyInterface.class);
@@ -68,6 +72,18 @@ class ConstructionUtilTest {
     @Test
     void should_generate_parameterized_class() throws Exception {
         RealInterface ins = ConstructionUtil.generateSubClassOf(ParameterizedClazz.class);
+        assertNotNull(ins);
+    }
+
+    @Test
+    void should_generate_typed_interface() throws Exception {
+        StringMap ins = ConstructionUtil.generateSubClassOf(StringMap.class);
+        assertNotNull(ins);
+    }
+
+    @Test
+    void should_generate_name_with_dollar() throws Exception {
+        Inner$Interface ins = ConstructionUtil.generateSubClassOf(Inner$Interface.class);
         assertNotNull(ins);
     }
 
