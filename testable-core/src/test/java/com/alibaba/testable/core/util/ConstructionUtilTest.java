@@ -76,7 +76,7 @@ class ConstructionUtilTest {
     }
 
     @Test
-    void should_generate_typed_interface() throws Exception {
+    void should_generate_implicit_generic_interface() throws Exception {
         StringMap ins = ConstructionUtil.generateSubClassOf(StringMap.class);
         assertNotNull(ins);
     }
