@@ -8,7 +8,7 @@ import com.alibaba.demo.basic.model.mock.Color;
  * 演示父类变量引用子类对象时的Mock场景
  * Demonstrate scenario of mocking method from sub-type object referred by parent-type variable
  */
-public class DemoInherit {
+public class DemoReference {
 
     /**
      * call method overridden by subclass via parent class variable

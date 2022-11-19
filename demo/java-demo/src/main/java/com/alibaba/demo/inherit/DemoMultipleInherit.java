@@ -1,8 +1,25 @@
 package com.alibaba.demo.inherit;
 
 /**
- * 演示Mock容器类的继承
- * Demonstrate inherit of mock container class
+ * 演示使用@MockContainer注解实现Mock容器类的多重继承
+ * Demonstrate multiple inherit of mock container class with @MockContainer annotation
  */
-public class DemoInherit {
+public class DemoMultipleInherit {
+
+    private String prefix() {
+        return "ori_";
+    }
+
+    private String middle() {
+        return "gin";
+    }
+
+    private String suffix() {
+        return "_al";
+    }
+
+    public String entry() {
+        return prefix() + middle() + suffix();
+    }
+
 }

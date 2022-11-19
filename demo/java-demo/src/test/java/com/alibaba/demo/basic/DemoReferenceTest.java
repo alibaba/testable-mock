@@ -13,9 +13,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * 演示父类变量引用子类对象时的Mock场景
  * Demonstrate scenario of mocking method from sub-type object referred by parent-type variable
  */
-class DemoInheritTest {
+class DemoReferenceTest {
 
-    private DemoInherit demoInherit = new DemoInherit();
+    private DemoReference demoReference = new DemoReference();
 
     public static class Mock {
 
@@ -66,49 +66,49 @@ class DemoInheritTest {
 
     @Test
     void should_mock_call_sub_object_method_by_parent_object() {
-        BlackBox box = (BlackBox)demoInherit.putIntoBox();
+        BlackBox box = (BlackBox) demoReference.putIntoBox();
         verifyInvoked("put_into_box").withTimes(1);
         assertEquals("put_data_into_box", box.get());
     }
 
     @Test
     void should_mock_call_sub_object_method_by_sub_object() {
-        BlackBox box = demoInherit.putIntoBlackBox();
+        BlackBox box = demoReference.putIntoBlackBox();
         verifyInvoked("put_into_blackbox").withTimes(1);
         assertEquals("put_data_into_blackbox", box.get());
     }
 
     @Test
     void should_mock_call_parent_object_method_by_parent_object() {
-        String content = demoInherit.getFromBox();
+        String content = demoReference.getFromBox();
         verifyInvoked("get_from_box").withTimes(1);
         assertEquals("get_from_box", content);
     }
 
     @Test
     void should_mock_call_parent_object_method_by_sub_object() {
-        String content = demoInherit.getFromBlackBox();
+        String content = demoReference.getFromBlackBox();
         verifyInvoked("get_from_blackbox").withTimes(1);
         assertEquals("get_from_blackbox", content);
     }
 
     @Test
     void should_mock_call_interface_method_by_interface_object() {
-        String color = demoInherit.getColorViaColor();
+        String color = demoReference.getColorViaColor();
         verifyInvoked("get_color_from_color").withTimes(1);
         assertEquals("color_from_color", color);
     }
 
     @Test
     void should_mock_call_interface_method_by_sub_class_object() {
-        String color = demoInherit.getColorViaBox();
+        String color = demoReference.getColorViaBox();
         verifyInvoked("get_color_from_blackbox").withTimes(1);
         assertEquals("color_from_blackbox", color);
     }
 
     @Test
     void should_mock_call_interface_method_by_sub_interface_object() {
-        String colorIdx = demoInherit.getColorIdxViaColor();
+        String colorIdx = demoReference.getColorIdxViaColor();
         verifyInvoked("get_colorIdx_from_color").withTimes(1);
         assertEquals("colorIdx_from_color", colorIdx);
     }

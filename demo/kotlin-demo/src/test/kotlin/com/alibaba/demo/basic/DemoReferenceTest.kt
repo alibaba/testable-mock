@@ -12,9 +12,9 @@ import org.junit.jupiter.api.Test
  * 演示父类变量引用子类对象时的Mock场景
  * Demonstrate scenario of mocking method from sub-type object referred by parent-type variable
  */
-internal class DemoInheritTest {
+internal class DemoReferenceTest {
 
-    private val demoInherit = DemoInherit()
+    private val demoReference = DemoReference()
 
     class Mock {
         @MockInvoke(targetMethod = "put")
@@ -50,42 +50,42 @@ internal class DemoInheritTest {
 
     @Test
     fun should_mock_call_sub_object_method_by_parent_object() {
-        val box = demoInherit.putIntoBox() as BlackBox
+        val box = demoReference.putIntoBox() as BlackBox
         InvocationVerifier.verifyInvoked("put_into_box").withTimes(1)
         assertEquals("put_data_into_box", box.get())
     }
 
     @Test
     fun should_mock_call_sub_object_method_by_sub_object() {
-        val box = demoInherit.putIntoBlackBox()
+        val box = demoReference.putIntoBlackBox()
         InvocationVerifier.verifyInvoked("put_into_blackbox").withTimes(1)
         assertEquals("put_data_into_blackbox", box.get())
     }
 
     @Test
     fun should_mock_call_parent_object_method_by_parent_object() {
-        val content = demoInherit.fromBox
+        val content = demoReference.fromBox
         InvocationVerifier.verifyInvoked("get_from_box").withTimes(1)
         assertEquals("get_from_box", content)
     }
 
     @Test
     fun should_mock_call_parent_object_method_by_sub_object() {
-        val content = demoInherit.fromBlackBox
+        val content = demoReference.fromBlackBox
         InvocationVerifier.verifyInvoked("get_from_blackbox").withTimes(1)
         assertEquals("get_from_blackbox", content)
     }
 
     @Test
     fun should_mock_call_interface_method_by_interface_object() {
-        val color = demoInherit.colorViaColor
+        val color = demoReference.colorViaColor
         InvocationVerifier.verifyInvoked("get_color_from_color").withTimes(1)
         assertEquals("color_from_color", color)
     }
 
     @Test
     fun should_mock_call_interface_method_by_sub_class_object() {
-        val color = demoInherit.colorViaBox
+        val color = demoReference.colorViaBox
         InvocationVerifier.verifyInvoked("get_color_from_blackbox").withTimes(1)
         assertEquals("color_from_blackbox", color)
     }
