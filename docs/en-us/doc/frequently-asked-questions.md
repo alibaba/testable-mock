@@ -27,7 +27,7 @@ At this time, follow a principle that the type of the first parameter of the moc
 
 Therefore, regardless of whether the actually called method comes from the parent class or the subclass, and whether the subclass overrides the method. If the calling variable is of the parent type (or interface type), the `targetClass` value of `@MockInvoke` annotation (or the first parameter type of the mock method) should use the corresponding parent type / interface type.
 
-See the use case of the `DemoInheritTest` test class in the Java and Kotlin examples.
+See the use case of the `DemoReferenceTest` test class in the Java and Kotlin examples.
 
 #### 5. How to mock generic methods (template methods)?
 

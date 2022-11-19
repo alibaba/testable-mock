@@ -31,7 +31,7 @@
 
 因此，不论实际被调用方法来自父类还是子类，也不论子类是否覆写该方法。若发起调用的变量为父类型（或接口类型），则`@MockInvoke`注解的`targetClass`参数值（或Mock方法的首个参数类型）都应该使用相应的父类/接口类的类型。
 
-参见Java和Kotlin示例中`DemoInheritTest`测试类的用例。
+参见Java和Kotlin示例中`DemoReferenceTest`测试类的用例。
 
 #### 5. 如何Mock对于泛型方法(模板方法)？
 
