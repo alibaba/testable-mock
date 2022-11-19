@@ -3,6 +3,7 @@ package com.alibaba.demo.inherit;
 import com.alibaba.testable.core.annotation.MockInvoke;
 import org.junit.jupiter.api.Test;
 
+import static com.alibaba.testable.core.matcher.InvocationVerifier.verifyInvoked;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
@@ -30,6 +31,8 @@ class DemoSingleInheritTest {
     @Test
     public void should_use_mock_method_in_parent_class() {
         assertEquals("mo_test_ck", demoSingleInherit.entry("test"));
+        verifyInvoked("prefix").withTimes(1);
+        verifyInvoked("suffix").withTimes(1);
     }
 
 }

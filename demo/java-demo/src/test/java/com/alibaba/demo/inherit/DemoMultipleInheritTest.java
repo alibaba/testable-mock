@@ -4,6 +4,7 @@ import com.alibaba.testable.core.annotation.MockContainer;
 import com.alibaba.testable.core.annotation.MockInvoke;
 import org.junit.jupiter.api.Test;
 
+import static com.alibaba.testable.core.matcher.InvocationVerifier.verifyInvoked;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -39,6 +40,9 @@ class DemoMultipleInheritTest {
     @Test
     public void should_use_mock_method_in_parent_class() {
         assertEquals("in_her_it", demoMultipleInherit.entry());
+        verifyInvoked("prefix").withTimes(1);
+        verifyInvoked("middle").withTimes(1);
+        verifyInvoked("suffix").withTimes(1);
     }
 
 }
