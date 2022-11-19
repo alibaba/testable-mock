@@ -36,6 +36,15 @@
 | ---   | ---       | ---    | ----             | ---  |
 | scope | MockScope | 否      | MockScope.GLOBAL | 指定Mock的生效范围 |
 
+#### @MockContainer
+
+标识指定类为Mock容器类，并从任意个其他Mock类里继承所有Mock方法。
+
+- 作用于：Mock容器类
+
+| 参数      | 类型     | 是否必须 | 默认值  | 作用              |
+| ----     | ---      | ---    | ---    | ---              |
+| inherits | Class[]  | 否     | N/A    | 指定要继承的Mock类  |
 
 #### @MockWith
 
