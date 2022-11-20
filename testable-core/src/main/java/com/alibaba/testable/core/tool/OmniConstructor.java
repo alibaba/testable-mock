@@ -11,6 +11,7 @@ import java.lang.reflect.*;
 import java.util.*;
 
 import static com.alibaba.testable.core.constant.ConstPool.DOLLAR;
+import static com.alibaba.testable.core.model.ConstructionOption.EXCEPT_INTERFACE;
 import static com.alibaba.testable.core.model.ConstructionOption.EXCEPT_LOOP_NESTING;
 
 /**
@@ -31,7 +32,7 @@ public class OmniConstructor {
      * @return 返回新创建的对象
      */
     public static <T> T newInstance(Class<T> clazz, ConstructionOption... options) {
-        T ins = newInstance(clazz, new HashSet<Class<?>>(INITIAL_CAPACITY));
+        T ins = newInstance(clazz, new HashSet<Class<?>>(INITIAL_CAPACITY), options);
         if (ins == null || CollectionUtil.contains(options, EXCEPT_LOOP_NESTING)) {
             return ins;
         }
@@ -47,14 +48,14 @@ public class OmniConstructor {
      * @return 返回新创建的对象数组
      */
     public static <T> T[] newArray(Class<T> clazz, int size, ConstructionOption... options) {
-        T[] array = (T[])newArray(clazz, size, new HashSet<Class<?>>(INITIAL_CAPACITY));
+        T[] array = (T[])newArray(clazz, size, new HashSet<Class<?>>(INITIAL_CAPACITY), options);
         if (CollectionUtil.contains(options, EXCEPT_LOOP_NESTING)) {
             return array;
         }
         return handleCircleReference(array);
     }
 
-    private static <T> T newInstance(Class<T> clazz, Set<Class<?>> classPool) {
+    private static <T> T newInstance(Class<T> clazz, Set<Class<?>> classPool, ConstructionOption[] options) {
         LogUtil.verbose(classPool.size() * 2, "Creating %s", clazz.getName());
         if (classPool.contains(clazz)) {
             return null;
@@ -66,15 +67,15 @@ public class OmniConstructor {
             } else if (clazz.equals(Class.class)) {
                 return (T)Object.class;
             } else if (clazz.isArray()) {
-                return (T)newArray(clazz.getComponentType(), 0, classPool);
+                return (T)newArray(clazz.getComponentType(), 0, classPool, options);
             } else if (clazz.isEnum()) {
                 return newEnum(clazz);
             } else if (clazz.isInterface()) {
-                return newInterface(clazz);
+                return newInterface(clazz, options);
             } else if (Modifier.isAbstract(clazz.getModifiers())) {
-                return newAbstractClass(clazz);
+                return newAbstractClass(clazz, options);
             }
-            return newObject(clazz, classPool);
+            return newObject(clazz, classPool, options);
         } catch (NoSuchMethodException e) {
             throw new ClassConstructionException("Failed to find constructor", e);
         } catch (IllegalAccessException e) {
@@ -90,35 +91,35 @@ public class OmniConstructor {
         }
     }
 
-    private static <T> T newObject(Class<T> clazz, Set<Class<?>> classPool)
+    private static <T> T newObject(Class<T> clazz, Set<Class<?>> classPool, ConstructionOption[] options)
         throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
-        Object ins = createInstance(clazz, classPool);
+        Object ins = createInstance(clazz, classPool, options);
         if (!TypeUtil.isBasicType(clazz)) {
             for (Field f : TypeUtil.getAllFields(clazz)) {
                 f.setAccessible(true);
                 // skip "$jacocoData" field added by jacoco
                 if (f.get(ins) == null && !f.getName().startsWith(DOLLAR)) {
-                    f.set(ins, newInstance(f.getType(), classPool));
+                    f.set(ins, newInstance(f.getType(), classPool, options));
                 }
             }
         }
         return (T)ins;
     }
 
-    private static Object newArray(Class<?> clazz, int size, Set<Class<?>> classPool) {
+    private static Object newArray(Class<?> clazz, int size, Set<Class<?>> classPool, ConstructionOption[] options) {
         // primary[] cannot be cast to Object[], have to use Object instead of T[]
         Object array = Array.newInstance(clazz, size);
         for (int i = 0; i < size; i++) {
-            Array.set(array, i, newInstance(clazz, classPool));
+            Array.set(array, i, newInstance(clazz, classPool, options));
         }
         return array;
     }
 
-    private static <T> T newAbstractClass(Class<T> clazz) throws InstantiationException {
-        return ConstructionUtil.generateSubClassOf(clazz);
+    private static <T> T newAbstractClass(Class<T> clazz, ConstructionOption[] options) throws InstantiationException {
+        return CollectionUtil.contains(options, EXCEPT_INTERFACE) ? ConstructionUtil.generateSubClassOf(clazz) : null;
     }
 
-    private static <T> T newInterface(Class<T> clazz) throws InstantiationException {
+    private static <T> T newInterface(Class<T> clazz, ConstructionOption[] options) throws InstantiationException {
         if (clazz.equals(List.class)) {
             return (T)Collections.emptyList();
         } else if (clazz.equals(Map.class)) {
@@ -126,7 +127,7 @@ public class OmniConstructor {
         } else if (clazz.equals(Set.class)) {
             return (T)Collections.emptySet();
         }
-        return ConstructionUtil.generateSubClassOf(clazz);
+        return newAbstractClass(clazz, options);
     }
 
     private static <T> T newEnum(Class<T> clazz)
@@ -226,7 +227,7 @@ public class OmniConstructor {
         }
     }
 
-    private static Object createInstance(Class<?> clazz, Set<Class<?>> classPool)
+    private static Object createInstance(Class<?> clazz, Set<Class<?>> classPool, ConstructionOption[] options)
         throws InstantiationException, IllegalAccessException, InvocationTargetException {
         Object ins = createSpecialClass(clazz);
         if (ins != null) {
@@ -243,7 +244,7 @@ public class OmniConstructor {
         } else {
             Object[] args = new Object[types.length];
             for (int i = 0; i < types.length; i++) {
-                args[i] = types[i].equals(clazz) ? null : newInstance(types[i], classPool);
+                args[i] = types[i].equals(clazz) ? null : newInstance(types[i], classPool, options);
             }
             return constructor.newInstance(args);
         }
