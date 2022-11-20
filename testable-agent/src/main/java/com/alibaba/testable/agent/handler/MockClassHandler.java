@@ -10,12 +10,15 @@ import org.objectweb.asm.Label;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.*;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static com.alibaba.testable.agent.constant.ByteCodeConst.TYPE_ARRAY;
 import static com.alibaba.testable.agent.constant.ByteCodeConst.TYPE_CLASS;
-import static com.alibaba.testable.agent.constant.ConstPool.CLASS_OBJECT;
+import static com.alibaba.testable.agent.constant.ConstPool.*;
 import static com.alibaba.testable.core.constant.ConstPool.CONSTRUCTOR;
+import static com.alibaba.testable.core.util.CollectionUtil.listOf;
 
 /**
  * @author flin
@@ -33,6 +36,7 @@ public class MockClassHandler extends BaseClassWithContextHandler {
     private static final String SIGNATURE_IS_ASSOCIATED = "()Z";
     private static final String SELF_REF = "__self";
     private static final String TESTABLE_REF = "__testable";
+    private static final String INHERITED_REF = "__inherited_m";
 
     private final String mockClassName;
 
@@ -63,7 +67,70 @@ public class MockClassHandler extends BaseClassWithContextHandler {
                 handleTestableUtil(mn);
             }
         }
+        // should inject inherited at last to avoid above transfers
+        injectInheritedMockMethods(cn);
         LogUtil.diagnose("  Found %d mock methods", mockMethodCount);
+    }
+
+    /**
+     * add member field of inherited mock class by @MockContainer annotation
+     */
+    private void injectInheritedMockMethods(ClassNode cn) {
+        List<Type> inheritedTypes = new ArrayList<Type>();
+        if (cn.visibleAnnotations != null) {
+            for (AnnotationNode an : cn.visibleAnnotations) {
+                if ((ClassUtil.toByteCodeClassName(ConstPool.MOCK_CONTAINER)).equals(an.desc)) {
+                    inheritedTypes.addAll(AnnotationUtil.getAnnotationParameter(an, FIELD_INHERITS,
+                            Collections.<Type>emptyList(), List.class));
+                }
+            }
+        }
+        for (int i = 0; i < inheritedTypes.size(); i++) {
+            String className = inheritedTypes.get(i).getClassName();
+            String fieldName = INHERITED_REF + i;
+            cn.fields.add(new FieldNode(ACC_PRIVATE | ACC_FINAL, fieldName,
+                    ClassUtil.toByteCodeClassName(className), null, null));
+            ClassNode inheritedClassNode = ClassUtil.getClassNode(className);
+            if (inheritedClassNode == null) {
+                throw new IllegalArgumentException("Failed to load class " + className);
+            }
+            for (MethodNode mn : inheritedClassNode.methods) {
+                if (mn.visibleAnnotations == null) {
+                    continue;
+                }
+                // TODO: should check whether method with same descriptor already exists to avoid conflict
+                for (AnnotationNode an : mn.visibleAnnotations) {
+                    if ((ClassUtil.toByteCodeClassName(ConstPool.MOCK_INVOKE)).equals(an.desc)) {
+                        Type targetClass = AnnotationUtil.getAnnotationParameter(an, FIELD_TARGET_CLASS, null, Type.class);
+                        String targetMethod = AnnotationUtil.getAnnotationParameter(an, FIELD_TARGET_METHOD, null, String.class);
+                        String desc = (targetClass == null) ? mn.desc :
+                            MethodUtil.addParameterAtBegin(mn.desc, ClassUtil.toByteCodeClassName(targetClass.getClassName()));
+                        String name = (targetMethod == null) ? mn.name : targetMethod;
+                        MethodNode mockMethod = new MethodNode(ACC_PUBLIC, name, desc, null, null);
+                        List<Byte> parameters = MethodUtil.getParameterTypes(mn.desc);
+                        int maxStack = 2;
+                        InsnList il = new InsnList();
+                        il.add(new VarInsnNode(ALOAD, 0));
+                        il.add(new FieldInsnNode(GETFIELD, ClassUtil.toSlashSeparatedName(cn.name), fieldName, ClassUtil.toByteCodeClassName(className)));
+                        il.add(new VarInsnNode(ALOAD, 1));
+                        for (int pi = 2; pi < parameters.size() + 2; pi++) {
+                            ImmutablePair<Integer, Integer> codeAndStack = BytecodeUtil.getLoadParameterByteCode(parameters.get(pi - 2));
+                            il.add(new VarInsnNode(codeAndStack.left, pi));
+                            maxStack += codeAndStack.right;
+                        }
+                        il.add(new MethodInsnNode(INVOKEVIRTUAL, ClassUtil.toSlashSeparatedName(className), mn.name, desc, false));
+                        il.add(new InsnNode(ARETURN));
+                        mockMethod.instructions = il;
+                        mockMethod.maxStack = maxStack;
+                        mockMethod.maxLocals = 2 + parameters.size();
+                        mockMethod.visibleAnnotations = listOf(new AnnotationNode(ClassUtil.toByteCodeClassName(MOCK_INVOKE)));
+                        cn.methods.add(mockMethod);
+                    } else if ((ClassUtil.toByteCodeClassName(ConstPool.MOCK_NEW)).equals(an.desc)) {
+                        // TODO: should also support MockNew annotation
+                    }
+                }
+            }
+        }
     }
 
     /**

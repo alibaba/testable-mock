@@ -1,5 +1,6 @@
 package com.alibaba.testable.core.annotation;
 
+import javax.lang.model.type.NullType;
 import java.lang.annotation.*;
 
 /**
@@ -16,6 +17,6 @@ public @interface MockContainer {
      * specify the classes to inherit methods from
      * @return list of class
      */
-    Class<?>[] inherits();
+    Class<?>[] inherits() default NullType.class;
 
 }
