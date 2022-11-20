@@ -85,11 +85,8 @@ public class MockClassHandler extends BaseClassWithContextHandler {
                 }
             }
         }
-        for (int i = 0; i < inheritedTypes.size(); i++) {
-            String className = inheritedTypes.get(i).getClassName();
-            String fieldName = INHERITED_REF + i;
-            cn.fields.add(new FieldNode(ACC_PRIVATE | ACC_FINAL, fieldName,
-                    ClassUtil.toByteCodeClassName(className), null, null));
+        for (Type inheritedType : inheritedTypes) {
+            String className = inheritedType.getClassName();
             ClassNode inheritedClassNode = ClassUtil.getClassNode(className);
             if (inheritedClassNode == null) {
                 throw new IllegalArgumentException("Failed to load class " + className);
@@ -104,14 +101,14 @@ public class MockClassHandler extends BaseClassWithContextHandler {
                         Type targetClass = AnnotationUtil.getAnnotationParameter(an, FIELD_TARGET_CLASS, null, Type.class);
                         String targetMethod = AnnotationUtil.getAnnotationParameter(an, FIELD_TARGET_METHOD, null, String.class);
                         String desc = (targetClass == null) ? mn.desc :
-                            MethodUtil.addParameterAtBegin(mn.desc, ClassUtil.toByteCodeClassName(targetClass.getClassName()));
+                                MethodUtil.addParameterAtBegin(mn.desc, ClassUtil.toByteCodeClassName(targetClass.getClassName()));
                         String name = (targetMethod == null) ? mn.name : targetMethod;
                         MethodNode mockMethod = new MethodNode(ACC_PUBLIC, name, desc, null, null);
                         List<Byte> parameters = MethodUtil.getParameterTypes(mn.desc);
                         int maxStack = 2;
                         InsnList il = new InsnList();
-                        il.add(new VarInsnNode(ALOAD, 0));
-                        il.add(new FieldInsnNode(GETFIELD, ClassUtil.toSlashSeparatedName(cn.name), fieldName, ClassUtil.toByteCodeClassName(className)));
+                        il.add(new MethodInsnNode(INVOKESTATIC, ClassUtil.toSlashSeparatedName(className),
+                                GET_TESTABLE_REF, VOID_ARGS + ClassUtil.toByteCodeClassName(className), false));
                         il.add(new VarInsnNode(ALOAD, 1));
                         for (int pi = 2; pi < parameters.size() + 2; pi++) {
                             ImmutablePair<Integer, Integer> codeAndStack = BytecodeUtil.getLoadParameterByteCode(parameters.get(pi - 2));

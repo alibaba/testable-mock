@@ -13,11 +13,11 @@ import org.objectweb.asm.tree.InnerClassNode;
 import org.objectweb.asm.tree.MethodNode;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static com.alibaba.testable.agent.constant.ByteCodeConst.TYPE_CLASS;
-import static com.alibaba.testable.agent.constant.ConstPool.CLASS_OBJECT;
-import static com.alibaba.testable.agent.constant.ConstPool.KOTLIN_POSTFIX_COMPANION;
+import static com.alibaba.testable.agent.constant.ConstPool.*;
 import static com.alibaba.testable.agent.util.ClassUtil.toJavaStyleClassName;
 import static com.alibaba.testable.agent.util.MethodUtil.isStatic;
 import static com.alibaba.testable.core.constant.ConstPool.CONSTRUCTOR;
@@ -39,6 +39,7 @@ public class MockClassParser {
         for (MethodNode mn : getAllMethods(cn)) {
             addMethodWithAnnotationCheck(methodInfos, cn, mn);
         }
+        handleMockContainerInherits(methodInfos, cn);
         return methodInfos;
     }
 
@@ -90,6 +91,30 @@ public class MockClassParser {
             }
         }
         return mns;
+    }
+
+    /**
+     * Take care of @MockContainer annotation
+     */
+    private void handleMockContainerInherits(List<MethodInfo> methodInfos, ClassNode cn) {
+        if (cn.visibleAnnotations != null) {
+            for (AnnotationNode an : cn.visibleAnnotations) {
+                if ((ClassUtil.toByteCodeClassName(ConstPool.MOCK_CONTAINER)).equals(an.desc)) {
+                    for (Object st : AnnotationUtil.getAnnotationParameter(an, FIELD_INHERITS,
+                            Collections.<Type>emptyList(), List.class)) {
+                        String superClassName = ((Type)st).getClassName();
+                        ClassNode superCn = ClassUtil.getClassNode(superClassName);
+                        if (superCn == null) {
+                            LogUtil.warn("failed to load class '%s' inherited by '%s'", superClassName, cn.name);
+                            continue;
+                        }
+                        for (MethodNode mn : getAllMethods(superCn)) {
+                            addMethodWithAnnotationCheck(methodInfos, cn, mn);
+                        }
+                    }
+                }
+            }
+        }
     }
 
     private void addMethodWithAnnotationCheck(List<MethodInfo> methodInfos, ClassNode cn, MethodNode mn) {

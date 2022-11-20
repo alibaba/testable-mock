@@ -24,7 +24,7 @@ class DemoMultipleInheritTest {
 
     public static class SuffixMock {
         @MockInvoke(targetClass = DemoMultipleInherit.class)
-        private String suffix() {
+        private String suffix(int some, String more, Object[] parameters) {
             return "_it";
         }
     }

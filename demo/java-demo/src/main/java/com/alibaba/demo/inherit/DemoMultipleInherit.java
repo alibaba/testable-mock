@@ -14,12 +14,12 @@ public class DemoMultipleInherit {
         return "gin";
     }
 
-    private String suffix() {
+    private String suffix(int some, String more, Object[] parameters) {
         return "_al";
     }
 
     public String entry() {
-        return prefix() + middle() + suffix();
+        return prefix() + middle() + suffix(0, null, null);
     }
 
 }
