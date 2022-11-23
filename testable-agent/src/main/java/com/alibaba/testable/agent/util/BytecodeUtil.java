@@ -1,7 +1,6 @@
 package com.alibaba.testable.agent.util;
 
 import com.alibaba.testable.agent.constant.ByteCodeConst;
-import com.alibaba.testable.agent.constant.ConstPool;
 import com.alibaba.testable.agent.tool.ImmutablePair;
 import com.alibaba.testable.core.util.LogUtil;
 import org.objectweb.asm.tree.*;
@@ -11,8 +10,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.alibaba.testable.agent.constant.ConstPool.FIELD_VALUE;
-import static com.alibaba.testable.agent.constant.ConstPool.PROPERTY_USER_DIR;
+import static com.alibaba.testable.agent.constant.ConstPool.*;
 import static com.alibaba.testable.core.constant.ConstPool.*;
 import static com.alibaba.testable.core.util.PathUtil.createFolder;
 import static org.objectweb.asm.Opcodes.*;
@@ -283,15 +281,12 @@ public class BytecodeUtil {
     }
 
     private static String getDumpPathByAnnotation(ClassNode cn) {
-        if (cn.visibleAnnotations != null) {
-            for (AnnotationNode an : cn.visibleAnnotations) {
-                if ((ClassUtil.toByteCodeClassName(ConstPool.DUMP_TO)).equals(an.desc)) {
-                    String path = AnnotationUtil.getAnnotationParameter(an, FIELD_VALUE, null, String.class);
-                    String fullPath = PathUtil.join(System.getProperty(PROPERTY_USER_DIR), path);
-                    if (createFolder(fullPath)) {
-                        return fullPath;
-                    }
-                }
+        AnnotationNode an = AnnotationUtil.getClassAnnotation(cn, DUMP_TO);
+        if (an != null) {
+            String path = AnnotationUtil.getAnnotationParameter(an, FIELD_VALUE, null, String.class);
+            String fullPath = PathUtil.join(System.getProperty(PROPERTY_USER_DIR), path);
+            if (createFolder(fullPath)) {
+                return fullPath;
             }
         }
         return null;

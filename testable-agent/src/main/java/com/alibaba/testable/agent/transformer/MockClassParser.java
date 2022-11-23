@@ -44,9 +44,9 @@ public class MockClassParser {
     }
 
     /**
-     * Check whether any method in specified class has mock-related annotation
+     * Check whether specified class is declared as mock container or has any method with mock-related annotation
      *
-     * @param cn class that need to explore
+     * @param cn class to explore
      * @return found annotation or not
      */
     public boolean isMockClass(ClassNode cn) {
@@ -54,6 +54,9 @@ public class MockClassParser {
             return false;
         }
         DiagnoseUtil.setupByClass(cn);
+        if (AnnotationUtil.getClassAnnotation(cn, MOCK_CONTAINER) != null) {
+            return true;
+        }
         for (MethodNode mn : cn.name.endsWith(MOCK_POSTFIX) ? getAllMethods(cn) : cn.methods) {
             if (mn.visibleAnnotations != null) {
                 for (AnnotationNode an : mn.visibleAnnotations) {
@@ -97,21 +100,18 @@ public class MockClassParser {
      * Take care of @MockContainer annotation
      */
     private void handleMockContainerInherits(List<MethodInfo> methodInfos, ClassNode cn) {
-        if (cn.visibleAnnotations != null) {
-            for (AnnotationNode an : cn.visibleAnnotations) {
-                if ((ClassUtil.toByteCodeClassName(ConstPool.MOCK_CONTAINER)).equals(an.desc)) {
-                    for (Object st : AnnotationUtil.getAnnotationParameter(an, FIELD_INHERITS,
-                            Collections.<Type>emptyList(), List.class)) {
-                        String superClassName = ((Type)st).getClassName();
-                        ClassNode superCn = ClassUtil.getClassNode(superClassName);
-                        if (superCn == null) {
-                            LogUtil.warn("failed to load class '%s' inherited by '%s'", superClassName, cn.name);
-                            continue;
-                        }
-                        for (MethodNode mn : getAllMethods(superCn)) {
-                            addMethodWithAnnotationCheck(methodInfos, cn, mn);
-                        }
-                    }
+        AnnotationNode an = AnnotationUtil.getClassAnnotation(cn, MOCK_CONTAINER);
+        if (an != null) {
+            for (Object st : AnnotationUtil.getAnnotationParameter(an, FIELD_INHERITS,
+                    Collections.<Type>emptyList(), List.class)) {
+                String superClassName = ((Type)st).getClassName();
+                ClassNode superCn = ClassUtil.getClassNode(superClassName);
+                if (superCn == null) {
+                    LogUtil.warn("failed to load class '%s' inherited by '%s'", superClassName, cn.name);
+                    continue;
+                }
+                for (MethodNode mn : getAllMethods(superCn)) {
+                    addMethodWithAnnotationCheck(methodInfos, cn, mn);
                 }
             }
         }

@@ -6,16 +6,14 @@ import com.alibaba.testable.core.util.LogUtil;
 import org.objectweb.asm.tree.AnnotationNode;
 import org.objectweb.asm.tree.ClassNode;
 
+import static com.alibaba.testable.agent.constant.ConstPool.MOCK_DIAGNOSE;
+
 public class DiagnoseUtil {
 
     public static void setupByClass(ClassNode cn) {
-        if (cn == null || cn.visibleAnnotations == null) {
-            return;
-        }
-        for (AnnotationNode an : cn.visibleAnnotations) {
-            if (ClassUtil.toByteCodeClassName(ConstPool.MOCK_DIAGNOSE).equals(an.desc)) {
-                setupDiagnose(an, ConstPool.FIELD_VALUE);
-            }
+        AnnotationNode an = AnnotationUtil.getClassAnnotation(cn, MOCK_DIAGNOSE);
+        if (an != null) {
+            setupDiagnose(an, ConstPool.FIELD_VALUE);
         }
     }
 

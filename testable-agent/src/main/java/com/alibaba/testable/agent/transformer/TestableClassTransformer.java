@@ -19,8 +19,7 @@ import java.lang.instrument.ClassFileTransformer;
 import java.security.ProtectionDomain;
 import java.util.List;
 
-import static com.alibaba.testable.agent.constant.ConstPool.CGLIB_CLASS_PATTERN;
-import static com.alibaba.testable.agent.constant.ConstPool.KOTLIN_POSTFIX_COMPANION;
+import static com.alibaba.testable.agent.constant.ConstPool.*;
 import static com.alibaba.testable.core.constant.ConstPool.DOLLAR;
 import static com.alibaba.testable.core.constant.ConstPool.TEST_POSTFIX;
 import static org.objectweb.asm.Opcodes.ACC_STATIC;
@@ -31,7 +30,7 @@ import static org.objectweb.asm.Opcodes.ACC_STATIC;
 public class TestableClassTransformer implements ClassFileTransformer {
 
     private static final String FIELD_TREAT_AS = "treatAs";
-    private static final String CLASS_JUNIT_5_NESTED = "Lorg/junit/jupiter/api/Nested;";
+    private static final String CLASS_JUNIT_5_NESTED = "org.junit.jupiter.api.Nested";
 
     /**
      * Just avoid spend time to scan those surely non-user classes, should keep these lists as tiny as possible
@@ -103,14 +102,17 @@ public class TestableClassTransformer implements ClassFileTransformer {
 
     private String foundMockForSourceClass(String name) {
         String className = (GlobalConfig.getMockPackageMapping() == null) ? name : mapPackage(name);
+        // handle @MockWith annotation on source class
         String mockClass = lookForMockWithAnnotationAsSourceClass(className);
         if (mockClass != null) {
             return mockClass;
         }
-        mockClass = foundMockForTestClass(ClassUtil.getTestClassName(className));
+        // look for [ThisClass]Test.Mock and [ThisClass]Mock
+        mockClass = foundMockForStandardClass(className);
         if (mockClass != null) {
             return mockClass;
         }
+        // inner class should also look for mock class in the test class of its outer class
         return foundMockForInnerSourceClass(className);
     }
 
@@ -127,32 +129,30 @@ public class TestableClassTransformer implements ClassFileTransformer {
 
     private String foundMockForInnerSourceClass(String className) {
         return (className.contains(DOLLAR) && !className.endsWith(KOTLIN_POSTFIX_COMPANION)) ?
-            foundMockForTestClass(ClassUtil.getTestClassName(className.substring(0, className.indexOf(DOLLAR)))) : null;
+            foundMockForStandardClass(className.substring(0, className.indexOf(DOLLAR))) : null;
     }
 
-    private String foundMockForTestClass(String className) {
-        ClassNode cn = adaptInnerClass(ClassUtil.getClassNode(className));
+    private String foundMockForStandardClass(String className) {
+        ClassNode cn = adaptInnerClass(ClassUtil.getClassNode(ClassUtil.getTestClassName(className)));
         if (cn != null) {
+            // handle @MockWith annotation on test class
             String mockClass = lookForMockWithAnnotationAsTestClass(cn);
             if (mockClass != null) {
                 return mockClass;
             }
+            // look for [ThisClass]Test.Mock
             mockClass = lookForInnerMockClass(cn);
             if (mockClass != null) {
                 return mockClass;
             }
         }
+        // look for [ThisClass]Mock
         return lookForOuterMockClass(className);
     }
 
     private ClassNode adaptInnerClass(ClassNode cn) {
-        if (cn == null || cn.visibleAnnotations == null) {
-            return cn;
-        }
-        for (AnnotationNode an : cn.visibleAnnotations) {
-            if (an.desc.equals(CLASS_JUNIT_5_NESTED)) {
-                return ClassUtil.getClassNode(ClassUtil.toOuterClassName(cn.name));
-            }
+        if (AnnotationUtil.getClassAnnotation(cn, CLASS_JUNIT_5_NESTED) != null) {
+            return ClassUtil.getClassNode(ClassUtil.toOuterClassName(cn.name));
         }
         return cn;
     }
@@ -214,7 +214,9 @@ public class TestableClassTransformer implements ClassFileTransformer {
     private String lookForInnerMockClass(ClassNode cn) {
         for (InnerClassNode ic : cn.innerClasses) {
             ClassNode innerClassNode = ClassUtil.getClassNode(ic.name);
-            if (ic.name.equals(getInnerMockClassName(cn.name)) && mockClassParser.isMockClass(innerClassNode)) {
+            boolean isNameMatched = ic.name.equals(getInnerMockClassName(cn.name)) ||
+                    AnnotationUtil.getClassAnnotation(innerClassNode, MOCK_CONTAINER) != null;
+            if (isNameMatched && mockClassParser.isMockClass(innerClassNode)) {
                 if ((ic.access & ACC_STATIC) == 0) {
                     LogUtil.warn("Mock class in \"%s\" is not declared as static", cn.name);
                 } else {
@@ -248,18 +250,15 @@ public class TestableClassTransformer implements ClassFileTransformer {
      * @return mock class name
      */
     private String parseMockWithAnnotation(ClassNode cn, ClassType expectedType) {
-        if (cn.visibleAnnotations != null) {
-            for (AnnotationNode an : cn.visibleAnnotations) {
-                if ((ClassUtil.toByteCodeClassName(ConstPool.MOCK_WITH)).equals(an.desc)) {
-                    ClassType type = AnnotationUtil.getAnnotationParameter(an, FIELD_TREAT_AS, ClassType.GuessByName,
-                        ClassType.class);
-                    if (isExpectedType(cn.name, type, expectedType)) {
-                        Type clazz = AnnotationUtil.getAnnotationParameter(an, ConstPool.FIELD_VALUE,
-                            Type.getType(NullType.class), Type.class);
-                        DiagnoseUtil.setupByClass(ClassUtil.getClassNode(clazz.getClassName()));
-                        return clazz.getClassName();
-                    }
-                }
+        AnnotationNode an = AnnotationUtil.getClassAnnotation(cn, MOCK_WITH);
+        if (an != null) {
+            ClassType type = AnnotationUtil.getAnnotationParameter(an, FIELD_TREAT_AS, ClassType.GuessByName,
+                ClassType.class);
+            if (isExpectedType(cn.name, type, expectedType)) {
+                Type clazz = AnnotationUtil.getAnnotationParameter(an, ConstPool.FIELD_VALUE,
+                    Type.getType(NullType.class), Type.class);
+                DiagnoseUtil.setupByClass(ClassUtil.getClassNode(clazz.getClassName()));
+                return clazz.getClassName();
             }
         }
         return null;

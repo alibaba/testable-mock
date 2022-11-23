@@ -2,6 +2,7 @@ package com.alibaba.testable.agent.handler;
 
 import com.alibaba.testable.agent.handler.test.JUnit4Framework;
 import com.alibaba.testable.agent.handler.test.JUnit5Framework;
+import com.alibaba.testable.agent.util.AnnotationUtil;
 import com.alibaba.testable.agent.util.ClassUtil;
 import com.alibaba.testable.core.util.CollectionUtil;
 import org.objectweb.asm.Label;
@@ -24,7 +25,7 @@ public class OmniClassHandler extends BaseClassHandler {
     private static final String METHOD_START = "(";
     private static final String VOID_METHOD_END = ")V";
     private static final String VOID_METHOD = "()V";
-    private static final String ENABLE_CONFIGURATION = "Lorg/springframework/context/annotation/Configuration;";
+    private static final String ENABLE_CONFIGURATION = "org.springframework.context.annotation.Configuration";
     private static final String CLASS_ABSTRACT_COLLECTION = "java/util/AbstractCollection";
     private static final String CLASS_NUMBER = "java/lang/Number";
     private static final String CLASS_HASH_SET = "java/util/HashSet";
@@ -38,7 +39,8 @@ public class OmniClassHandler extends BaseClassHandler {
 
     @Override
     protected void transform(ClassNode cn) {
-        if (isInterfaceOrAtom(cn) || isUniqueConstructorClass(cn) || isUninstantiableClass(cn) || hasSpecialAnnotation(cn)) {
+        if (isInterfaceOrAtom(cn) || isUniqueConstructorClass(cn) || isUninstantiableClass(cn) ||
+                AnnotationUtil.getClassAnnotation(cn, ENABLE_CONFIGURATION) != null) {
             return;
         }
         addConstructorWithVoidTypeParameter(cn);
@@ -60,18 +62,6 @@ public class OmniClassHandler extends BaseClassHandler {
         }
         constructor.maxLocals = 2;
         cn.methods.add(constructor);
-    }
-
-    private boolean hasSpecialAnnotation(ClassNode cn) {
-        if (cn.visibleAnnotations == null) {
-            return false;
-        }
-        for (AnnotationNode an : cn.visibleAnnotations) {
-            if (an.desc.equals(ENABLE_CONFIGURATION)) {
-                return true;
-            }
-        }
-        return false;
     }
 
     private boolean isUninstantiableClass(ClassNode cn) {

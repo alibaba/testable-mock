@@ -1,6 +1,8 @@
 package com.alibaba.testable.agent.util;
 
+import com.alibaba.testable.agent.constant.ConstPool;
 import org.objectweb.asm.tree.AnnotationNode;
+import org.objectweb.asm.tree.ClassNode;
 
 /**
  * @author flin
@@ -60,4 +62,20 @@ public class AnnotationUtil {
         return false;
     }
 
+    /**
+     * Get specified annotation node from specified class, or null if the annotation not exist
+     * @param cn class to explore
+     * @param annotation name of annotation to look for
+     * @return the annotation instance or null
+     */
+    public static AnnotationNode getClassAnnotation(ClassNode cn, String annotation) {
+        if (cn != null && cn.visibleAnnotations != null) {
+            for (AnnotationNode an : cn.visibleAnnotations) {
+                if (ClassUtil.toByteCodeClassName(annotation).equals(an.desc)) {
+                    return an;
+                }
+            }
+        }
+        return null;
+    }
 }
