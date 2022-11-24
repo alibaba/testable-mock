@@ -108,7 +108,7 @@ public class EnablePrivateAccessTranslator extends BaseTranslator {
                     (JCAssign)jcExpressionStatement.expr);
             }
         }
-        // visitExec could be an invoke
+        // visitExec could be an invocation
         jcExpressionStatement.expr = checkAndExchange(jcExpressionStatement.expr);
         super.visitExec(jcExpressionStatement);
     }

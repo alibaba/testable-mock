@@ -107,7 +107,7 @@ public class TestableClassTransformer implements ClassFileTransformer {
         if (mockClass != null) {
             return mockClass;
         }
-        // look for [ThisClass]Test.Mock and [ThisClass]Mock
+        // look for [ThisClass]Test.Mock, [ThisClass]Mock and class with @MockContainer annotation
         mockClass = foundMockForStandardClass(className);
         if (mockClass != null) {
             return mockClass;
@@ -140,7 +140,7 @@ public class TestableClassTransformer implements ClassFileTransformer {
             if (mockClass != null) {
                 return mockClass;
             }
-            // look for [ThisClass]Test.Mock
+            // look for [ThisClass]Test.Mock or @MockContainer annotation
             mockClass = lookForInnerMockClass(cn);
             if (mockClass != null) {
                 return mockClass;
