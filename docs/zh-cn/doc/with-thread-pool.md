@@ -15,7 +15,7 @@ Mock线程池内的调用
 
 ```xml
 <properties>
-    <transmittable.thread.local.version>2.12.1</transmittable.thread.local.version>
+    <transmittable.thread.local.version>2.14.2</transmittable.thread.local.version>
 </properties>
 ```
 
