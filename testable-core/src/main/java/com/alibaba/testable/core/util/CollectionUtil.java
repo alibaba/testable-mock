@@ -1,7 +1,5 @@
 package com.alibaba.testable.core.util;
 
-import com.alibaba.testable.core.model.Pair;
-
 import java.util.*;
 
 public class CollectionUtil {
@@ -121,25 +119,35 @@ public class CollectionUtil {
 
     /**
      * Create a map
-     * @param pair elements to add
+     * @param entry elements to add
      * @return map of the provided items
      */
-    public static <K, V> Map<K, V> mapOf(Pair<K, V>... pair) {
-        return mapOf(new HashMap<K, V>(pair.length), pair);
+    public static <K, V> Map<K, V> mapOf(Map.Entry<K, V>... entry) {
+        return appendMap(new HashMap<K, V>(entry.length), entry);
     }
 
     /**
      * Create an ordered map
-     * @param pair elements to add
+     * @param entry elements to add
      * @return ordered map of the provided items
      */
-    public static <K, V> Map<K, V> orderMapOf(Pair<K, V>... pair) {
-        return mapOf(new LinkedHashMap<K, V>(pair.length), pair);
+    public static <K, V> Map<K, V> orderMapOf(Map.Entry<K, V>... entry) {
+        return appendMap(new LinkedHashMap<K, V>(entry.length), entry);
     }
 
-    private static <K, V> Map<K, V> mapOf(Map<K, V> kvs, Pair<K, V>[] pair) {
-        for (Pair<K, V> p : pair) {
-            kvs.put(p.getLeft(), p.getRight());
+    /**
+     * Create a map entry
+     * @param key the key
+     * @param value the value
+     * @return entry of provided key and value
+     */
+    public static <K, V> Map.Entry<K, V> entryOf(K key, V value) {
+        return new AbstractMap.SimpleEntry<K, V>(key, value);
+    }
+
+    private static <K, V> Map<K, V> appendMap(Map<K, V> kvs, Map.Entry<K, V>[] entry) {
+        for (Map.Entry<K, V> p : entry) {
+            kvs.put(p.getKey(), p.getValue());
         }
         return kvs;
     }
