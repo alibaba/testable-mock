@@ -77,9 +77,9 @@ public class MockClassHandler extends BaseClassWithContextHandler {
      */
     private void injectInheritedMockMethods(ClassNode cn) {
         List<Type> inheritedTypes = new ArrayList<Type>();
-        AnnotationNode an = AnnotationUtil.getClassAnnotation(cn, MOCK_CONTAINER);
-        if (an != null) {
-            inheritedTypes.addAll(AnnotationUtil.getAnnotationParameter(an, FIELD_INHERITS,
+        AnnotationNode mockContainerAnnotation = AnnotationUtil.getClassAnnotation(cn, MOCK_CONTAINER);
+        if (mockContainerAnnotation != null) {
+            inheritedTypes.addAll(AnnotationUtil.getAnnotationParameter(mockContainerAnnotation, FIELD_INHERITS,
                     Collections.<Type>emptyList(), List.class));
         }
         for (Type inheritedType : inheritedTypes) {
