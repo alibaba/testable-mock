@@ -158,7 +158,7 @@ public class TestableClassTransformer implements ClassFileTransformer {
     }
 
     private String lookForOuterMockClass(String className) {
-        String mockClassName = ClassUtil.getMockClassName(ClassUtil.getSourceClassName(className));
+        String mockClassName = ClassUtil.getMockClassName(className);
         if (mockClassParser.isMockClass(ClassUtil.getClassNode(mockClassName))) {
             return mockClassName;
         }
