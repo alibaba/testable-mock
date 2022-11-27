@@ -116,7 +116,7 @@ public class OmniConstructor {
     }
 
     private static <T> T newAbstractClass(Class<T> clazz, ConstructionOption[] options) throws InstantiationException {
-        return CollectionUtil.contains(options, EXCEPT_INTERFACE) ? ConstructionUtil.generateSubClassOf(clazz) : null;
+        return CollectionUtil.contains(options, EXCEPT_INTERFACE) ? null : ConstructionUtil.generateSubClassOf(clazz);
     }
 
     private static <T> T newInterface(Class<T> clazz, ConstructionOption[] options) throws InstantiationException {
@@ -252,7 +252,7 @@ public class OmniConstructor {
 
     private static Object createSpecialClass(Class<?> clazz) throws InstantiationException, IllegalAccessException, InvocationTargetException {
         try {
-            // java.net.URL is loaded before OmniClassHandler, cannot be instrumented
+            // below classes are loaded before OmniClassHandler, cannot be instrumented
             if (clazz.getName().equals("java.net.URL")) {
                 return clazz.getDeclaredConstructor(String.class).newInstance("https://");
             }
