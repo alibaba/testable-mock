@@ -1,6 +1,6 @@
 package com.alibaba.testable.agent.model;
 
-import com.alibaba.testable.agent.util.StringUtil;
+import com.alibaba.testable.core.util.StringUtil;
 import org.objectweb.asm.Handle;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;

@@ -199,7 +199,7 @@ public class ClassUtil {
     }
 
     /**
-     * Convert byte code class name to slash separated human readable name
+     * Convert byte code class name to slash separated human-readable name
      * @param className original name
      * @return converted name
      */
@@ -208,7 +208,7 @@ public class ClassUtil {
     }
 
     /**
-     * Convert byte code class name to dot separated human readable name
+     * Convert byte code class name to dot separated human-readable name
      * @param className original name
      * @return converted name
      */

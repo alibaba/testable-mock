@@ -1,4 +1,4 @@
-package com.alibaba.testable.agent.util;
+package com.alibaba.testable.core.util;
 
 import org.junit.jupiter.api.Test;
 
@@ -11,6 +11,13 @@ class StringUtilTest {
         assertEquals("", StringUtil.repeat("abc", 0));
         assertEquals("abc", StringUtil.repeat("abc", 1));
         assertEquals("abcabcabc", StringUtil.repeat("abc", 3));
+    }
+
+    @Test
+    void should_join_text() {
+        assertEquals("abc", StringUtil.join("", "a", "b", "c"));
+        assertEquals("a", StringUtil.join(",", "a"));
+        assertEquals("ab,cd,ef", StringUtil.join(",", new String[]{"ab", "cd", "ef"}));
     }
 
 }
