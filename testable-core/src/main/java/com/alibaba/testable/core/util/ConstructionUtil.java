@@ -14,9 +14,10 @@ public class ConstructionUtil {
 
     public static <T> T generateSubClassOf(Class<T> clazz) throws InstantiationException {
         StringBuilder sourceCode = new StringBuilder();
+        String packageName = adaptName(clazz.getPackage().getName());
         Map<String, String> genericNames = getImplicitGenericParameters(clazz);
         sourceCode.append("package ")
-                .append(clazz.getPackage().getName())
+                .append(packageName)
                 .append(";\npublic class ")
                 .append(getSubclassName(clazz))
                 .append(getTypeParameters(clazz.getTypeParameters(), true, genericNames))
@@ -56,11 +57,16 @@ public class ConstructionUtil {
                     .useParentClassLoader(clazz.getClassLoader())
                     .useOptions("-Xlint:unchecked")
                     .ignoreWarnings()
-                    .compile(clazz.getPackage().getName() + DOT + getSubclassName(clazz), sourceCode.toString())
+                    .compile(packageName + DOT + getSubclassName(clazz), sourceCode.toString())
                     .newInstance();
         } catch (Exception e) {
             throw new InstantiationException(e.toString());
         }
+    }
+
+    private static String adaptName(String name) {
+        // create class in 'java' package will cause 'prohibited package name' error
+        return name.replaceAll("^java\\.", "testable.");
     }
 
     private static <T> Map<String, String> getImplicitGenericParameters(Class<T> clazz) {
