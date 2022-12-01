@@ -20,6 +20,8 @@ import static com.alibaba.testable.agent.constant.ByteCodeConst.TYPE_CLASS;
 import static com.alibaba.testable.agent.constant.ConstPool.*;
 import static com.alibaba.testable.agent.util.ClassUtil.toJavaStyleClassName;
 import static com.alibaba.testable.agent.util.MethodUtil.isStatic;
+import static com.alibaba.testable.agent.util.MockInvokeUtil.getTargetClassName;
+import static com.alibaba.testable.agent.util.MockInvokeUtil.hasTargetClassParameter;
 import static com.alibaba.testable.core.constant.ConstPool.CONSTRUCTOR;
 import static com.alibaba.testable.core.constant.ConstPool.MOCK_POSTFIX;
 
@@ -147,9 +149,9 @@ public class MockClassParser {
     }
 
     private MethodInfo getMethodInfo(ClassNode cn, MethodNode mn, AnnotationNode an, String targetMethod) {
-        Type targetType = AnnotationUtil.getAnnotationParameter(an, ConstPool.FIELD_TARGET_CLASS, null, Type.class);
+        String targetTypeName = getTargetClassName(an);
         boolean isStatic = isStatic(mn);
-        if (targetType == null) {
+        if (targetTypeName == null) {
             // "targetClass" unset, use first parameter as target class type
             ImmutablePair<String, String> methodDescPair = MethodUtil.splitFirstAndRestParameters(mn.desc);
             if (methodDescPair.left.isEmpty()) {
@@ -159,7 +161,7 @@ public class MockClassParser {
                 isStatic);
         } else {
             // "targetClass" found, use it as target class type
-            String slashSeparatedName = ClassUtil.toSlashSeparatedName(targetType.getClassName());
+            String slashSeparatedName = ClassUtil.toSlashSeparatedName(targetTypeName);
             return new MethodInfo(slashSeparatedName, targetMethod, mn.desc, cn.name, mn.name,
                 MethodUtil.addParameterAtBegin(mn.desc, ClassUtil.toByteCodeClassName(slashSeparatedName)), isStatic);
         }
@@ -170,11 +172,9 @@ public class MockClassParser {
         if (targetMethodName == null) {
             targetMethodName = mn.name;
         }
-        String targetClassName;
         String targetMethodDesc;
-        Type targetClass = AnnotationUtil.getAnnotationParameter(an, ConstPool.FIELD_TARGET_CLASS, null, Type.class);
-        if (targetClass != null) {
-            targetClassName = targetClass.getClassName();
+        String targetClassName = getTargetClassName(an);
+        if (targetClassName != null) {
             targetMethodDesc = mn.desc;
             checkMethodExists(cn.name, mn.name, targetClassName, targetMethodName, targetMethodDesc);
         } else if (mn.desc.charAt(1) == TYPE_CLASS) {
@@ -232,8 +232,7 @@ public class MockClassParser {
      * @return valid or not
      */
     private boolean isValidMockMethod(MethodNode mn, AnnotationNode an) {
-        Type targetClass = AnnotationUtil.getAnnotationParameter(an, ConstPool.FIELD_TARGET_CLASS, null, Type.class);
-        if (targetClass != null) {
+        if (hasTargetClassParameter(an)) {
             return true;
         }
         String firstParameter = MethodUtil.getFirstParameter(mn.desc);

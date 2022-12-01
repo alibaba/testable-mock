@@ -1,6 +1,5 @@
 package com.alibaba.testable.agent.util;
 
-import com.alibaba.testable.agent.constant.ConstPool;
 import org.objectweb.asm.tree.AnnotationNode;
 import org.objectweb.asm.tree.ClassNode;
 
@@ -43,20 +42,65 @@ public class AnnotationUtil {
     }
 
     /**
+     * Check whether annotation has any of the specified parameters
+     * @param an annotation to check
+     * @param keys name of parameters
+     * @return yes or no
+     */
+    public static boolean hasAnyAnnotationParameters(AnnotationNode an, String... keys) {
+        if (an != null && an.values != null) {
+            for (int i = 0; i < an.values.size(); i += 2) {
+                for (String key : keys) {
+                    if (an.values.get(i).equals(key)) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Check whether annotation has all the specified parameters
+     * @param an annotation to check
+     * @param keys name of parameters
+     * @return yes or no
+     */
+    public static boolean hasAllAnnotationParameters(AnnotationNode an, String... keys) {
+        boolean found = false;
+        if (an != null && an.values != null) {
+            for (String key : keys) {
+                for (int i = 0; i < an.values.size(); i += 2) {
+                    if (an.values.get(i).equals(key)) {
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    /**
      * Remove specified parameter from annotation
      * @param an annotation node
-     * @param key name of parameter to remove
+     * @param keys name of parameters to remove
      * @return true - success, false - not found
      */
-    public static boolean removeAnnotationParameter(AnnotationNode an, String key) {
+    public static boolean removeAnnotationParameters(AnnotationNode an, String... keys) {
         if (an.values == null) {
             return false;
         }
-        for (int i = 0; i < an.values.size(); i += 2) {
-            if (an.values.get(i).equals(key)) {
-                an.values.remove(i + 1);
-                an.values.remove(i);
-                return true;
+        for (String key : keys) {
+            for (int i = 0; i < an.values.size(); i += 2) {
+                if (an.values.get(i).equals(key)) {
+                    an.values.remove(i + 1);
+                    an.values.remove(i);
+                    break;
+                }
             }
         }
         return false;

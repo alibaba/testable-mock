@@ -7,6 +7,7 @@ public class ConstPool {
 
     public static final String FIELD_TARGET_METHOD = "targetMethod";
     public static final String FIELD_TARGET_CLASS = "targetClass";
+    public static final String FIELD_TARGET_CLASS_NAME = "targetClassName";
     public static final String FIELD_SCOPE = "scope";
     public static final String FIELD_VALUE = "value";
     public static final String FIELD_INHERITS = "inherits";

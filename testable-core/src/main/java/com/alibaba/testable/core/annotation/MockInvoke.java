@@ -28,6 +28,12 @@ public @interface MockInvoke {
     Class<?> targetClass() default NullType.class;
 
     /**
+     * alternative to 'targetClass' field for private internal class
+     * @return target class full name
+     */
+    String targetClassName() default "";
+
+    /**
      * specify the effective scope of the mock method
      * @return global or associated
      */
