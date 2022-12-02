@@ -5,6 +5,7 @@ import com.alibaba.testable.agent.tool.ImmutablePair;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.MethodInsnNode;
+import org.objectweb.asm.tree.MethodNode;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -241,6 +242,21 @@ public class ClassUtil {
     public static String toOuterClassName(String name) {
         int pos = name.lastIndexOf(DOLLAR);
         return (pos > 0) ? name.substring(0, pos) : name;
+    }
+
+    /**
+     * Check whether class already has a method with same signature
+     * @param cn class to check
+     * @param mn method to find
+     * @return exist or not
+     */
+    public static boolean hasMethod(ClassNode cn, MethodNode mn) {
+        for (MethodNode m : cn.methods) {
+            if (m.name.equals(mn.name) && m.desc.equals(mn.desc)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private static String toDescriptor(Byte type, String objectType) {

@@ -91,7 +91,10 @@ public class MockClassHandler extends BaseClassWithContextHandler {
                 if (mn.visibleAnnotations == null) {
                     continue;
                 }
-                // TODO: should check whether method with same descriptor already exists to avoid conflict
+                if (ClassUtil.hasMethod(cn, mn)) {
+                    LogUtil.warn("Method '%s' with same signature already exists in class %s, skipped", mn.name, cn.name);
+                    continue;
+                }
                 for (AnnotationNode an : mn.visibleAnnotations) {
                     if ((ClassUtil.toByteCodeClassName(MOCK_INVOKE)).equals(an.desc)) {
                         String targetClassName = getTargetClassName(an);
