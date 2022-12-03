@@ -42,20 +42,23 @@ public class ConstructionUtil {
         }
     }
 
-    private static Set<String> generateMethodsOf(Class<?> clazz, Set<String> finalMethods, Map<String, String> genericTypes) {
+    private static Set<String> generateMethodsOf(Class<?> clazz, Set<String> methodPool, Map<String, String> genericTypes) {
         Set<String> methods = new HashSet<String>();
+        // in a very special situation, getDeclaredMethods() could fetch method declaration in the parent interface
+        // as none-abstract, that will cause the corresponding abstract method in current class be skipped.
+        // it happens to e.g. CharSequence.subSequence(int,int) and CharBuffer.subSequence(int,int)
+        // so we would pass the methods to pool after all method in current level have been handled.
+        Set<String> thisLevelMethodPool = new HashSet<String>();
         for (Method m : clazz.getDeclaredMethods()) {
             StringBuilder methodSignatureBuilder = new StringBuilder(m.getName());
             for (Type p : m.getGenericParameterTypes()) {
                 methodSignatureBuilder.append("#").append(getParameterName(p, genericTypes));
             }
             String methodSignature = methodSignatureBuilder.toString();
-            if (finalMethods.contains(methodSignature)) {
+            if (methodPool.contains(methodSignature)) {
                 continue;
             }
-            if (Modifier.isFinal(m.getModifiers())) {
-                finalMethods.add(methodSignature);
-            }
+            thisLevelMethodPool.add(methodSignature);
             if (Modifier.isAbstract(m.getModifiers())) {
                 StringBuilder sourceCode = new StringBuilder();
                 sourceCode.append("\tpublic ")
@@ -82,6 +85,7 @@ public class ConstructionUtil {
                 methods.add(sourceCode.toString());
             }
         }
+        methodPool.addAll(thisLevelMethodPool);
         List<Type> superTypes = new ArrayList<Type>(Arrays.asList(clazz.getGenericInterfaces()));
         if (clazz.getGenericSuperclass() != null) {
             superTypes.add(clazz.getGenericSuperclass());
@@ -89,9 +93,9 @@ public class ConstructionUtil {
         for (Type t : superTypes) {
             if (t instanceof ParameterizedType) {
                 ParameterizedType pt = (ParameterizedType) t;
-                methods.addAll(generateMethodsOf((Class<?>) pt.getRawType(), finalMethods, parseGenericTypes(pt)));
+                methods.addAll(generateMethodsOf((Class<?>) pt.getRawType(), methodPool, parseGenericTypes(pt)));
             } else if (t instanceof Class) {
-                methods.addAll(generateMethodsOf((Class<?>) t, finalMethods, Collections.<String, String>emptyMap()));
+                methods.addAll(generateMethodsOf((Class<?>) t, methodPool, Collections.<String, String>emptyMap()));
             }
         }
         return methods;

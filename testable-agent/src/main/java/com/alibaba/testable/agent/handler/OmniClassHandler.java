@@ -37,31 +37,21 @@ public class OmniClassHandler extends BaseClassHandler {
     private static final String CLASS_ABSTRACT_COLLECTION = "java/util/AbstractCollection";
     private static final String CLASS_NUMBER = "java/lang/Number";
     private static final String CLASS_HASH_SET = "java/util/HashSet";
-    private static final String CLASS_READER = "java/io/Reader";
-    private static final String CLASS_WRITER = "java/io/Writer";
-    private static final String CLASS_BUFFERED_READER = "java/io/BufferedReader";
-    private static final String CLASS_BUFFERED_WRITER = "java/io/BufferedWriter";
-    private static final String CLASS_INPUT_STREAM = "java/io/InputStream";
-    private static final String CLASS_OUTPUT_STREAM = "java/io/OutputStream";
-    private static final String CLASS_BUFFERED_INPUT_STREAM = "java/io/BufferedInputStream";
-    private static final String CLASS_BUFFERED_OUTPUT_STREAM = "java/io/BufferedOutputStream";
-    private static final String CLASS_THREAD = "java/lang/Thread";
-    private static final String CLASS_FILE = "java/io/File";
 
     // below classes are loaded before OmniClassHandler, cannot be instrumented
     // map of class name to constructor parameters
     private static final Map<String, String[]> PRELOADED_CLASSES = mapOf(
             entryOf(CLASS_OBJECT, CollectionUtil.<String>arrayOf()),
-            entryOf(CLASS_READER, CollectionUtil.<String>arrayOf()),
-            entryOf(CLASS_WRITER, CollectionUtil.<String>arrayOf()),
-            entryOf(CLASS_INPUT_STREAM, CollectionUtil.<String>arrayOf()),
-            entryOf(CLASS_OUTPUT_STREAM, CollectionUtil.<String>arrayOf()),
-            entryOf(CLASS_THREAD, CollectionUtil.<String>arrayOf()),
-            entryOf(CLASS_FILE, arrayOf("Ljava/lang/String;")),
-            entryOf(CLASS_BUFFERED_READER, arrayOf("Ljava/io/Reader;")),
-            entryOf(CLASS_BUFFERED_WRITER, arrayOf("Ljava/io/Reader;")),
-            entryOf(CLASS_BUFFERED_INPUT_STREAM, arrayOf("Ljava/io/Reader;")),
-            entryOf(CLASS_BUFFERED_OUTPUT_STREAM, arrayOf("Ljava/io/Reader;"))
+            entryOf("java/io/Reader", CollectionUtil.<String>arrayOf()),
+            entryOf("java/io/Writer", CollectionUtil.<String>arrayOf()),
+            entryOf("java/io/InputStream", CollectionUtil.<String>arrayOf()),
+            entryOf("java/io/OutputStream", CollectionUtil.<String>arrayOf()),
+            entryOf("java/lang/Thread", CollectionUtil.<String>arrayOf()),
+            entryOf("java/io/File", arrayOf("Ljava/lang/String;")),
+            entryOf("java/io/BufferedReader", arrayOf("Ljava/io/Reader;")),
+            entryOf("java/io/BufferedWriter", arrayOf("Ljava/io/Reader;")),
+            entryOf("java/io/BufferedInputStream", arrayOf("Ljava/io/Reader;")),
+            entryOf("java/io/BufferedOutputStream", arrayOf("Ljava/io/Reader;"))
     );
 
     private static final String[] JUNIT_TEST_ANNOTATIONS = new String[] {
@@ -86,7 +76,7 @@ public class OmniClassHandler extends BaseClassHandler {
         LabelNode start = new LabelNode(new Label());
         LabelNode end = new LabelNode(new Label());
         if (PRELOADED_CLASSES.containsKey(cn.superName)) {
-            constructor.instructions = invokeSuperWithoutParameter(cn.superName, start, end);
+            constructor.instructions = invokeSuperWithoutTestableParameter(cn.superName, start, end);
             constructor.localVariables = createLocalVariables(cn, start, end);
             constructor.maxStack = 1 + PRELOADED_CLASSES.get(cn.superName).length;
         } else {
@@ -136,7 +126,7 @@ public class OmniClassHandler extends BaseClassHandler {
         return false;
     }
 
-    private InsnList invokeSuperWithoutParameter(String superName, LabelNode start, LabelNode end) {
+    private InsnList invokeSuperWithoutTestableParameter(String superName, LabelNode start, LabelNode end) {
         String[] parameters = PRELOADED_CLASSES.get(superName);
         InsnList il = new InsnList();
         il.add(start);

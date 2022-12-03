@@ -8,6 +8,7 @@ import com.alibaba.testable.core.util.LogUtil;
 import com.alibaba.testable.core.util.TypeUtil;
 
 import java.lang.reflect.*;
+import java.nio.charset.Charset;
 import java.util.*;
 
 import static com.alibaba.testable.core.constant.ConstPool.DOLLAR;
@@ -61,6 +62,10 @@ public class OmniConstructor {
             return null;
         }
         classPool.add(clazz);
+        T ins = createSpecialClass(clazz);
+        if (ins != null) {
+            return ins;
+        }
         try {
             if (clazz.isPrimitive()) {
                 return newPrimitive(clazz);
@@ -229,10 +234,6 @@ public class OmniConstructor {
 
     private static Object createInstance(Class<?> clazz, Set<Class<?>> classPool, ConstructionOption[] options)
         throws InstantiationException, IllegalAccessException, InvocationTargetException {
-        Object ins = createSpecialClass(clazz);
-        if (ins != null) {
-            return ins;
-        }
         Constructor<?> constructor = getBestConstructor(clazz);
         if (constructor == null) {
             throw new ClassConstructionException("Fail to invoke constructor of " + clazz.getName());
@@ -250,14 +251,31 @@ public class OmniConstructor {
         }
     }
 
-    private static Object createSpecialClass(Class<?> clazz) throws InstantiationException, IllegalAccessException, InvocationTargetException {
-        try {
-            // below classes are loaded before OmniClassHandler, cannot be instrumented
-            if (clazz.getName().equals("java.net.URL")) {
+    private static <T> T createSpecialClass(Class<T> clazz) {
+        if (clazz.getName().equals("java.net.URL")) {
+            // loaded before OmniClassHandler, cannot be instrumented
+            try {
                 return clazz.getDeclaredConstructor(String.class).newInstance("https://");
+            } catch (Exception e) {
+                return null;
             }
-        } catch (NoSuchMethodException e) {
-            return null;
+        } else if (clazz.getName().equals("java.nio.charset.Charset")) {
+            // better to use its default instance
+            return (T) Charset.defaultCharset();
+        } else if (clazz.getName().equals("java.nio.ByteBuffer")) {
+            // has package-private abstract methods
+            try {
+                return (T) newInstance(Class.forName("java.nio.DirectByteBuffer"));
+            } catch (ClassNotFoundException e) {
+                return null;
+            }
+        } else if (clazz.getName().equals("java.nio.CharBuffer")) {
+            // has package-private abstract methods
+            try {
+                return (T) newInstance(Class.forName("java.nio.StringCharBuffer"));
+            } catch (ClassNotFoundException e) {
+                return null;
+            }
         }
         return null;
     }

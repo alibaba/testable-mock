@@ -67,9 +67,9 @@ public class AnnotationUtil {
      * @return yes or no
      */
     public static boolean hasAllAnnotationParameters(AnnotationNode an, String... keys) {
-        boolean found = false;
         if (an != null && an.values != null) {
             for (String key : keys) {
+                boolean found = false;
                 for (int i = 0; i < an.values.size(); i += 2) {
                     if (an.values.get(i).equals(key)) {
                         found = true;
@@ -80,8 +80,9 @@ public class AnnotationUtil {
                     return false;
                 }
             }
+            return true;
         }
-        return true;
+        return false;
     }
 
     /**
