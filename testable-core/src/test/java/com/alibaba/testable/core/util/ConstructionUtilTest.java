@@ -47,7 +47,10 @@ class ConstructionUtilTest {
         public abstract P getByMap(Map<String, P> m);
     }
 
-    public interface StringMap extends Map<String, Object> {}
+    public interface StringMap extends Map<String, Object> {
+        <K> K nextKey(K k);
+        <V> V nextValue(V v);
+    }
 
     public interface Inner$Interface {}
 
