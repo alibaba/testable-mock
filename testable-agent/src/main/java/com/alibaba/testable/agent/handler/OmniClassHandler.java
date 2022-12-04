@@ -51,7 +51,8 @@ public class OmniClassHandler extends BaseClassHandler {
             entryOf("java/io/BufferedReader", arrayOf("Ljava/io/Reader;")),
             entryOf("java/io/BufferedWriter", arrayOf("Ljava/io/Reader;")),
             entryOf("java/io/BufferedInputStream", arrayOf("Ljava/io/Reader;")),
-            entryOf("java/io/BufferedOutputStream", arrayOf("Ljava/io/Reader;"))
+            entryOf("java/io/BufferedOutputStream", arrayOf("Ljava/io/Reader;")),
+            entryOf("java/nio/CharBuffer", arrayOf("I", "I", "I", "I"))
     );
 
     private static final String[] JUNIT_TEST_ANNOTATIONS = new String[] {

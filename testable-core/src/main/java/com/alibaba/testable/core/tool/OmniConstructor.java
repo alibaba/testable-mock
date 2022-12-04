@@ -121,7 +121,8 @@ public class OmniConstructor {
     }
 
     private static <T> T newAbstractClass(Class<T> clazz, ConstructionOption[] options) throws InstantiationException {
-        return CollectionUtil.contains(options, EXCEPT_INTERFACE) ? null : ConstructionUtil.generateSubClassOf(clazz);
+        return CollectionUtil.contains(options, EXCEPT_INTERFACE) ? null
+                : ConstructionUtil.generateSubClassOf(clazz, options);
     }
 
     private static <T> T newInterface(Class<T> clazz, ConstructionOption[] options) throws InstantiationException {
@@ -262,6 +263,9 @@ public class OmniConstructor {
         } else if (clazz.getName().equals("java.nio.charset.Charset")) {
             // better to use its default instance
             return (T) Charset.defaultCharset();
+        } else if (clazz.getName().equals("java.util.Date")) {
+            // better to use current time
+            return (T) new Date();
         } else if (clazz.getName().equals("java.nio.ByteBuffer")) {
             // has package-private abstract methods
             try {

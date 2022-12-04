@@ -1,5 +1,6 @@
 package com.alibaba.testable.core.util;
 
+import com.alibaba.testable.core.model.ConstructionOption;
 import org.junit.jupiter.api.Test;
 import sun.reflect.generics.factory.CoreReflectionFactory;
 import sun.reflect.generics.reflectiveObjects.GenericArrayTypeImpl;
@@ -54,39 +55,41 @@ class ConstructionUtilTest {
 
     public interface Inner$Interface {}
 
+    private final ConstructionOption[] options = arrayOf();
+
     @Test
     void should_generate_empty_interface() throws Exception {
-        EmptyInterface ins = ConstructionUtil.generateSubClassOf(EmptyInterface.class);
+        EmptyInterface ins = ConstructionUtil.generateSubClassOf(EmptyInterface.class, options);
         assertNotNull(ins);
     }
 
     @Test
     void should_generate_real_interface() throws Exception {
-        RealInterface ins = ConstructionUtil.generateSubClassOf(RealInterface.class);
+        RealInterface ins = ConstructionUtil.generateSubClassOf(RealInterface.class, options);
         assertNotNull(ins);
     }
 
     @Test
     void should_generate_abstract_class() throws Exception {
-        RealInterface ins = ConstructionUtil.generateSubClassOf(AbstractClazz.class);
+        RealInterface ins = ConstructionUtil.generateSubClassOf(AbstractClazz.class, options);
         assertNotNull(ins);
     }
 
     @Test
     void should_generate_parameterized_class() throws Exception {
-        RealInterface ins = ConstructionUtil.generateSubClassOf(ParameterizedClazz.class);
+        RealInterface ins = ConstructionUtil.generateSubClassOf(ParameterizedClazz.class, options);
         assertNotNull(ins);
     }
 
     @Test
     void should_generate_implicit_generic_interface() throws Exception {
-        StringMap ins = ConstructionUtil.generateSubClassOf(StringMap.class);
+        StringMap ins = ConstructionUtil.generateSubClassOf(StringMap.class, options);
         assertNotNull(ins);
     }
 
     @Test
     void should_generate_name_with_dollar() throws Exception {
-        Inner$Interface ins = ConstructionUtil.generateSubClassOf(Inner$Interface.class);
+        Inner$Interface ins = ConstructionUtil.generateSubClassOf(Inner$Interface.class, options);
         assertNotNull(ins);
     }
 

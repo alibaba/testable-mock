@@ -1,18 +1,42 @@
 package com.alibaba.testable.core.util;
 
 import com.alibaba.testable.core.compile.InMemoryJavaCompiler;
+import com.alibaba.testable.core.model.ConstructionOption;
 import com.alibaba.testable.core.tool.OmniConstructor;
 
 import java.lang.reflect.*;
 import java.util.*;
 
 import static com.alibaba.testable.core.constant.ConstPool.DOT;
+import static com.alibaba.testable.core.model.ConstructionOption.RICH_INTERFACE;
+import static com.alibaba.testable.core.util.CollectionUtil.entryOf;
+import static com.alibaba.testable.core.util.CollectionUtil.mapOf;
 
 public class ConstructionUtil {
 
     private static final String TESTABLE_IMPL = "$TestableImpl";
 
-    public static <T> T generateSubClassOf(Class<T> clazz) throws InstantiationException {
+    private static final Map<String, String> RETURN_VALUES = mapOf(
+            entryOf("java.lang.String", "\"mock\""),
+            entryOf("byte", "'\0'"),
+            entryOf("java.lang.Byte", "'\0'"),
+            entryOf("char", "'\0'"),
+            entryOf("java.lang.Character", "'\0'"),
+            entryOf("double", "0.0D"),
+            entryOf("java.lang.Double", "0.0D"),
+            entryOf("float", "0.0"),
+            entryOf("java.lang.Float", "0.0"),
+            entryOf("int", "0"),
+            entryOf("java.lang.Integer", "0"),
+            entryOf("short", "0"),
+            entryOf("java.lang.Short", "0"),
+            entryOf("long", "0L"),
+            entryOf("java.lang.Long", "0L"),
+            entryOf("boolean", "true"),
+            entryOf("java.lang.Boolean", "true")
+    );
+
+    public static <T> T generateSubClassOf(Class<T> clazz, ConstructionOption[] options) throws InstantiationException {
         StringBuilder sourceCode = new StringBuilder();
         String packageName = adaptName(clazz.getPackage().getName());
         Map<String, String> noMapping = new HashMap<String, String>();
@@ -25,7 +49,7 @@ public class ConstructionUtil {
                 .append(getClassName(clazz, noMapping))
                 .append(getTypeParameters(clazz.getTypeParameters(), false, noMapping))
                 .append(" {\n");
-        for (String method : generateMethodsOf(clazz, new HashSet<String>(), noMapping)) {
+        for (String method : generateMethodsOf(clazz, new HashSet<String>(), noMapping, options)) {
             sourceCode.append(method);
         }
         sourceCode.append("}");
@@ -42,7 +66,8 @@ public class ConstructionUtil {
         }
     }
 
-    private static Set<String> generateMethodsOf(Class<?> clazz, Set<String> methodPool, Map<String, String> genericTypes) {
+    private static Set<String> generateMethodsOf(Class<?> clazz, Set<String> methodPool,
+                                                 Map<String, String> genericTypes, ConstructionOption[] options) {
         Set<String> methods = new HashSet<String>();
         // in a very special situation, getDeclaredMethods() could fetch method declaration in the parent interface
         // as none-abstract, that will cause the corresponding abstract method in current class be skipped.
@@ -73,13 +98,22 @@ public class ConstructionUtil {
                     }
                 }
                 sourceCode.append(") {\n");
-                if (!m.getReturnType().equals(void.class)) {
-                    sourceCode.append("\t\treturn (").append(getClassName(m.getGenericReturnType(), genericTypes))
-                            .append(") ")
-                            .append(getClassName(OmniConstructor.class, genericTypes))
-                            .append(".")
-                            .append("newInstance(").append(getClassName(m.getReturnType(), genericTypes))
-                            .append(".class);\n");
+                String returnType = getClassName(m.getGenericReturnType(), genericTypes);
+                if (!"void".equals(returnType)) {
+                    if (RETURN_VALUES.containsKey(returnType)) {
+                        sourceCode.append("\t\treturn ").append(RETURN_VALUES.get(returnType)).append(";\n");
+                    } else if (CollectionUtil.contains(options, RICH_INTERFACE)) {
+                        sourceCode.append("\t\treturn (")
+                                .append(returnType)
+                                .append(") ")
+                                .append(getClassName(OmniConstructor.class, genericTypes))
+                                .append(".")
+                                .append("newInstance(")
+                                .append(getClassName(m.getReturnType(), genericTypes))
+                                .append(".class);\n");
+                    } else {
+                        sourceCode.append("\t\treturn null;\n");
+                    }
                 }
                 sourceCode.append("\t}\n");
                 methods.add(sourceCode.toString());
@@ -93,9 +127,9 @@ public class ConstructionUtil {
         for (Type t : superTypes) {
             if (t instanceof ParameterizedType) {
                 ParameterizedType pt = (ParameterizedType) t;
-                methods.addAll(generateMethodsOf((Class<?>) pt.getRawType(), methodPool, parseGenericTypes(pt)));
+                methods.addAll(generateMethodsOf((Class<?>) pt.getRawType(), methodPool, parseGenericTypes(pt), options));
             } else if (t instanceof Class) {
-                methods.addAll(generateMethodsOf((Class<?>) t, methodPool, Collections.<String, String>emptyMap()));
+                methods.addAll(generateMethodsOf((Class<?>) t, methodPool, Collections.<String, String>emptyMap(), options));
             }
         }
         return methods;
