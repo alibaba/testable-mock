@@ -159,7 +159,7 @@ private Data mockDemo() {
 }
 ```
 
-For complete code examples, see the `should_get_source_method_name()` and `should_get_test_case_name()` test cases in the `java-demo` and `kotlin-demo` sample projects.
+For complete code examples, see the `should_get_source_method_name()` and `should_set_mock_context()` test cases in the `java-demo` and `kotlin-demo` sample projects.
 
 ### 3. Verify the sequence and parameters of the mock method being invoked
 

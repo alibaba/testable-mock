@@ -109,7 +109,7 @@ internal class DemoMockTest {
     }
 
     @Test
-    fun should_get_test_case_name() {
+    fun should_set_mock_context() {
         MOCK_CONTEXT["case"] = "special_case"
         // synchronous
         assertEquals("mock_special", demoMock.callerOne())

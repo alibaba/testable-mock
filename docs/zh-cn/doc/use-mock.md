@@ -159,7 +159,7 @@ private Data mockDemo() {
 }
 ```
 
-完整代码示例见`java-demo`和`kotlin-demo`示例项目中的`should_get_source_method_name()`和`should_get_test_case_name()`测试用例。
+完整代码示例见`java-demo`和`kotlin-demo`示例项目中的`should_get_source_method_name()`和`should_set_mock_context()`测试用例。
 
 ### 3. 验证Mock方法被调用的顺序和参数
 
