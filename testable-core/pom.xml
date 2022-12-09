@@ -14,7 +14,7 @@
     <name>testable-core</name>
 
     <properties>
-        <junit.version>5.6.2</junit.version>
+        <junit.version>5.9.1</junit.version>
         <transmittable.thread.local.version>2.14.2</transmittable.thread.local.version>
     </properties>
 
