@@ -27,16 +27,11 @@ public class OmniClassHandler extends BaseClassHandler {
     private static final String IGNORE = "ignore";
     private static final String METHOD_START = "(";
     private static final String VOID_METHOD_END = ")V";
-    private static final String VOID_METHOD = "()V";
     private static final String ENABLE_CONFIGURATION = "org.springframework.context.annotation.Configuration";
     private static final String CLASS_OMNI_CONSTRUCTOR = "com/alibaba/testable/core/tool/OmniConstructor";
     public static final String CLASS_CONSTRUCTION_OPTION = "com/alibaba/testable/core/model/ConstructionOption";
     public static final String METHOD_NEW_INSTANCE = "newInstance";
     public static final String METHOD_DESC_NEW_INSTANCE = "(Ljava/lang/Class;[Lcom/alibaba/testable/core/model/ConstructionOption;)Ljava/lang/Object;";
-
-    private static final String CLASS_ABSTRACT_COLLECTION = "java/util/AbstractCollection";
-    private static final String CLASS_NUMBER = "java/lang/Number";
-    private static final String CLASS_HASH_SET = "java/util/HashSet";
 
     // below classes are loaded before OmniClassHandler, cannot be instrumented
     // map of class name to constructor parameters
@@ -46,20 +41,20 @@ public class OmniClassHandler extends BaseClassHandler {
             entryOf("java/io/Writer", CollectionUtil.<String>arrayOf()),
             entryOf("java/io/InputStream", CollectionUtil.<String>arrayOf()),
             entryOf("java/io/OutputStream", CollectionUtil.<String>arrayOf()),
-            entryOf("java/lang/Thread", CollectionUtil.<String>arrayOf()),
-            entryOf("java/io/File", arrayOf("Ljava/lang/String;")),
             entryOf("java/io/BufferedReader", arrayOf("Ljava/io/Reader;")),
             entryOf("java/io/BufferedWriter", arrayOf("Ljava/io/Reader;")),
             entryOf("java/io/BufferedInputStream", arrayOf("Ljava/io/Reader;")),
             entryOf("java/io/BufferedOutputStream", arrayOf("Ljava/io/Reader;")),
-            entryOf("java/nio/CharBuffer", arrayOf("I", "I", "I", "I"))
+            entryOf("java/io/File", arrayOf("Ljava/lang/String;")),
+            entryOf("java/lang/Thread", CollectionUtil.<String>arrayOf()),
+            entryOf("java/lang/Number", CollectionUtil.<String>arrayOf()),
+            entryOf("java/nio/CharBuffer", arrayOf("I", "I", "I", "I")),
+            entryOf("java/util/AbstractCollection", CollectionUtil.<String>arrayOf()),
+            entryOf("java/util/HashSet", CollectionUtil.<String>arrayOf())
     );
 
     private static final String[] JUNIT_TEST_ANNOTATIONS = new String[] {
         JUnit4Framework.ANNOTATION_TEST, JUnit5Framework.ANNOTATION_TEST, JUnit5Framework.ANNOTATION_PARAMETERIZED_TEST
-    };
-    private static final String[] UNREACHABLE_CLASSES = new String[] {
-        CLASS_ABSTRACT_COLLECTION, CLASS_NUMBER, CLASS_HASH_SET
     };
 
     @Override
@@ -150,13 +145,9 @@ public class OmniClassHandler extends BaseClassHandler {
         InsnList il = new InsnList();
         il.add(start);
         il.add(new VarInsnNode(ALOAD, 0));
-        if (contains(UNREACHABLE_CLASSES, superName)) {
-            il.add(new MethodInsnNode(INVOKESPECIAL, superName, CONSTRUCTOR, VOID_METHOD, false));
-        } else {
-            il.add(new VarInsnNode(ALOAD, 1));
-            il.add(new MethodInsnNode(INVOKESPECIAL, superName, CONSTRUCTOR,
-                METHOD_START + ClassUtil.toByteCodeClassName(VOID_TYPE) + VOID_METHOD_END, false));
-        }
+        il.add(new VarInsnNode(ALOAD, 1));
+        il.add(new MethodInsnNode(INVOKESPECIAL, superName, CONSTRUCTOR,
+            METHOD_START + ClassUtil.toByteCodeClassName(VOID_TYPE) + VOID_METHOD_END, false));
         il.add(new InsnNode(RETURN));
         il.add(end);
         return il;
