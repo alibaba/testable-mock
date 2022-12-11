@@ -8,7 +8,8 @@ import java.lang.reflect.*;
 import java.util.*;
 
 import static com.alibaba.testable.core.constant.ConstPool.DOT;
-import static com.alibaba.testable.core.model.ConstructionOption.RICH_INTERFACE;
+import static com.alibaba.testable.core.model.ConstructionOption.RICH_INTERFACE_CONSTRUCTOR;
+import static com.alibaba.testable.core.model.ConstructionOption.RICH_INTERFACE_METHOD;
 import static com.alibaba.testable.core.util.CollectionUtil.entryOf;
 import static com.alibaba.testable.core.util.CollectionUtil.mapOf;
 
@@ -16,22 +17,25 @@ public class ConstructionUtil {
 
     private static final String TESTABLE_IMPL = "$TestableImpl";
 
-    private static final Map<String, String> RETURN_VALUES = mapOf(
+    /**
+     * Default value of basic types
+     */
+    private static final Map<String, String> DEFAULT_VALUES = mapOf(
             entryOf("java.lang.String", "\"mock\""),
             entryOf("byte", "'\0'"),
             entryOf("java.lang.Byte", "'\0'"),
             entryOf("char", "'\0'"),
             entryOf("java.lang.Character", "'\0'"),
-            entryOf("double", "0.0D"),
-            entryOf("java.lang.Double", "0.0D"),
-            entryOf("float", "0.0"),
-            entryOf("java.lang.Float", "0.0"),
-            entryOf("int", "0"),
-            entryOf("java.lang.Integer", "0"),
-            entryOf("short", "0"),
-            entryOf("java.lang.Short", "0"),
-            entryOf("long", "0L"),
-            entryOf("java.lang.Long", "0L"),
+            entryOf("double", "1.0D"),
+            entryOf("java.lang.Double", "1.0D"),
+            entryOf("float", "1.0F"),
+            entryOf("java.lang.Float", "1.0F"),
+            entryOf("int", "1"),
+            entryOf("java.lang.Integer", "1"),
+            entryOf("short", "1"),
+            entryOf("java.lang.Short", "1"),
+            entryOf("long", "1L"),
+            entryOf("java.lang.Long", "1L"),
             entryOf("boolean", "true"),
             entryOf("java.lang.Boolean", "true")
     );
@@ -39,16 +43,19 @@ public class ConstructionUtil {
     public static <T> T generateSubClassOf(Class<T> clazz, ConstructionOption[] options) throws InstantiationException {
         StringBuilder sourceCode = new StringBuilder();
         String packageName = adaptName(clazz.getPackage().getName());
+        String subclassName = getSubclassName(clazz);
         Map<String, String> noMapping = new HashMap<String, String>();
         sourceCode.append("package ")
                 .append(packageName)
                 .append(";\npublic class ")
-                .append(getSubclassName(clazz))
+                .append(subclassName)
                 .append(getTypeParameters(clazz.getTypeParameters(), true, noMapping))
                 .append(clazz.isInterface() ? " implements " : " extends ")
                 .append(getClassName(clazz, noMapping))
                 .append(getTypeParameters(clazz.getTypeParameters(), false, noMapping))
                 .append(" {\n");
+        sourceCode.append("\tpublic ").append(subclassName).append("() { ")
+                .append(invokeConstructorOf(clazz, noMapping, options)).append(" }\n");
         for (String method : generateMethodsOf(clazz, new HashSet<String>(), noMapping, options)) {
             sourceCode.append(method);
         }
@@ -59,11 +66,32 @@ public class ConstructionUtil {
                     .useParentClassLoader(clazz.getClassLoader())
                     .useOptions("-Xlint:unchecked")
                     .ignoreWarnings()
-                    .compile(packageName + DOT + getSubclassName(clazz), sourceCode.toString())
+                    .compile(packageName + DOT + subclassName, sourceCode.toString())
                     .newInstance();
-        } catch (Exception e) {
+        } catch (Throwable e) {
             throw new InstantiationException(e.toString());
         }
+    }
+
+    private static String invokeConstructorOf(Class<?> clazz, Map<String, String> genericTypes,
+                                              ConstructionOption[] options) {
+        if (clazz.isInterface()) {
+            return "";
+        }
+        Constructor<?> constructor = TypeUtil.getBestConstructor(clazz, false);
+        StringBuilder invocation = new StringBuilder("super(");
+        Type[] genericParameterTypes = constructor.getGenericParameterTypes();
+        Class<?>[] parameterTypes = constructor.getParameterTypes();
+        for (int i = 0; i < parameterTypes.length; i++) {
+            if (i > 0) {
+                invocation.append(", ");
+            }
+            invocation.append(getDefaultValue(getClassName(genericParameterTypes[i], genericTypes),
+                    getClassName(parameterTypes[i]),
+                    CollectionUtil.contains(options, RICH_INTERFACE_CONSTRUCTOR), genericTypes));
+        }
+        invocation.append(");");
+        return invocation.toString();
     }
 
     private static Set<String> generateMethodsOf(Class<?> clazz, Set<String> methodPool,
@@ -100,20 +128,10 @@ public class ConstructionUtil {
                 sourceCode.append(") {\n");
                 String returnType = getClassName(m.getGenericReturnType(), genericTypes);
                 if (!"void".equals(returnType)) {
-                    if (RETURN_VALUES.containsKey(returnType)) {
-                        sourceCode.append("\t\treturn ").append(RETURN_VALUES.get(returnType)).append(";\n");
-                    } else if (CollectionUtil.contains(options, RICH_INTERFACE)) {
-                        sourceCode.append("\t\treturn (")
-                                .append(returnType)
-                                .append(") ")
-                                .append(getClassName(OmniConstructor.class, genericTypes))
-                                .append(".")
-                                .append("newInstance(")
-                                .append(getClassName(m.getReturnType(), genericTypes))
-                                .append(".class);\n");
-                    } else {
-                        sourceCode.append("\t\treturn null;\n");
-                    }
+                    sourceCode.append("\t\treturn ")
+                            .append(getDefaultValue(returnType, getClassName(m.getReturnType()),
+                                    CollectionUtil.contains(options, RICH_INTERFACE_METHOD), genericTypes))
+                            .append(";\n");
                 }
                 sourceCode.append("\t}\n");
                 methods.add(sourceCode.toString());
@@ -133,6 +151,18 @@ public class ConstructionUtil {
             }
         }
         return methods;
+    }
+
+    private static String getDefaultValue(String genericTypeName, String simpleTypeName, boolean richValue,
+                                          Map<String, String> genericTypes) {
+        if (DEFAULT_VALUES.containsKey(genericTypeName)) {
+            return DEFAULT_VALUES.get(genericTypeName);
+        } else if (richValue) {
+            return "(" + genericTypeName + ") " + getClassName(OmniConstructor.class, genericTypes) +
+                    ".newInstance(" + simpleTypeName + ".class)";
+        } else {
+            return "null";
+        }
     }
 
     private static Map<String, String> parseGenericTypes(ParameterizedType type) {
@@ -227,7 +257,7 @@ public class ConstructionUtil {
         if (clazz instanceof Class) {
             return ((Class<?>)clazz).getCanonicalName();
         } else if (clazz instanceof GenericArrayType) {
-            return getClassName(((GenericArrayType) clazz).getGenericComponentType()) + "[]";
+            return getClassName(((GenericArrayType) clazz).getGenericComponentType(), genericTypes) + "[]";
         } else if (clazz instanceof TypeVariable) {
             String name = ((TypeVariable<?>)clazz).getName();
             return genericTypes.containsKey(name) ? genericTypes.get(name) : name;

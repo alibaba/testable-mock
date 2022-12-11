@@ -15,9 +15,15 @@ public enum ConstructionOption {
     EXCEPT_INTERFACE,
 
     /**
-     * 构造的接口成员方法返回非空对象（某些JDK内置接口不兼容此选项）
+     * 生成的接口成员方法返回非空对象（某些JDK内置接口不兼容此选项）
      * methods in constructed interface return real object instead of null
      */
-    RICH_INTERFACE
+    RICH_INTERFACE_METHOD,
+
+    /**
+     * 生成的虚拟抽象类调用父构造方法时，使用非空对象作为参数
+     * methods in constructed interface return real object instead of null
+     */
+    RICH_INTERFACE_CONSTRUCTOR
 
 }

@@ -116,7 +116,7 @@ public class TypeUtil {
      * @param clazz any class
      * @return best constructor
      */
-    public static Constructor<?> getBestConstructor(Class<?> clazz) {
+    public static Constructor<?> getBestConstructor(Class<?> clazz, boolean useGeneratedConstructor) {
         Constructor<?> bestConstructor = null;
         int minimalExceptionCount = 999;
         int minimalParameterCount = 999;
@@ -124,7 +124,10 @@ public class TypeUtil {
             Class<?>[] parameterTypes = constructor.getParameterTypes();
             Class<?>[] exceptionTypes = constructor.getExceptionTypes();
             if (parameterTypes.length == 1 && parameterTypes[0].equals(Void.class)) {
-                return constructor;
+                // if generated constructor allowed then use it, otherwise skip and continue
+                if (useGeneratedConstructor) {
+                    return constructor;
+                }
             } else if (exceptionTypes.length < minimalExceptionCount
                     || (exceptionTypes.length == minimalExceptionCount && parameterTypes.length < minimalParameterCount)) {
                 minimalExceptionCount = exceptionTypes.length;
@@ -133,6 +136,15 @@ public class TypeUtil {
             }
         }
         return bestConstructor;
+    }
+
+    /**
+     * find the simplest constructor including the testable generated one
+     * @param clazz any class
+     * @return best constructor
+     */
+    public static Constructor<?> getBestConstructor(Class<?> clazz) {
+        return getBestConstructor(clazz, true);
     }
 
     /**
