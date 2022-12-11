@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.alibaba.testable.agent.constant.ByteCodeConst.*;
 import static com.alibaba.testable.agent.constant.ConstPool.*;
 import static com.alibaba.testable.core.constant.ConstPool.*;
 import static com.alibaba.testable.core.util.PathUtil.createFolder;
@@ -184,6 +185,17 @@ public class BytecodeUtil {
         put(MULTIANEWARRAY, 0); // variable
         put(IFNULL, -1);
         put(IFNONNULL, -1);
+    }};
+
+    public static Map<String, String> PRIMITIVE_TYPE_NAME_MAP = new HashMap<String, String>() {{
+        put("byte", String.valueOf((char)TYPE_BYTE));
+        put("char", String.valueOf((char)TYPE_CHAR));
+        put("double", String.valueOf((char)TYPE_DOUBLE));
+        put("float", String.valueOf((char)TYPE_FLOAT));
+        put("int", String.valueOf((char)TYPE_INT));
+        put("long", String.valueOf((char)TYPE_LONG));
+        put("short", String.valueOf((char)TYPE_SHORT));
+        put("boolean", String.valueOf((char)TYPE_BOOL));
     }};
 
     /**

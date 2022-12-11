@@ -112,6 +112,30 @@ public class TypeUtil {
     }
 
     /**
+     * find the simplest constructor for specified class
+     * @param clazz any class
+     * @return best constructor
+     */
+    public static Constructor<?> getBestConstructor(Class<?> clazz) {
+        Constructor<?> bestConstructor = null;
+        int minimalExceptionCount = 999;
+        int minimalParameterCount = 999;
+        for (Constructor<?> constructor : clazz.getDeclaredConstructors()) {
+            Class<?>[] parameterTypes = constructor.getParameterTypes();
+            Class<?>[] exceptionTypes = constructor.getExceptionTypes();
+            if (parameterTypes.length == 1 && parameterTypes[0].equals(Void.class)) {
+                return constructor;
+            } else if (exceptionTypes.length < minimalExceptionCount
+                    || (exceptionTypes.length == minimalExceptionCount && parameterTypes.length < minimalParameterCount)) {
+                minimalExceptionCount = exceptionTypes.length;
+                minimalParameterCount = parameterTypes.length;
+                bestConstructor = constructor;
+            }
+        }
+        return bestConstructor;
+    }
+
+    /**
      * type equals
      * @param classesLeft class to be compared
      * @param classesRight class to compare (item can be null)

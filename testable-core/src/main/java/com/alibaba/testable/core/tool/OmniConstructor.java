@@ -235,7 +235,7 @@ public class OmniConstructor {
 
     private static Object createInstance(Class<?> clazz, Set<Class<?>> classPool, ConstructionOption[] options)
         throws InstantiationException, IllegalAccessException, InvocationTargetException {
-        Constructor<?> constructor = getBestConstructor(clazz);
+        Constructor<?> constructor = TypeUtil.getBestConstructor(clazz);
         if (constructor == null) {
             throw new ClassConstructionException("Fail to invoke constructor of " + clazz.getName());
         }
@@ -282,25 +282,6 @@ public class OmniConstructor {
             }
         }
         return null;
-    }
-
-    private static Constructor<?> getBestConstructor(Class<?> clazz) {
-        Constructor<?> bestConstructor = null;
-        int minimalExceptionCount = 999;
-        int minimalParameterCount = 999;
-        for (Constructor<?> constructor : clazz.getDeclaredConstructors()) {
-            Class<?>[] parameterTypes = constructor.getParameterTypes();
-            Class<?>[] exceptionTypes = constructor.getExceptionTypes();
-            if (parameterTypes.length == 1 && parameterTypes[0].equals(Void.class)) {
-                return constructor;
-            } else if (exceptionTypes.length < minimalExceptionCount
-                || (exceptionTypes.length == minimalExceptionCount && parameterTypes.length < minimalParameterCount)) {
-                minimalExceptionCount = exceptionTypes.length;
-                minimalParameterCount = parameterTypes.length;
-                bestConstructor = constructor;
-            }
-        }
-        return bestConstructor;
     }
 
 }

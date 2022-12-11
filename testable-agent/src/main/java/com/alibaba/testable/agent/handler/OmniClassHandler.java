@@ -3,9 +3,11 @@ package com.alibaba.testable.agent.handler;
 import com.alibaba.testable.agent.handler.test.JUnit4Framework;
 import com.alibaba.testable.agent.handler.test.JUnit5Framework;
 import com.alibaba.testable.agent.util.AnnotationUtil;
+import com.alibaba.testable.agent.util.BytecodeUtil;
 import com.alibaba.testable.agent.util.ClassUtil;
 import com.alibaba.testable.core.util.CollectionUtil;
 import com.alibaba.testable.core.util.StringUtil;
+import com.alibaba.testable.core.util.TypeUtil;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.*;
@@ -36,21 +38,7 @@ public class OmniClassHandler extends BaseClassHandler {
     // below classes are loaded before OmniClassHandler, cannot be instrumented
     // map of class name to constructor parameters
     private static final Map<String, String[]> PRELOADED_CLASSES = mapOf(
-            entryOf(CLASS_OBJECT, CollectionUtil.<String>arrayOf()),
-            entryOf("java/io/Reader", CollectionUtil.<String>arrayOf()),
-            entryOf("java/io/Writer", CollectionUtil.<String>arrayOf()),
-            entryOf("java/io/InputStream", CollectionUtil.<String>arrayOf()),
-            entryOf("java/io/OutputStream", CollectionUtil.<String>arrayOf()),
-            entryOf("java/io/BufferedReader", arrayOf("Ljava/io/Reader;")),
-            entryOf("java/io/BufferedWriter", arrayOf("Ljava/io/Reader;")),
-            entryOf("java/io/BufferedInputStream", arrayOf("Ljava/io/Reader;")),
-            entryOf("java/io/BufferedOutputStream", arrayOf("Ljava/io/Reader;")),
-            entryOf("java/io/File", arrayOf("Ljava/lang/String;")),
-            entryOf("java/lang/Thread", CollectionUtil.<String>arrayOf()),
-            entryOf("java/lang/Number", CollectionUtil.<String>arrayOf()),
-            entryOf("java/nio/CharBuffer", arrayOf("I", "I", "I", "I")),
-            entryOf("java/util/AbstractCollection", CollectionUtil.<String>arrayOf()),
-            entryOf("java/util/HashSet", CollectionUtil.<String>arrayOf())
+            entryOf(CLASS_OBJECT, CollectionUtil.<String>arrayOf())
     );
 
     private static final String[] JUNIT_TEST_ANNOTATIONS = new String[] {
@@ -71,17 +59,51 @@ public class OmniClassHandler extends BaseClassHandler {
             METHOD_START + ClassUtil.toByteCodeClassName(VOID_TYPE) + VOID_METHOD_END, null, null);
         LabelNode start = new LabelNode(new Label());
         LabelNode end = new LabelNode(new Label());
+        int extraParameterCount = 2;
+
         if (PRELOADED_CLASSES.containsKey(cn.superName)) {
-            constructor.instructions = invokeSuperWithoutTestableParameter(cn.superName, start, end);
-            constructor.localVariables = createLocalVariables(cn, start, end);
-            constructor.maxStack = 1 + PRELOADED_CLASSES.get(cn.superName).length;
+            constructor.instructions = invokeSuperWithoutTestableParameter(cn.superName, PRELOADED_CLASSES.get(cn.superName), start, end);
+            extraParameterCount = PRELOADED_CLASSES.get(cn.superName).length;
+        } else if (cn.superName.startsWith("java/")) {
+            try {
+                Class<?> superClazz = Class.forName(ClassUtil.toDotSeparatedName(cn.superName));
+                Class<?>[] constructorParameterTypes = TypeUtil.getBestConstructor(superClazz).getParameterTypes();
+                if (constructorParameterTypes.length == 0) {
+                    constructor.instructions = invokeSuperWithoutTestableParameter(cn.superName, new String[0], start, end);
+                    extraParameterCount = 0;
+                } else if (constructorParameterTypes.length == 1 &&
+                        constructorParameterTypes[0].equals(Void.class)) {
+                    constructor.instructions = invokeSuperWithTestableVoidParameter(cn.superName, start, end);
+                } else {
+                    constructor.instructions = invokeSuperWithoutTestableParameter(cn.superName,
+                            toByteCodeClassNames(constructorParameterTypes), start, end);
+                    extraParameterCount = constructorParameterTypes.length;
+                }
+            } catch (ClassNotFoundException e) {
+                constructor.instructions = invokeSuperWithTestableVoidParameter(cn.superName, start, end);
+            }
         } else {
             constructor.instructions = invokeSuperWithTestableVoidParameter(cn.superName, start, end);
-            constructor.localVariables = createLocalVariables(cn, start, end);
-            constructor.maxStack = 3;
         }
+
+        constructor.localVariables = createLocalVariables(cn, start, end);
+        constructor.maxStack = 1 + extraParameterCount;
         constructor.maxLocals = 2;
         cn.methods.add(constructor);
+    }
+
+    private String[] toByteCodeClassNames(Class<?>[] classes) {
+        String[] names = new String[classes.length];
+        for (int i = 0; i < names.length; i++) {
+            if (classes[i].isPrimitive()) {
+                names[i] = BytecodeUtil.PRIMITIVE_TYPE_NAME_MAP.get(classes[i].getName());
+            } else if (classes[i].isArray()) {
+                names[i] = ClassUtil.toSlashSeparatedName(classes[i].getName());
+            } else {
+                names[i] = ClassUtil.toByteCodeClassName(classes[i].getName());
+            }
+        }
+        return names;
     }
 
     private boolean isUninstantiableClass(ClassNode cn) {
@@ -122,8 +144,7 @@ public class OmniClassHandler extends BaseClassHandler {
         return false;
     }
 
-    private InsnList invokeSuperWithoutTestableParameter(String superName, LabelNode start, LabelNode end) {
-        String[] parameters = PRELOADED_CLASSES.get(superName);
+    private InsnList invokeSuperWithoutTestableParameter(String superName, String[] parameters, LabelNode start, LabelNode end) {
         InsnList il = new InsnList();
         il.add(start);
         il.add(new VarInsnNode(ALOAD, 0));
