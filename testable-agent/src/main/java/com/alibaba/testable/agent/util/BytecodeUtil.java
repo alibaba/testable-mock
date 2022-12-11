@@ -187,6 +187,9 @@ public class BytecodeUtil {
         put(IFNONNULL, -1);
     }};
 
+    /**
+     * Java primitive type name to bytecode mapping
+     */
     public static Map<String, String> PRIMITIVE_TYPE_NAME_MAP = new HashMap<String, String>() {{
         put("byte", String.valueOf((char)TYPE_BYTE));
         put("char", String.valueOf((char)TYPE_CHAR));

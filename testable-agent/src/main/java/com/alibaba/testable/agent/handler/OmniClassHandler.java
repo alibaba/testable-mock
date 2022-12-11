@@ -153,7 +153,7 @@ public class OmniClassHandler extends BaseClassHandler {
             il.add(new InsnNode(ICONST_0));
             il.add(new TypeInsnNode(ANEWARRAY, CLASS_CONSTRUCTION_OPTION));
             il.add(new MethodInsnNode(INVOKESTATIC, CLASS_OMNI_CONSTRUCTOR, METHOD_NEW_INSTANCE, METHOD_DESC_NEW_INSTANCE, false));
-            il.add(new TypeInsnNode(CHECKCAST, ClassUtil.toSlashSeparateJavaStyleName(p)));
+            il.add(new TypeInsnNode(CHECKCAST, (p.startsWith("[")) ? p : ClassUtil.toSlashSeparateJavaStyleName(p)));
         }
         il.add(new MethodInsnNode(INVOKESPECIAL, superName, CONSTRUCTOR,
                 METHOD_START + StringUtil.join("", parameters) + VOID_METHOD_END, false));
