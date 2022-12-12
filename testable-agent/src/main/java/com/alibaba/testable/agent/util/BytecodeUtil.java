@@ -188,7 +188,7 @@ public class BytecodeUtil {
     }};
 
     /**
-     * Java primitive type name to bytecode mapping
+     * java primitive type name to bytecode mapping
      */
     public static Map<String, String> PRIMITIVE_TYPE_NAME_MAP = new HashMap<String, String>() {{
         put("byte", String.valueOf((char)TYPE_BYTE));
@@ -202,7 +202,7 @@ public class BytecodeUtil {
     }};
 
     /**
-     * Get stack impact of a specified ops code
+     * get stack impact of a specified ops code
      * @param bytecode ops code to check
      * @return stack change
      */
@@ -211,7 +211,7 @@ public class BytecodeUtil {
     }
 
     /**
-     * Make sure method has public access
+     * make sure method has public access
      * @param access original access mark
      * @return access mark with public flag
      */
@@ -223,7 +223,7 @@ public class BytecodeUtil {
     }
 
     /**
-     * Dump byte code to specified class file
+     * dump byte code to specified class file
      * @param cn original class node
      * @param dumpPath folder to store class file
      * @param bytes original class bytes

@@ -5,13 +5,16 @@ import com.alibaba.testable.agent.handler.test.JUnit5Framework;
 import com.alibaba.testable.agent.util.AnnotationUtil;
 import com.alibaba.testable.agent.util.BytecodeUtil;
 import com.alibaba.testable.agent.util.ClassUtil;
+import com.alibaba.testable.core.exception.ClassConstructionException;
 import com.alibaba.testable.core.util.CollectionUtil;
+import com.alibaba.testable.core.util.LogUtil;
 import com.alibaba.testable.core.util.StringUtil;
 import com.alibaba.testable.core.util.TypeUtil;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.*;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -45,6 +48,8 @@ public class OmniClassHandler extends BaseClassHandler {
         JUnit4Framework.ANNOTATION_TEST, JUnit5Framework.ANNOTATION_TEST, JUnit5Framework.ANNOTATION_PARAMETERIZED_TEST
     };
 
+    private static final Map<String, Class<?>[]> constructorParameterCache = new HashMap<String, Class<?>[]>();
+
     @Override
     protected void transform(ClassNode cn) {
         if (isInterfaceOrAtom(cn) || isUniqueConstructorClass(cn) || isUninstantiableClass(cn) ||
@@ -66,8 +71,12 @@ public class OmniClassHandler extends BaseClassHandler {
             extraParameterCount = PRELOADED_CLASSES.get(cn.superName).length;
         } else if (cn.superName.startsWith("java/")) {
             try {
-                Class<?> superClazz = Class.forName(ClassUtil.toDotSeparatedName(cn.superName));
-                Class<?>[] constructorParameterTypes = TypeUtil.getBestConstructor(superClazz).getParameterTypes();
+                Class<?>[] constructorParameterTypes = constructorParameterCache.get(cn.superName);
+                if (constructorParameterTypes == null) {
+                    Class<?> superClazz = Class.forName(ClassUtil.toDotSeparatedName(cn.superName));
+                    constructorParameterTypes = TypeUtil.getBestConstructor(superClazz).getParameterTypes();
+                    constructorParameterCache.put(superClazz.getName(), constructorParameterTypes);
+                }
                 if (constructorParameterTypes.length == 0) {
                     constructor.instructions = invokeSuperWithoutTestableParameter(cn.superName, new String[0], start, end);
                     extraParameterCount = 0;
@@ -80,7 +89,8 @@ public class OmniClassHandler extends BaseClassHandler {
                     extraParameterCount = constructorParameterTypes.length;
                 }
             } catch (ClassNotFoundException e) {
-                constructor.instructions = invokeSuperWithTestableVoidParameter(cn.superName, start, end);
+                LogUtil.warn("[OmniConstructor] Failed to load class " + cn.superName);
+                constructor.instructions = invokeSuperWithoutTestableParameter(cn.superName, new String[0], start, end);
             }
         } else {
             constructor.instructions = invokeSuperWithTestableVoidParameter(cn.superName, start, end);
