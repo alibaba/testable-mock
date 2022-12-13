@@ -8,8 +8,8 @@ import java.lang.reflect.*;
 import java.util.*;
 
 import static com.alibaba.testable.core.constant.ConstPool.DOT;
-import static com.alibaba.testable.core.model.ConstructionOption.RICH_INTERFACE_CONSTRUCTOR;
-import static com.alibaba.testable.core.model.ConstructionOption.RICH_INTERFACE_METHOD;
+import static com.alibaba.testable.core.model.ConstructionOption.EXCEPT_CONSTRUCTOR_PARAMETER;
+import static com.alibaba.testable.core.model.ConstructionOption.EXCEPT_RETURN_VALUE;
 import static com.alibaba.testable.core.util.CollectionUtil.entryOf;
 import static com.alibaba.testable.core.util.CollectionUtil.mapOf;
 
@@ -18,7 +18,7 @@ public class ConstructionUtil {
     private static final String TESTABLE_IMPL = "$TestableImpl";
 
     /**
-     * Default value of basic types
+     * Default value of basic and special types
      */
     private static final Map<String, String> DEFAULT_VALUES = mapOf(
             entryOf("java.lang.String", "\"mock\""),
@@ -37,7 +37,8 @@ public class ConstructionUtil {
             entryOf("long", "1L"),
             entryOf("java.lang.Long", "1L"),
             entryOf("boolean", "true"),
-            entryOf("java.lang.Boolean", "true")
+            entryOf("java.lang.Boolean", "true"),
+            entryOf("java.nio.charset.Charset", "java.nio.charset.Charset.defaultCharset()")
     );
 
     public static <T> T generateSubClassOf(Class<T> clazz, ConstructionOption[] options) throws InstantiationException {
@@ -88,7 +89,7 @@ public class ConstructionUtil {
             }
             invocation.append(getDefaultValue(getClassName(genericParameterTypes[i], genericTypes),
                     getClassName(parameterTypes[i]),
-                    CollectionUtil.contains(options, RICH_INTERFACE_CONSTRUCTOR), genericTypes));
+                    CollectionUtil.contains(options, EXCEPT_CONSTRUCTOR_PARAMETER), genericTypes));
         }
         invocation.append(");");
         return invocation.toString();
@@ -130,7 +131,7 @@ public class ConstructionUtil {
                 if (!"void".equals(returnType)) {
                     sourceCode.append("\t\treturn ")
                             .append(getDefaultValue(returnType, getClassName(m.getReturnType()),
-                                    CollectionUtil.contains(options, RICH_INTERFACE_METHOD), genericTypes))
+                                    CollectionUtil.contains(options, EXCEPT_RETURN_VALUE), genericTypes))
                             .append(";\n");
                 }
                 sourceCode.append("\t}\n");
@@ -153,15 +154,15 @@ public class ConstructionUtil {
         return methods;
     }
 
-    private static String getDefaultValue(String genericTypeName, String simpleTypeName, boolean richValue,
+    private static String getDefaultValue(String genericTypeName, String simpleTypeName, boolean alwaysUseNullParameter,
                                           Map<String, String> genericTypes) {
         if (DEFAULT_VALUES.containsKey(genericTypeName)) {
             return DEFAULT_VALUES.get(genericTypeName);
-        } else if (richValue) {
+        } else if (genericTypeName.startsWith("java.") || alwaysUseNullParameter) {
+            return "null";
+        } else {
             return "(" + genericTypeName + ") " + getClassName(OmniConstructor.class, genericTypes) +
                     ".newInstance(" + simpleTypeName + ".class)";
-        } else {
-            return "null";
         }
     }
 
