@@ -5,7 +5,7 @@ import com.alibaba.testable.agent.handler.test.JUnit5Framework;
 import com.alibaba.testable.agent.util.AnnotationUtil;
 import com.alibaba.testable.agent.util.BytecodeUtil;
 import com.alibaba.testable.agent.util.ClassUtil;
-import com.alibaba.testable.core.exception.ClassConstructionException;
+import com.alibaba.testable.core.tool.CollectionTool;
 import com.alibaba.testable.core.util.CollectionUtil;
 import com.alibaba.testable.core.util.LogUtil;
 import com.alibaba.testable.core.util.StringUtil;
@@ -21,7 +21,7 @@ import java.util.Map;
 import static com.alibaba.testable.agent.constant.ConstPool.CLASS_OBJECT;
 import static com.alibaba.testable.core.constant.ConstPool.CONSTRUCTOR;
 import static com.alibaba.testable.core.constant.ConstPool.THIS_REF;
-import static com.alibaba.testable.core.util.CollectionUtil.*;
+import static com.alibaba.testable.core.tool.CollectionTool.*;
 
 /**
  * @author flin
@@ -41,7 +41,7 @@ public class OmniClassHandler extends BaseClassHandler {
     // below classes are loaded before OmniClassHandler, cannot be instrumented
     // map of class name to constructor parameters
     private static final Map<String, String[]> PRELOADED_CLASSES = mapOf(
-            entryOf(CLASS_OBJECT, CollectionUtil.<String>arrayOf())
+            entryOf(CLASS_OBJECT, CollectionTool.<String>arrayOf())
     );
 
     private static final String[] JUNIT_TEST_ANNOTATIONS = new String[] {
@@ -146,7 +146,7 @@ public class OmniClassHandler extends BaseClassHandler {
                 continue;
             }
             for (AnnotationNode an : mn.visibleAnnotations) {
-                if (contains(JUNIT_TEST_ANNOTATIONS, an.desc)) {
+                if (CollectionUtil.contains(JUNIT_TEST_ANNOTATIONS, an.desc)) {
                     return true;
                 }
             }
@@ -185,7 +185,7 @@ public class OmniClassHandler extends BaseClassHandler {
     }
 
     private List<LocalVariableNode> createLocalVariables(ClassNode cn, LabelNode start, LabelNode end) {
-        return CollectionUtil.mutableListOf(
+        return listOf(
             new LocalVariableNode(THIS_REF, ClassUtil.toByteCodeClassName(cn.name), null, start, end, 0),
             new LocalVariableNode(IGNORE, ClassUtil.toByteCodeClassName(VOID_TYPE), null, start, end, 1)
         );

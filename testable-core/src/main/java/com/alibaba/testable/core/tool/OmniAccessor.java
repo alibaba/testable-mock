@@ -139,7 +139,7 @@ public class OmniAccessor {
         for (int i = 0; i < querySegments.length; i++) {
             patternSegments[i] = toSinglePattern(querySegments[i]);
         }
-        return PATTERN_PREFIX + CollectionUtil.join(Arrays.asList(patternSegments), SLASH);
+        return PATTERN_PREFIX + CollectionUtil.joinToString(Arrays.asList(patternSegments), SLASH);
     }
 
     private static String toSinglePattern(String querySegment) {

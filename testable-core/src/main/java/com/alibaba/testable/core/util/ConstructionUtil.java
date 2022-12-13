@@ -10,8 +10,8 @@ import java.util.*;
 import static com.alibaba.testable.core.constant.ConstPool.DOT;
 import static com.alibaba.testable.core.model.ConstructionOption.EXCEPT_CONSTRUCTOR_PARAMETER;
 import static com.alibaba.testable.core.model.ConstructionOption.EXCEPT_RETURN_VALUE;
-import static com.alibaba.testable.core.util.CollectionUtil.entryOf;
-import static com.alibaba.testable.core.util.CollectionUtil.mapOf;
+import static com.alibaba.testable.core.tool.CollectionTool.entryOf;
+import static com.alibaba.testable.core.tool.CollectionTool.mapOf;
 
 public class ConstructionUtil {
 

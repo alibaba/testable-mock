@@ -18,7 +18,7 @@ import static com.alibaba.testable.agent.constant.ByteCodeConst.TYPE_CLASS;
 import static com.alibaba.testable.agent.constant.ConstPool.*;
 import static com.alibaba.testable.agent.util.MockInvokeUtil.*;
 import static com.alibaba.testable.core.constant.ConstPool.CONSTRUCTOR;
-import static com.alibaba.testable.core.util.CollectionUtil.listOf;
+import static com.alibaba.testable.core.tool.CollectionTool.fastListOf;
 
 /**
  * @author flin
@@ -119,7 +119,7 @@ public class MockClassHandler extends BaseClassWithContextHandler {
                         mockMethod.instructions = il;
                         mockMethod.maxStack = maxStack;
                         mockMethod.maxLocals = 2 + parameters.size();
-                        mockMethod.visibleAnnotations = listOf(new AnnotationNode(ClassUtil.toByteCodeClassName(MOCK_INVOKE)));
+                        mockMethod.visibleAnnotations = fastListOf(new AnnotationNode(ClassUtil.toByteCodeClassName(MOCK_INVOKE)));
                         cn.methods.add(mockMethod);
                     } else if ((ClassUtil.toByteCodeClassName(MOCK_NEW)).equals(an.desc)) {
                         // TODO: should also support MockNew annotation

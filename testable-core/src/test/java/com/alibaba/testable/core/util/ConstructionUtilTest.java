@@ -18,7 +18,7 @@ import java.util.Map;
 
 import static com.alibaba.testable.core.tool.PrivateAccessor.construct;
 import static com.alibaba.testable.core.tool.PrivateAccessor.invokeStatic;
-import static com.alibaba.testable.core.util.CollectionUtil.arrayOf;
+import static com.alibaba.testable.core.tool.CollectionTool.arrayOf;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 

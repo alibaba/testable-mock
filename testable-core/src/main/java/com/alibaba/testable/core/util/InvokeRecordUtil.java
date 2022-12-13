@@ -1,6 +1,7 @@
 package com.alibaba.testable.core.util;
 
 import com.alibaba.testable.core.model.MockContext;
+import com.alibaba.testable.core.tool.CollectionTool;
 
 /**
  * @author flin
@@ -31,7 +32,7 @@ public class InvokeRecordUtil {
             mockContext.invokeRecord.get(mockMethodName).add(args);
             LogUtil.verbose("   Mock constructor \"%s\" invoked in %s::%s", mockMethodName, testClass, testCaseName);
         } else {
-            mockContext.invokeRecord.get(mockMethodName).add(CollectionUtil.slice(args, 1));
+            mockContext.invokeRecord.get(mockMethodName).add(CollectionTool.slice(args, 1));
             LogUtil.verbose("   Mock method \"%s\" invoked in %s::%s\"", mockMethodName, testClass, testCaseName);
         }
     }
