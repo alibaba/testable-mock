@@ -13,8 +13,8 @@ repositories {
 
 dependencies {
     testImplementation('org.junit.jupiter:junit-jupiter:5.6.2')
-    testImplementation('com.alibaba.testable:testable-all:0.7.8')
-    testAnnotationProcessor('com.alibaba.testable:testable-processor:0.7.8')
+    testImplementation('com.alibaba.testable:testable-all:0.7.9')
+    testAnnotationProcessor('com.alibaba.testable:testable-processor:0.7.9')
 }
 
 tasks.withType(JavaCompile) {

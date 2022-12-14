@@ -35,6 +35,8 @@ Parent parent = OmniConstructor.newInstance(Parent.class);
 parent.getChild().getGrandChild().getContent();
 ```
 
+> 接口类型和抽象类型也可以直接通过`OmniConstructor`实例化哦，不信试试看`OmniConstructor.newInstance(CharSequence.class)` ^_^
+
 > **注意**：基于轻量优先原则，默认模式下，`OmniConstructor`仅利用类型原有的构造方法来创建对象，对于绝大多数POJO和`Model`层对象而言这种模式已经能够满足需要。
 > 但对于更复杂的情形，譬如遇到某些类型的构造方法会抛出异常或包含其他妨碍构造正常执行的语句时，对象构造可能会失败。
 > 此时可通过[Testable全局配置](zh-cn/doc/javaagent-args.md)`omni.constructor.enhance.enable = true`启用`OmniConstructor`的字节码增强模式，在该模式下，任何Java类型皆可构造。

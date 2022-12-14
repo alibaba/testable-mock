@@ -1,5 +1,11 @@
 # Release Note
 
+## 0.7.9
+- 修复多处`OmniConstructor`创建接口类型对象相关的问题
+- 新增`@MockContainer`注解，支持Mock容器类之间的多重继承
+- `@MockInvoke`注解新增`targetClassName`参数，支持Mock私有内部类的方法
+- 将`CollectionUtil`中的集合构造方法独立为`CollectionTool`工具类并发布
+
 ## 0.7.8
 - 支持使用`OmniConstructor`工具类自动创建接口和抽象类的实例
 - 提供`CollectionUtil`工具类，包含在测试中常用的集合创建方法

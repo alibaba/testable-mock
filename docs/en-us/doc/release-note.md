@@ -1,5 +1,11 @@
 # Release Note
 
+## 0.7.9
+- fix many issues relate to interface instance creation of `OmniConstructor`
+- add `@MockContainer` annotation to support multiply parents inheritance between mock classes
+- add `targetClassName` parameter to `@MockInvoke` annotation, support mock method of private internal class
+- move collection creation methods from `CollectionUtil` class to `CollectionTool` class
+
 ## 0.7.8
 - support use `OmniConstructor` class to create instance of interface type or abstract class
 - provide a `CollectionUtil` class which contains many utility collection creation methods
