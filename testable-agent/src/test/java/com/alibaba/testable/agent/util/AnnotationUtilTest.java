@@ -3,7 +3,7 @@ package com.alibaba.testable.agent.util;
 import org.junit.jupiter.api.Test;
 import org.objectweb.asm.tree.AnnotationNode;
 
-import static com.alibaba.testable.core.tool.CollectionTool.fastListOf;
+import static com.alibaba.testable.core.util.CollectionUtil.fastListOf;
 import static org.junit.jupiter.api.Assertions.*;
 
 class AnnotationUtilTest {

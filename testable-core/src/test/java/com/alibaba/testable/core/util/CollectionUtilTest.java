@@ -2,7 +2,7 @@ package com.alibaba.testable.core.util;
 
 import org.junit.jupiter.api.Test;
 
-import static com.alibaba.testable.core.tool.CollectionTool.fastListOf;
+import static com.alibaba.testable.core.util.CollectionUtil.fastListOf;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 

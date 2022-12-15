@@ -42,15 +42,6 @@ public class CollectionTool {
     }
 
     /**
-     * Create an immutable list
-     * @param items elements to add
-     * @return list of the provided items
-     */
-    public static <T> List<T> fastListOf(T... items) {
-        return Arrays.asList(items);
-    }
-
-    /**
      * Create a mutable list
      * @param items elements to add
      * @return list of the provided items

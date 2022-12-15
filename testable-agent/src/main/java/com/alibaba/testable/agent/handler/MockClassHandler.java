@@ -18,7 +18,7 @@ import static com.alibaba.testable.agent.constant.ByteCodeConst.TYPE_CLASS;
 import static com.alibaba.testable.agent.constant.ConstPool.*;
 import static com.alibaba.testable.agent.util.MockInvokeUtil.*;
 import static com.alibaba.testable.core.constant.ConstPool.CONSTRUCTOR;
-import static com.alibaba.testable.core.tool.CollectionTool.fastListOf;
+import static com.alibaba.testable.core.util.CollectionUtil.fastListOf;
 
 /**
  * @author flin
