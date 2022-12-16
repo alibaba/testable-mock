@@ -4,6 +4,7 @@
   - [直接访问私有成员](zh-cn/doc/private-accessor.md)
   - [快速构造复杂入参](zh-cn/doc/omni-constructor.md)
   - [测试无返回值的方法](zh-cn/doc/test-void-method.md)
+  - [常用集合构建工具](zh-cn/doc/collection-tools.md)
 
 - 使用指南
   - [校验Mock调用](zh-cn/doc/invoke-matcher.md)

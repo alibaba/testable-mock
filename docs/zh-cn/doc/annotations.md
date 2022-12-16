@@ -20,11 +20,14 @@
 
 - 作用于：Mock容器类中的方法
 
-| 参数          | 类型       | 是否必须 | 默认值           | 作用 |
-| ---          | ---       | ---     | ----             | ---  |
-| targetClass  | Class     | 否      | N/A              | 指定Mock目标的调用者类型 |
-| targetMethod | String    | 否      | N/A              | 指定Mock目标的方法名 |
-| scope        | MockScope | 否      | MockScope.GLOBAL | 指定Mock的生效范围 |
+| 参数            | 类型       | 是否必须 | 默认值           | 作用 |
+| ---             | ---       | ---     | ----             | ---  |
+| targetClass     | Class     | 否      | N/A              | 指定Mock目标的调用者类型 |
+| targetClassName | String    | 否      | N/A              | 与`targetClass`相同，主要用于无法直接引用的私有内部类 |
+| targetMethod    | String    | 否      | N/A              | 指定Mock目标的方法名 |
+| scope           | MockScope | 否      | MockScope.GLOBAL | 指定Mock的生效范围 |
+
+> 说明：`targetClass`和`targetClassName`参数不能同时使用
 
 #### @MockNew
 

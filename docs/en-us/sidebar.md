@@ -4,6 +4,7 @@
   - [Private Accessor](en-us/doc/private-accessor.md)
   - [Omni Constructor](en-us/doc/omni-constructor.md)
   - [Test Void Method](en-us/doc/test-void-method.md)
+  - [Collection Tools](en-us/doc/collection-tools.md)
 
 - Usage Guide
   - [Verify Mock Invocation](en-us/doc/invoke-matcher.md)
