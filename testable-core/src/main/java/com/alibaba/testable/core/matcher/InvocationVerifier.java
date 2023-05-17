@@ -6,6 +6,7 @@ import com.alibaba.testable.core.util.MockContextUtil;
 import com.alibaba.testable.core.util.TestableUtil;
 
 import java.security.InvalidParameterException;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -145,9 +146,13 @@ public class InvocationVerifier {
     }
 
     private boolean matches(Object expectValue, Object realValue) {
-        return expectValue instanceof InvocationMatcher ?
-                ((InvocationMatcher) expectValue).matchFunction.check(realValue) :
-                expectValue.equals(realValue);
+        if (expectValue instanceof InvocationMatcher) {
+            return ((InvocationMatcher) expectValue).matchFunction.check(realValue);
+        } else if (expectValue.getClass().isArray() && realValue.getClass().isArray()) {
+            return Arrays.deepEquals((Object[])expectValue, (Object[])realValue);
+        } else {
+            return expectValue.equals(realValue);
+        }
     }
 
     private String desc(Object[] args) {
